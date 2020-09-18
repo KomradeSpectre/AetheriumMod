@@ -23,6 +23,7 @@ The mod so far has the following items implemented:
 ------------
 
 ## Special Thanks
+**ThinkInvis** - I learned a whole lot of things from their Classic Items mod and utilize their TILER2 API in this project. 
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIDidIt** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
 **BordListian** - Basically co-dev support in creating this.  
