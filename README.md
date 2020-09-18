@@ -6,7 +6,7 @@ and as such the ones that were I will list the person that came up with the idea
 The mod so far has the following items implemented:
 -------------------
 - **Feathered Plume** (Original idea by Ajarl, altered a tiny bit)
-	- **White Rarity** - Gain a temporary 7% speed boostupon taking damage that stacks 3 times for 5 seconds. (+3 stacks and +0.5 second duration per additional Feathered Plume.)
+	- **White Rarity** - Gain a temporary 7% speed boost upon taking damage that stacks 3 times for 5 seconds. (+3 stacks and +0.5 second duration per additional Feathered Plume.)
 	 ----------
  - **Shielding Core** (Original idea by NepNep)
 	 - **Green Rarity** - You gain 10  (+5 per stack) armor while BLUE shields are active.
