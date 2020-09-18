@@ -1,0 +1,68 @@
+ManifestFileVersion: 0
+CRC: 1404051288
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 73f7603ec8e7e174f5fb7efc642b300b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 21747e4ee48f36c7a65f9afbfd77f392
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- Assets/Textures/Icons/ankletOfMomentumIcon.png
+- Assets/Textures/Materials/ShieldingCoreGem.mat
+- Assets/Models/Prefabs/FeatheredPlume.prefab
+- Assets/Textures/Materials/simple_blood.png
+- Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
+- Assets/Textures/Materials/SharkTeethBone.mat
+- Assets/Textures/Icons/BloodSoakedShieldIcon.png
+- Assets/Models/Raw Models/SharkTeeth.blend
+- Assets/Textures/Materials/ShieldingCoreRivets.mat
+- Assets/Textures/Icons/SharkTeethIcon.png
+- Assets/Textures/Materials/Powergem.mat
+- Assets/Textures/Materials/Gem Glass.mat
+- Assets/Models/Prefabs/BloodSoakedShield.prefab
+- Assets/Models/Raw Models/ShieldingCore.blend
+- Assets/Textures/Materials/FeatheredPlumeTestTexture.png
+- Assets/Models/Raw Models/FeatheredPlume.blend
+- Assets/Textures/Materials/BloodSoakedShieldOmega.mat
+- Assets/Models/Prefabs/AlienMagnet.prefab
+- Assets/Textures/Icons/AlienMagnetIcon.png
+- Assets/Textures/Materials/FeatheredPlumeFeather.mat
+- Assets/Models/Raw Models/AnkletOfMomentum.blend
+- Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
+- Assets/Textures/Materials/Powergem.png
+- Assets/Models/Raw Models/AlienMagnet.blend
+- Assets/Models/Prefabs/SharkTeeth.prefab
+- Assets/Textures/Icons/shieldingCoreIcon.png
+- Assets/Textures/Materials/ShieldingCoreFlap.mat
+- Assets/Models/Raw Models/BloodSoakedShield.blend
+- Assets/Textures/Materials/ShieldingMetal.mat
+- Assets/Models/Prefabs/ShieldingCore.prefab
+- Assets/Textures/Icons/FeatheredPlumeIcon.png
+- Assets/Models/Prefabs/AnkletOfMomentum.prefab
+- Assets/Textures/Materials/Ring Main.mat
+- Assets/Textures/Materials/FeatheredPlumeQuill.mat
+- Assets/Textures/Materials/ShieldCoreMaterial.mat
+- Assets/Textures/Materials/BloodSoakedShieldHandle.mat
+- Assets/Textures/Materials/BloodSoakedShieldMain.mat
+Dependencies: []
