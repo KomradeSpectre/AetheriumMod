@@ -18,7 +18,7 @@ namespace Aetherium.Items
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
-        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
+        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
         protected override string NewLangName(string langID = null) => displayName;
 
         protected override string NewLangPickup(string langID = null) => "Your attacks pull enemies towards you.";

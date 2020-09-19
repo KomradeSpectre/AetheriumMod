@@ -13,11 +13,11 @@ namespace KomradeSpectre.Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
-    [BepInDependency(TILER2Plugin.ModGuid, "2.1.3")]
+    [BepInDependency(TILER2Plugin.ModGuid, TILER2Plugin.ModVer)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.1.0";
+        public const string ModVer = "0.1.1";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
 
@@ -26,8 +26,9 @@ namespace KomradeSpectre.Aetherium
         internal static FilingDictionary<ItemBoilerplate> masterItemList = new FilingDictionary<ItemBoilerplate>();
 
         internal static BepInEx.Logging.ManualLogSource _logger;
+        private static ConfigFile ConfigFile;
 
-        private void Awake()
+        private void Awake() //Sourced almost entirely from ThinkInvis' Classic Items. It is also extremely handy.
         {
             _logger = Logger;
 
@@ -37,8 +38,14 @@ namespace KomradeSpectre.Aetherium
                 var provider = new AssetBundleResourcesProvider("@Aetherium", bundle);
                 ResourcesAPI.AddProvider(provider);
             }
+            ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, ModGuid + ".cfg"), true);
 
             masterItemList = ItemBoilerplate.InitAll("Aetherium");
+
+            foreach (ItemBoilerplate x in masterItemList)
+            {
+                x.SetupConfig(ConfigFile);
+            }
 
             int longestName = 0;
             foreach (ItemBoilerplate x in masterItemList)

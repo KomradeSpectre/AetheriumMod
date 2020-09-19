@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1404051288
+CRC: 3715826387
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 73f7603ec8e7e174f5fb7efc642b300b
+    Hash: 9661c1b3af803ec6b096e52331befa76
   TypeTreeHash:
     serializedVersion: 2
     Hash: 21747e4ee48f36c7a65f9afbfd77f392
@@ -30,10 +30,12 @@ ClassTypes:
 Assets:
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
 - Assets/Textures/Materials/ShieldingCoreGem.mat
+- Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Materials/SharkTeethBone.mat
+- Assets/Textures/Materials/WeightedAnkletWeight.mat
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
@@ -45,11 +47,13 @@ Assets:
 - Assets/Textures/Materials/FeatheredPlumeTestTexture.png
 - Assets/Models/Raw Models/FeatheredPlume.blend
 - Assets/Textures/Materials/BloodSoakedShieldOmega.mat
+- Assets/Textures/Icons/WeightedAnkletIcon.png
 - Assets/Models/Prefabs/AlienMagnet.prefab
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
+- Assets/Models/Prefabs/WeightedAnklet.prefab
 - Assets/Textures/Materials/Powergem.png
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Models/Prefabs/SharkTeeth.prefab
@@ -60,6 +64,7 @@ Assets:
 - Assets/Models/Prefabs/ShieldingCore.prefab
 - Assets/Textures/Icons/FeatheredPlumeIcon.png
 - Assets/Models/Prefabs/AnkletOfMomentum.prefab
+- Assets/Textures/Materials/WeightedAnkletCrystal.mat
 - Assets/Textures/Materials/Ring Main.mat
 - Assets/Textures/Materials/FeatheredPlumeQuill.mat
 - Assets/Textures/Materials/ShieldCoreMaterial.mat
