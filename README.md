@@ -21,9 +21,12 @@ and as such the ones that were I will list the person that came up with the idea
 - **Alien Magnet** (Original Idea, if you call a vacuum original)
 	- **Lunar Rarity** - Enemies hit by your attacks will be pulled towards you, starting at 6x force (+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies.)
 ----
-
+- **Weighted Anklet** (Original Idea)
+	- **Lunar Rarity** - Gain a 25% reduction to knockback from attacks (+25% per stack (up to 100%) linearly). Lose 10% move speed (+10% per stack (up to 40%) linearly).
+	- **Upcoming** - I may up the cap for the movement speed loss to allow a bigger downside when using randomizers or challenges.
+----
 ## Special Thanks
-**ThinkInvis** - I learned a whole lot of things from their Classic Items mod and utilize their TILER2 API in this project.  
+**ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
 **BordListian** - Basically co-dev support in creating this.  
