@@ -1,9 +1,9 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
 using System.Reflection;
 using UnityEngine;
-using BepInEx.Configuration;
 using Path = System.IO.Path;
 using TILER2;
 using static TILER2.MiscUtil;
@@ -17,7 +17,7 @@ namespace KomradeSpectre.Aetherium
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.1.1";
+        public const string ModVer = "0.1.2";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
 

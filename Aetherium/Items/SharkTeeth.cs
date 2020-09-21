@@ -19,7 +19,7 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
         protected override string NewLangName(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "A portion of damage taken is distributed to you over <style=cIsUtiltiy>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
+        protected override string NewLangPickup(string langID = null) => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
 
         protected override string NewLangDesc(string langid = null) => "<style=cIsDamage>25%</style> of damage taken <style=cStack>(+25% per stack, hyperbolically)</style> is distributed to you over 5 seconds as <style=cIsDamage>bleed damage</style>";
 

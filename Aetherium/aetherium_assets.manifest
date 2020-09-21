@@ -1,17 +1,19 @@
 ManifestFileVersion: 0
-CRC: 3715826387
+CRC: 3668153678
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9661c1b3af803ec6b096e52331befa76
+    Hash: 4866c05ee6bc2c9d39eb7b00f21cae3c
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 21747e4ee48f36c7a65f9afbfd77f392
+    Hash: 10def29c998ab6d8bfcfd7beeec5d09d
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
 - Class: 4
+  Script: {instanceID: 0}
+- Class: 20
   Script: {instanceID: 0}
 - Class: 21
   Script: {instanceID: 0}
@@ -25,14 +27,20 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
 Assets:
+- Assets/Models/Prefabs/UnstableDesign.prefab
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
+- Assets/Textures/Materials/UnstableDesignFrontTexture.png
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
+- Assets/Models/Raw Models/JarOfReshapingWIP.blend
 - Assets/Textures/Materials/simple_blood.png
+- Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Materials/SharkTeethBone.mat
 - Assets/Textures/Materials/WeightedAnkletWeight.mat
@@ -54,10 +62,16 @@ Assets:
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
 - Assets/Models/Prefabs/WeightedAnklet.prefab
+- Assets/Textures/Materials/UnstableDesignHolderTexture.mat
 - Assets/Textures/Materials/Powergem.png
+- Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Models/Prefabs/SharkTeeth.prefab
+- Assets/Textures/Materials/UnstableDesignBackTexture.png
+- Assets/Models/Prefabs/UnstableDesignRolledUp.prefab
 - Assets/Textures/Icons/shieldingCoreIcon.png
+- Assets/Models/Raw Models/UnstableDesign.blend
+- Assets/Textures/Materials/UnstableDesignHolderTexture.png
 - Assets/Textures/Materials/ShieldingCoreFlap.mat
 - Assets/Models/Raw Models/BloodSoakedShield.blend
 - Assets/Textures/Materials/ShieldingMetal.mat
@@ -68,6 +82,8 @@ Assets:
 - Assets/Textures/Materials/Ring Main.mat
 - Assets/Textures/Materials/FeatheredPlumeQuill.mat
 - Assets/Textures/Materials/ShieldCoreMaterial.mat
+- Assets/Textures/Icons/UnstableDesignIcon.png
 - Assets/Textures/Materials/BloodSoakedShieldHandle.mat
 - Assets/Textures/Materials/BloodSoakedShieldMain.mat
+- Assets/Textures/Materials/UnstableDesignFrontTexture.mat
 Dependencies: []
