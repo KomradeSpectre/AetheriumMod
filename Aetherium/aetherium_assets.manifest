@@ -1,19 +1,17 @@
 ManifestFileVersion: 0
-CRC: 1679197590
+CRC: 279355767
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c5f88f949db2ce57a72e92ffe64d377c
+    Hash: e1ea748dd0be51ed77ccd93c63a8b46e
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 10def29c998ab6d8bfcfd7beeec5d09d
+    Hash: 21747e4ee48f36c7a65f9afbfd77f392
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
 - Class: 4
-  Script: {instanceID: 0}
-- Class: 20
   Script: {instanceID: 0}
 - Class: 21
   Script: {instanceID: 0}
@@ -27,8 +25,6 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 108
-  Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
 Assets:
@@ -38,7 +34,6 @@ Assets:
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
-- Assets/Models/Raw Models/JarOfReshapingWIP.blend
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
@@ -56,18 +51,25 @@ Assets:
 - Assets/Models/Raw Models/FeatheredPlume.blend
 - Assets/Textures/Materials/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/WeightedAnkletIcon.png
+- Assets/Textures/Materials/JarOfReshapingPowerCore.mat
 - Assets/Models/Prefabs/AlienMagnet.prefab
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
 - Assets/Models/Prefabs/WeightedAnklet.prefab
+- Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Materials/UnstableDesignHolderTexture.mat
 - Assets/Textures/Materials/Powergem.png
+- Assets/Models/Prefabs/JarOfReshaping.prefab
+- Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Models/Prefabs/SharkTeeth.prefab
+- Assets/Textures/Materials/JarOfReshapingVase.mat
+- Assets/Textures/Materials/JarOfReshapingGlass.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.png
+- Assets/Textures/Icons/JarOfReshapingIcon.png
 - Assets/Models/Prefabs/UnstableDesignRolledUp.prefab
 - Assets/Textures/Icons/shieldingCoreIcon.png
 - Assets/Models/Raw Models/UnstableDesign.blend

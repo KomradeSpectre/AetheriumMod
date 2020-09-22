@@ -9,6 +9,7 @@ using System;
 using KomradeSpectre.Aetherium;
 using UnityEngine.Networking;
 using RoR2.CharacterAI;
+using RoR2.Skills;
 
 namespace Aetherium.Items
 {
@@ -38,6 +39,8 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+        public static SkillDef airSkill;
+
         public UnstableDesign()
         {
             modelPathName = "@Aetherium:Assets/Models/Prefabs/UnstableDesign.prefab";
@@ -46,12 +49,12 @@ namespace Aetherium.Items
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
-            ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
 
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -62,9 +65,9 @@ namespace Aetherium.Items
 
                 }
             });
-            rules.Add("mdlHuntress", new ItemDisplayRule[]
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -74,9 +77,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1, 1, 1)
                 }
             });
-            rules.Add("mdlToolbot", new ItemDisplayRule[]
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -86,9 +89,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(7, 7, 7)
                 }
             });
-            rules.Add("mdlEngi", new ItemDisplayRule[]
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -98,9 +101,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1, 1, 1)
                 }
             });
-            rules.Add("mdlMage", new ItemDisplayRule[]
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -110,9 +113,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1, 1, 1)
                 }
             });
-            rules.Add("mdlMerc", new ItemDisplayRule[]
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -122,9 +125,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1, 1, 1)
                 }
             });
-            rules.Add("mdlTreebot", new ItemDisplayRule[]
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -134,9 +137,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(3, 3, 3)
                 }
             });
-            rules.Add("mdlLoader", new ItemDisplayRule[]
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -146,9 +149,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1, 1, 1)
                 }
             });
-            rules.Add("mdlCroco", new ItemDisplayRule[]
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -158,9 +161,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(8, 8, 8)
                 }
             });
-            rules.Add("mdlCaptain", new ItemDisplayRule[]
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -180,14 +183,17 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/UnstableDesignRolledUp.prefab");
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
+
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
             On.RoR2.CharacterBody.FixedUpdate += LunarChimeraRetarget;
+            On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
         }
 
         protected override void UnloadBehavior()
         {
             On.RoR2.CharacterBody.FixedUpdate -= SummonLunarChimera;
             On.RoR2.CharacterBody.FixedUpdate -= LunarChimeraRetarget;
+            On.RoR2.MapZone.TryZoneStart -= LunarChimeraFall;
         }
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -197,6 +203,16 @@ namespace Aetherium.Items
                 var LunarChimeraComponent = self.GetComponent<LunarChimeraComponent>();
                 if (!LunarChimeraComponent) { LunarChimeraComponent = self.gameObject.AddComponent<LunarChimeraComponent>(); }
 
+                var SummonerBodyMaster = self.master;
+                if (SummonerBodyMaster) //Check if we're a minion or not. If we are, we don't summon a chimera.
+                {
+                    if (SummonerBodyMaster.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                    {
+                        orig(self);
+                        return;
+                    }
+                }
+
                 int InventoryCount = GetCount(self);
                 if (InventoryCount > 0)
                 {
@@ -204,7 +220,7 @@ namespace Aetherium.Items
                     {
                         LunarChimeraComponent.LastChimeraSpawned = null;
                         LunarChimeraComponent.ResummonCooldown -= Time.fixedDeltaTime;
-                        if (LunarChimeraComponent.ResummonCooldown <= 0f && SceneCatalog.mostRecentSceneDef != SceneCatalog.GetSceneDefFromSceneName("bazaar"))
+                        if (LunarChimeraComponent.ResummonCooldown <= 0f && RoR2.SceneCatalog.mostRecentSceneDef != RoR2.SceneCatalog.GetSceneDefFromSceneName("bazaar"))
                         {
 
                             RoR2.DirectorSpawnRequest directorSpawnRequest = new RoR2.DirectorSpawnRequest((RoR2.SpawnCard)Resources.Load("SpawnCards/CharacterSpawnCards/cscLunarGolem"), new RoR2.DirectorPlacementRule
@@ -215,7 +231,7 @@ namespace Aetherium.Items
                                 spawnOnTarget = self.transform
                             }, RoR2.RoR2Application.rng);
                             //directorSpawnRequest.summonerBodyObject = self.gameObject;
-                            directorSpawnRequest.teamIndexOverride = TeamIndex.Neutral;
+                            directorSpawnRequest.teamIndexOverride = TeamIndex.Player;
                             GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
 
                             if (gameObject)
@@ -227,11 +243,14 @@ namespace Aetherium.Items
                                 if (component)
                                 {
                                     //RoR2.Chat.AddMessage($"Character Master Found: {component}");
+                                    component.GetBody().teamComponent.teamIndex = TeamIndex.Neutral;
                                     component.teamIndex = TeamIndex.Neutral;
+
                                     component.inventory.GiveItem(ItemIndex.BoostDamage, 30 + (10 * InventoryCount));
                                     component.inventory.GiveItem(ItemIndex.BoostHp, 10 * InventoryCount);
                                     component.inventory.GiveItem(ItemIndex.BoostAttackSpeed, 30);
                                     component.inventory.GiveItem(ItemIndex.Hoof, 2 * InventoryCount);
+
                                     RoR2.CharacterBody component4 = component.GetBody();
                                     if (component4)
                                     {
@@ -265,6 +284,24 @@ namespace Aetherium.Items
                 var retargetComponent = self.GetComponent<LunarChimeraRetargetComponent>();
                 if (baseAIComponent && retargetComponent)
                 {
+                    if (!airSkill) 
+                    {
+                        airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
+                    }
+
+                    var skillComponent = self.GetComponent<SkillLocator>();
+                    if (skillComponent)
+                    {
+                        var body = baseAIComponent.currentEnemy.characterBody;
+                        if (body && (!body.characterMotor || !body.characterMotor.isGrounded))
+                        {
+                            skillComponent.primary.SetSkillOverride(self, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                        }
+                        else
+                        {
+                            skillComponent.primary.UnsetSkillOverride(self, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                        }
+                    }
                     retargetComponent.RetargetTimer -= Time.fixedDeltaTime;
                     if (retargetComponent.RetargetTimer <= 0)
                     {
@@ -278,6 +315,24 @@ namespace Aetherium.Items
                 }
             }
             orig(self);
+        }
+
+        private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, RoR2.MapZone self, Collider other)
+        {
+            var body = other.GetComponent<CharacterBody>();
+            if (body)
+            {
+                var LunarChimeraRetargeter = body.GetComponent<LunarChimeraRetargetComponent>();
+                if (LunarChimeraRetargeter)
+                {
+                    var teamComponent = body.teamComponent;
+                    teamComponent.teamIndex = TeamIndex.Player;  //Set the team of it to player to avoid it dying when it falls into a hellzone.
+                    orig(self, other);                           //Run the effect of whatever zone it is in on it. Since it is of the Player team, it obviously gets teleported back into the zone.
+                    teamComponent.teamIndex = TeamIndex.Neutral; //Now make it hostile again. Thanks Obama.
+                    return;
+                }
+            }
+            orig(self, other);
         }
 
         public class LunarChimeraComponent : MonoBehaviour

@@ -27,9 +27,32 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 - **Unstable Design** (Original idea by Spooky Boogie, altered a bit to improve)
 	- **Lunar Rarity** - "Every 30 seconds you are compelled to create a very 'FRIENDLY' Lunar Chimera, if one of your creations does not already exist. It has a 400% base damage boost (+100% per stack), a 10% base HP boost (+10% per stack), a 300% base attack speed boost, and finally a 24% base movement speed boost (+24% per stack). This monstrosity can level up from kills."
-	- **Upcoming** - Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Also, make it able to warp back up from falling off cliffs.
+	- **Upcoming** - Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Make it configurable between individual per player or similar to halcyon seed.
 ----
-## Special Thanks
+
+## Changelog
+
+[0.1.3]  
++ Fixed issue related to turrets being able to summon individual Lunar Chimeras from Unstable Design.  
++ Fixed issue where Lunar Chimera would not teleport back up when falling into deathzones.  
++ Fixed Shielding Core model to actually use transparency for the gem (as I intended it to).  
++ Added a skill the Lunar Chimera will use on its enemy if it is in the air.  
+
+[0.1.2]  
++ Added Unstable Design  
++ Fixed styletag issue with Shark Teeth displaying the style tags ingame as text.  
+
+[0.1.1]  
++ Added Weighted Anklet.  
+
+[0.1.0]  
++ Added Shielding Core  
++ Added Blood Soaked Shield  
++ Added Shark Teeth  
++ Added Feathered Plume  
++ Added Alien Magnet  
+---
+## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
