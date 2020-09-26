@@ -17,10 +17,10 @@ namespace KomradeSpectre.Aetherium
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.1.3";
+        public const string ModVer = "0.1.4";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
-
+        
         //private static ConfigFile cfgFile;
 
         internal static FilingDictionary<ItemBoilerplate> masterItemList = new FilingDictionary<ItemBoilerplate>();
@@ -75,22 +75,22 @@ namespace KomradeSpectre.Aetherium
 
         public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj)
         {
-            MeshRenderer[] meshes = obj.GetComponentsInChildren<MeshRenderer>(); //We find the array of renderers for our meshes in the model (GameObject obj) and put them in an array.
-            CharacterModel.RendererInfo[] renderInfos = new CharacterModel.RendererInfo[meshes.Length]; //We create an array for the render infos of the size of our mesh renderer array.
+            MeshRenderer[] meshes = obj.GetComponentsInChildren<MeshRenderer>();
+            CharacterModel.RendererInfo[] renderInfos = new CharacterModel.RendererInfo[meshes.Length];
 
             for (int i = 0; i < meshes.Length; i++)
             {
-                renderInfos[i] = new CharacterModel.RendererInfo //For each spot in our renderInfos array, we create a new render info for it.
+                renderInfos[i] = new CharacterModel.RendererInfo 
                 {
-                    defaultMaterial = meshes[i].material, //we retrieve the material that the mesh uses.
-                    renderer = meshes[i], //we retrieve the MeshRenderer.
-                    defaultShadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On, //We allow our mesh to cast shadows or not.
+                    defaultMaterial = meshes[i].material, 
+                    renderer = meshes[i], 
+                    defaultShadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On,
                     ignoreOverlays = false //We allow the mesh to be affected by overlays like OnFire or PredatoryInstinctsCritOverlay.
                 };
             }
 
             return renderInfos;
-            //Because I opted to use materials instead of UV maps, I cannot use the hopoo shader.
+
         }
 
     }

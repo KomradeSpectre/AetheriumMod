@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 279355767
+CRC: 4081134712
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e1ea748dd0be51ed77ccd93c63a8b46e
+    Hash: 290b2eb0e9d1154a4c4e5b89fea1ab81
   TypeTreeHash:
     serializedVersion: 2
     Hash: 21747e4ee48f36c7a65f9afbfd77f392
@@ -34,11 +34,13 @@ Assets:
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
+- Assets/Textures/Icons/VoidInstabilityDebuffIcon.png
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Materials/SharkTeethBone.mat
 - Assets/Textures/Materials/WeightedAnkletWeight.mat
+- Assets/Models/Prefabs/Voidheart.prefab
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
@@ -57,6 +59,7 @@ Assets:
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
+- Assets/Shaders/Lava Lamp (Unlit).shader
 - Assets/Models/Prefabs/WeightedAnklet.prefab
 - Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Materials/UnstableDesignHolderTexture.mat
@@ -65,11 +68,14 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
+- Assets/Models/Raw Models/Voidheart.blend
+- Assets/Textures/Materials/VoidheartVeins.mat
 - Assets/Models/Prefabs/SharkTeeth.prefab
 - Assets/Textures/Materials/JarOfReshapingVase.mat
 - Assets/Textures/Materials/JarOfReshapingGlass.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.png
 - Assets/Textures/Icons/JarOfReshapingIcon.png
+- Assets/Textures/Icons/VoidheartIcon.png
 - Assets/Models/Prefabs/UnstableDesignRolledUp.prefab
 - Assets/Textures/Icons/shieldingCoreIcon.png
 - Assets/Models/Raw Models/UnstableDesign.blend
@@ -77,7 +83,9 @@ Assets:
 - Assets/Textures/Materials/ShieldingCoreFlap.mat
 - Assets/Models/Raw Models/BloodSoakedShield.blend
 - Assets/Textures/Materials/ShieldingMetal.mat
+- Assets/Textures/Materials/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/ShieldingCore.prefab
+- Assets/Textures/Materials/VoidheartBlack.mat
 - Assets/Textures/Icons/FeatheredPlumeIcon.png
 - Assets/Models/Prefabs/AnkletOfMomentum.prefab
 - Assets/Textures/Materials/WeightedAnkletCrystal.mat

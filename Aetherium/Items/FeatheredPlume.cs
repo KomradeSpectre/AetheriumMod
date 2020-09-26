@@ -50,6 +50,7 @@ namespace Aetherium.Items
                     });
                 SpeedBuff = R2API.BuffAPI.Add(speedBuff);
             };
+
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()

@@ -37,13 +37,13 @@ namespace Aetherium.Items
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
-            ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.3f, 0.3f, 0.3f);
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -53,9 +53,9 @@ namespace Aetherium.Items
                     localScale = generalScale
                 }
             });
-            rules.Add("mdlHuntress", new ItemDisplayRule[]
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -65,9 +65,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.2f, 0.2f, 0.2f)
                 }
             });
-            rules.Add("mdlToolbot", new ItemDisplayRule[]
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -77,9 +77,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(2, 2, 2)
                 }
             });
-            rules.Add("mdlEngi", new ItemDisplayRule[]
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -89,9 +89,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.3f, 0.3f, 0.3f)
                 }
             });
-            rules.Add("mdlMage", new ItemDisplayRule[]
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -101,9 +101,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.32f, 0.32f, 0.32f)
                 }
             });
-            rules.Add("mdlMerc", new ItemDisplayRule[]
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -113,9 +113,9 @@ namespace Aetherium.Items
                     localScale = generalScale
                 }
             });
-            rules.Add("mdlTreebot", new ItemDisplayRule[]
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -125,9 +125,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.5f, 0.5f, 0.5f)
                 }
             });
-            rules.Add("mdlLoader", new ItemDisplayRule[]
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -137,9 +137,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.32f, 0.32f, 0.32f)
                 }
             });
-            rules.Add("mdlCroco", new ItemDisplayRule[]
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -149,9 +149,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(2, 2, 2)
                 }
             });
-            rules.Add("mdlCaptain", new ItemDisplayRule[]
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -171,15 +171,15 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab = regDef.pickupModelPrefab;
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
-            On.RoR2.DeathRewards.OnKilledServer += GrantShieldReward;
+            On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
         protected override void UnloadBehavior()
         {
-            On.RoR2.DeathRewards.OnKilledServer -= GrantShieldReward;
+            On.RoR2.GlobalEventManager.OnCharacterDeath -= GrantShieldReward;
         }
 
-        private void GrantShieldReward(On.RoR2.DeathRewards.orig_OnKilledServer orig, RoR2.DeathRewards self, RoR2.DamageReport damageReport)
+        private void GrantShieldReward(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
         {
             if (damageReport?.attackerBody)
             {

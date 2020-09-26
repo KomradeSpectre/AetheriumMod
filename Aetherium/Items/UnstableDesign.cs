@@ -198,10 +198,10 @@ namespace Aetherium.Items
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
-            if (NetworkServer.active)
+            if (NetworkServer.active && self.master)
             {
-                var LunarChimeraComponent = self.GetComponent<LunarChimeraComponent>();
-                if (!LunarChimeraComponent) { LunarChimeraComponent = self.gameObject.AddComponent<LunarChimeraComponent>(); }
+                var LunarChimeraComponent = self.master.GetComponent<LunarChimeraComponent>();
+                if (!LunarChimeraComponent) { LunarChimeraComponent = self.masterObject.AddComponent<LunarChimeraComponent>(); }
 
                 var SummonerBodyMaster = self.master;
                 if (SummonerBodyMaster) //Check if we're a minion or not. If we are, we don't summon a chimera.

@@ -29,8 +29,15 @@ and as such the ones that were I will list the person that came up with the idea
 	- **Lunar Rarity** - "Every 30 seconds you are compelled to create a very 'FRIENDLY' Lunar Chimera, if one of your creations does not already exist. It has a 400% base damage boost (+100% per stack), a 10% base HP boost (+10% per stack), a 300% base attack speed boost, and finally a 24% base movement speed boost (+24% per stack). This monstrosity can level up from kills."
 	- **Upcoming** - Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Make it configurable between individual per player or similar to halcyon seed.
 ----
+- **Heart of the Void** (Original idea by Hyperion_21, altered a bit to improve)
+	- **Lunar Rarity** - "On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage.
+	- **Known Issues** - With PlayableVoidcrab mod, all runs (including the current) after the Voidcrab has died will cause every Voidcrab explosion to occur instantly when triggered, including this. This is fixed by restarting.
 
 ## Changelog
+[0.1.4]
++ Fixed issue related to Dio's Best Friend revival adding another Unstable Design Chimera. Oops.
++ Made Blood Soaked Shield work with Forgive Me Please.
++ Added "Heart of the Void".
 
 [0.1.3]  
 + Fixed issue related to turrets being able to summon individual Lunar Chimeras from Unstable Design.  
@@ -54,8 +61,10 @@ and as such the ones that were I will list the person that came up with the idea
 ---
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
+**RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
-**BordListian** - Basically co-dev support in creating this.  
+**BordListian** - Basically co-dev support in creating this and playtesting.  
+**GrimTheWanderer** - Playtesting.  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **Lorc (http://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
