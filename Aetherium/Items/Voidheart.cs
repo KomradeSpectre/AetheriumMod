@@ -212,6 +212,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
+            On.RoR2.CharacterBody.Awake += VoidheartPreventionInteraction;
         }
 
         protected override void UnloadBehavior()
@@ -219,6 +220,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnBodyDeath -= VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal -= Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate -= VoidheartOverlayManager;
+            On.RoR2.CharacterBody.Awake -= VoidheartPreventionInteraction;
         }
 
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
@@ -250,7 +252,9 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if (self.body && InventoryCount > 0)
             {
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((0.3f + (0.05f * InventoryCount - 1)), 0.3f, 0.99f))
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((0.3f + (0.05f * InventoryCount - 1)), 0.3f, 0.99f) &&
+                    //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
+                    self.GetComponent<VoidHeartPrevention>().internalTimer <= 10f)
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo();
                     damageInfo.crit = false;
@@ -314,5 +318,33 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobMoveSpeed", 6 * scale);
             }
         }*/
+
+        public class VoidHeartPrevention : MonoBehaviour
+        {
+            public float internalTimer = 0f;
+
+            private void Update()
+            {
+                internalTimer += Time.deltaTime;
+            }
+
+            public void ResetTimer()
+            {
+                internalTimer = 0f;
+            }
+        }
+
+        private void VoidheartPreventionInteraction(On.RoR2.CharacterBody.orig_Awake orig, CharacterBody self)
+        {
+            //First just run the normal awake stuff
+            orig(self);
+            //If I somehow lack the Prevention, give me one
+            if (!self.gameObject.GetComponent<VoidHeartPrevention>())
+            {
+                self.gameObject.AddComponent<VoidHeartPrevention>();
+            }
+            //And reset the timer
+            self.gameObject.GetComponent<VoidHeartPrevention>().ResetTimer();
+        }
     }
 }
