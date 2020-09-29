@@ -64,7 +64,7 @@ and as such the ones that were I will list the person that came up with the idea
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
-**Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.
+**Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.  
 **BordListian** - Basically co-dev support in creating this and playtesting.  
 **GrimTheWanderer** - Playtesting.  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
