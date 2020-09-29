@@ -273,13 +273,13 @@ namespace Aetherium.Items
             if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
-                TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+                RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
                 overlay.duration = 30;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;
                 overlay.originalMaterial = Meshes[0].material;
-                overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<CharacterModel>());
+                overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
                 var VoidheartCooldownTracker = self.gameObject.AddComponent<Voidheart.VoidheartCooldown>();
                 VoidheartCooldownTracker.Overlay = overlay;
                 VoidheartCooldownTracker.Body = self;

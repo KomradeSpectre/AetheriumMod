@@ -64,6 +64,7 @@ namespace Aetherium.Items
                         else
                         {
                             toReviveMaster.preventGameOver = false;
+                            Debug.Log("[GAME OVER FIRED IN VOIDHEARTDEATH]");
                             if (toReviveMaster.destroyOnBodyDeath)
                             {
                                 UnityEngine.Object.Destroy(toReviveMaster, 1);
