@@ -254,7 +254,7 @@ namespace Aetherium.Items
             {
                 if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((0.3f + (0.05f * InventoryCount - 1)), 0.3f, 0.99f) &&
                     //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
-                    self.GetComponent<VoidHeartPrevention>().internalTimer <= 10f)
+                    self.GetComponent<VoidHeartPrevention>().internalTimer >= 10f)
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo();
                     damageInfo.crit = false;
