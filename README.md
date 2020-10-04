@@ -44,7 +44,7 @@ and as such the ones that were I will list the person that came up with the idea
 [0.1.5]
 + Fixed issue related to Heart of the Void killing you on stage start if the difference between your item gained max health and base max health was greater than the activation percent on Heart of the Void. (Big thanks to Rico for the component that allowed this!)
 + Fixed being able to increase your turret stock by placing down another turret with Heart of the Void. (Sorry, mobile turret bombers.)
-+ New Icon Art for Feathered Plume and Blood Soaked Shield courtesy of WaltzingPhantom! They're set by default, but if prefer the old icons for some reason, there is a config to re-enable those per item.
++ New Icon Art for Feathered Plume and Blood Soaked Shield courtesy of WaltzingPhantom! They're set by default, but if you prefer the old icons for some reason, there is a config to re-enable those per item.
 + Added Inspiring Drone.
 
 [0.1.4]
