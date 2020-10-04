@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2778569666
+CRC: 1151663779
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c541b2d147549863d2c76f4286c1fa17
+    Hash: 3dc5be55471b195d8e3fcf476c02041e
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 21747e4ee48f36c7a65f9afbfd77f392
+    Hash: eb5ac896da9fb1583940a5c3aa4281ae
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -25,10 +25,19 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 111
+  Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
 Assets:
 - Assets/Models/Prefabs/UnstableDesign.prefab
+- Assets/Models/Prefabs/InspiringDroneTracker.prefab
 - Assets/Models/Raw Models/HexedTotem.blend
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
 - Assets/Textures/Materials/UnstableDesignFrontTexture.png
@@ -36,6 +45,7 @@ Assets:
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
+- Assets/Animations/InspiringDroneHead.controller
 - Assets/Textures/Icons/VoidInstabilityDebuffIcon.png
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
@@ -49,9 +59,11 @@ Assets:
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
 - Assets/Textures/Icons/SharkTeethIcon.png
+- Assets/Animations/InspiringDroneThrusterPlume.controller
 - Assets/Textures/Materials/Powergem.mat
 - Assets/Textures/Materials/Gem Glass.mat
 - Assets/Models/Prefabs/BloodSoakedShield.prefab
+- Assets/Animations/InspiringDroneChest.controller
 - Assets/Models/Raw Models/ShieldingCore.blend
 - Assets/Textures/Materials/FeatheredPlumeTestTexture.png
 - Assets/Models/Raw Models/FeatheredPlume.blend
@@ -75,10 +87,13 @@ Assets:
 - Assets/Textures/Materials/UnstableDesignHolderTexture.mat
 - Assets/Textures/Materials/Powergem.png
 - Assets/Models/Prefabs/JarOfReshaping.prefab
+- Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
+- Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.mat
+- Assets/Animations/InspiringDroneChest.anim
 - Assets/Models/Raw Models/Voidheart.blend
 - Assets/Textures/Materials/VoidheartVeins.mat
 - Assets/Models/Prefabs/SharkTeeth.prefab
@@ -86,10 +101,13 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingGlass.mat
 - Assets/Textures/Materials/UnstableDesignBackTexture.png
 - Assets/Textures/Icons/JarOfReshapingIcon.png
+- Assets/Textures/Materials/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Icons/VoidheartIcon.png
 - Assets/Models/Prefabs/UnstableDesignRolledUp.prefab
 - Assets/Textures/Icons/shieldingCoreIcon.png
 - Assets/Models/Raw Models/UnstableDesign.blend
+- Assets/Animations/InspiringDroneUpperArmR.anim
+- Assets/Animations/InspiringDroneHead.anim
 - Assets/Textures/Materials/UnstableDesignHolderTexture.png
 - Assets/Textures/Materials/ShieldingCoreFlap.mat
 - Assets/Models/Raw Models/BloodSoakedShield.blend
@@ -102,6 +120,7 @@ Assets:
 - Assets/Textures/Materials/InspiringDroneEyes.mat
 - Assets/Textures/Icons/FeatheredPlumeIcon.png
 - Assets/Models/Prefabs/AnkletOfMomentum.prefab
+- Assets/Animations/InspiringDroneUpperArmL.controller
 - Assets/Shaders/FireBallEffect.shader
 - Assets/Textures/Materials/WeightedAnkletCrystal.mat
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTextureNormalMap.png
@@ -111,9 +130,11 @@ Assets:
 - Assets/Textures/Materials/ShieldCoreMaterial.mat
 - Assets/Textures/Icons/UnstableDesignIcon.png
 - Assets/Textures/Materials/BloodSoakedShieldHandle.mat
+- Assets/Animations/InspiringDroneUpperArmR.controller
 - Assets/Textures/Materials/BloodSoakedShieldMain.mat
 - Assets/Textures/Materials/UnstableDesignFrontTexture.mat
-- Assets/Textures/Materials/InspiringDroneJetPlume.mat
+- Assets/Animations/InspiringDroneThrusterPlume.anim
+- Assets/Models/Raw Models/InspiringDroneTracker.blend
 - Assets/Textures/Materials/InspiringDroneSnowPuff.mat
 - Assets/Textures/Materials/InspiringDroneScreen.mat
 Dependencies: []

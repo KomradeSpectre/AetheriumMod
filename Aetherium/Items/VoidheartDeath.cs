@@ -4,6 +4,7 @@ using EntityStates.NullifierMonster;
 using UnityEngine.Networking;
 using System;
 using R2API;
+using RewiredConsts;
 
 namespace Aetherium.Items
 {
@@ -64,7 +65,6 @@ namespace Aetherium.Items
                         else
                         {
                             toReviveMaster.preventGameOver = false;
-                            Debug.Log("[GAME OVER FIRED IN VOIDHEARTDEATH]");
                             if (toReviveMaster.destroyOnBodyDeath)
                             {
                                 UnityEngine.Object.Destroy(toReviveMaster, 1);

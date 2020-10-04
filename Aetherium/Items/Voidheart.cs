@@ -24,9 +24,9 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
         protected override string NewLangName(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "On death, cause a void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
+        protected override string NewLangPickup(string langID = null) => "On <style=cIsDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "On death, cause a void implosion with a radius of <style=cIsDamage>15m</style> <style=cStack>(+7.5m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsDamage>30% health</style> <style=cStack>(+5% per stack, max 99%)</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
+        protected override string NewLangDesc(string langid = null) => "On <style=cIsDeath>death</style>, cause a highly damaging void implosion that scales with your damage with a radius of <style=cIsDamage>15m</style> <style=cStack>(+7.5m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>30% health</style> <style=cStack>(+5% per stack, max 99%)</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
 
         protected override string NewLangLore(string langID = null) => "\n[INCIDENT NUMBER 511051]" +
             "\n[TRANSCRIPT TO FOLLOW]" +
@@ -100,7 +100,6 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
-            //ruleLookup.Add("mdlHuntress", 0.1f);
             rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -213,6 +212,7 @@ namespace Aetherium.Items
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
             On.RoR2.CharacterBody.Awake += VoidheartPreventionInteraction;
+            On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
         }
 
         protected override void UnloadBehavior()
@@ -221,6 +221,7 @@ namespace Aetherium.Items
             On.RoR2.HealthComponent.Heal -= Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate -= VoidheartOverlayManager;
             On.RoR2.CharacterBody.Awake -= VoidheartPreventionInteraction;
+            On.RoR2.CharacterBody.OnInventoryChanged -= VoidheartAnnihilatesItselfOnDeployables;
         }
 
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
@@ -254,7 +255,7 @@ namespace Aetherium.Items
             {
                 if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((0.3f + (0.05f * InventoryCount - 1)), 0.3f, 0.99f) &&
                     //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
-                    self.GetComponent<VoidHeartPrevention>().internalTimer >= 10f)
+                    self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo();
                     damageInfo.crit = false;
@@ -319,6 +320,20 @@ namespace Aetherium.Items
             }
         }*/
 
+        private void VoidheartAnnihilatesItselfOnDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
+        {
+            orig(self);
+            var InventoryCount = GetCount(self);
+            if (InventoryCount > 0 && self.master)
+            {
+                if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                {
+                    //Unga bunga, voidheart not like deployables. POP!
+                    self.inventory.RemoveItem(regIndex, InventoryCount);
+                }
+            }
+        }
+
         public class VoidHeartPrevention : MonoBehaviour
         {
             public float internalTimer = 0f;
@@ -334,7 +349,7 @@ namespace Aetherium.Items
             }
         }
 
-        private void VoidheartPreventionInteraction(On.RoR2.CharacterBody.orig_Awake orig, CharacterBody self)
+        private void VoidheartPreventionInteraction(On.RoR2.CharacterBody.orig_Awake orig, RoR2.CharacterBody self)
         {
             //First just run the normal awake stuff
             orig(self);
