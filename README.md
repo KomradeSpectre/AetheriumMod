@@ -80,6 +80,6 @@ and as such the ones that were I will list the person that came up with the idea
 **Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.   
 **BordListian** - Basically co-dev support in creating this and playtesting.  
 **GrimTheWanderer** - Playtesting.
-**WaltzingPhantom** - For providing alternative icon art for Feathered Plume and Blood Soaked Shield!
+**WaltzingPhantom** - For providing alternative icon art for Feathered Plume and Blood Soaked Shield!  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **Lorc (http://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
