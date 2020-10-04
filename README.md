@@ -18,6 +18,12 @@ and as such the ones that were I will list the person that came up with the idea
 	- **Green Rarity** - Killing an enemy restores 10% max shield (+10% per stack hyperbolically.)
 	- **Upcoming** - The first of the stack of this item will grant a small portion of shield on pickup.
 ----
+- **Inspiring Drone** (Original Idea by Kaboose "Aftermarket Spare Parts", altered a ton from that.)  
+	- **Red Rarity** - When a bot is purchased, it gains a 50% boost to each of its stats based on yours (+50% per stack, linearly).  
+	Some bots gain more ammo for their attacks based on the bonus to their attack speed, and have their ammo replenished twice as fast per additional Inspiring Drone.  
+    Finally, if an inspired bot is too far away from you, it is teleported to you after a delay (40 seconds for Turrets, 30 seconds for Drones).  
+	- **Known Issues** - The "Inspiring" name prefix does not currently sync in multiplayer. I will address this in the next version.  
+----
 - **Alien Magnet** (Original Idea, if you call a vacuum original)
 	- **Lunar Rarity** - Enemies hit by your attacks will be pulled towards you, starting at 6x force (+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies.)
 ----
@@ -32,8 +38,15 @@ and as such the ones that were I will list the person that came up with the idea
 - **Heart of the Void** (Original idea by Hyperion_21, altered a bit to improve)
 	- **Lunar Rarity** - "On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage.
 	- **Known Issues** - With PlayableVoidcrab mod, all runs (including the current) after the Voidcrab has died will cause every Voidcrab explosion to occur instantly when triggered, including this. This is fixed by restarting.
+----
 
 ## Changelog
+[0.1.5]
++ Fixed issue related to Heart of the Void killing you on stage start if the difference between your item gained max health and base max health was greater than the activation percent on Heart of the Void. (Big thanks to Rico for the component that allowed this!)
++ Fixed being able to increase your turret stock by placing down another turret with Heart of the Void. (Sorry, mobile turret bombers.)
++ New Icon Art for Feathered Plume and Blood Soaked Shield courtesy of WaltzingPhantom! They're set by default, but if prefer the old icons for some reason, there is a config to re-enable those per item.
++ Added Inspiring Drone.
+
 [0.1.4]
 + Fixed issue related to Dio's Best Friend revival adding another Unstable Design Chimera. Oops.
 + Made Blood Soaked Shield work with Forgive Me Please.
@@ -63,8 +76,8 @@ and as such the ones that were I will list the person that came up with the idea
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
-**OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.   
-**Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.  
+**OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.  
+**Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.   
 **BordListian** - Basically co-dev support in creating this and playtesting.  
 **GrimTheWanderer** - Playtesting.  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  

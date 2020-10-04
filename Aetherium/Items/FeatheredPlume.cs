@@ -25,6 +25,10 @@ namespace Aetherium.Items
 
         protected override string NewLangLore(string langID = null) => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
 
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
         public static GameObject ItemBodyModelPrefab;
@@ -34,8 +38,11 @@ namespace Aetherium.Items
 
         public FeatheredPlume()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/FeatheredPlume.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIcon.png";
+            postConfig += (configFile) =>
+            {
+                modelPathName = "@Aetherium:Assets/Models/Prefabs/FeatheredPlume.prefab";
+                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIcon.png";
+            };
 
             onAttrib += (tokenIdent, namePrefix) =>
             {

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1151663779
+CRC: 1961824212
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 3dc5be55471b195d8e3fcf476c02041e
+    Hash: 5d3f5c088e564286f21e72caaad7557e
   TypeTreeHash:
     serializedVersion: 2
     Hash: eb5ac896da9fb1583940a5c3aa4281ae
@@ -53,6 +53,7 @@ Assets:
 - Assets/Textures/Materials/SharkTeethBone.mat
 - Assets/Models/Prefabs/InspiringDrone.prefab
 - Assets/Textures/Materials/WeightedAnkletWeight.mat
+- Assets/Textures/Icons/FeatheredPlumeIconAlt.png
 - Assets/Models/Prefabs/Voidheart.prefab
 - Assets/Shaders/PulseShader.shader
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
@@ -78,6 +79,7 @@ Assets:
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.png
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
 - Assets/Textures/Materials/InspiringDroneMain2.mat
+- Assets/Textures/Icons/BloodSoakedShieldIconAlt.png
 - Assets/Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Materials/InspiringDroneScreenGlass.mat
 - Assets/Models/Prefabs/WeightedAnklet.prefab

@@ -7,6 +7,7 @@ using TILER2;
 using static TILER2.StatHooks;
 using System;
 using KomradeSpectre.Aetherium;
+using BepInEx.Configuration;
 
 namespace Aetherium.Items
 {
@@ -25,14 +26,19 @@ namespace Aetherium.Items
 
         protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
 
         public BloodSoakedShield()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/BloodSoakedShield.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIcon.png";
-
+            postConfig += (configFile) =>
+            {
+                modelPathName = "@Aetherium:Assets/Models/Prefabs/BloodSoakedShield.prefab";
+                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIcon.png";
+            };
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()

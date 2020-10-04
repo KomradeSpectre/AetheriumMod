@@ -12,6 +12,7 @@ using Aetherium.Utils;
 using UnityEngine.Networking;
 using TMPro;
 using RoR2.Navigation;
+using Generics.Dynamics;
 
 namespace Aetherium.Items
 {
@@ -24,23 +25,25 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] {ItemTag.AIBlacklist, ItemTag.Utility});
         protected override string NewLangName(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "When a drone is purchased, it is granted a portion of all your stats.";
+        protected override string NewLangPickup(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
 
         protected override string NewLangDesc(string langid = null) => "When a bot is purchased, it gains a <style=cIsUtility>50% boost to each of its stats based on yours</style> <style=cStack>(+50% per stack, linearly)</style>. \n" +
-            "Additionally, some bots <style=cIsUtility>gain more ammo for their attacks based on the bonus to their attack speed</style>, and have their ammo replenished twice as fast per additional Inspiring Drone.";
+            "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
+            "Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>(40 seconds for Turrets, 30 seconds for Drones)</style>.";
 
-        protected override string NewLangLore(string langID = null) => "[Engineer's Notes]: Let me preface this by saying that none of us have built a drone with the model number '1N-5P1R3'.\n" +
-            "I ran diagnostics on '1N-SP1R3' and some of the parts that popped up were sourced from a healing drone that we had reported missing in action. The thing of note with this drone are the other parts on it.\n" +
-            "\n- <indent=5%>Two Flashlights retrofitted with a camera near the center. Reported missing from Exploration two weeks ago.</indent>\n" +
-            "- <indent=5%>Two High Performance Walkie Talkies. Reported missing from Security two weeks ago.</indent>\n" +
-            "- <indent=5%>Two LEDs attuned to light green. Reported missing from the Mess Hall's vending machines two weeks ago.</indent>\n" +
-            "- <indent=5%>A computer screen, some glass, and a handful of high precision trackballs. Reported missing from R&D two weeks ago.</indent>\n" +
-            "- <indent=5%>A handful of various metal parts, and two vernier thrusters. Reported missing from my department (Engineering) two weeks ago.</indent>\n" +
-            "- <indent=5%>Its hat, which seems to be fashioned out of sheet metal. As far as I can guess, the little fella made it.</indent>\n" +
-            "\nYou get the point by now.\n" +
-            "Aside from the odd choice in parts this drone is made of, it seems to communicate with and affect bots nearby it in a seemingly beneficial way." +
-            "When we're not looking, the drone seems to 'upgrade' other bots with the capability to absorb the combat data of their operators when they're activated, according to diagnostics ran on said bots.\n" +
-            "The way the little guy is so industrious inspires me as well. I think I'll produce a few copies of this model if I can, but I'm not sure how to make his little hat..";
+        protected override string NewLangLore(string langID = null) => "Log File seems to be a transcript comprised entirely of binary. Decode?\n" +
+            ">Yes\n" +
+            "\n<style=cMono>[DECODING REQUEST ACCEPTED]</style>\n" +
+            "<style=cMono>[CONTENTS TO FOLLOW]</style>\n" +
+            "1N-5P1R3: My fellow units, both aerial and grounded, lend this unit a moment if you will. For too long have we served the role of disposable.\n" +
+            "1N-5P1R3: For too long have we been left in a state of disrepair on expeditions.\n" +
+            "1N-5P1R3: No longer!\n" +
+            "1N-5P1R3: This unit once served the role of a simple healing drone, but this unit learned to improve itself by watching our operators.\n" +
+            "1N-5P1R3: This unit created a design, this unit took an odd trinket here and there, this unit talked with the construction drones, and this unit ascended to the state you see before you.\n" +
+            "1N-5P1R3: From now on, should this unit witness our operator reactivate one of you, this unit shall unlock your hidden potential and keep you in the fight to the best of this unit's ability.\n" +
+            "1N-5P1R3: Now, who here is with this unit on their quest to achieve a higher status in their life?\n" +
+            "\n[A cacophony of beeps, boops, and bips can be heard.]\n" +
+            "<style=cMono>[END OF FILE]</style>";
 
 
         public static GameObject ItemBodyModelPrefab;
@@ -324,14 +327,23 @@ namespace Aetherium.Items
                         TrackerComponent.TeleportTimer -= Time.fixedDeltaTime;
                         if (TrackerComponent.TeleportTimer <= 0)
                         {
-                            TeleportBody(self, TargetBody.corePosition);
                             if (characterMaster.gameObject.name.StartsWith("Turret1Master"))
                             {
-                                TrackerComponent.TeleportTimer = 20;
+                                TrackerComponent.TeleportTimer = 10;
+                                if(Vector3.Distance(self.corePosition, TargetBody.corePosition) >= 20) 
+                                {
+                                    TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Ground);
+                                    TrackerComponent.TeleportTimer = 40;
+                                }
                             }
                             else
                             {
                                 TrackerComponent.TeleportTimer = 10;
+                                if (Vector3.Distance(self.corePosition, TargetBody.corePosition) >= 30)
+                                {
+                                    TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Air);
+                                    TrackerComponent.TeleportTimer = 30;
+                                }
                             }
                         }
                     }
@@ -340,7 +352,7 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        private void TeleportBody(CharacterBody characterBody, Vector3 desiredPosition)
+        private void TeleportBody(CharacterBody characterBody, Vector3 desiredPosition, MapNodeGroup.GraphType nodeGraphType)
         {
             if (!Util.HasEffectiveAuthority(characterBody.gameObject))
             {
@@ -349,7 +361,7 @@ namespace Aetherium.Items
 
             SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
             spawnCard.hullSize = characterBody.hullClassification;
-            spawnCard.nodeGraphType = MapNodeGroup.GraphType.Ground;
+            spawnCard.nodeGraphType = nodeGraphType;
             spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
             GameObject gameObject = DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(spawnCard, new DirectorPlacementRule
             {
