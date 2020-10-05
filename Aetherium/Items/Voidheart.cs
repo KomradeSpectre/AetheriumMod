@@ -15,7 +15,7 @@ using EntityStates.NullifierMonster;
 
 namespace Aetherium.Items
 {
-    class Voidheart : Item<Voidheart>
+    public class Voidheart : Item<Voidheart>
     {
         public override string displayName => "Heart of the Void";
 
@@ -24,9 +24,9 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
         protected override string NewLangName(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "On <style=cIsDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
+        protected override string NewLangPickup(string langID = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "On <style=cIsDeath>death</style>, cause a highly damaging void implosion that scales with your damage with a radius of <style=cIsDamage>15m</style> <style=cStack>(+7.5m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>30% health</style> <style=cStack>(+5% per stack, max 99%)</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
+        protected override string NewLangDesc(string langid = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that scales with your damage with a radius of <style=cIsDamage>15m</style> <style=cStack>(+7.5m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>30% health</style> <style=cStack>(+5% per stack, max 99%)</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
 
         protected override string NewLangLore(string langID = null) => "\n[INCIDENT NUMBER 511051]" +
             "\n[TRANSCRIPT TO FOLLOW]" +

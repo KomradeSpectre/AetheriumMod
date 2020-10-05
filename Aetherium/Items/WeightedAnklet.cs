@@ -10,7 +10,7 @@ using KomradeSpectre.Aetherium;
 
 namespace Aetherium.Items
 {
-    class WeightedAnklet : Item<WeightedAnklet>
+    public class WeightedAnklet : Item<WeightedAnklet>
     {
         public override string displayName => "Weighted Anklet";
 

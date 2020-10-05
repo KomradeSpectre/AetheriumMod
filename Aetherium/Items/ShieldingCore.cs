@@ -10,7 +10,7 @@ using KomradeSpectre.Aetherium;
 
 namespace Aetherium.Items
 {
-    class ShieldingCore : Item<ShieldingCore>
+    public class ShieldingCore : Item<ShieldingCore>
     {
         public BuffIndex shieldedCoreArmorBuff { get; private set; }
         public override string displayName => "Shielding Core";

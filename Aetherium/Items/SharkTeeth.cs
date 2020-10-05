@@ -10,7 +10,7 @@ using KomradeSpectre.Aetherium;
 
 namespace Aetherium.Items
 {
-    class SharkTeeth : Item<SharkTeeth>
+    public class SharkTeeth : Item<SharkTeeth>
     {
         public override string displayName => "Shark Teeth";
 

@@ -16,7 +16,7 @@ using Generics.Dynamics;
 
 namespace Aetherium.Items
 {
-    class InspiringDrone : Item<InspiringDrone>
+    public class InspiringDrone : Item<InspiringDrone>
     {
         public override string displayName => "Inspiring Drone";
 

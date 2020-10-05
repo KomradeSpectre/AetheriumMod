@@ -10,7 +10,7 @@ using KomradeSpectre.Aetherium;
 
 namespace Aetherium.Items
 {
-    class FeatheredPlume : Item<FeatheredPlume>
+    public class FeatheredPlume : Item<FeatheredPlume>
     {
         public override string displayName => "Feathered Plume";
 

@@ -13,7 +13,7 @@ using RoR2.Skills;
 
 namespace Aetherium.Items
 {
-    class UnstableDesign : Item<UnstableDesign>
+    public class UnstableDesign : Item<UnstableDesign>
     {
         public override string displayName => "Unstable Design";
 

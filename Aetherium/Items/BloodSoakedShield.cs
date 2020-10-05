@@ -11,7 +11,7 @@ using BepInEx.Configuration;
 
 namespace Aetherium.Items
 {
-    class BloodSoakedShield : Item<BloodSoakedShield>
+    public class BloodSoakedShield : Item<BloodSoakedShield>
     {
         public override string displayName => "Blood Soaked Shield";
 

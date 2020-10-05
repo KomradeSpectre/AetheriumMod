@@ -41,6 +41,10 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
+[0.1.51]
++ Made my mod item classes public so modders can easily reference them to add Item Displays of Aetherium items to their characters. These can be accessed with the path "Aetherium.Items.WeightedAnklet.ItemBodyModelPrefab" for instance.  
++ Updated the modpage to properly credit WaltzingPhantom for their nice icon art. I forgot when I uploaded 0.1.5 to do that here but did it everywhere else, woopsie!  
+
 [0.1.5]
 + Fixed issue related to Heart of the Void killing you on stage start if the difference between your item gained max health and base max health was greater than the activation percent on Heart of the Void. (Big thanks to Rico for the component that allowed this!)
 + Fixed being able to increase your turret stock by placing down another turret with Heart of the Void. (Sorry, mobile turret bombers.)
