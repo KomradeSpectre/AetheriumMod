@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 
@@ -12,6 +13,26 @@ namespace Aetherium.Items
 {
     public class FeatheredPlume : Item<FeatheredPlume>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many seconds should feathered plume's buff last with a single stack? (Default: 5 seconds)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float baseDurationOfBuffInSeconds { get; private set; } = 5;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many additional seconds of buff should each feathered plume after the first give? (Default: 0.5f seconds)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float additionalDurationOfBuffInSeconds { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many buff stacks should each feather give? (Default: 3)", AutoItemConfigFlags.PreventNetMismatch)]
+        public int buffStacksPerFeatheredPlume { get; private set; } = 3;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much movespeed in percent should each stack of Feathered Plume's buff give? (Default: 0.07f)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float moveSpeedPercentageBonusPerBuffStack { get; private set; } = 0.07f;
+
         public override string displayName => "Feathered Plume";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier1;
@@ -21,13 +42,9 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "After taking damage, gain a boost in speed.";
 
-        protected override string NewLangDesc(string langid = null) => "Gain a temporary <style=cIsUtility>7% speed boost</style> upon taking damage that stacks 3 times for 5 seconds. <style=cStack>(+3 stacks and +0.5 second duration per additional Feathered Plume.)</style>";
+        protected override string NewLangDesc(string langid = null) => $"Gain a temporary <style=cIsUtility>{Pct(moveSpeedPercentageBonusPerBuffStack)} speed boost</style> upon taking damage that stacks {buffStacksPerFeatheredPlume} times for {baseDurationOfBuffInSeconds} seconds. <style=cStack>(+{buffStacksPerFeatheredPlume} stacks and +{additionalDurationOfBuffInSeconds} second duration per additional Feathered Plume.)</style>";
 
         protected override string NewLangLore(string langID = null) => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
-
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
-        public bool useNewIcons { get; private set; } = true;
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
@@ -210,16 +227,16 @@ namespace Aetherium.Items
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
             var InventoryCount = GetCount(self.body);
-            if (InventoryCount > 0 && self.body.GetBuffCount(SpeedBuff) < 3 * InventoryCount)
+            if (InventoryCount > 0 && self.body.GetBuffCount(SpeedBuff) < buffStacksPerFeatheredPlume * InventoryCount)
             {
-                self.body.AddTimedBuffAuthority(SpeedBuff, (5f + (0.5f * InventoryCount-1)));
+                self.body.AddTimedBuffAuthority(SpeedBuff, (baseDurationOfBuffInSeconds + (additionalDurationOfBuffInSeconds * InventoryCount-1)));
             }
             orig(self, damageInfo);
         }
 
         private void AddSpeedReward(CharacterBody sender, StatHookEventArgs args)
         {
-            if (sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += 0.07f * sender.GetBuffCount(SpeedBuff); }
+            if (sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += moveSpeedPercentageBonusPerBuffStack * sender.GetBuffCount(SpeedBuff); }
         }
     }
 }

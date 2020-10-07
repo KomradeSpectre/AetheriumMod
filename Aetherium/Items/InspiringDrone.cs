@@ -385,6 +385,7 @@ namespace Aetherium.Items
 
         public class BotStatTracker : NetworkBehaviour
         {
+            [SyncVar]
             public float AttackSpeedBoost;
             public float DamageBoost;
             public float CritChanceBoost;

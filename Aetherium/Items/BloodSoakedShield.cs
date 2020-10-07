@@ -13,6 +13,9 @@ namespace Aetherium.Items
 {
     public class BloodSoakedShield : Item<BloodSoakedShield>
     {
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
         public override string displayName => "Blood Soaked Shield";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
@@ -26,8 +29,7 @@ namespace Aetherium.Items
 
         protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
-        public bool useNewIcons { get; private set; } = true;
+
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;

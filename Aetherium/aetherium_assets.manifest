@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 1961824212
+CRC: 843378452
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 5d3f5c088e564286f21e72caaad7557e
+    Hash: 9961fa539cacd9556785c68acbc08060
   TypeTreeHash:
     serializedVersion: 2
-    Hash: eb5ac896da9fb1583940a5c3aa4281ae
+    Hash: 8757f21c11a6d9eab152d610187b0249
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -33,12 +33,15 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 111
   Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
 Assets:
 - Assets/Models/Prefabs/UnstableDesign.prefab
 - Assets/Models/Prefabs/InspiringDroneTracker.prefab
-- Assets/Models/Raw Models/HexedTotem.blend
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
 - Assets/Textures/Materials/UnstableDesignFrontTexture.png
 - Assets/Textures/Materials/testnoise.jpg
@@ -46,16 +49,19 @@ Assets:
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
 - Assets/Animations/InspiringDroneHead.controller
+- Assets/Textures/Materials/teststringtexture.png
 - Assets/Textures/Icons/VoidInstabilityDebuffIcon.png
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Materials/SharkTeethBone.mat
 - Assets/Models/Prefabs/InspiringDrone.prefab
+- Assets/Textures/Materials/HexTotemTextureEye.png
 - Assets/Textures/Materials/WeightedAnkletWeight.mat
 - Assets/Textures/Icons/FeatheredPlumeIconAlt.png
 - Assets/Models/Prefabs/Voidheart.prefab
 - Assets/Shaders/PulseShader.shader
+- Assets/Textures/Icons/HexPendulumIcon.png
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
@@ -65,12 +71,14 @@ Assets:
 - Assets/Textures/Materials/Gem Glass.mat
 - Assets/Models/Prefabs/BloodSoakedShield.prefab
 - Assets/Animations/InspiringDroneChest.controller
+- Assets/Textures/Materials/HexPendulumArc.mat
 - Assets/Models/Raw Models/ShieldingCore.blend
 - Assets/Textures/Materials/FeatheredPlumeTestTexture.png
 - Assets/Models/Raw Models/FeatheredPlume.blend
 - Assets/Textures/Materials/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/WeightedAnkletIcon.png
 - Assets/Textures/Materials/JarOfReshapingPowerCore.mat
+- Assets/Animations/HexPendulum.controller
 - Assets/Models/Prefabs/AlienMagnet.prefab
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
@@ -79,6 +87,7 @@ Assets:
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.png
 - Assets/Textures/Materials/BloodSoakedShieldSpikes.mat
 - Assets/Textures/Materials/InspiringDroneMain2.mat
+- Assets/Models/Prefabs/HexPendulumTracker.prefab
 - Assets/Textures/Icons/BloodSoakedShieldIconAlt.png
 - Assets/Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Materials/InspiringDroneScreenGlass.mat
@@ -92,6 +101,7 @@ Assets:
 - Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
+- Assets/Animations/HexPendulum.anim
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.mat
@@ -116,6 +126,7 @@ Assets:
 - Assets/Models/Raw Models/InspiringDrone.blend
 - Assets/Textures/Materials/ShieldingMetal.mat
 - Assets/Textures/Materials/InspiringDroneEarBase.mat
+- Assets/Shaders/LightningArc.shader
 - Assets/Textures/Materials/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/ShieldingCore.prefab
 - Assets/Textures/Materials/VoidheartBlack.mat
@@ -123,6 +134,7 @@ Assets:
 - Assets/Textures/Icons/FeatheredPlumeIcon.png
 - Assets/Models/Prefabs/AnkletOfMomentum.prefab
 - Assets/Animations/InspiringDroneUpperArmL.controller
+- Assets/Models/Prefabs/HexPendulum.prefab
 - Assets/Shaders/FireBallEffect.shader
 - Assets/Textures/Materials/WeightedAnkletCrystal.mat
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTextureNormalMap.png
@@ -130,9 +142,11 @@ Assets:
 - Assets/Textures/Materials/FeatheredPlumeQuill.mat
 - Assets/Textures/Materials/InspiringDroneText.png
 - Assets/Textures/Materials/ShieldCoreMaterial.mat
+- Assets/Models/Raw Models/HexPendulum.blend
 - Assets/Textures/Icons/UnstableDesignIcon.png
 - Assets/Textures/Materials/BloodSoakedShieldHandle.mat
 - Assets/Animations/InspiringDroneUpperArmR.controller
+- Assets/Textures/Materials/HexTotemTextureEye.mat
 - Assets/Textures/Materials/BloodSoakedShieldMain.mat
 - Assets/Textures/Materials/UnstableDesignFrontTexture.mat
 - Assets/Animations/InspiringDroneThrusterPlume.anim

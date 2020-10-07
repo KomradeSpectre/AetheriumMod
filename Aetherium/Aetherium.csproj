@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Items\HexPendulum.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="aetherium_assets" />
   </ItemGroup>
 
