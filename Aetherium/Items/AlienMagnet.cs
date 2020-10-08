@@ -13,6 +13,21 @@ namespace Aetherium.Items
 
     public class AlienMagnet : Item<AlienMagnet>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the starting force multiplier of the Alien Magnet's pull be? (Default: 6 (6x))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float startingForceMultiplier { get; private set; } = 6f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much additional force multiplier should be granted per Alien Magnet stack? (Default: 1 (1x))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float additionalForceMultiplier { get; private set; } = 1f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the minimum force multiplier be for the Alien Magnet? (Default: 5 (5x))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float minimumForceMultiplier { get; private set; } = 5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the maximum force multiplier be for the Alien Magnet? (Default: 10 (10x))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float maximumForceMultiplier { get; private set; } = 10f;
 
         public override string displayName => "Alien Magnet";
 
@@ -23,7 +38,7 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "Your attacks pull enemies towards you.";
 
-        protected override string NewLangDesc(string langid = null) => "Enemies hit by your attacks will be pulled towards you, starting at 6x force <style=cStack>(+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies.)</style>";
+        protected override string NewLangDesc(string langid = null) => $"Enemies hit by your attacks will be pulled towards you, starting at {startingForceMultiplier}x force <style=cStack>(+{additionalForceMultiplier}x force multiplier, up to {maximumForceMultiplier}x total force. The effect is more noticeable on higher health enemies.)</style>";
 
         protected override string NewLangLore(string langID = null) => "A strange pylon that seems to bring enemies towards the wielder when their attacks hit. Only the truly brave or insane bring the fight to themselves.";
 
@@ -193,7 +208,7 @@ namespace Aetherium.Items
                     if (ItemCount > 0) //Does the attacker have any of our item?
                     {
                         var mass = self.body.characterMotor?.mass ?? (self.body.rigidbody?.mass ?? 1f);
-                        var forceCalc = Mathf.Clamp(6 + (1f * (ItemCount - 1)), 5, 10);
+                        var forceCalc = Mathf.Clamp(startingForceMultiplier + (additionalForceMultiplier * (ItemCount - 1)), minimumForceMultiplier, maximumForceMultiplier);
                         damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
                     }
                 }

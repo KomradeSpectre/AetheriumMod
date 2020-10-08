@@ -12,6 +12,18 @@ namespace Aetherium.Items
 {
     public class ShieldingCore : Item<ShieldingCore>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much armor should the first Shielding Core grant? (Default: 15)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float baseShieldingCoreArmorGrant { get; private set; } = 15f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much armor should each additional Shielding Core grant? (Default: 10)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float additionalShieldingCoreArmorGrant { get; private set; } = 10f;
+
         public BuffIndex shieldedCoreArmorBuff { get; private set; }
         public override string displayName => "Shielding Core";
 
@@ -22,7 +34,7 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "On being hit while shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "You gain 10 <style=cStack>(+5 per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active.";
+        protected override string NewLangDesc(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active.";
 
         protected override string NewLangLore(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 
@@ -34,8 +46,11 @@ namespace Aetherium.Items
 
         public ShieldingCore()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/ShieldingCore.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/shieldingCoreIcon.png";
+            postConfig += (configFile) =>
+            {
+                modelPathName = "@Aetherium:Assets/Models/Prefabs/ShieldingCore.prefab";
+                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/shieldingCoreIcon.png";
+            };
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -215,7 +230,7 @@ namespace Aetherium.Items
             var ShieldedCoreComponent = sender.GetComponent<ShieldedCoreComponent>();
             if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
             {
-                args.armorAdd += 5 + 5 * ShieldedCoreComponent.cachedInventoryCount;
+                args.armorAdd += baseShieldingCoreArmorGrant + (additionalShieldingCoreArmorGrant * ShieldedCoreComponent.cachedInventoryCount-1);
             }
 
         }

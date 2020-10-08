@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 
@@ -12,6 +13,30 @@ namespace Aetherium.Items
 {
     public class SharkTeeth : Item<SharkTeeth>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        public bool useNewIcons { get; private set; } = true;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much damage in percentage should be spread out over time? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float baseDamageSpreadPercentage { get; private set; } = 0.25f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float additionalDamageSpreadPercentage { get; private set; } = 0.25f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should our maximum percentage damage spread over time be? (Default: 0.75 (75%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float maxDamageSpreadPercentage { get; private set; } = 0.75f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many seconds should the damage be spread out over? (Default: 5)", AutoItemConfigFlags.PreventNetMismatch)]
+        public float durationOfDamageSpread { get; private set; } = 5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many ticks of damage during our duration (as in how divided is our damage)? (Default: 10)", AutoItemConfigFlags.PreventNetMismatch)]
+        public int ticksOfDamageDuringDuration { get; private set; } = 10;
+
         public override string displayName => "Shark Teeth";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
@@ -21,9 +46,9 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "<style=cIsDamage>25%</style> of damage taken <style=cStack>(+25% per stack, hyperbolically)</style> is distributed to you over 5 seconds as <style=cIsDamage>bleed damage</style>";
+        protected override string NewLangDesc(string langid = null) => $"<style=cIsDamage>{Pct(baseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{Pct(additionalDamageSpreadPercentage)} per stack, hyperbolically)</style> is distributed to you over {durationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>";
 
-        protected override string NewLangLore(string langID = null) => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be a simple flesh wound on their wielder.";
+        protected override string NewLangLore(string langID = null) => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be minor flesh wounds on their wielder.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
@@ -32,9 +57,11 @@ namespace Aetherium.Items
 
         public SharkTeeth()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/SharkTeeth.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/SharkTeethIcon.png";
-
+            postConfig += (configFile) =>
+            {
+                modelPathName = "@Aetherium:Assets/Models/Prefabs/SharkTeeth.prefab";
+                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/SharkTeethIcon.png";
+            };
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -193,10 +220,10 @@ namespace Aetherium.Items
             if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
             {
                 //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
-                var percentage = 0.25f + (0.75f - 0.75f / (1 + 0.25f * (inventoryCount - 1)));
+                var percentage = baseDamageSpreadPercentage + (maxDamageSpreadPercentage - maxDamageSpreadPercentage / (1 + additionalDamageSpreadPercentage * (inventoryCount - 1)));
                 var damage = damageInfo.damage * percentage;
-                var time = 5f;
-                var segments = 10;
+                var time = durationOfDamageSpread;
+                var segments = ticksOfDamageDuringDuration;
                 damageInfo.damage -= damage;
                 bleedComponent.BleedStacks.Add(new BleedStack(time / segments, damage / segments, segments, damageInfo.attacker, damageInfo.damageType));
             }
@@ -227,6 +254,7 @@ namespace Aetherium.Items
         public class BleedStack
         {
             public float TimeLeft;
+            public float StashedTimeLeft;
             public float DamagePerTick;
             public float TicksLeft;
             public GameObject Attacker;
@@ -236,6 +264,7 @@ namespace Aetherium.Items
             public BleedStack(float timeLeft, float damagePerTick, float ticksLeft, GameObject attacker, DamageType damageType)
             {
                 TimeLeft = timeLeft;
+                StashedTimeLeft = timeLeft;
                 DamagePerTick = damagePerTick;
                 TicksLeft = ticksLeft;
                 Attacker = attacker;
@@ -248,7 +277,7 @@ namespace Aetherium.Items
 
                 if (TimeLeft <= 0)
                 {
-                    TimeLeft += 0.25f;
+                    TimeLeft += StashedTimeLeft;
                     TicksLeft -= 1;
 
                     DamageDealt += DamagePerTick;

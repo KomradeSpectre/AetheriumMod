@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 using BepInEx.Configuration;
@@ -16,6 +17,18 @@ namespace Aetherium.Items
         [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
         public bool useNewIcons { get; private set; } = true;
 
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much shield in percentage should be restored per kill? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float shieldPercentageRestoredPerKill { get; private set; } = 0.1f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float additionalShieldPercentageRestoredPerKillDiminishing { get; private set; } = 0.1f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should our maximum percentage shield restored per kill be? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float maximumPercentageShieldRestoredPerKill { get; private set; } = 0.5f;
+
         public override string displayName => "Blood Soaked Shield";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
@@ -25,7 +38,7 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "Killing an enemy restores <style=cIsUtility>10% max shield</style> <style=cStack>(+10% per stack hyperbolically.)</style>";
+        protected override string NewLangDesc(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>";
 
         protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
@@ -192,7 +205,7 @@ namespace Aetherium.Items
             if (damageReport?.attackerBody)
             {
                 int inventoryCount = GetCount(damageReport.attackerBody);
-                var percentage = 0.1f + (0.5f - 0.5f / (1 + 0.1f * (inventoryCount - 1)));
+                var percentage = shieldPercentageRestoredPerKill + (maximumPercentageShieldRestoredPerKill - maximumPercentageShieldRestoredPerKill / (1 + additionalShieldPercentageRestoredPerKillDiminishing * (inventoryCount - 1)));
                 damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);
             }
             orig(self, damageReport);

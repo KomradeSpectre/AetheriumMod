@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 843378452
+CRC: 1826433058
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9961fa539cacd9556785c68acbc08060
+    Hash: 71708183f1fba93caaed8fbd1b41aee8
   TypeTreeHash:
     serializedVersion: 2
     Hash: 8757f21c11a6d9eab152d610187b0249
@@ -80,6 +80,7 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingPowerCore.mat
 - Assets/Animations/HexPendulum.controller
 - Assets/Models/Prefabs/AlienMagnet.prefab
+- Assets/Textures/Icons/SharkTeethIconAlt.png
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Textures/Materials/InspiringDroneMain1.mat
@@ -102,6 +103,7 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
 - Assets/Animations/HexPendulum.anim
+- Assets/Textures/Icons/ShieldingCoreIconAlt.png
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.mat

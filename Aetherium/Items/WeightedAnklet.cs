@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 
@@ -12,6 +13,18 @@ namespace Aetherium.Items
 {
     public class WeightedAnklet : Item<WeightedAnklet>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much knockback reduction in percentage should be given for each Weighted Anklet? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float baseKnockbackReductionPercentage { get; private set; } = 0.25f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much movement speed in percentage should be reduced per Weighted Anklet? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float baseMovementSpeedReductionPercentage { get; private set; } = 0.1f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should be the lowest percentage of movespeed reduction be? (Default: 0.6 (means only 40% move speed can be lost total))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float movementSpeedReductionPercentageCap { get; private set; } = 0.6f;
+
         public override string displayName => "Weighted Anklet";
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
@@ -21,7 +34,7 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "Gain resistance to <style=cIsDamage>knockback</style>, BUT <style=cIsUtility>lose speed</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "Gain a 25% reduction to knockback from attacks <style=cStack>(+25% per stack (up to 100%) linearly)</style>. Lose 10% move speed <style=cStack>(+10% per stack (up to 40%) linearly)</style>.";
+        protected override string NewLangDesc(string langid = null) => $"Gain a {Pct(baseKnockbackReductionPercentage)} reduction to knockback from attacks <style=cStack>(+{Pct(baseKnockbackReductionPercentage)} per stack (up to 100%) linearly)</style>. Lose {Pct(baseMovementSpeedReductionPercentage)} move speed <style=cStack>(+{Pct(baseMovementSpeedReductionPercentage)} per stack (up to {Pct(1 - movementSpeedReductionPercentageCap)}) linearly)</style>.";
 
         protected override string NewLangLore(string langID = null) => "An old anklet lined with strangely superdense crystals. FOREWARNING: Please take care of how many you put on if you find these. One of our field testers put 10 of these on during testing, and attempts to move him since have failed.";
 
@@ -185,7 +198,7 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self);
             if (InventoryCount > 0)
             {
-                self.moveSpeed *= Mathf.Clamp(1 - (InventoryCount * 0.1f), 0.6f, 1);
+                self.moveSpeed *= Mathf.Clamp(1 - (InventoryCount * baseMovementSpeedReductionPercentage), movementSpeedReductionPercentageCap, 1);
             }
         }
 
@@ -194,7 +207,7 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if(InventoryCount > 0)
             {
-                var percentReduction = Mathf.Clamp(1 - (InventoryCount * 0.25f), 0, 1);
+                var percentReduction = Mathf.Clamp(1 - (InventoryCount * baseKnockbackReductionPercentage), 0, 1);
                 damageInfo.force = damageInfo.force * percentReduction;
             }
             orig(self, damageInfo);

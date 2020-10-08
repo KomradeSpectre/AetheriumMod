@@ -6,6 +6,7 @@ using RoR2.CharacterAI;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 using Aetherium.Utils;
@@ -18,6 +19,62 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : Item<InspiringDrone>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description. (Default: true)", AutoItemConfigFlags.PreventNetMismatch, false, true)]
+        public bool setAllStatValuesAtOnce { get; private set; } = true;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of stats from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float allStatValueGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float damageGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float attackSpeedGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the crit chance stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float critChanceGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the health stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float healthGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the regen stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float regenGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float armorGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float movementSpeedGrantedPercentage { get; private set; } = 0.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many seconds till we teleport turrets (tracked individually) close to their owner? (Default: 40 (40 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float turretTeleportationCooldownDuration { get; private set; } = 40f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many seconds till we teleport drones (tracked individually) close to their owner? (Default: 30 (30 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float droneTeleportationCooldownDuration { get; private set; } = 30f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many seconds between checking if we can teleport things? (Default: 10 (10 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float teleportationCheckCooldownDuration { get; private set; } = 10f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How far out should we place turrets from the owner when teleporting them? (Default: 20 (20m))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float turretTeleportationDistanceAroundOwner { get; private set; } = 20f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float droneTeleportationDistanceAroundOwner { get; private set; } = 30f;
+
         public override string displayName => "Inspiring Drone";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier3;
@@ -27,9 +84,30 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
 
-        protected override string NewLangDesc(string langid = null) => "When a bot is purchased, it gains a <style=cIsUtility>50% boost to each of its stats based on yours</style> <style=cStack>(+50% per stack, linearly)</style>. \n" +
-            "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
-            "Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>(40 seconds for Turrets, 30 seconds for Drones)</style>.";
+        protected override string NewLangDesc(string langid = null) 
+        {
+            var description = "";
+            if (setAllStatValuesAtOnce) 
+            {
+                description = $"When a bot is purchased, it gains a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of its stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>. \n" +
+                "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
+                $"Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
+            }
+            else
+            {
+                description = $"When a bot is purchased, it gains the following stat boosts per stack.\n" +
+                    $"Bots gain a <style=cIsDamage>{Pct(damageGrantedPercentage)} damage boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsDamage>{Pct(attackSpeedGrantedPercentage)} attack speed boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsDamage>{Pct(critChanceGrantedPercentage)} crit chance boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsHealing>{Pct(healthGrantedPercentage)} health boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsHealing>{Pct(regenGrantedPercentage)} regen boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsUtility>{Pct(armorGrantedPercentage)} armor boost based on yours</style>.\n" +
+                    $"Bots gain a <style=cIsUtility>{Pct(movementSpeedGrantedPercentage)} damage boost based on yours</style>.\n" +
+                    $"Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
+                    $"Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
+            }
+            return description;
+        }
 
         protected override string NewLangLore(string langID = null) => "Log File seems to be a transcript comprised entirely of binary. Decode?\n" +
             ">Yes\n" +
@@ -229,15 +307,15 @@ namespace Aetherium.Items
                 var InventoryCount = GetCount(summonerBody);
                 if (InventoryCount > 0)
                 {
-                    var boostPercentage = 0.5f * InventoryCount;
+                    var boostPercentage = allStatValueGrantedPercentage * InventoryCount;
                     var BotStatsTracker = botToBeUpgradedMaster.gameObject.AddComponent<BotStatTracker>();
-                    BotStatsTracker.DamageBoost = summonerBody.damage * boostPercentage;
-                    BotStatsTracker.AttackSpeedBoost = summonerBody.attackSpeed * boostPercentage;
-                    BotStatsTracker.CritChanceBoost = summonerBody.crit * boostPercentage;
-                    BotStatsTracker.HealthBoost = summonerBody.maxHealth * boostPercentage;
-                    BotStatsTracker.RegenBoost = summonerBody.regen * boostPercentage;
-                    BotStatsTracker.ArmorBoost = summonerBody.armor * boostPercentage;
-                    BotStatsTracker.MoveSpeedBoost = summonerBody.moveSpeed * boostPercentage;
+                    BotStatsTracker.DamageBoost = summonerBody.damage * (setAllStatValuesAtOnce ? boostPercentage : damageGrantedPercentage * InventoryCount);
+                    BotStatsTracker.AttackSpeedBoost = summonerBody.attackSpeed * (setAllStatValuesAtOnce ? boostPercentage : attackSpeedGrantedPercentage * InventoryCount);
+                    BotStatsTracker.CritChanceBoost = summonerBody.crit * (setAllStatValuesAtOnce ? boostPercentage : critChanceGrantedPercentage * InventoryCount);
+                    BotStatsTracker.HealthBoost = summonerBody.maxHealth * (setAllStatValuesAtOnce ? boostPercentage : healthGrantedPercentage * InventoryCount);
+                    BotStatsTracker.RegenBoost = summonerBody.regen * (setAllStatValuesAtOnce ? boostPercentage : regenGrantedPercentage * InventoryCount);
+                    BotStatsTracker.ArmorBoost = summonerBody.armor * (setAllStatValuesAtOnce ? boostPercentage : armorGrantedPercentage * InventoryCount);
+                    BotStatsTracker.MoveSpeedBoost = summonerBody.moveSpeed * (setAllStatValuesAtOnce ? boostPercentage : movementSpeedGrantedPercentage * InventoryCount);
                     BotStatsTracker.BotName = "Inspired " + botToBeUpgradedMaster.GetBody().GetDisplayName();
                     BotStatsTracker.BotOwner = summonerBody.master;
                     botToBeUpgradedMaster.GetBody().statsDirty = true;
@@ -329,20 +407,20 @@ namespace Aetherium.Items
                         {
                             if (characterMaster.gameObject.name.StartsWith("Turret1Master"))
                             {
-                                TrackerComponent.TeleportTimer = 10;
-                                if(Vector3.Distance(self.corePosition, TargetBody.corePosition) >= 20) 
+                                TrackerComponent.TeleportTimer = teleportationCheckCooldownDuration;
+                                if(Vector3.Distance(self.corePosition, TargetBody.corePosition) >= turretTeleportationDistanceAroundOwner) 
                                 {
                                     TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Ground);
-                                    TrackerComponent.TeleportTimer = 40;
+                                    TrackerComponent.TeleportTimer = turretTeleportationCooldownDuration;
                                 }
                             }
                             else
                             {
-                                TrackerComponent.TeleportTimer = 10;
-                                if (Vector3.Distance(self.corePosition, TargetBody.corePosition) >= 30)
+                                TrackerComponent.TeleportTimer = teleportationCheckCooldownDuration;
+                                if (Vector3.Distance(self.corePosition, TargetBody.corePosition) >= droneTeleportationDistanceAroundOwner)
                                 {
                                     TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Air);
-                                    TrackerComponent.TeleportTimer = 30;
+                                    TrackerComponent.TeleportTimer = droneTeleportationCooldownDuration;
                                 }
                             }
                         }

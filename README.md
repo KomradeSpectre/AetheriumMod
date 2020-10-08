@@ -41,6 +41,11 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
+[0.1.6]
++ Added Configs to all items currently in Aetherium. All major values can be configured to your liking now.
++ Buffed Shielding Core's base values to 15 armor for first pickup, and 10 for each additional pickup after that.
++ More icon art by WaltzingPhantom, and the other new ones retouched to look better ingame, this time Shielding Core and Shark Teeth. 
+
 [0.1.51]
 + Made my mod item classes public so modders can easily reference them to add Item Displays of Aetherium items to their characters. These can be accessed with the path "Aetherium.Items.WeightedAnklet.ItemBodyModelPrefab" for instance.  
 + Updated the modpage to properly credit WaltzingPhantom for their nice icon art. I forgot when I uploaded 0.1.5 to do that here but did it everywhere else, woopsie!  
@@ -69,12 +74,6 @@ and as such the ones that were I will list the person that came up with the idea
 [0.1.1]  
 + Added Weighted Anklet.  
 
-[0.1.0]  
-+ Added Shielding Core  
-+ Added Blood Soaked Shield  
-+ Added Shark Teeth  
-+ Added Feathered Plume  
-+ Added Alien Magnet  
 ---
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
@@ -84,6 +83,6 @@ and as such the ones that were I will list the person that came up with the idea
 **Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.   
 **BordListian** - Basically co-dev support in creating this and playtesting.  
 **GrimTheWanderer** - Playtesting.  
-**WaltzingPhantom** - For providing alternative icon art for Feathered Plume and Blood Soaked Shield!  
+**WaltzingPhantom** - For providing alternative icon art for Feathered Plume, Blood Soaked Shield, Shark Teeth, and Shielding Core!  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **Lorc (http://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  

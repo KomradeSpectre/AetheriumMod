@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 using UnityEngine.Networking;
@@ -17,6 +18,34 @@ namespace Aetherium.Items
 {
     public class Voidheart : Item<Voidheart>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How high should the damage multiplier be for the void implosion? (Default: 120 (That is to say, currentDamage * 120))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float voidImplosionDamageMultiplier { get; private set; } = 120f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float voidImplosionBaseRadius { get; private set; } = 15f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float voidImplosionAdditionalRadius { get; private set; } = 7.5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float voidHeartBaseTickingTimeBombHealthThreshold { get; private set; } = 0.3f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float voidHeartAdditionalTickingTimeBombHealthThreshold { get; private set; } = 0.05f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float voidHeartMaxTickingTimeBombHealthThreshold { get; private set; } = 0.99f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float voidHeartCooldownDebuffDuration { get; private set; } = 30f;
+
         public override string displayName => "Heart of the Void";
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
@@ -26,7 +55,7 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that scales with your damage with a radius of <style=cIsDamage>15m</style> <style=cStack>(+7.5m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>30% health</style> <style=cStack>(+5% per stack, max 99%)</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
+        protected override string NewLangDesc(string langid = null) => $"On <style=cDeath>death</style>, cause a highly damaging void implosion that is {voidImplosionDamageMultiplier}x your damage with a radius of <style=cIsDamage>{voidImplosionBaseRadius}m</style> <style=cStack>(+{voidImplosionAdditionalRadius}m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>{Pct(voidHeartBaseTickingTimeBombHealthThreshold)} health</style> <style=cStack>(+{Pct(voidHeartAdditionalTickingTimeBombHealthThreshold)} per stack, max {Pct(voidHeartMaxTickingTimeBombHealthThreshold)})</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
 
         protected override string NewLangLore(string langID = null) => "\n[INCIDENT NUMBER 511051]" +
             "\n[TRANSCRIPT TO FOLLOW]" +
@@ -232,12 +261,16 @@ namespace Aetherium.Items
                 
                 GameObject explosion = new GameObject();
                 explosion.transform.position = body.transform.position;
+
                 var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
                 componentVoidheartDeath.toReviveMaster = self;
                 componentVoidheartDeath.toReviveBody = body;
-                componentVoidheartDeath.voidExplosionRadius = 15 + 15 * 0.5f * (InventoryCount-1);
+                componentVoidheartDeath.voidExplosionRadius = voidImplosionBaseRadius + (voidImplosionAdditionalRadius * (InventoryCount-1));
+                componentVoidheartDeath.voidHeartImplosionDamageMultiplier = voidImplosionDamageMultiplier;
                 componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
+                componentVoidheartDeath.voidHeartCooldownDuration = voidHeartCooldownDebuffDuration;
                 componentVoidheartDeath.Init();
+
                 var tempDestroyOnDeath = self.destroyOnBodyDeath;
                 self.destroyOnBodyDeath = false;
                 orig(self, body);
@@ -253,7 +286,7 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if (self.body && InventoryCount > 0)
             {
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((0.3f + (0.05f * InventoryCount - 1)), 0.3f, 0.99f) &&
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((voidHeartBaseTickingTimeBombHealthThreshold + (voidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), voidHeartBaseTickingTimeBombHealthThreshold, voidHeartMaxTickingTimeBombHealthThreshold) &&
                     //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
                     self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
                 {
@@ -279,7 +312,7 @@ namespace Aetherium.Items
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
-                overlay.duration = 30;
+                overlay.duration = voidHeartCooldownDebuffDuration;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;

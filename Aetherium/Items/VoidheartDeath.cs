@@ -14,6 +14,8 @@ namespace Aetherium.Items
         public Vector3? portalPosition;
         public GameObject deathPreExplosionInstance;
         public float voidExplosionRadius;
+        public float voidHeartCooldownDuration;
+        public float voidHeartImplosionDamageMultiplier;
         public float fixedAge;
         public bool hasFiredVoidPortal;
         public bool voidPortalKilledSomething;
@@ -80,7 +82,7 @@ namespace Aetherium.Items
                     if (voidPortalKilledSomething) 
                     {
                         var bodyRevived = toReviveMaster.GetBody();
-                        bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff, 30);
+                        bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff, voidHeartCooldownDuration);
                     }
                     UnityEngine.Object.Destroy(base.gameObject);
                 }
@@ -109,7 +111,7 @@ namespace Aetherium.Items
                         DamageInfo damageInfo = new DamageInfo();
                         if (toReviveBody) { damageInfo.attacker = toReviveBody.gameObject;}
                         damageInfo.crit = false;
-                        damageInfo.damage = toReviveBody.damage * 120;
+                        damageInfo.damage = toReviveBody.damage * voidHeartImplosionDamageMultiplier;
                         damageInfo.force = Vector3.zero;
                         damageInfo.inflictor = base.gameObject;
                         damageInfo.position = characterBody2.corePosition;

@@ -18,19 +18,19 @@ namespace Aetherium.Items
         public bool useNewIcons { get; private set; } = true;
 
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds should feathered plume's buff last with a single stack? (Default: 5 seconds)", AutoItemConfigFlags.PreventNetMismatch)]
-        public float baseDurationOfBuffInSeconds { get; private set; } = 5;
+        [AutoItemConfig("How many seconds should feathered plume's buff last with a single stack? (Default: 5 (seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float baseDurationOfBuffInSeconds { get; private set; } = 5f;
 
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many additional seconds of buff should each feathered plume after the first give? (Default: 0.5f seconds)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoItemConfig("How many additional seconds of buff should each feathered plume after the first give? (Default: 0.5 (seconds))", AutoItemConfigFlags.PreventNetMismatch)]
         public float additionalDurationOfBuffInSeconds { get; private set; } = 0.5f;
 
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many buff stacks should each feather give? (Default: 3)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoItemConfig("How many buff stacks should each feather give? (Default: 3 (these must be whole numbers))", AutoItemConfigFlags.PreventNetMismatch)]
         public int buffStacksPerFeatheredPlume { get; private set; } = 3;
 
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much movespeed in percent should each stack of Feathered Plume's buff give? (Default: 0.07f)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoItemConfig("How much movespeed in percent should each stack of Feathered Plume's buff give? (Default: 0.07 (7%))", AutoItemConfigFlags.PreventNetMismatch)]
         public float moveSpeedPercentageBonusPerBuffStack { get; private set; } = 0.07f;
 
         public override string displayName => "Feathered Plume";

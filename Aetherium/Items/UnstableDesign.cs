@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using TILER2;
 using static TILER2.StatHooks;
+using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 using UnityEngine.Networking;
@@ -15,6 +16,34 @@ namespace Aetherium.Items
 {
     public class UnstableDesign : Item<UnstableDesign>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should be our duration between summoning the Lunar Chimera? (Default: 30 (30 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float lunarChimeraResummonCooldownDuration { get; private set; } = 30f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets? (Default: 10 (10 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        public float lunarChimeraRetargetingCooldown { get; private set; } = 10f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the Lunar Chimera's base damage boost be? (Default: 40 (400% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only. First stack.)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int lunarChimeraBaseDamageBoost { get; private set; } = 40;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the Lunar Chimera's additional damage boost be per stack? (Default: 10 (100% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only.)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int lunarChimeraAdditionalDamageBoost { get; private set; } = 10;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int lunarChimeraBaseHPBoost { get; private set; } = 10;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int lunarChimeraBaseAttackSpeedBoost { get; private set; } = 30;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int lunarChimeraBaseMovementSpeedBoost { get; private set; } = 2;
+
         public override string displayName => "Unstable Design";
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
@@ -24,11 +53,11 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "Every 30 seconds you are compelled to create a very <color=#FF0000>'FRIENDLY'</color> Lunar Chimera, if one of your creations does not already exist.";
 
-        protected override string NewLangDesc(string langid = null) => "Every 30 seconds you are compelled to create a very <color=#FF0000>'FRIENDLY'</color> Lunar Chimera, if one of your creations does not already exist. " + 
-            "\nIt has a <style=cIsDamage>400% base damage boost</style> <style=cStack>(+100% per stack)</style>." +
-            "\nIt has a <style=cIsHealing>10% base HP boost</style> <style=cStack>(+10% per stack)</style>." +
-            "\nIt has a <style=cIsDamage>300% base attack speed boost</style>." + 
-            "\nFinally, it has a <style=cIsUtility>24% base movement speed boost</style> <style=cStack>(+24% per stack)</style>." +
+        protected override string NewLangDesc(string langid = null) => $"Every {lunarChimeraResummonCooldownDuration} seconds you are compelled to create a very <color=#FF0000>'FRIENDLY'</color> Lunar Chimera, if one of your creations does not already exist. " + 
+            $"\nIt has a <style=cIsDamage>{Pct(lunarChimeraBaseDamageBoost * 10, 0, 1)} base damage boost</style> <style=cStack>(+{Pct(lunarChimeraAdditionalDamageBoost * 10, 0, 1)} per stack)</style>." +
+            $"\nIt has a <style=cIsHealing>{Pct(lunarChimeraBaseHPBoost * 10, 0, 1)} base HP boost</style> <style=cStack>(+{Pct(lunarChimeraBaseHPBoost * 10, 0, 1)} per stack)</style>." +
+            $"\nIt has a <style=cIsDamage>{Pct(lunarChimeraBaseAttackSpeedBoost * 10, 0, 1)} base attack speed boost</style>." + 
+            $"\nFinally, it has a <style=cIsUtility>{Pct(lunarChimeraBaseMovementSpeedBoost * 14, 0, 1)} base movement speed boost</style> <style=cStack>(+{Pct(lunarChimeraBaseMovementSpeedBoost * 14, 0, 1)} per stack)</style>." +
             "\nThis monstrosity <style=cIsDamage>can level up from kills</style>.";
 
         protected override string NewLangLore(string langID = null) => "We entered this predicament when one of our field testers brought back a blueprint from a whole mountain of them they found on the moon. " +
@@ -246,10 +275,10 @@ namespace Aetherium.Items
                                     component.GetBody().teamComponent.teamIndex = TeamIndex.Neutral;
                                     component.teamIndex = TeamIndex.Neutral;
 
-                                    component.inventory.GiveItem(ItemIndex.BoostDamage, 30 + (10 * InventoryCount));
-                                    component.inventory.GiveItem(ItemIndex.BoostHp, 10 * InventoryCount);
-                                    component.inventory.GiveItem(ItemIndex.BoostAttackSpeed, 30);
-                                    component.inventory.GiveItem(ItemIndex.Hoof, 2 * InventoryCount);
+                                    component.inventory.GiveItem(ItemIndex.BoostDamage, lunarChimeraBaseDamageBoost + (lunarChimeraAdditionalDamageBoost * InventoryCount-1));
+                                    component.inventory.GiveItem(ItemIndex.BoostHp, lunarChimeraBaseHPBoost * InventoryCount);
+                                    component.inventory.GiveItem(ItemIndex.BoostAttackSpeed, lunarChimeraBaseAttackSpeedBoost);
+                                    component.inventory.GiveItem(ItemIndex.Hoof, lunarChimeraBaseMovementSpeedBoost * InventoryCount);
 
                                     RoR2.CharacterBody component4 = component.GetBody();
                                     if (component4)
@@ -267,7 +296,7 @@ namespace Aetherium.Items
                                     }
                                 }
                             }
-                            if (gameObject) {LunarChimeraComponent.ResummonCooldown = 30f;}
+                            if (gameObject) {LunarChimeraComponent.ResummonCooldown = lunarChimeraResummonCooldownDuration;}
                         }
                     }
                 }
@@ -309,7 +338,7 @@ namespace Aetherium.Items
                         {
                             baseAIComponent.currentEnemy.Reset();
                             baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
-                            retargetComponent.RetargetTimer = 10;
+                            retargetComponent.RetargetTimer = lunarChimeraRetargetingCooldown;
                         }
                     }
                 }
