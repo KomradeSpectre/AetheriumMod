@@ -41,7 +41,7 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
-[0.1.6]
+[0.2.0]
 + Added Configs to all items currently in Aetherium. All major values can be configured to your liking now.
 + Buffed Shielding Core's base values to 15 armor for first pickup, and 10 for each additional pickup after that.
 + More icon art by WaltzingPhantom, and the other new ones retouched to look better ingame, this time Shielding Core and Shark Teeth. 
