@@ -8,13 +8,14 @@ using Path = System.IO.Path;
 using TILER2;
 using static TILER2.MiscUtil;
 using RoR2;
+using R2API.AssetPlus;
 
 namespace KomradeSpectre.Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [BepInDependency(TILER2Plugin.ModGuid, TILER2Plugin.ModVer)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI))]
+    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModVer = "0.2.0";
@@ -38,6 +39,7 @@ namespace KomradeSpectre.Aetherium
                 var provider = new AssetBundleResourcesProvider("@Aetherium", bundle);
                 ResourcesAPI.AddProvider(provider);
             }
+
             ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, ModGuid + ".cfg"), true);
 
             masterItemList = ItemBoilerplate.InitAll("Aetherium");

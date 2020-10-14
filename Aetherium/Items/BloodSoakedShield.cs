@@ -9,6 +9,8 @@ using static TILER2.MiscUtil;
 using System;
 using KomradeSpectre.Aetherium;
 using BepInEx.Configuration;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace Aetherium.Items
 {
@@ -41,8 +43,6 @@ namespace Aetherium.Items
         protected override string NewLangDesc(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>";
 
         protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
-
-
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
@@ -192,12 +192,38 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab = regDef.pickupModelPrefab;
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
+            IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
         protected override void UnloadBehavior()
         {
+            IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath -= GrantShieldReward;
+        }
+
+        private void GrantBaseShield(ILContext il)
+        {
+            //Provided by Harb from their HarbCrate mod. Thanks Harb!
+            ILCursor c = new ILCursor(il);
+            int shieldsLoc = 33;
+            c.GotoNext(
+                MoveType.Before,
+                x => x.MatchLdloc(out shieldsLoc),
+                x => x.MatchCallvirt<CharacterBody>("set_maxShield")
+            );
+            c.Emit(OpCodes.Ldloc, shieldsLoc);
+            c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+            {
+                var InventoryCount = GetCount(self);
+                if (InventoryCount > 0)
+                {
+                    shields += self.maxHealth * 0.08f;
+                }
+                return shields;
+            });
+            c.Emit(OpCodes.Stloc, shieldsLoc);
+            c.Emit(OpCodes.Ldarg_0);
         }
 
         private void GrantShieldReward(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
@@ -205,10 +231,14 @@ namespace Aetherium.Items
             if (damageReport?.attackerBody)
             {
                 int inventoryCount = GetCount(damageReport.attackerBody);
-                var percentage = shieldPercentageRestoredPerKill + (maximumPercentageShieldRestoredPerKill - maximumPercentageShieldRestoredPerKill / (1 + additionalShieldPercentageRestoredPerKillDiminishing * (inventoryCount - 1)));
-                damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);
+                if (inventoryCount > 0)
+                {
+                    var percentage = shieldPercentageRestoredPerKill + (maximumPercentageShieldRestoredPerKill - maximumPercentageShieldRestoredPerKill / (1 + additionalShieldPercentageRestoredPerKillDiminishing * (inventoryCount - 1)));
+                    damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);
+                }
             }
             orig(self, damageReport);
         }
+
     }
 }

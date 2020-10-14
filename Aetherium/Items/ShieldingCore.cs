@@ -7,6 +7,8 @@ using TILER2;
 using static TILER2.StatHooks;
 using System;
 using KomradeSpectre.Aetherium;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace Aetherium.Items
 {
@@ -188,14 +190,41 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab = regDef.pickupModelPrefab;
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
+
+            IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
 
         protected override void UnloadBehavior()
         {
+            IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate -= ShieldedCoreValidator;
             GetStatCoefficients -= ShieldedCoreArmorCalc;
+        }
+
+        private void GrantBaseShield(ILContext il)
+        {
+            //Provided by Harb from their HarbCrate mod. Thanks Harb!
+            ILCursor c = new ILCursor(il);
+            int shieldsLoc = 33;
+            c.GotoNext(
+                MoveType.Before,
+                x => x.MatchLdloc(out shieldsLoc),
+                x => x.MatchCallvirt<CharacterBody>("set_maxShield")
+            );
+            c.Emit(OpCodes.Ldloc, shieldsLoc);
+            c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+            {
+                var InventoryCount = GetCount(self);
+                if (InventoryCount > 0)
+                {
+                    shields += self.maxHealth * 0.04f;
+                }
+                return shields;
+            });
+            c.Emit(OpCodes.Stloc, shieldsLoc);
+            c.Emit(OpCodes.Ldarg_0);
         }
 
         private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
@@ -230,7 +259,7 @@ namespace Aetherium.Items
             var ShieldedCoreComponent = sender.GetComponent<ShieldedCoreComponent>();
             if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
             {
-                args.armorAdd += baseShieldingCoreArmorGrant + (additionalShieldingCoreArmorGrant * ShieldedCoreComponent.cachedInventoryCount-1);
+                args.armorAdd += baseShieldingCoreArmorGrant + (additionalShieldingCoreArmorGrant * (ShieldedCoreComponent.cachedInventoryCount-1));
             }
 
         }
