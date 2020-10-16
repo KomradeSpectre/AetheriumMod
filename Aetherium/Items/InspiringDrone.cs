@@ -317,7 +317,7 @@ namespace Aetherium.Items
                     botToBeUpgradedMaster.GetBody().statsDirty = true;
 
                     //Add stock to bots that can use it.
-                    String[] BlacklistedBots = {"Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster"};
+                    string[] BlacklistedBots = {"Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster"};
                     var BotIsBlacklisted = Array.Exists(BlacklistedBots, element => botToBeUpgradedMaster.gameObject.name.StartsWith(element));
                     if (!BotIsBlacklisted) 
                     {
@@ -407,6 +407,7 @@ namespace Aetherium.Items
                                 if(Vector3.Distance(self.corePosition, TargetBody.corePosition) >= turretTeleportationDistanceAroundOwner) 
                                 {
                                     TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Ground);
+                                    self.transform.position += self.transform.up * .9f;
                                     TrackerComponent.TeleportTimer = turretTeleportationCooldownDuration;
                                 }
                             }
