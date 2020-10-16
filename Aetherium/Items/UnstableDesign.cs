@@ -1,16 +1,13 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
-using UnityEngine;
-using TILER2;
-using static TILER2.StatHooks;
-using static TILER2.MiscUtil;
-using System;
-using KomradeSpectre.Aetherium;
-using UnityEngine.Networking;
 using RoR2.CharacterAI;
 using RoR2.Skills;
+using System.Collections.ObjectModel;
+using TILER2;
+using UnityEngine;
+using UnityEngine.Networking;
+using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {

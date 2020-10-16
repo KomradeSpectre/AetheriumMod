@@ -1,10 +1,8 @@
-﻿using RoR2;
-using UnityEngine;
-using EntityStates.NullifierMonster;
-using UnityEngine.Networking;
+﻿using EntityStates.NullifierMonster;
+using RoR2;
 using System;
-using R2API;
-using RewiredConsts;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Aetherium.Items
 {

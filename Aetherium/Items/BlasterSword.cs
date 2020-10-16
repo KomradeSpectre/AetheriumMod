@@ -1,25 +1,32 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
-using UnityEngine;
-using TILER2;
-using static TILER2.StatHooks;
-using static TILER2.MiscUtil;
-using System;
-using KomradeSpectre.Aetherium;
-using UnityEngine.Networking;
 using RoR2.Projectile;
-using RewiredConsts;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using EntityStates;
-using Mono.Cecil;
-using MonoMod.RuntimeDetour;
+using TILER2;
+using UnityEngine;
+using UnityEngine.Networking;
+using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
     class BlasterSword : Item<BlasterSword>
     {
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidatePickupToken | AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?", AutoItemConfigFlags.PreventNetMismatch, false, true)]
+        public bool useImpaleProjectile { get; private set; } = true;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("In percentage, how much of the wielder's damage should we have? (Default: 2 (200%))", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public float baseSwordDamageMultiplier { get; private set; } = 2f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("In percentage, how much of the wielder's damage should we add per additional stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public float additionalSwordDamageMultiplier { get; private set; } = 0.5f;
+
         public override string displayName => "Blaster Sword";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier3;
@@ -27,11 +34,17 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Damage });
         protected override string NewLangName(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "";
+        protected override string NewLangPickup(string langID = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(useImpaleProjectile ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
 
-        protected override string NewLangDesc(string langid = null) => $"";
+        protected override string NewLangDesc(string langid = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{Pct(baseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{Pct(additionalSwordDamageMultiplier)} per stack)</style> " +
+            $"when it <style=cIsDamage>{(useImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
 
-        protected override string NewLangLore(string langID = null) => "";
+        protected override string NewLangLore(string langID = null) => "<style=cMono>. . . . . . . . . .</style>\n" +
+            "\n<style=cMono>THEY</style> have chosen to <style=cMono>LISTEN</style> to our words.\n" +
+            "\n<style=cMono>WE</style> have chosen to <style=cMono>GRANT</style> upon you an exceptional <style=cMono>WEAPON</style> to <style=cMono>UTILIZE</style> your <style=cMono>SOULS TRUE STRENGTH</style>.\n" +
+            "\nThe weapon will <style=cMono>ADAPT</style> to fit the needs of the <style=cMono>WIELDER</style>. Once wielded, it is no different than their very soul.\n" +
+            "\nShould the <style=cMono>WIELDER</style> survive their journey, they <style=cMono>WILL</style> discard the frail form of what they once were and <style=cMono>ASCEND</style>.\n" +
+            "\n<style=cMono>. . . . . . . . . .</style>";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -75,8 +88,8 @@ namespace Aetherium.Items
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
-                new RoR2.ItemDisplayRule
-                {
+               new RoR2.ItemDisplayRule
+               {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleLeft",
@@ -96,7 +109,6 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
 
                 }
-
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
             {
@@ -116,10 +128,55 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, -0.3f, 1.6f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(4f, 4f, 4f)
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, 0.8f, 1.3f),
+                    localAngles = new Vector3(60f, 0.8f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, 0.8f, -1.3f),
+                    localAngles = new Vector3(-60f, 0f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, -1.5f, 0f),
+                    localAngles = new Vector3(0f, 0f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleSpear",
+                    localPos = new Vector3(0f, 5.9f, 0f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleBuzzsaw",
+                    localPos = new Vector3(0f, 1f, 1f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(2f, 1f, 1.5f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleBuzzsaw",
+                    localPos = new Vector3(0f, 1f, -1f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(2f, 1f, 1.5f)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -237,6 +294,41 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.12f, 0.12f, 0.12f)
                 }
             });
+            rules.Add("mdlBrother", new ItemDisplayRule[]
+            {
+               new RoR2.ItemDisplayRule
+               {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleLeft",
+                    localPos = new Vector3(0, 0, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0f, 0f, 0f)
+
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleRight",
+                    localPos = new Vector3(0, 0, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0f, 0f, 0f)
+
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "chest",
+                    localPos = new Vector3(0, 0.15f, -0.1f),
+                    localAngles = new Vector3(90, 0, 0),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+
+                }
+            });
             return rules;
         }
 
@@ -248,24 +340,35 @@ namespace Aetherium.Items
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
 
-            SwordProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
+            //The base of this was provided by Rolo to us.
+            SwordProjectile = useImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
 
             var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
-            model.AddComponent<ProjectileGhostController>();
+            model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
 
-            var controller = SwordProjectile.GetComponent<ProjectileController>();
+            var controller = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
             controller.procCoefficient = 0.5f;
             controller.ghostPrefab = model;
 
             SwordProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Player;
 
-            var damage = SwordProjectile.GetComponent<ProjectileDamage>();
-            damage.damageType = DamageType.BonusToLowHealth;
+            var damage = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileDamage>();
+            damage.damageType = DamageType.CrippleOnHit;
             damage.damage = 0;
 
-            var impactExplosion = SwordProjectile.GetComponent<ProjectileImpactExplosion>();
+            var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
             impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
+            impactExplosion.blastRadius = 2;
+            impactExplosion.blastProcCoefficient = 0.2f;
+
+            if (useImpaleProjectile)
+            {
+                var stickOnImpact = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileStickOnImpact>();
+                stickOnImpact.alignNormals = false;
+                impactExplosion.lifetimeAfterImpact = 1.5f;
+                impactExplosion.timerAfterImpact = true;
+            }
 
             // register it for networking
             if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
@@ -276,20 +379,20 @@ namespace Aetherium.Items
                 list.Add(SwordProjectile);
             };
 
-            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSword;
-            On.RoR2.BulletAttack.Fire += FireTheSwordOnTheJankEvent;
-            On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
-            On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
+            On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;
+            On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
+            On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
+            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
         protected override void UnloadBehavior()
         {
-            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo -= FireTheSword;
-            On.RoR2.BulletAttack.Fire -= FireTheSwordOnTheJankEvent;
-            On.RoR2.OverlapAttack.Fire -= FireSwordOnMelee;
-            On.RoR2.Orbs.GenericDamageOrb.Begin -= FireSwordOnOrbs;
             On.RoR2.CharacterBody.FixedUpdate -= ApplyBuffAsIndicatorForReady;
+            On.RoR2.Orbs.GenericDamageOrb.Begin -= FireSwordOnOrbs;
+            On.RoR2.OverlapAttack.Fire -= FireSwordOnMelee;
+            On.RoR2.BulletAttack.Fire -= FireTheSwordOnBulletAttack;
+            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo -= FireTheSwordOnProjectiles;
         }
 
         private void ApplyBuffAsIndicatorForReady(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -302,6 +405,13 @@ namespace Aetherium.Items
                     self.AddBuff(BlasterSwordActiveBuff);
                 }
                 if (self.healthComponent.combinedHealthFraction < 1 && self.HasBuff(BlasterSwordActiveBuff))
+                {
+                    self.RemoveBuff(BlasterSwordActiveBuff);
+                }
+            }
+            else
+            {
+                if (self.HasBuff(BlasterSwordActiveBuff))
                 {
                     self.RemoveBuff(BlasterSwordActiveBuff);
                 }
@@ -326,7 +436,7 @@ namespace Aetherium.Items
                             newProjectileInfo.owner = owner;
                             newProjectileInfo.projectilePrefab = SwordProjectile;
                             newProjectileInfo.speedOverride = 100.0f;
-                            newProjectileInfo.damage = ownerBody.damage * 2;
+                            newProjectileInfo.damage = ownerBody.damage * baseSwordDamageMultiplier + (ownerBody.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
                             newProjectileInfo.damageTypeOverride = null;
                             newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                             newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
@@ -336,7 +446,7 @@ namespace Aetherium.Items
                             try
                             {
                                 RecursionPrevention = true;
-                                ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
                             }
                             finally
                             {
@@ -389,17 +499,17 @@ namespace Aetherium.Items
                                 newProjectileInfo.owner = self.inflictor;
                                 newProjectileInfo.projectilePrefab = SwordProjectile;
                                 newProjectileInfo.speedOverride = 100.0f;
-                                newProjectileInfo.damage = body.damage * 2;
+                                newProjectileInfo.damage = body.damage * baseSwordDamageMultiplier + (body.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
                                 newProjectileInfo.damageTypeOverride = null;
                                 newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
-                                newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                                newProjectileInfo.procChainMask = default(ProcChainMask);
                                 newProjectileInfo.position = HitPositionSums;
                                 newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward);
 
                                 try
                                 {
                                     RecursionPrevention = true;
-                                    ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
                                 }
                                 finally
                                 {
@@ -413,7 +523,7 @@ namespace Aetherium.Items
             return orig(self, hitResults);
         }
 
-        private void FireTheSwordOnTheJankEvent(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
+        private void FireTheSwordOnBulletAttack(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
         {
             var projectileOwner = self.owner;
             if (projectileOwner)
@@ -430,7 +540,7 @@ namespace Aetherium.Items
                             newProjectileInfo.owner = projectileOwner;
                             newProjectileInfo.projectilePrefab = SwordProjectile;
                             newProjectileInfo.speedOverride = 100.0f;
-                            newProjectileInfo.damage = projectileBody.damage * 2;
+                            newProjectileInfo.damage = projectileBody.damage * baseSwordDamageMultiplier + (projectileBody.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
                             newProjectileInfo.damageTypeOverride = null;
                             newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                             newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
@@ -459,7 +569,7 @@ namespace Aetherium.Items
                             try
                             {
                                 RecursionPrevention = true;
-                                ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
                             }
                             finally
                             {
@@ -472,7 +582,7 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        private void FireTheSword(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, RoR2.Projectile.ProjectileManager self, FireProjectileInfo fireProjectileInfo)
+        private void FireTheSwordOnProjectiles(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, RoR2.Projectile.ProjectileManager self, FireProjectileInfo fireProjectileInfo)
         {
             if (!RecursionPrevention && !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
             {
@@ -491,7 +601,7 @@ namespace Aetherium.Items
                                 newProjectileInfo.owner = projectileOwner;
                                 newProjectileInfo.projectilePrefab = SwordProjectile;
                                 newProjectileInfo.speedOverride = 100.0f;
-                                newProjectileInfo.damage = body.damage * 2;
+                                newProjectileInfo.damage = body.damage * baseSwordDamageMultiplier + (body.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
                                 newProjectileInfo.damageTypeOverride = null;
                                 newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                                 newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
@@ -499,7 +609,7 @@ namespace Aetherium.Items
                                 try
                                 {
                                     RecursionPrevention = true;
-                                    ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
                                 }
                                 finally
                                 {

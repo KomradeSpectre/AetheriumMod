@@ -1,14 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿using KomradeSpectre.Aetherium;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using R2API;
 using RoR2;
-using UnityEngine;
-using TILER2;
-using static TILER2.StatHooks;
 using System;
-using KomradeSpectre.Aetherium;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using TILER2;
+using UnityEngine;
+using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
@@ -36,7 +36,8 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "On being hit while shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active.";
+        protected override string NewLangDesc(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
+            $" The first stack of this item will grant 4% of your max health as shield on pickup.";
 
         protected override string NewLangLore(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 

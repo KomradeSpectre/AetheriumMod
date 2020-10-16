@@ -1,13 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
-using UnityEngine;
-using TILER2;
-using static TILER2.StatHooks;
-using static TILER2.MiscUtil;
 using System;
-using KomradeSpectre.Aetherium;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using TILER2;
+using static TILER2.MiscUtil;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Aetherium.Items
@@ -19,21 +18,43 @@ namespace Aetherium.Items
         public float baseSipCooldownDuration { get; private set; } = 30f;
 
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How far should each stack reduce the cooldown? (Default: 0.75 (75%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoItemConfig("How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float additionalStackSipCooldownReductionPercentage { get; private set; } = 0.75f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What radius of buff/debuff sharing should the first pickup have? (Default: 20m)", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public float baseRadiusGranted { get; private set; } = 20f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public float additionalRadiusGranted { get; private set; } = 5f;
+
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("How many buffs or debuffs should we be able to have? (Default: 8)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        public int maxEffectsAccrued { get; private set; } = 8;
 
         public override string displayName => "Accursed Potion";
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
-        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
+        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility | ItemTag.Cleansable});
         protected override string NewLangName(string langID = null) => displayName;
 
         protected override string NewLangPickup(string langID = null) => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
 
-        protected override string NewLangDesc(string langid = null) => $"";
+        protected override string NewLangDesc(string langid = null) => $"Every <style=cIsUtility>{baseSipCooldownDuration}</style> seconds <style=cStack>(reduced by {Pct(1 - additionalStackSipCooldownReductionPercentage)} per stack)</style> you are forced " +
+            $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{baseRadiusGranted}m radius</style> <style=cStack>(+{additionalRadiusGranted}m per stack)</style> around you.</style>" +
+            $" Max: {maxEffectsAccrued} buffs or debuffs can be applied at any time.";
 
-        protected override string NewLangLore(string langID = null) => "";
+        protected override string NewLangLore(string langID = null) => "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
+            "---------------------------------\n" +
+            "\n<indent=5%>1 Eye of Darkness, medium well.</indent>\n" +
+            "<indent=5%>15 Scalangs, preferably non-endangered.</indent>\n" +
+            "<indent=5%>400 Neutron Star Cores, crushed into a fine paste with a simple glass mortar and pestle.</indent>\n" +
+            "<indent=5%>7 Essence of Luck, filter through a coffee press to remove bad luck from it before adding.</indent>\n" +
+            "<indent=5%>1/4th teaspoon of salt, for taste.</indent>\n" +
+            "\n---------------------------------\n" +
+            "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
@@ -221,7 +242,7 @@ namespace Aetherium.Items
                 var InventoryCount = GetCount(self);
                 if (InventoryCount > 0)
                 {
-                    if (!self.HasBuff(AccursedPotionSipCooldownDebuff) && self.activeBuffsListCount <= 8)
+                    if (!self.HasBuff(AccursedPotionSipCooldownDebuff) && self.activeBuffsListCount <= maxEffectsAccrued)
                     {
                         BuffIndex ChosenBuff = RoR2.BuffCatalog.buffDefs[random.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)].buffIndex;
                         if (RoR2.BuffCatalog.GetBuffDef(ChosenBuff).iconPath != null && ChosenBuff != BuffIndex.Immune && ChosenBuff != BuffIndex.HiddenInvincibility)
@@ -232,7 +253,7 @@ namespace Aetherium.Items
                             RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(self.teamComponent.teamIndex);
                             RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
                             {
-                                radius = 20 + (5 * (InventoryCount - 1)),
+                                radius = baseRadiusGranted + (additionalRadiusGranted * (InventoryCount - 1)),
                                 mask = RoR2.LayerIndex.entityPrecise.mask,
                                 origin = self.corePosition
                             }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeams).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();

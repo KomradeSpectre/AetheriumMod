@@ -18,7 +18,7 @@ namespace KomradeSpectre.Aetherium
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.2.0";
+        public const string ModVer = "0.3.0";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         

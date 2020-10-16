@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3519771374
+CRC: 2868592020
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: b9ec1470a0cec8904452cf1bf6a0cc1e
+    Hash: 683819c065ea90a3ec56b2a25cee1a1b
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 8757f21c11a6d9eab152d610187b0249
+    Hash: 1370817b01c1eb8c26f354347e2c5dc9
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,6 +30,8 @@ ClassTypes:
 - Class: 91
   Script: {instanceID: 0}
 - Class: 95
+  Script: {instanceID: 0}
+- Class: 96
   Script: {instanceID: 0}
 - Class: 111
   Script: {instanceID: 0}
@@ -118,7 +120,6 @@ Assets:
 - Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
-- Assets/Models/Prefabs/BlasterSwordProjectile.prefab
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexure.png
 - Assets/Animations/HexPendulum.anim
 - Assets/Textures/Icons/ShieldingCoreIconAlt.png
@@ -145,12 +146,15 @@ Assets:
 - Assets/Animations/InspiringDroneUpperArmR.anim
 - Assets/Animations/InspiringDroneHead.anim
 - Assets/Shaders/GhostRim.shader
+- Assets/Models/Prefabs/BlasterSwordProjectile.prefab
 - Assets/Textures/Materials/UnstableDesignHolderTexture.png
+- Assets/Shaders/SonarFx.shader
 - Assets/Textures/Materials/ShieldingCoreFlap.mat
 - Assets/Models/Raw Models/BloodSoakedShield.blend
 - Assets/Models/Raw Models/InspiringDrone.blend
 - Assets/Textures/Materials/BlasterSwordTexture.png
 - Assets/Textures/Materials/ShieldingMetal.mat
+- Assets/Textures/Materials/BlasterSwordTrail.mat
 - Assets/Textures/Materials/InspiringDroneEarBase.mat
 - Assets/Shaders/LavaShader.shader
 - Assets/Textures/Materials/VoidheartPlaceholderTexture.mat

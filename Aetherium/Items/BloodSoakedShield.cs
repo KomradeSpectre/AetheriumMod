@@ -1,16 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿using KomradeSpectre.Aetherium;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using R2API;
 using RoR2;
-using UnityEngine;
-using TILER2;
-using static TILER2.StatHooks;
-using static TILER2.MiscUtil;
 using System;
-using KomradeSpectre.Aetherium;
-using BepInEx.Configuration;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using TILER2;
+using UnityEngine;
+using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
@@ -40,7 +38,8 @@ namespace Aetherium.Items
 
         protected override string NewLangPickup(string langID = null) => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>";
+        protected override string NewLangDesc(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>" +
+            $" The first stack of this item will grant 8% of your max health as shield on pickup. ";
 
         protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 

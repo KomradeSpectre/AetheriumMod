@@ -9,20 +9,27 @@ and as such the ones that were I will list the person that came up with the idea
 	- **White Rarity** - Gain a temporary 7% speed boost upon taking damage that stacks 3 times for 5 seconds. (+3 stacks and +0.5 second duration per additional Feathered Plume.)
 ----
  - **Shielding Core** (Original idea by NepNep)
-	- **Green Rarity** - You gain 10  (+5 per stack) armor while BLUE shields are active.
+	- **Green Rarity** - You gain 10  (+5 per stack) armor while BLUE shields are active. The first stack of this item will grant 4% of your max health as shield on pickup.
 ----
 - **Shark Teeth** (Original idea by FancyFrenc)
 	- **Green Rarity** - 25% of damage taken (+25% per stack, hyperbolically) is distributed to you over 5 seconds as bleed damage.
 ----
 - **Blood Soaked Shield** (Original Idea by Kaboose, altered quite a fair bit)
-	- **Green Rarity** - Killing an enemy restores 10% max shield (+10% per stack hyperbolically.)
-	- **Upcoming** - The first of the stack of this item will grant a small portion of shield on pickup.
+	- **Green Rarity** - Killing an enemy restores 10% max shield (+10% per stack hyperbolically.) The first of the stack of this item will grant 8% of your max health as shield on pickup.
+----
+- **Blaster Sword** (Original idea by Bord, altered a bit by me.)  
+	- **Red Rarity** - At full health, most attacks will fire out a sword beam that has 200% of your damage (+50% per stack) when it explodes after having impaled an enemy for a short duration.  
+	- **Known Issues?** - MUL-T's nailgun fires an absurd amount of swords. They aren't super powerful (as they're based on MUL-T's base damage), but they are a bit spammy on him.)
 ----
 - **Inspiring Drone** (Original Idea by Kaboose "Aftermarket Spare Parts", altered a ton from that.)  
 	- **Red Rarity** - When a bot is purchased, it gains a 50% boost to each of its stats based on yours (+50% per stack, linearly).  
 	Some bots gain more ammo for their attacks based on the bonus to their attack speed, and have their ammo replenished twice as fast per additional Inspiring Drone.  
     Finally, if an inspired bot is too far away from you, it is teleported to you after a delay (40 seconds for Turrets, 30 seconds for Drones).  
 	- **Known Issues** - The "Inspiring" name prefix does not currently sync in multiplayer. I will address this in the next version.  
+----
+- **Accursed Potion** (Original idea by Shadokuro, slightly modified by me.)
+	- **Lunar Rarity** - Every 30 seconds (reduced by 25% per stack) you are forced to drink a strange potion, sharing its effects with enemies in a  
+	20m radius (+5m per stack) around you. Max: 8 buffs or debuffs can be applied at any time.  
 ----
 - **Alien Magnet** (Original Idea, if you call a vacuum original)
 	- **Lunar Rarity** - Enemies hit by your attacks will be pulled towards you, starting at 6x force (+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies.)
@@ -41,6 +48,13 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
+[0.3.0]
++ Added Accursed Potion
++ Added Blaster Sword
++ The first pickup of Blood Soaked Shield and Shielding Core will now grant a small portion of shield thanks to an ILHook provided by Harb.
++ Tried to fix turrets being half in the ground, failed. Will try again soon.
++ Fixed an issue related to me forgetting basic PEMDAS with the Shielding Core's calculation. E.
+
 [0.2.0]
 + Added Configs to all items currently in Aetherium. All major values can be configured to your liking now.
 + Buffed Shielding Core's base values to 15 armor for first pickup, and 10 for each additional pickup after that.
@@ -71,16 +85,15 @@ and as such the ones that were I will list the person that came up with the idea
 + Added Unstable Design  
 + Fixed styletag issue with Shark Teeth displaying the style tags ingame as text.  
 
-[0.1.1]  
-+ Added Weighted Anklet.  
-
 ---
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
+**Harb** - For providing the ILHook from their HarbCrate mod, which allows Bloodsoaked Shield and Shielding Core to be able to provide some base shields.  
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.  
 **Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.   
+**Rolo** - For providing a projectile code example, which allowed us to use it as a basis to create Blaster Sword with heavy modifications.  
 **BordListian** - Basically co-dev support in creating this and playtesting.  
 **GrimTheWanderer** - Playtesting.  
 **WaltzingPhantom** - For providing alternative icon art for Feathered Plume, Blood Soaked Shield, Shark Teeth, and Shielding Core!  
