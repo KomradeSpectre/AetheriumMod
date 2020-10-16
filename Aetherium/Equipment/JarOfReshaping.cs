@@ -37,7 +37,22 @@ namespace Aetherium.Equipment
             var body = slot.characterBody;
             if (body)
             {
-                
+                var bulletTracker = body.GetComponent<JarBulletTracker>();
+                if (!bulletTracker) { body.gameObject.AddComponent<JarBulletTracker>(); }
+                if(bulletTracker.BulletsGrabbed <= 0)
+                {
+                    RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(body.teamComponent.teamIndex);
+                    RoR2.Projectile.ProjectileController[] bullets = new RoR2.SphereSearch
+                    {
+                        radius = baseRadiusGranted,
+                        mask = RoR2.LayerIndex.entityPrecise.mask,
+                        origin = body.corePosition
+                    }.RefreshCandidates().FilterCandidatesByProjectileControllers();
+                }
+                else
+                {
+
+                }
             }
         }
 

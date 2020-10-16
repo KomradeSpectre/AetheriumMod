@@ -48,6 +48,12 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
+[0.3.1]
++ Turrets teleporting into the ground with inspiring drone has been fixed by Chen (Chen's Classic Items/Chen's Gradius Mod). Thanks!
++ Fixed Blaster Sword's internal class being non-public. Woops!
++ Fixed mod description stating that we only have 9 items. We're up to 11 now.
++ Nothing else to see here yet folks!
+
 [0.3.0]
 + Added Accursed Potion
 + Added Blaster Sword
@@ -88,6 +94,7 @@ and as such the ones that were I will list the person that came up with the idea
 ---
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
+**Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now.  
 **Harb** - For providing the ILHook from their HarbCrate mod, which allows Bloodsoaked Shield and Shielding Core to be able to provide some base shields.  
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  

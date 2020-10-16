@@ -13,7 +13,7 @@ using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
-    class BlasterSword : Item<BlasterSword>
+    public class BlasterSword : Item<BlasterSword>
     {
         [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidatePickupToken | AutoUpdateEventFlags.InvalidateDescToken)]
         [AutoItemConfig("Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?", AutoItemConfigFlags.PreventNetMismatch, false, true)]
