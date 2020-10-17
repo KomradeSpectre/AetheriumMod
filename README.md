@@ -25,7 +25,7 @@ and as such the ones that were I will list the person that came up with the idea
 	- **Red Rarity** - When a bot is purchased, it gains a 50% boost to each of its stats based on yours (+50% per stack, linearly).  
 	Some bots gain more ammo for their attacks based on the bonus to their attack speed, and have their ammo replenished twice as fast per additional Inspiring Drone.  
     Finally, if an inspired bot is too far away from you, it is teleported to you after a delay (40 seconds for Turrets, 30 seconds for Drones).  
-	- **Known Issues** - The "Inspiring" name prefix does not currently sync in multiplayer. I will address this in the next version.  
+	- **Big Credits To** - Chen of the Chen's Classic Items and Chen's Gradius mods for putting a ton of work in to improve the Inspiring Drone's code as of 0.3.2.
 ----
 - **Accursed Potion** (Original idea by Shadokuro, slightly modified by me.)
 	- **Lunar Rarity** - Every 30 seconds (reduced by 25% per stack) you are forced to drink a strange potion, sharing its effects with enemies in a  
@@ -48,6 +48,9 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 
 ## Changelog
+[0.3.2]
++ BIG Inspiring Drone update. Code quality has improved greatly thanks to Chen. The drone can now work actively (new), or only on Purchase (default), and a fair handful of bugfixes in my default logic by Chen to make this item fantastic.
+
 [0.3.1]
 + Turrets teleporting into the ground with inspiring drone has been fixed by Chen (Chen's Classic Items/Chen's Gradius Mod). Thanks!
 + Fixed Blaster Sword's internal class being non-public. Woops!
@@ -94,7 +97,7 @@ and as such the ones that were I will list the person that came up with the idea
 ---
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod, utilize their config/logger system, and utilize their TILER2 API in this project.  
-**Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now.  
+**Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  
 **Harb** - For providing the ILHook from their HarbCrate mod, which allows Bloodsoaked Shield and Shielding Core to be able to provide some base shields.  
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
