@@ -71,6 +71,10 @@ namespace Aetherium.Items
         [AutoItemConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoItemConfigFlags.PreventNetMismatch)]
         public float droneTeleportationDistanceAroundOwner { get; private set; } = 30f;
 
+        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
+        [AutoItemConfig("Should previously purchased drones be affected by Inspiring Drone instead of applying only the bonus on newly purchased ones?", AutoItemConfigFlags.PreventNetMismatch)]
+        public bool inspiringDroneBuffsImmediateEffect { get; private set; } = false;
+
         public override string displayName => "Inspiring Drone";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier3;
@@ -122,7 +126,6 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
-        public static string[] BlacklistedStockBots = { "Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster" };
 
         public InspiringDrone()
         {
@@ -285,6 +288,10 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.RecalculateStats += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.FixedUpdate += TeleportBotsToSelf;
+            if (inspiringDroneBuffsImmediateEffect)
+            {
+                On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
+            }
         }
 
         protected override void UnloadBehavior()
@@ -293,6 +300,10 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.RecalculateStats -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
             On.RoR2.CharacterBody.FixedUpdate -= TeleportBotsToSelf;
+            if (inspiringDroneBuffsImmediateEffect)
+            {
+                On.RoR2.CharacterBody.OnInventoryChanged -= UpdateAllTrackers;
+            }
         }
 
         private RoR2.CharacterMaster RetrieveBotAndSetBoosts(On.RoR2.SummonMasterBehavior.orig_OpenSummonReturnMaster orig, RoR2.SummonMasterBehavior self, RoR2.Interactor activator)
@@ -301,8 +312,7 @@ namespace Aetherium.Items
             var botToBeUpgradedMaster = orig(self, activator);
             if (summonerBody && botToBeUpgradedMaster && botToBeUpgradedMaster.GetBody())
             {
-                var InventoryCount = GetCount(summonerBody);
-                if (InventoryCount > 0)
+                if ((!inspiringDroneBuffsImmediateEffect && GetCount(summonerBody) > 0) || inspiringDroneBuffsImmediateEffect)
                 {
                     var BotStatsTracker = BotStatTracker.GetOrAddComponent(botToBeUpgradedMaster, summonerBody.master);
                     BotStatsTracker.UpdateTrackerBoosts();
@@ -344,7 +354,7 @@ namespace Aetherium.Items
             if (characterMaster)
             {
                 var TrackerComponent = characterMaster.GetComponent<BotStatTracker>();
-                if (TrackerComponent)
+                if (TrackerComponent && GetCount(TrackerComponent.BotOwnerBody) > 0)
                 {
                     var TargetBody = TrackerComponent.BotOwnerBody;
                     if (TargetBody)
@@ -409,6 +419,28 @@ namespace Aetherium.Items
             UnityEngine.Object.Destroy(spawnCard);
         }
 
+        private void UpdateAllTrackers(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
+        {
+            orig(self);
+            CharacterMaster ownerMaster = self.master;
+            MinionOwnership[] minionOwnerships = UnityEngine.Object.FindObjectsOfType<MinionOwnership>();
+            foreach (MinionOwnership minionOwnership in minionOwnerships)
+            {
+                if (minionOwnership && minionOwnership.ownerMaster && minionOwnership.ownerMaster == ownerMaster)
+                {
+                    CharacterMaster minionMaster = minionOwnership.GetComponent<CharacterMaster>();
+                    if (minionMaster)
+                    {
+                        BotStatTracker tracker = minionMaster.GetComponent<BotStatTracker>();
+                        if (tracker)
+                        {
+                            tracker.UpdateTrackerBoosts();
+                        }
+                    }
+                }
+            }
+        }
+
         public class BotStatTracker : NetworkBehaviour
         {
             [SyncVar]
@@ -427,8 +459,14 @@ namespace Aetherium.Items
             public CharacterMaster BotMaster;
             public CharacterBody BotBody;
 
-            public List<int> BotSkillStocks = new List<int>();
-            public List<float> BotRechargeIntervals = new List<float>();
+            private int BoostCount = -1;
+            private List<int> BotSkillStocks = new List<int>();
+            private List<float> BotRechargeIntervals = new List<float>();
+            private List<int> DefaultSkillStocks = new List<int>();
+            private List<float> DefaultRechargeIntervals = new List<float>();
+            private static string[] BlacklistedStockBots = { "Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster" };
+            private float PreviousRecordedMaxHealth = -1;
+            private string OriginalName = "";
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
             {
@@ -451,34 +489,63 @@ namespace Aetherium.Items
 
             public void UpdateTrackerBoosts()
             {
+                if (OriginalName == "")
+                {
+                    OriginalName = BotBody.GetDisplayName();
+                }
                 var inst = InspiringDrone.instance;
                 var inventoryCount = inst.GetCount(BotOwnerBody);
-                DamageBoost = BotOwnerBody.damage * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.damageGrantedPercentage) * inventoryCount;
-                AttackSpeedBoost = BotOwnerBody.attackSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.attackSpeedGrantedPercentage) * inventoryCount;
-                CritChanceBoost = BotOwnerBody.crit * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.critChanceGrantedPercentage) * inventoryCount;
-                HealthBoost = BotOwnerBody.maxHealth * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.healthGrantedPercentage) * inventoryCount;
-                RegenBoost = BotOwnerBody.regen * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.regenGrantedPercentage) * inventoryCount;
-                ArmorBoost = BotOwnerBody.armor * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.armorGrantedPercentage) * inventoryCount;
-                MoveSpeedBoost = BotOwnerBody.moveSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.movementSpeedGrantedPercentage) * inventoryCount;
-                BotName = "Inspired " + BotBody.GetDisplayName();
-                BotBody.statsDirty = true;
-
-                //Add stock to bots that can use it.
-                var BotIsBlacklisted = Array.Exists(BlacklistedStockBots, element => BotMaster.gameObject.name.StartsWith(element));
-                if (!BotIsBlacklisted)
+                if (BoostCount != inventoryCount)
                 {
-                    var GenericSkillsOnBots = BotBody.GetComponentsInChildren<RoR2.GenericSkill>();
-
-                    for (int i = 0; i < GenericSkillsOnBots.Length; i++)
+                    BoostCount = inventoryCount;
+                    DamageBoost = BotOwnerBody.damage * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.damageGrantedPercentage) * BoostCount;
+                    AttackSpeedBoost = BotOwnerBody.attackSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.attackSpeedGrantedPercentage) * BoostCount;
+                    CritChanceBoost = BotOwnerBody.crit * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.critChanceGrantedPercentage) * BoostCount;
+                    HealthBoost = BotOwnerBody.maxHealth * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.healthGrantedPercentage) * BoostCount;
+                    RegenBoost = BotOwnerBody.regen * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.regenGrantedPercentage) * BoostCount;
+                    ArmorBoost = BotOwnerBody.armor * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.armorGrantedPercentage) * BoostCount;
+                    MoveSpeedBoost = BotOwnerBody.moveSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.movementSpeedGrantedPercentage) * BoostCount;
+                    BotName = "";
+                    if (BoostCount > 0)
                     {
-                        BotSkillStocks.Add((GenericSkillsOnBots[i].maxStock + 1) * (int)Math.Ceiling(AttackSpeedBoost));
-                        BotRechargeIntervals.Add(GenericSkillsOnBots[i].baseRechargeInterval * (float)Math.Pow(0.5, inventoryCount));
+                        BotName += "Inspired ";
+                    }
+                    BotName += OriginalName;
+                    BotBody.statsDirty = true;
+
+                    //Add stock to bots that can use it.
+                    var BotIsBlacklisted = Array.Exists(BlacklistedStockBots, element => BotMaster.gameObject.name.StartsWith(element));
+                    if (!BotIsBlacklisted)
+                    {
+                        //Clear for updating.
+                        BotSkillStocks.Clear();
+                        BotRechargeIntervals.Clear();
+
+                        //Assign Default values for the stocks for recomputation upon changing item count.
+                        if (DefaultSkillStocks.Count == 0 && DefaultRechargeIntervals.Count == 0)
+                        {
+                            var GenericSkillsOnBots = BotBody.GetComponentsInChildren<RoR2.GenericSkill>();
+                            for (int i = 0; i < GenericSkillsOnBots.Length; i++)
+                            {
+                                DefaultSkillStocks.Add(GenericSkillsOnBots[i].maxStock);
+                                DefaultRechargeIntervals.Add(GenericSkillsOnBots[i].baseRechargeInterval);
+                            }
+                        }
+                        for (int i = 0; i < DefaultSkillStocks.Count; i++)
+                        {
+                            BotSkillStocks.Add((DefaultSkillStocks[i] + 1) * (int)Math.Ceiling(AttackSpeedBoost));
+                            BotRechargeIntervals.Add(DefaultRechargeIntervals[i] * (float)Math.Pow(0.5, BoostCount));
+                        }
                     }
                 }
             }
 
             public void ApplyTrackerBoosts()
             {
+                if (PreviousRecordedMaxHealth < 0)
+                {
+                    PreviousRecordedMaxHealth = BotBody.maxHealth;
+                }
                 BotBody.attackSpeed += AttackSpeedBoost;
                 BotBody.damage += DamageBoost;
                 BotBody.crit += CritChanceBoost;
@@ -490,7 +557,7 @@ namespace Aetherium.Items
                 BotBody.baseNameToken = BotName;
 
                 //We increase the stock and cut down the time between recharging the stocks.
-                if (BotSkillStocks.Count > 0)
+                if (BotSkillStocks.Count > 0 && BotRechargeIntervals.Count > 0)
                 {
                     var GenericSkills = BotBody.GetComponentsInChildren<RoR2.GenericSkill>();
                     for (int i = 0; i < GenericSkills.Length; i++)
@@ -499,6 +566,11 @@ namespace Aetherium.Items
                         GenericSkills[i].finalRechargeInterval = BotRechargeIntervals[i];
                     }
                 }
+
+                //Apply heal based on previous boost applied. We've changed max health, so we need to heal.
+                float difference = BotBody.maxHealth - PreviousRecordedMaxHealth;
+                BotBody.healthComponent.Heal(difference, default(RoR2.ProcChainMask), true);
+                PreviousRecordedMaxHealth = BotBody.maxHealth;
             }
         }
     }
