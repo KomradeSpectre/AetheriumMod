@@ -503,7 +503,10 @@ namespace Aetherium.Items
 
                 //Apply heal based on previous boost applied. We've changed max health, so we need to heal.
                 float difference = BotBody.maxHealth - PreviousRecordedMaxHealth;
-                BotBody.healthComponent.Heal(difference, default(RoR2.ProcChainMask), true);
+                if (difference > 0)
+                {
+                    BotBody.healthComponent.Heal(difference, default(RoR2.ProcChainMask), true);
+                }
                 PreviousRecordedMaxHealth = BotBody.maxHealth;
             }
 
