@@ -86,10 +86,10 @@ namespace Aetherium.Items
 
         protected override string NewLangDesc(string langid = null) 
         {
-            var description = "";
+            string description;
             if (setAllStatValuesAtOnce) 
             {
-                description = $"When a bot is purchased, it gains a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of its stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>. \n" +
+                description = $"When a bot is purchased, it gains a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of its stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>.\n" +
                 "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
                 $"Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
             }
@@ -287,7 +287,6 @@ namespace Aetherium.Items
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
             On.RoR2.CharacterBody.RecalculateStats += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
-            On.RoR2.CharacterBody.FixedUpdate += TeleportBotsToSelf;
             if (inspiringDroneBuffsImmediateEffect)
             {
                 On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
@@ -299,7 +298,6 @@ namespace Aetherium.Items
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster -= RetrieveBotAndSetBoosts;
             On.RoR2.CharacterBody.RecalculateStats -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
-            On.RoR2.CharacterBody.FixedUpdate -= TeleportBotsToSelf;
             if (inspiringDroneBuffsImmediateEffect)
             {
                 On.RoR2.CharacterBody.OnInventoryChanged -= UpdateAllTrackers;
@@ -348,77 +346,6 @@ namespace Aetherium.Items
             }
         }
 
-        private void TeleportBotsToSelf(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
-        {
-            var characterMaster = self.master;
-            if (characterMaster)
-            {
-                var TrackerComponent = characterMaster.GetComponent<BotStatTracker>();
-                if (TrackerComponent && GetCount(TrackerComponent.BotOwnerBody) > 0)
-                {
-                    var TargetBody = TrackerComponent.BotOwnerBody;
-                    if (TargetBody)
-                    {
-                        TrackerComponent.TeleportTimer -= Time.fixedDeltaTime;
-                        if (TrackerComponent.TeleportTimer <= 0)
-                        {
-                            if (characterMaster.gameObject.name.StartsWith("Turret1Master"))
-                            {
-                                TrackerComponent.TeleportTimer = teleportationCheckCooldownDuration;
-                                if(Vector3.Distance(self.corePosition, TargetBody.corePosition) >= turretTeleportationDistanceAroundOwner) 
-                                {
-                                    TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Ground);
-                                    self.transform.position += self.transform.up * .9f;
-                                    TrackerComponent.TeleportTimer = turretTeleportationCooldownDuration;
-                                }
-                            }
-                            else
-                            {
-                                TrackerComponent.TeleportTimer = teleportationCheckCooldownDuration;
-                                if (Vector3.Distance(self.corePosition, TargetBody.corePosition) >= droneTeleportationDistanceAroundOwner)
-                                {
-                                    TeleportBody(self, TargetBody.corePosition, MapNodeGroup.GraphType.Air);
-                                    TrackerComponent.TeleportTimer = droneTeleportationCooldownDuration;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            orig(self);
-        }
-
-        private void TeleportBody(CharacterBody characterBody, Vector3 desiredPosition, MapNodeGroup.GraphType nodeGraphType)
-        {
-            if (!Util.HasEffectiveAuthority(characterBody.gameObject))
-            {
-                return;
-            }
-
-            SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
-            spawnCard.hullSize = characterBody.hullClassification;
-            spawnCard.nodeGraphType = nodeGraphType;
-            spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
-            GameObject gameObject = DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(spawnCard, new DirectorPlacementRule
-            {
-                placementMode = DirectorPlacementRule.PlacementMode.Approximate,
-                position = desiredPosition,
-                minDistance = 20,
-                maxDistance = 45
-            }, RoR2Application.rng));
-            if (gameObject)
-            {
-                TeleportHelper.TeleportBody(characterBody, gameObject.transform.position);
-                GameObject teleportEffectPrefab = Run.instance.GetTeleportEffectPrefab(characterBody.gameObject);
-                if (teleportEffectPrefab)
-                {
-                    EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
-                }
-                UnityEngine.Object.Destroy(gameObject);
-            }
-            UnityEngine.Object.Destroy(spawnCard);
-        }
-
         private void UpdateAllTrackers(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
@@ -441,9 +368,8 @@ namespace Aetherium.Items
             }
         }
 
-        public class BotStatTracker : NetworkBehaviour
+        public class BotStatTracker : MonoBehaviour
         {
-            [SyncVar]
             public float AttackSpeedBoost;
             public float DamageBoost;
             public float CritChanceBoost;
@@ -455,10 +381,10 @@ namespace Aetherium.Items
             public string BotName;
             public CharacterMaster BotOwnerMaster;
             public CharacterBody BotOwnerBody;
-            public float TeleportTimer;
             public CharacterMaster BotMaster;
             public CharacterBody BotBody;
 
+            private float TeleportTimer = 0f;
             private int BoostCount = -1;
             private List<int> BotSkillStocks = new List<int>();
             private List<float> BotRechargeIntervals = new List<float>();
@@ -467,6 +393,7 @@ namespace Aetherium.Items
             private static string[] BlacklistedStockBots = { "Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster" };
             private float PreviousRecordedMaxHealth = -1;
             private string OriginalName = "";
+            private InspiringDrone inst = InspiringDrone.instance;
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
             {
@@ -489,11 +416,14 @@ namespace Aetherium.Items
 
             public void UpdateTrackerBoosts()
             {
+                if (!BotBody || !BotOwnerBody)
+                {
+                    return;
+                }
                 if (OriginalName == "")
                 {
                     OriginalName = BotBody.GetDisplayName();
                 }
-                var inst = InspiringDrone.instance;
                 var inventoryCount = inst.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
@@ -542,6 +472,10 @@ namespace Aetherium.Items
 
             public void ApplyTrackerBoosts()
             {
+                if (!BotBody)
+                {
+                    return;
+                }
                 if (PreviousRecordedMaxHealth < 0)
                 {
                     PreviousRecordedMaxHealth = BotBody.maxHealth;
@@ -571,6 +505,72 @@ namespace Aetherium.Items
                 float difference = BotBody.maxHealth - PreviousRecordedMaxHealth;
                 BotBody.healthComponent.Heal(difference, default(RoR2.ProcChainMask), true);
                 PreviousRecordedMaxHealth = BotBody.maxHealth;
+            }
+
+            private void FixedUpdate()
+            {
+                TeleportNearOwner();
+            }
+
+            private void TeleportNearOwner()
+            {
+                if (NetworkServer.active && BotOwnerBody && BotBody && inst.GetCount(BotOwnerBody) > 0)
+                {
+                    TeleportTimer -= Time.fixedDeltaTime;
+                    if (TeleportTimer <= 0)
+                    {
+                        TeleportTimer = inst.teleportationCheckCooldownDuration;
+                        float distance = Vector3.Distance(BotBody.corePosition, BotOwnerBody.corePosition);
+                        if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
+                        {
+                            if (distance >= inst.turretTeleportationDistanceAroundOwner)
+                            {
+                                TeleportBody(BotOwnerBody.corePosition, MapNodeGroup.GraphType.Ground);
+                                BotBody.transform.position += BotBody.transform.up * .9f;
+                                TeleportTimer = inst.turretTeleportationCooldownDuration;
+                            }
+                        }
+                        else
+                        {
+                            if (distance >= inst.droneTeleportationDistanceAroundOwner)
+                            {
+                                TeleportBody(BotOwnerBody.corePosition, MapNodeGroup.GraphType.Air);
+                                TeleportTimer = inst.droneTeleportationCooldownDuration;
+                            }
+                        }
+                    }
+                }
+            }
+
+            private void TeleportBody(Vector3 desiredPosition, MapNodeGroup.GraphType nodeGraphType)
+            {
+                if (!Util.HasEffectiveAuthority(BotBody.gameObject))
+                {
+                    return;
+                }
+
+                SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
+                spawnCard.hullSize = BotBody.hullClassification;
+                spawnCard.nodeGraphType = nodeGraphType;
+                spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
+                GameObject gameObject = DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(spawnCard, new DirectorPlacementRule
+                {
+                    placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                    position = desiredPosition,
+                    minDistance = 20,
+                    maxDistance = 45
+                }, RoR2Application.rng));
+                if (gameObject)
+                {
+                    TeleportHelper.TeleportBody(BotBody, gameObject.transform.position);
+                    GameObject teleportEffectPrefab = Run.instance.GetTeleportEffectPrefab(BotBody.gameObject);
+                    if (teleportEffectPrefab)
+                    {
+                        EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
+                    }
+                    UnityEngine.Object.Destroy(gameObject);
+                }
+                UnityEngine.Object.Destroy(spawnCard);
             }
         }
     }
