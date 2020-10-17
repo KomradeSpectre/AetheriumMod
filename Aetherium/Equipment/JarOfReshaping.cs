@@ -35,7 +35,7 @@ namespace Aetherium.Equipment
 
         protected override void LoadBehavior()
         {
-            JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true);
+            JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Rocket"), "SwordProjectile", true);
 
             var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
