@@ -1,4 +1,6 @@
-﻿using BepInEx;
+﻿#undef DEBUG
+
+using BepInEx;
 using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
@@ -32,6 +34,11 @@ namespace KomradeSpectre.Aetherium
         private void Awake() //Sourced almost entirely from ThinkInvis' Classic Items. It is also extremely handy.
         {
             _logger = Logger;
+
+#if DEBUG
+            Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
+            On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
+#endif
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
