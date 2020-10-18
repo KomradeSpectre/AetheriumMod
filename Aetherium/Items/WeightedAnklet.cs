@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
 using static TILER2.MiscUtil;
+using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
@@ -179,23 +180,22 @@ namespace Aetherium.Items
                 ItemBodyModelPrefab = regDef.pickupModelPrefab;
                 regItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
-            On.RoR2.CharacterBody.RecalculateStats += MoveSpeedReduction;
+            GetStatCoefficients += MoveSpeedReduction;
             On.RoR2.HealthComponent.TakeDamage += ReduceKnockback;
         }
 
         protected override void UnloadBehavior()
         {
-            On.RoR2.CharacterBody.RecalculateStats -= MoveSpeedReduction;
+            GetStatCoefficients -= MoveSpeedReduction;
             On.RoR2.HealthComponent.TakeDamage -= ReduceKnockback;
         }
 
-        private void MoveSpeedReduction(On.RoR2.CharacterBody.orig_RecalculateStats orig, RoR2.CharacterBody self)
+        private void MoveSpeedReduction(CharacterBody sender, StatHookEventArgs args)
         {
-            orig(self);
-            var InventoryCount = GetCount(self);
+            var InventoryCount = GetCount(sender);
             if (InventoryCount > 0)
             {
-                self.moveSpeed *= Mathf.Clamp(1 - (InventoryCount * baseMovementSpeedReductionPercentage), movementSpeedReductionPercentageCap, 1);
+                args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * baseMovementSpeedReductionPercentage, movementSpeedReductionPercentageCap);
             }
         }
 
