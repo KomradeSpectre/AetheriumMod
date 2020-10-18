@@ -8,6 +8,7 @@
     <Compile Remove="Equipment\FrenzyPotion.cs" />
     <Compile Remove="Items\HexPendulum.cs" />
     <Compile Remove="Utils\GetMethodsOfEntityStates.cs" />
+    <Compile Remove="Utils\OrbEffectTransforms.cs" />
   </ItemGroup>
 
   <ItemGroup>

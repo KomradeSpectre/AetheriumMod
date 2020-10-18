@@ -45,20 +45,6 @@ namespace Aetherium.Equipment
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
-            ItemBodyModelPrefab.AddComponent<NetworkIdentity>();
-
-            var meshes = ItemBodyModelPrefab.gameObject.GetComponentsInChildren<MeshRenderer>();
-            var locator = meshes[0].gameObject.AddComponent<ChildLocator>();
-
-            locator.transformPairs = new ChildLocator.NameTransformPair[]
-            {
-                new ChildLocator.NameTransformPair()
-                {
-                    name = "SuctionTarget",
-                    transform = meshes[4].transform
-                }
-            };
-
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -194,8 +180,10 @@ namespace Aetherium.Equipment
                 ItemBodyModelPrefab = regDef.pickupModelPrefab;
                 regEqp.ItemDisplayRules = GenerateItemDisplayRules();
             }
+            //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
+
             JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
-            Debug.Log("ORB FOUND!");
+            /*Debug.Log("ORB FOUND!");
             var effectComponent = JarOrb.AddComponent<EffectComponent>();
             Debug.Log("EFFECT FOUND!");
 
@@ -219,7 +207,7 @@ namespace Aetherium.Equipment
             Debug.Log("REGISTERED!");
 
             OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
-            Debug.Log("ADDED ORB! ");
+            Debug.Log("ADDED ORB! ");*/
 
             JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
 
@@ -270,7 +258,7 @@ namespace Aetherium.Equipment
                 bulletTracker = body.gameObject.AddComponent<JarBulletTracker>();
                 bulletTracker.body = body;
             }
-            var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
+            /*var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
             if (equipmentDisplayTransform) 
             { 
                 var coreChildLocator = equipmentDisplayTransform.GetComponentInChildren<ChildLocator>();
@@ -282,7 +270,7 @@ namespace Aetherium.Equipment
                         bulletTracker.TargetTransform = targetTransform;
                     }
                 }
-            }
+            }*/
 
             if (bulletTracker.jarBullets.Count > 0 && bulletTracker.ChargeTime <= 0 && bulletTracker.SuckTime <= 0)
             {
