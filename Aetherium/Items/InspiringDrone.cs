@@ -10,6 +10,7 @@ using TILER2;
 using UnityEngine;
 using UnityEngine.Networking;
 using static TILER2.MiscUtil;
+using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
@@ -285,7 +286,7 @@ namespace Aetherium.Items
             }
 
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
-            On.RoR2.CharacterBody.RecalculateStats += AddBoostsToBot;
+            GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             if (inspiringDroneBuffsImmediateEffect)
             {
@@ -296,7 +297,7 @@ namespace Aetherium.Items
         protected override void UnloadBehavior()
         {
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster -= RetrieveBotAndSetBoosts;
-            On.RoR2.CharacterBody.RecalculateStats -= AddBoostsToBot;
+            GetStatCoefficients -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
             if (inspiringDroneBuffsImmediateEffect)
             {
@@ -319,15 +320,15 @@ namespace Aetherium.Items
             return botToBeUpgradedMaster;
         }
 
-        private void AddBoostsToBot(On.RoR2.CharacterBody.orig_RecalculateStats orig, RoR2.CharacterBody self)
+        private void AddBoostsToBot(CharacterBody sender, StatHookEventArgs args)
         {
-            orig(self);
-            if (self.master)
+            CharacterMaster master = sender.master;
+            if (master)
             {
-                var BotStatsTracker = self.master.GetComponent<BotStatTracker>();
+                var BotStatsTracker = master.GetComponent<BotStatTracker>();
                 if (BotStatsTracker)
                 {
-                    BotStatsTracker.ApplyTrackerBoosts();
+                    BotStatsTracker.ApplyTrackerBoosts(args);
                 }
             }
         }
@@ -465,7 +466,7 @@ namespace Aetherium.Items
                         BotRechargeIntervals.Clear();
 
                         //Assign Default values for the stocks for recomputation upon changing item count.
-                        if (DefaultSkillStocks.Count == 0 && DefaultRechargeIntervals.Count == 0)
+                        if (DefaultSkillStocks.Count <= 0 && DefaultRechargeIntervals.Count <= 0)
                         {
                             var GenericSkillsOnBots = BotBody.GetComponentsInChildren<RoR2.GenericSkill>();
                             for (int i = 0; i < GenericSkillsOnBots.Length; i++)
@@ -483,22 +484,18 @@ namespace Aetherium.Items
                 }
             }
 
-            public void ApplyTrackerBoosts()
+            public void ApplyTrackerBoosts(StatHookEventArgs args)
             {
                 if (!BotBody)
                 {
                     return;
                 }
-                if (PreviousRecordedMaxHealth < 0)
-                {
-                    PreviousRecordedMaxHealth = BotBody.maxHealth;
-                }
-                BotBody.attackSpeed += AttackSpeedBoost;
-                BotBody.damage += DamageBoost;
-                BotBody.crit += CritChanceBoost;
-                BotBody.maxHealth += HealthBoost;
-                BotBody.regen += RegenBoost;
-                BotBody.armor += ArmorBoost;
+                args.attackSpeedMultAdd += AttackSpeedBoost;
+                args.baseDamageAdd += DamageBoost;
+                args.critAdd += CritChanceBoost;
+                args.baseHealthAdd += HealthBoost;
+                args.baseRegenAdd += RegenBoost;
+                args.armorAdd += ArmorBoost;
                 BotBody.moveSpeed += MoveSpeedBoost;
                 BotBody.acceleration = BotBody.moveSpeed * (BotBody.baseAcceleration / BotBody.baseMoveSpeed);
                 BotBody.baseNameToken = BotName;
@@ -513,14 +510,6 @@ namespace Aetherium.Items
                         GenericSkills[i].finalRechargeInterval = BotRechargeIntervals[i];
                     }
                 }
-
-                //Apply heal based on previous boost applied. We've changed max health, so we need to heal.
-                float difference = BotBody.maxHealth - PreviousRecordedMaxHealth;
-                if (difference > 0)
-                {
-                    BotBody.healthComponent.Heal(difference, default(RoR2.ProcChainMask), true);
-                }
-                PreviousRecordedMaxHealth = BotBody.maxHealth;
             }
 
             private void FixedUpdate()
