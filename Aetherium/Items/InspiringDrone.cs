@@ -380,10 +380,10 @@ namespace Aetherium.Items
 
             public string BotName;
             public CharacterMaster BotOwnerMaster;
-            public CharacterBody BotOwnerBody;
             public CharacterMaster BotMaster;
-            public CharacterBody BotBody;
 
+            private CharacterBody _BotOwnerBody;
+            private CharacterBody _BotBody;
             private float TeleportTimer = 0f;
             private int BoostCount = -1;
             private List<int> BotSkillStocks = new List<int>();
@@ -391,9 +391,25 @@ namespace Aetherium.Items
             private List<int> DefaultSkillStocks = new List<int>();
             private List<float> DefaultRechargeIntervals = new List<float>();
             private static string[] BlacklistedStockBots = { "Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster" };
-            private float PreviousRecordedMaxHealth = -1;
             private string OriginalName = "";
             private InspiringDrone inst = InspiringDrone.instance;
+
+            public CharacterBody BotBody
+            {
+                get
+                {
+                    if (!_BotBody) _BotBody = BotMaster.GetBody();
+                    return _BotBody;
+                }
+            }
+            public CharacterBody BotOwnerBody
+            {
+                get
+                {
+                    if (!_BotOwnerBody) _BotOwnerBody = BotOwnerMaster.GetBody();
+                    return _BotOwnerBody;
+                }
+            }
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
             {
@@ -402,14 +418,11 @@ namespace Aetherium.Items
                 {
                     tracker = bot.gameObject.AddComponent<BotStatTracker>();
                     tracker.BotMaster = bot;
-                    tracker.BotBody = bot.GetBody();
                     tracker.BotOwnerMaster = owner;
-                    tracker.BotOwnerBody = owner.GetBody();
                 }
                 else if (owner)
                 {
                     tracker.BotOwnerMaster = owner;
-                    tracker.BotOwnerBody = owner.GetBody();
                 }
                 return tracker;
             }
