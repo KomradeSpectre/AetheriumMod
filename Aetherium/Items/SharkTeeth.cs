@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
@@ -9,30 +10,30 @@ using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
-    public class SharkTeeth : Item<SharkTeeth>
+    public class SharkTeeth : Item_V2<SharkTeeth>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoConfigFlags.None)]
         public bool useNewIcons { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much damage in percentage should be spread out over time? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much damage in percentage should be spread out over time? (Default: 0.25 (25%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float baseDamageSpreadPercentage { get; private set; } = 0.25f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.25 (25%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float additionalDamageSpreadPercentage { get; private set; } = 0.25f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should our maximum percentage damage spread over time be? (Default: 0.75 (75%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should our maximum percentage damage spread over time be? (Default: 0.75 (75%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float maxDamageSpreadPercentage { get; private set; } = 0.75f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds should the damage be spread out over? (Default: 5)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many seconds should the damage be spread out over? (Default: 5)", AutoConfigFlags.PreventNetMismatch)]
         public float durationOfDamageSpread { get; private set; } = 5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many ticks of damage during our duration (as in how divided is our damage)? (Default: 10)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many ticks of damage during our duration (as in how divided is our damage)? (Default: 10)", AutoConfigFlags.PreventNetMismatch)]
         public int ticksOfDamageDuringDuration { get; private set; } = 10;
 
         public override string displayName => "Shark Teeth";
@@ -40,13 +41,13 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
+        protected override string GetPickupString(string langID = null) => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"<style=cIsDamage>{Pct(baseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{Pct(additionalDamageSpreadPercentage)} per stack, hyperbolically)</style> is distributed to you over {durationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>";
+        protected override string GetDescString(string langid = null) => $"<style=cIsDamage>{Pct(baseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{Pct(additionalDamageSpreadPercentage)} per stack, hyperbolically)</style> is distributed to you over {durationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>";
 
-        protected override string NewLangLore(string langID = null) => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be minor flesh wounds on their wielder.";
+        protected override string GetLoreString(string langID = null) => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be minor flesh wounds on their wielder.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
@@ -55,17 +56,29 @@ namespace Aetherium.Items
 
         public SharkTeeth()
         {
-            postConfig += (configFile) =>
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                modelPathName = "@Aetherium:Assets/Models/Prefabs/SharkTeeth.prefab";
-                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/SharkTeethIcon.png";
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
+        }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/SharkTeeth.prefab";
+            iconResourcePath = useNewIcons ? "@Aetherium:Assets/Textures/Icons/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/SharkTeethIcon.png";
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.3f, 0.3f, 0.3f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
@@ -191,20 +204,16 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-
-            }
+            base.Install();
             On.RoR2.HealthComponent.TakeDamage += TakeDamage;
             On.RoR2.CharacterBody.FixedUpdate += TickDamage;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.HealthComponent.TakeDamage -= TakeDamage;
             On.RoR2.CharacterBody.FixedUpdate -= TickDamage;
         }

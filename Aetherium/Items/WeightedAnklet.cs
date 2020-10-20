@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.ObjectModel;
@@ -9,18 +10,18 @@ using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
-    public class WeightedAnklet : Item<WeightedAnklet>
+    public class WeightedAnklet : Item_V2<WeightedAnklet>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much knockback reduction in percentage should be given for each Weighted Anklet? (Default: 0.25 (25%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much knockback reduction in percentage should be given for each Weighted Anklet? (Default: 0.25 (25%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float baseKnockbackReductionPercentage { get; private set; } = 0.25f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much movement speed in percentage should be reduced per Weighted Anklet? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much movement speed in percentage should be reduced per Weighted Anklet? (Default: 0.1 (10%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float baseMovementSpeedReductionPercentage { get; private set; } = 0.1f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should be the lowest percentage of movespeed reduction be? (Default: 0.6 (means only 40% move speed can be lost total))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should be the lowest percentage of movespeed reduction be? (Default: 0.6 (means only 40% move speed can be lost total))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float movementSpeedReductionPercentageCap { get; private set; } = 0.6f;
 
         public override string displayName => "Weighted Anklet";
@@ -28,26 +29,36 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "Gain resistance to <style=cIsDamage>knockback</style>, BUT <style=cIsUtility>lose speed</style>.";
+        protected override string GetPickupString(string langID = null) => "Gain resistance to <style=cIsDamage>knockback</style>, BUT <style=cIsUtility>lose speed</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"Gain a {Pct(baseKnockbackReductionPercentage)} reduction to knockback from attacks <style=cStack>(+{Pct(baseKnockbackReductionPercentage)} per stack (up to 100%) linearly)</style>. Lose {Pct(baseMovementSpeedReductionPercentage)} move speed <style=cStack>(+{Pct(baseMovementSpeedReductionPercentage)} per stack (up to {Pct(1 - movementSpeedReductionPercentageCap)}) linearly)</style>.";
+        protected override string GetDescString(string langid = null) => $"Gain a {Pct(baseKnockbackReductionPercentage)} reduction to knockback from attacks <style=cStack>(+{Pct(baseKnockbackReductionPercentage)} per stack (up to 100%) linearly)</style>. Lose {Pct(baseMovementSpeedReductionPercentage)} move speed <style=cStack>(+{Pct(baseMovementSpeedReductionPercentage)} per stack (up to {Pct(1 - movementSpeedReductionPercentageCap)}) linearly)</style>.";
 
-        protected override string NewLangLore(string langID = null) => "An old anklet lined with strangely superdense crystals. FOREWARNING: Please take care of how many you put on if you find these. One of our field testers put 10 of these on during testing, and attempts to move him since have failed.";
+        protected override string GetLoreString(string langID = null) => "An old anklet lined with strangely superdense crystals. FOREWARNING: Please take care of how many you put on if you find these. One of our field testers put 10 of these on during testing, and attempts to move him since have failed.";
 
         public static GameObject ItemBodyModelPrefab;
 
         public WeightedAnklet() 
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/WeightedAnklet.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/WeightedAnkletIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/WeightedAnklet.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/WeightedAnkletIcon.png";
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
+            {
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
             {
@@ -173,19 +184,16 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
             GetStatCoefficients += MoveSpeedReduction;
             On.RoR2.HealthComponent.TakeDamage += ReduceKnockback;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             GetStatCoefficients -= MoveSpeedReduction;
             On.RoR2.HealthComponent.TakeDamage -= ReduceKnockback;
         }

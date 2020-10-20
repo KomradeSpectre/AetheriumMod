@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="OrbVisuals\**" />
+    <EmbeddedResource Remove="OrbVisuals\**" />
+    <None Remove="OrbVisuals\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Equipment\FrenzyPotion.cs" />
     <Compile Remove="Items\HexPendulum.cs" />
     <Compile Remove="Utils\GetMethodsOfEntityStates.cs" />
@@ -13,6 +19,10 @@
 
   <ItemGroup>
     <None Remove="aetherium_assets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="OrbVisuals\JarOfReshapingOrb.cs" />
   </ItemGroup>
 
   <ItemGroup>

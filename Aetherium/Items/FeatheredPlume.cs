@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
@@ -10,26 +11,26 @@ using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
-    public class FeatheredPlume : Item<FeatheredPlume>
+    public class FeatheredPlume : Item_V2<FeatheredPlume>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoConfigFlags.None)]
         public bool useNewIcons { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds should feathered plume's buff last with a single stack? (Default: 5 (seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many seconds should feathered plume's buff last with a single stack? (Default: 5 (seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float baseDurationOfBuffInSeconds { get; private set; } = 5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many additional seconds of buff should each feathered plume after the first give? (Default: 0.5 (seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many additional seconds of buff should each feathered plume after the first give? (Default: 0.5 (seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float additionalDurationOfBuffInSeconds { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many buff stacks should each feather give? (Default: 3 (these must be whole numbers))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many buff stacks should each feather give? (Default: 3 (these must be whole numbers))", AutoConfigFlags.PreventNetMismatch)]
         public int buffStacksPerFeatheredPlume { get; private set; } = 3;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much movespeed in percent should each stack of Feathered Plume's buff give? (Default: 0.07 (7%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much movespeed in percent should each stack of Feathered Plume's buff give? (Default: 0.07 (7%))", AutoConfigFlags.PreventNetMismatch)]
         public float moveSpeedPercentageBonusPerBuffStack { get; private set; } = 0.07f;
 
         public override string displayName => "Feathered Plume";
@@ -37,13 +38,13 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier1;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "After taking damage, gain a boost in speed.";
+        protected override string GetPickupString(string langID = null) => "After taking damage, gain a boost in speed.";
 
-        protected override string NewLangDesc(string langid = null) => $"Gain a temporary <style=cIsUtility>{Pct(moveSpeedPercentageBonusPerBuffStack)} speed boost</style> upon taking damage that stacks {buffStacksPerFeatheredPlume} times for {baseDurationOfBuffInSeconds} seconds. <style=cStack>(+{buffStacksPerFeatheredPlume} stacks and +{additionalDurationOfBuffInSeconds} second duration per additional Feathered Plume.)</style>";
+        protected override string GetDescString(string langid = null) => $"Gain a temporary <style=cIsUtility>{Pct(moveSpeedPercentageBonusPerBuffStack)} speed boost</style> upon taking damage that stacks {buffStacksPerFeatheredPlume} times for {baseDurationOfBuffInSeconds} seconds. <style=cStack>(+{buffStacksPerFeatheredPlume} stacks and +{additionalDurationOfBuffInSeconds} second duration per additional Feathered Plume.)</style>";
 
-        protected override string NewLangLore(string langID = null) => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
+        protected override string GetLoreString(string langID = null) => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
@@ -54,32 +55,40 @@ namespace Aetherium.Items
 
         public FeatheredPlume()
         {
-            postConfig += (configFile) =>
-            {
-                modelPathName = "@Aetherium:Assets/Models/Prefabs/FeatheredPlume.prefab";
-                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIcon.png";
-            };
+        }
 
-            onAttrib += (tokenIdent, namePrefix) =>
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                var speedBuff = new R2API.CustomBuff(
-                    new BuffDef
-                    {
-                        buffColor = Color.green,
-                        canStack = true,
-                        isDebuff = false,
-                        name = namePrefix + "FeatheredPlumeSpeed",
-                        iconPath = "@Aetherium:Assets/Textures/Icons/FeatheredPlumeBuffIcon.png"
-                    });
-                SpeedBuff = R2API.BuffAPI.Add(speedBuff);
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
 
+            base.SetupAttributes();
+            var speedBuff = new R2API.CustomBuff(
+            new BuffDef
+            {
+                buffColor = Color.green,
+                canStack = true,
+                isDebuff = false,
+                name = "ATHRMFeatheredPlumeSpeed",
+                iconPath = "@Aetherium:Assets/Textures/Icons/FeatheredPlumeBuffIcon.png"
+            });
+            SpeedBuff = R2API.BuffAPI.Add(speedBuff);
+        }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/FeatheredPlume.prefab";
+            iconResourcePath = useNewIcons ? "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/FeatheredPlumeIcon.png";
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
@@ -206,19 +215,21 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
+            base.Install();
             if (ItemBodyModelPrefab == null)
             {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
+                ItemBodyModelPrefab = itemDef.pickupModelPrefab;
+                customItem.ItemDisplayRules = GenerateItemDisplayRules();
             }
             On.RoR2.HealthComponent.TakeDamage += CalculateSpeedReward;
             GetStatCoefficients += AddSpeedReward;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.HealthComponent.TakeDamage -= CalculateSpeedReward;
             GetStatCoefficients -= AddSpeedReward;
         }

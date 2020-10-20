@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.ObjectModel;
@@ -8,34 +9,34 @@ using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
-    public class Voidheart : Item<Voidheart>
+    public class Voidheart : Item_V2<Voidheart>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How high should the damage multiplier be for the void implosion? (Default: 120 (That is to say, currentDamage * 120))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How high should the damage multiplier be for the void implosion? (Default: 120 (That is to say, currentDamage * 120))", AutoConfigFlags.PreventNetMismatch)]
         public float voidImplosionDamageMultiplier { get; private set; } = 120f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))", AutoConfigFlags.PreventNetMismatch)]
         public float voidImplosionBaseRadius { get; private set; } = 15f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))", AutoConfigFlags.PreventNetMismatch)]
         public float voidImplosionAdditionalRadius { get; private set; } = 7.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float voidHeartBaseTickingTimeBombHealthThreshold { get; private set; } = 0.3f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float voidHeartAdditionalTickingTimeBombHealthThreshold { get; private set; } = 0.05f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float voidHeartMaxTickingTimeBombHealthThreshold { get; private set; } = 0.99f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float voidHeartCooldownDebuffDuration { get; private set; } = 30f;
 
         public override string displayName => "Heart of the Void";
@@ -43,13 +44,13 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
+        protected override string GetPickupString(string langID = null) => "On <style=cDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"On <style=cDeath>death</style>, cause a highly damaging void implosion that is {voidImplosionDamageMultiplier}x your damage with a radius of <style=cIsDamage>{voidImplosionBaseRadius}m</style> <style=cStack>(+{voidImplosionAdditionalRadius}m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>{Pct(voidHeartBaseTickingTimeBombHealthThreshold)} health</style> <style=cStack>(+{Pct(voidHeartAdditionalTickingTimeBombHealthThreshold)} per stack, max {Pct(voidHeartMaxTickingTimeBombHealthThreshold)})</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
+        protected override string GetDescString(string langid = null) => $"On <style=cDeath>death</style>, cause a highly damaging void implosion that is {voidImplosionDamageMultiplier}x your damage with a radius of <style=cIsDamage>{voidImplosionBaseRadius}m</style> <style=cStack>(+{voidImplosionAdditionalRadius}m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>{Pct(voidHeartBaseTickingTimeBombHealthThreshold)} health</style> <style=cStack>(+{Pct(voidHeartAdditionalTickingTimeBombHealthThreshold)} per stack, max {Pct(voidHeartMaxTickingTimeBombHealthThreshold)})</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
 
-        protected override string NewLangLore(string langID = null) => "\n[INCIDENT NUMBER 511051]" +
+        protected override string GetLoreString(string langID = null) => "\n[INCIDENT NUMBER 511051]" +
             "\n[TRANSCRIPT TO FOLLOW]" +
             "\nElena: Hey uh...Robert...\n" +
             "\nRobert: Yeah?\n" +
@@ -74,27 +75,35 @@ namespace Aetherium.Items
 
         public Voidheart()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/Voidheart.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/VoidheartIcon.png";
-            onAttrib += (tokenIdent, namePrefix) =>
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/Voidheart.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/VoidheartIcon.png";
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                var voidInstability = new R2API.CustomBuff(
-                    new RoR2.BuffDef
-                    {
-                        buffColor = Color.magenta,
-                        canStack = false,
-                        isDebuff = true,
-                        name = namePrefix + "VoidInstabilityDebuff",
-                        iconPath = "@Aetherium:Assets/Textures/Icons/VoidInstabilityDebuffIcon.png"
-                    });
-                VoidInstabilityDebuff = R2API.BuffAPI.Add(voidInstability);
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+
+            base.SetupAttributes();
+            var voidInstability = new R2API.CustomBuff(
+            new RoR2.BuffDef
+            {
+                buffColor = Color.magenta,
+                canStack = false,
+                isDebuff = true,
+                name = "ATHRMVoidInstabilityDebuff",
+                iconPath = "@Aetherium:Assets/Textures/Icons/VoidInstabilityDebuffIcon.png"
+            });
+            VoidInstabilityDebuff = R2API.BuffAPI.Add(voidInstability);
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -220,12 +229,13 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
+            base.Install();
             if (ItemBodyModelPrefab == null)
             {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;  
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
+                ItemBodyModelPrefab = itemDef.pickupModelPrefab;  
+                customItem.ItemDisplayRules = GenerateItemDisplayRules();
 
             }
 
@@ -236,8 +246,9 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.CharacterMaster.OnBodyDeath -= VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal -= Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate -= VoidheartOverlayManager;
@@ -354,7 +365,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //Unga bunga, voidheart not like deployables. POP!
-                    self.inventory.RemoveItem(regIndex, InventoryCount);
+                    self.inventory.RemoveItem(itemDef.itemIndex, InventoryCount);
                 }
             }
         }

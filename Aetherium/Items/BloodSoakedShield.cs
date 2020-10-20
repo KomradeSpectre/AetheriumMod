@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
@@ -12,21 +13,21 @@ using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
-    public class BloodSoakedShield : Item<BloodSoakedShield>
+    public class BloodSoakedShield : Item_V2<BloodSoakedShield>
     {
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        [AutoConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoConfigFlags.None)]
         public bool useNewIcons { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much shield in percentage should be restored per kill? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much shield in percentage should be restored per kill? (Default: 0.1 (10%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float shieldPercentageRestoredPerKill { get; private set; } = 0.1f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.1 (10%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? (Default: 0.1 (10%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float additionalShieldPercentageRestoredPerKillDiminishing { get; private set; } = 0.1f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should our maximum percentage shield restored per kill be? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should our maximum percentage shield restored per kill be? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float maximumPercentageShieldRestoredPerKill { get; private set; } = 0.5f;
 
         public override string displayName => "Blood Soaked Shield";
@@ -34,31 +35,43 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Healing });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
+        protected override string GetPickupString(string langID = null) => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>" +
+        protected override string GetDescString(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>" +
             $" The first stack of this item will grant 8% of your max health as shield on pickup. ";
 
-        protected override string NewLangLore(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
+        protected override string GetLoreString(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
 
         public BloodSoakedShield()
         {
-            postConfig += (configFile) =>
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                modelPathName = "@Aetherium:Assets/Models/Prefabs/BloodSoakedShield.prefab";
-                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIcon.png";
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
+        }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/BloodSoakedShield.prefab";
+            iconResourcePath = useNewIcons ? "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/BloodSoakedShieldIcon.png";
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.3f, 0.3f, 0.3f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
@@ -184,19 +197,17 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
+
             IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath -= GrantShieldReward;
         }

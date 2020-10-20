@@ -1,4 +1,5 @@
 ﻿using Aetherium.OrbVisuals;
+using Aetherium.Utils;
 using EntityStates;
 using KomradeSpectre.Aetherium;
 using R2API;
@@ -15,21 +16,22 @@ using UnityEngine.Networking;
 
 namespace Aetherium.Equipment
 {
-    public class JarOfReshaping : Equipment<JarOfReshaping>
+    public class JarOfReshaping : Equipment_V2<JarOfReshaping>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What radius should the jar devour bullets? (Default: 20m)", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What radius should the jar devour bullets? (Default: 20m)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public static float baseRadiusGranted { get; private set; } = 20f;
 
         public override string displayName => "Jar of Reshaping";
 
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangDesc(string langID = null) => "";
+        protected override string GetDescString(string langID = null) => "";
 
-        protected override string NewLangLore(string langID = null) => "";
+        protected override string GetLoreString(string langID = null) => "";
 
-        protected override string NewLangPickup(string langID = null) => "";
+        protected override string GetPickupString(string langID = null) => "";
+
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -39,14 +41,14 @@ namespace Aetherium.Equipment
 
         public JarOfReshaping()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/JarOfReshaping.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/JarOfReshapingIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/JarOfReshaping.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/JarOfReshapingIcon.png";
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
@@ -173,41 +175,42 @@ namespace Aetherium.Equipment
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void SetupAttributes()
         {
-            if(ItemBodyModelPrefab == null)
+            if (ItemBodyModelPrefab == null)
             {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regEqp.ItemDisplayRules = GenerateItemDisplayRules();
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
             }
+            base.SetupAttributes();
+        }
+        public override void Install()
+        {
+            base.Install();
             //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
 
             JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
-            /*Debug.Log("ORB FOUND!");
-            var effectComponent = JarOrb.AddComponent<EffectComponent>();
-            Debug.Log("EFFECT FOUND!");
 
-            var vfxAttributes = JarOrb.AddComponent<VFXAttributes>();
-            vfxAttributes.vfxIntensity = VFXAttributes.VFXIntensity.Low;
-            vfxAttributes.vfxPriority = VFXAttributes.VFXPriority.Medium;
-            Debug.Log("VFX FOUND!");
+            var effectComponent = JarOrb.AddComponent<RoR2.EffectComponent>();
+
+            var vfxAttributes = JarOrb.AddComponent<RoR2.VFXAttributes>();
+            vfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            vfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
 
             var orbEffect = JarOrb.AddComponent<OrbEffect>();
+
             orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
             orbEffect.startVelocity2 = new Vector3(10, 13, 10);
             orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
             orbEffect.endVelocity2 = new Vector3(10, 5, 10);
             orbEffect.movementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-            Debug.Log("ORBEFFECT FOUND!");
 
             JarOrb.AddComponent<NetworkIdentity>();
 
             if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
             EffectAPI.AddEffect(JarOrb);
-            Debug.Log("REGISTERED!");
 
             OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
-            Debug.Log("ADDED ORB! ");*/
 
             JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
 
@@ -228,8 +231,8 @@ namespace Aetherium.Equipment
             var impactExplosion = JarProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
             impactExplosion.destroyOnEnemy = true;
             impactExplosion.destroyOnWorld = true;
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/MeteorStrikeImpact");
-            impactExplosion.blastRadius = 3;
+            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/LunarWispTrackingBombExplosion");
+            impactExplosion.blastRadius = 2;
             impactExplosion.blastProcCoefficient = 0.2f;
 
             // register it for networking
@@ -241,14 +244,34 @@ namespace Aetherium.Equipment
                 list.Add(JarProjectile);
             };
 
-
+            On.RoR2.EquipmentSlot.FixedUpdate += EquipmentUpdate;
         }
 
-        protected override void UnloadBehavior()
+        private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_FixedUpdate orig, RoR2.EquipmentSlot self)
         {
+            if (self.equipmentIndex == equipmentDef.equipmentIndex)
+            {
+                var selfDisplay = self.FindActiveEquipmentDisplay();
+                var body = self.characterBody;
+                if (selfDisplay && body)
+                {
+                    var input = body.inputBank;
+                    if (input)
+                    {
+                        selfDisplay.rotation = Util.QuaternionSafeLookRotation(input.aimDirection);
+                    }
+                }
+            }
+            orig(self);
         }
 
-        protected override bool OnEquipUseInner(EquipmentSlot slot)
+        public override void Uninstall()
+        {
+            base.Uninstall();
+            On.RoR2.EquipmentSlot.FixedUpdate -= EquipmentUpdate;
+        }
+
+        protected override bool PerformEquipmentAction(RoR2.EquipmentSlot slot)
         {
             if (!slot.characterBody || !slot.characterBody.teamComponent) return false;
             var body = slot.characterBody;
@@ -257,6 +280,12 @@ namespace Aetherium.Equipment
             {
                 bulletTracker = body.gameObject.AddComponent<JarBulletTracker>();
                 bulletTracker.body = body;
+            }
+
+            var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
+            if (equipmentDisplayTransform)
+            {
+                bulletTracker.TargetTransform = equipmentDisplayTransform;
             }
             /*var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
             if (equipmentDisplayTransform) 
@@ -303,7 +332,7 @@ namespace Aetherium.Equipment
         public class JarBulletTracker : MonoBehaviour
         {
             public List<JarBullet> jarBullets = new List<JarBullet>();
-            public CharacterBody body;
+            public RoR2.CharacterBody body;
             public Transform TargetTransform;
             public float SuckTime;
             public float ChargeTime;
@@ -311,6 +340,7 @@ namespace Aetherium.Equipment
 
             public void FixedUpdate()
             {
+                var input = body.inputBank;
                 if (SuckTime > 0)
                 {
                     SuckTime -= Time.fixedDeltaTime;
@@ -328,7 +358,7 @@ namespace Aetherium.Equipment
                             var controllerOwner = controller.owner;
                             if (controllerOwner)
                             {
-                                var ownerBody = controllerOwner.GetComponent<CharacterBody>();
+                                var ownerBody = controllerOwner.GetComponent<RoR2.CharacterBody>();
                                 if (ownerBody)
                                 {
                                     if (ownerBody.teamComponent.teamIndex == body.teamComponent.teamIndex)
@@ -341,21 +371,16 @@ namespace Aetherium.Equipment
                                         jarBullets.Add(new JarBullet(projectileDamage.damage, projectileDamage.damageColorIndex, projectileDamage.damageType));
                                         var orb = new JarOfReshapingOrb();
                                         orb.Target = TargetTransform ? TargetTransform.gameObject : body.gameObject;
+                                        //orb.Target = body.gameObject;
                                         orb.origin = controller.transform.position;
                                         orb.Index = TargetTransform ? -1 : 0;
-
-                                        /*var orb = new HealOrb();
-                                        orb.target = body.mainHurtBox;
-                                        orb.origin = controller.transform.position;
-                                        orb.healValue = 0;
-                                        orb.overrideDuration = 0.3f;*/
                                         OrbManager.instance.AddOrb(orb);
                                         EntityState.Destroy(controller.gameObject);
                                     }
                                 }
                             }
                         }
-                        Util.PlayScaledSound(EntityStates.ClayBoss.PrepTarBall.prepTarBallSoundString, body.gameObject, 1);
+                        RoR2.Util.PlayScaledSound(EntityStates.ClayBoss.PrepTarBall.prepTarBallSoundString, body.gameObject, 1);
                     }
                 }
                 if (ChargeTime > 0)
@@ -364,19 +389,18 @@ namespace Aetherium.Equipment
                     if (ChargeTime <= 0)
                     { 
                         var bullet = jarBullets.Last();
-                        var inputBank = body.inputBank;
                         FireProjectileInfo projectileInfo = new FireProjectileInfo();
                         projectileInfo.projectilePrefab = JarProjectile;
                         projectileInfo.damage = bullet.Damage;
                         projectileInfo.damageColorIndex = bullet.DamageColorIndex;
                         projectileInfo.damageTypeOverride = bullet.DamageType;
                         projectileInfo.owner = body.gameObject;
-                        projectileInfo.procChainMask = default(ProcChainMask);
-                        projectileInfo.position = body.corePosition;
-                        projectileInfo.rotation = Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward);
+                        projectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                        projectileInfo.position = TargetTransform ? TargetTransform.position : body.corePosition;
+                        projectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(input ? input.aimDirection : body.transform.forward);
                         projectileInfo.speedOverride = 120;
                         ProjectileManager.instance.FireProjectile(projectileInfo);
-                        Util.PlaySound(EntityStates.ClayBoss.FireTarball.attackSoundString, body.gameObject);
+                        RoR2.Util.PlaySound(EntityStates.ClayBoss.FireTarball.attackSoundString, body.gameObject);
                         jarBullets.RemoveAt(jarBullets.Count - 1);
                         if(jarBullets.Count > 0)
                         {

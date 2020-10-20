@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
@@ -12,18 +13,18 @@ using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
-    public class ShieldingCore : Item<ShieldingCore>
+    public class ShieldingCore : Item_V2<ShieldingCore>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoItemConfigFlags.None)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art. Client only.", AutoConfigFlags.None)]
         public bool useNewIcons { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much armor should the first Shielding Core grant? (Default: 15)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much armor should the first Shielding Core grant? (Default: 15)", AutoConfigFlags.PreventNetMismatch)]
         public float baseShieldingCoreArmorGrant { get; private set; } = 15f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much armor should each additional Shielding Core grant? (Default: 10)", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much armor should each additional Shielding Core grant? (Default: 10)", AutoConfigFlags.PreventNetMismatch)]
         public float additionalShieldingCoreArmorGrant { get; private set; } = 10f;
 
         public BuffIndex shieldedCoreArmorBuff { get; private set; }
@@ -32,14 +33,14 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "On being hit while shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
+        protected override string GetPickupString(string langID = null) => "On being hit while shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        protected override string NewLangDesc(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
+        protected override string GetDescString(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
             $" The first stack of this item will grant 4% of your max health as shield on pickup.";
 
-        protected override string NewLangLore(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
+        protected override string GetLoreString(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 
         private static List<CharacterBody> Playername = new List<CharacterBody>();
 
@@ -49,17 +50,29 @@ namespace Aetherium.Items
 
         public ShieldingCore()
         {
-            postConfig += (configFile) =>
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                modelPathName = "@Aetherium:Assets/Models/Prefabs/ShieldingCore.prefab";
-                iconPathName = useNewIcons ? "@Aetherium:Assets/Textures/Icons/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/shieldingCoreIcon.png";
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
+        }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/ShieldingCore.prefab";
+            iconResourcePath = useNewIcons ? "@Aetherium:Assets/Textures/Icons/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/shieldingCoreIcon.png";
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
@@ -184,21 +197,19 @@ namespace Aetherium.Items
             });
             return rules;
         }
-        protected override void LoadBehavior()
+
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
 
             IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate -= ShieldedCoreValidator;
             GetStatCoefficients -= ShieldedCoreArmorCalc;

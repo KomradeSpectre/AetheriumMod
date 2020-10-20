@@ -8,29 +8,30 @@ using TILER2;
 using static TILER2.MiscUtil;
 using UnityEngine;
 using UnityEngine.Networking;
+using Aetherium.Utils;
 
 namespace Aetherium.Items
 {
-    public class AccursedPotion : Item<AccursedPotion>
+    public class AccursedPotion : Item_V2<AccursedPotion>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public float baseSipCooldownDuration { get; private set; } = 30f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))", AutoItemConfigFlags.PreventNetMismatch, 0f, 1f)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float additionalStackSipCooldownReductionPercentage { get; private set; } = 0.75f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What radius of buff/debuff sharing should the first pickup have? (Default: 20m)", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What radius of buff/debuff sharing should the first pickup have? (Default: 20m)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public float baseRadiusGranted { get; private set; } = 20f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public float additionalRadiusGranted { get; private set; } = 5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many buffs or debuffs should we be able to have? (Default: 8)", AutoItemConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many buffs or debuffs should we be able to have? (Default: 8)", AutoConfigFlags.PreventNetMismatch, 0, int.MaxValue)]
         public int maxEffectsAccrued { get; private set; } = 8;
 
         public override string displayName => "Accursed Potion";
@@ -38,15 +39,15 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility | ItemTag.Cleansable});
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
+        protected override string GetPickupString(string langID = null) => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
 
-        protected override string NewLangDesc(string langid = null) => $"Every <style=cIsUtility>{baseSipCooldownDuration}</style> seconds <style=cStack>(reduced by {Pct(1 - additionalStackSipCooldownReductionPercentage)} per stack)</style> you are forced " +
+        protected override string GetDescString(string langid = null) => $"Every <style=cIsUtility>{baseSipCooldownDuration}</style> seconds <style=cStack>(reduced by {Pct(1 - additionalStackSipCooldownReductionPercentage)} per stack)</style> you are forced " +
             $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{baseRadiusGranted}m radius</style> <style=cStack>(+{additionalRadiusGranted}m per stack)</style> around you.</style>" +
             $" Max: {maxEffectsAccrued} buffs or debuffs can be applied at any time.";
 
-        protected override string NewLangLore(string langID = null) => "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
+        protected override string GetLoreString(string langID = null) => "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
             "---------------------------------\n" +
             "\n<indent=5%>1 Eye of Darkness, medium well.</indent>\n" +
             "<indent=5%>15 Scalangs, preferably non-endangered.</indent>\n" +
@@ -58,7 +59,7 @@ namespace Aetherium.Items
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
-        public Xoroshiro128Plus random = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
+        public static Xoroshiro128Plus random = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -66,28 +67,35 @@ namespace Aetherium.Items
 
         public AccursedPotion()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/AccursedPotion.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/AccursedPotionIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/AccursedPotion.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/AccursedPotionIcon.png";
+        }
 
-            onAttrib += (tokenIdent, namePrefix) =>
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                var sipCooldownDebuff = new R2API.CustomBuff(
-                    new RoR2.BuffDef
-                    {
-                        buffColor = new Color(50, 0, 50),
-                        canStack = false,
-                        isDebuff = false,
-                        name = namePrefix + ": Accursed Potion Sip Cooldown",
-                        iconPath = "@Aetherium:Assets/Textures/Icons/AccursedPotionSipCooldownDebuffIcon.png"
-                    });
-                AccursedPotionSipCooldownDebuff = R2API.BuffAPI.Add(sipCooldownDebuff);
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+
+            base.SetupAttributes();
+            var sipCooldownDebuff = new R2API.CustomBuff(
+            new RoR2.BuffDef
+            {
+                buffColor = new Color(50, 0, 50),
+                canStack = false,
+                isDebuff = false,
+                name = "ATHRMAccursed Potion Sip Cooldown",
+                iconPath = "@Aetherium:Assets/Textures/Icons/AccursedPotionSipCooldownDebuffIcon.png"
+            });
+            AccursedPotionSipCooldownDebuff = R2API.BuffAPI.Add(sipCooldownDebuff);
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -213,25 +221,27 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
+            base.Install();
             if (ItemBodyModelPrefab == null)
             {
-                var meshes = regDef.pickupModelPrefab.GetComponentsInChildren<MeshRenderer>();
+                var meshes = itemDef.pickupModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 meshes[2].material.SetFloat("_FillAmount", 0.28f);
                 var wobble = meshes[2].gameObject.AddComponent<Wobble>();
                 wobble.MaxWobble = 0.02f;
 
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
+                ItemBodyModelPrefab = itemDef.pickupModelPrefab;
+                customItem.ItemDisplayRules = GenerateItemDisplayRules();
 
             }
 
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.CharacterBody.FixedUpdate -= ForceFeedPotion;
         }
 

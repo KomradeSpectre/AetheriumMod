@@ -18,6 +18,7 @@ namespace KomradeSpectre.Aetherium
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [BepInDependency(TILER2Plugin.ModGuid, TILER2Plugin.ModVer)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI))]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModVer = "0.3.1";
@@ -26,7 +27,7 @@ namespace KomradeSpectre.Aetherium
         
         //private static ConfigFile cfgFile;
 
-        internal static FilingDictionary<ItemBoilerplate> masterItemList = new FilingDictionary<ItemBoilerplate>();
+        internal static FilingDictionary<CatalogBoilerplate> masterItemList = new FilingDictionary<CatalogBoilerplate>();
 
         internal static BepInEx.Logging.ManualLogSource _logger;
         private static ConfigFile ConfigFile;
@@ -49,57 +50,22 @@ namespace KomradeSpectre.Aetherium
 
             ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, ModGuid + ".cfg"), true);
 
-            masterItemList = ItemBoilerplate.InitAll("Aetherium");
-
-            foreach (ItemBoilerplate x in masterItemList)
+            masterItemList = T2Module.InitAll<CatalogBoilerplate>(new T2Module.ModInfo
             {
-                x.SetupConfig(ConfigFile);
-            }
+                displayName = "Aetherium",
+                longIdentifier = "AETHERIUM",
+                shortIdentifier = "ATHRM",
+                mainConfigFile = ConfigFile
+            });
 
-            int longestName = 0;
-            foreach (ItemBoilerplate x in masterItemList)
-            {
-                x.SetupAttributes("AETHERIUM", "ATHRM");
-                if (x.itemCodeName.Length > longestName) longestName = x.itemCodeName.Length;
-            }
+            T2Module.SetupAll_PluginAwake(masterItemList);
 
-            Logger.LogMessage("Index dump follows (pairs of name / index):");
-            foreach (ItemBoilerplate x in masterItemList)
-            {
-                if (x is Equipment eqp)
-                    Logger.LogMessage("Equipment ATHRM" + x.itemCodeName.PadRight(longestName) + " / " + ((int)eqp.regIndex).ToString());
-                else if (x is Item item)
-                    Logger.LogMessage("     Item ATHRM" + x.itemCodeName.PadRight(longestName) + " / " + ((int)item.regIndex).ToString());
-                else if (x is Artifact afct)
-                    Logger.LogMessage(" Artifact ATHRM" + x.itemCodeName.PadRight(longestName) + " / " + ((int)afct.regIndex).ToString());
-                else
-                    Logger.LogMessage("    Other ATHRM" + x.itemCodeName.PadRight(longestName) + " / N/A");
-            }
-
-            foreach (ItemBoilerplate x in masterItemList)
-            {
-                x.SetupBehavior();
-            }
         }
 
-        public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj)
+        private void Start()
         {
-            MeshRenderer[] meshes = obj.GetComponentsInChildren<MeshRenderer>();
-            CharacterModel.RendererInfo[] renderInfos = new CharacterModel.RendererInfo[meshes.Length];
-
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                renderInfos[i] = new CharacterModel.RendererInfo 
-                {
-                    defaultMaterial = meshes[i].material, 
-                    renderer = meshes[i], 
-                    defaultShadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On,
-                    ignoreOverlays = false //We allow the mesh to be affected by overlays like OnFire or PredatoryInstinctsCritOverlay.
-                };
-            }
-
-            return renderInfos;
-
+            T2Module.SetupAll_PluginStart(masterItemList);
+            CatalogBoilerplate.ConsoleDump(Logger, masterItemList);
         }
 
     }

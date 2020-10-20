@@ -14,66 +14,66 @@ using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
-    public class InspiringDrone : Item<InspiringDrone>
+    public class InspiringDrone : Item_V2<InspiringDrone>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description. (Default: true)", AutoItemConfigFlags.PreventNetMismatch, false, true)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description. (Default: true)", AutoConfigFlags.PreventNetMismatch, false, true)]
         public bool setAllStatValuesAtOnce { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of stats from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of stats from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float allStatValueGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float damageGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float attackSpeedGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the crit chance stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the crit chance stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float critChanceGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the health stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the health stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float healthGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the regen stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the regen stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float regenGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float armorGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch)]
         public float movementSpeedGrantedPercentage { get; private set; } = 0.5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds till we teleport turrets (tracked individually) close to their owner? (Default: 40 (40 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many seconds till we teleport turrets (tracked individually) close to their owner? (Default: 40 (40 seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float turretTeleportationCooldownDuration { get; private set; } = 40f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds till we teleport drones (tracked individually) close to their owner? (Default: 30 (30 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many seconds till we teleport drones (tracked individually) close to their owner? (Default: 30 (30 seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float droneTeleportationCooldownDuration { get; private set; } = 30f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How many seconds between checking if we can teleport things? (Default: 10 (10 seconds))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How many seconds between checking if we can teleport things? (Default: 10 (10 seconds))", AutoConfigFlags.PreventNetMismatch)]
         public float teleportationCheckCooldownDuration { get; private set; } = 10f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How far out should we place turrets from the owner when teleporting them? (Default: 20 (20m))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How far out should we place turrets from the owner when teleporting them? (Default: 20 (20m))", AutoConfigFlags.PreventNetMismatch)]
         public float turretTeleportationDistanceAroundOwner { get; private set; } = 20f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoConfigFlags.PreventNetMismatch)]
         public float droneTeleportationDistanceAroundOwner { get; private set; } = 30f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("Should previously purchased drones be affected by Inspiring Drone instead of applying only the bonus on newly purchased ones?", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("Should previously purchased drones be affected by Inspiring Drone instead of applying only the bonus on newly purchased ones?", AutoConfigFlags.PreventNetMismatch)]
         public bool inspiringDroneBuffsImmediateEffect { get; private set; } = false;
 
         public override string displayName => "Inspiring Drone";
@@ -81,11 +81,11 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier3;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] {ItemTag.AIBlacklist, ItemTag.Utility});
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
+        protected override string GetPickupString(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
 
-        protected override string NewLangDesc(string langid = null) 
+        protected override string GetDescString(string langid = null) 
         {
             string description;
             if (setAllStatValuesAtOnce) 
@@ -110,7 +110,7 @@ namespace Aetherium.Items
             return description;
         }
 
-        protected override string NewLangLore(string langID = null) => "Log File seems to be a transcript comprised entirely of binary. Decode?\n" +
+        protected override string GetLoreString(string langID = null) => "Log File seems to be a transcript comprised entirely of binary. Decode?\n" +
             ">Yes\n" +
             "\n<style=cMono>[DECODING REQUEST ACCEPTED]</style>\n" +
             "<style=cMono>[CONTENTS TO FOLLOW]</style>\n" +
@@ -130,8 +130,19 @@ namespace Aetherium.Items
 
         public InspiringDrone()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/InspiringDrone.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/InspiringDroneIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/InspiringDrone.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/InspiringDroneIcon.png";
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
+            {
+                ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/InspiringDroneTracker.prefab");
+                ItemFollowerPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -143,7 +154,7 @@ namespace Aetherium.Items
 
             var ItemFollower = ItemBodyModelPrefab.AddComponent<ItemFollowerSmooth>();
             ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemFollower.itemDisplay.rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemFollower.itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             ItemFollower.followerPrefab = ItemFollowerPrefab;
             ItemFollower.targetObject = ItemBodyModelPrefab;
             ItemFollower.distanceDampTime = 0.25f;
@@ -276,14 +287,9 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/InspiringDroneTracker.prefab");
-                ItemFollowerPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
 
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
             GetStatCoefficients += AddBoostsToBot;
@@ -294,8 +300,9 @@ namespace Aetherium.Items
             }
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster -= RetrieveBotAndSetBoosts;
             GetStatCoefficients -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
@@ -329,6 +336,7 @@ namespace Aetherium.Items
                 if (BotStatsTracker)
                 {
                     BotStatsTracker.ApplyTrackerBoosts(args);
+                    Chat.AddMessage($"HP After: {sender.maxHealth}");
                 }
             }
         }
@@ -342,7 +350,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //YEAH, YEAH, TAKE THAT YOU DANG DEPLOYABLES. NO CUTE DRONE FOR YOU!
-                    self.inventory.RemoveItem(regIndex, InventoryCount);
+                    self.inventory.RemoveItem(itemDef.itemIndex, InventoryCount);
                 }
             }
         }
@@ -414,6 +422,7 @@ namespace Aetherium.Items
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
             {
+                Chat.AddMessage("GETCOMPONENT CALL");
                 BotStatTracker tracker = bot.gameObject.GetComponent<BotStatTracker>();
                 if (!tracker)
                 {
@@ -441,11 +450,14 @@ namespace Aetherium.Items
                 var inventoryCount = inst.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
+                    Chat.AddMessage("BOOSTING SHIT");
                     BoostCount = inventoryCount;
+                    Chat.AddMessage($"BOOST COUNT: {BoostCount}");
                     DamageBoost = BotOwnerBody.damage * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.damageGrantedPercentage) * BoostCount;
                     AttackSpeedBoost = BotOwnerBody.attackSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.attackSpeedGrantedPercentage) * BoostCount;
                     CritChanceBoost = BotOwnerBody.crit * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.critChanceGrantedPercentage) * BoostCount;
                     HealthBoost = BotOwnerBody.maxHealth * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.healthGrantedPercentage) * BoostCount;
+                    Chat.AddMessage($"Health Boost is: {HealthBoost}");
                     RegenBoost = BotOwnerBody.regen * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.regenGrantedPercentage) * BoostCount;
                     ArmorBoost = BotOwnerBody.armor * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.armorGrantedPercentage) * BoostCount;
                     MoveSpeedBoost = BotOwnerBody.moveSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.movementSpeedGrantedPercentage) * BoostCount;
@@ -462,6 +474,7 @@ namespace Aetherium.Items
                     if (!BotIsBlacklisted)
                     {
                         //Clear for updating.
+                        Chat.AddMessage("FIRED CLEAR");
                         BotSkillStocks.Clear();
                         BotRechargeIntervals.Clear();
 

@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using RoR2.Projectile;
@@ -13,18 +14,18 @@ using static TILER2.MiscUtil;
 
 namespace Aetherium.Items
 {
-    public class BlasterSword : Item<BlasterSword>
+    public class BlasterSword : Item_V2<BlasterSword>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidatePickupToken | AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?", AutoItemConfigFlags.PreventNetMismatch, false, true)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?", AutoConfigFlags.PreventNetMismatch, false, true)]
         public bool useImpaleProjectile { get; private set; } = true;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("In percentage, how much of the wielder's damage should we have? (Default: 2 (200%))", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("In percentage, how much of the wielder's damage should we have? (Default: 2 (200%))", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public float baseSwordDamageMultiplier { get; private set; } = 2f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("In percentage, how much of the wielder's damage should we add per additional stack? (Default: 0.5 (50%))", AutoItemConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("In percentage, how much of the wielder's damage should we add per additional stack? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public float additionalSwordDamageMultiplier { get; private set; } = 0.5f;
 
         public override string displayName => "Blaster Sword";
@@ -32,14 +33,14 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Tier3;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Damage });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(useImpaleProjectile ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
+        protected override string GetPickupString(string langID = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(useImpaleProjectile ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
 
-        protected override string NewLangDesc(string langid = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{Pct(baseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{Pct(additionalSwordDamageMultiplier)} per stack)</style> " +
+        protected override string GetDescString(string langid = null) => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{Pct(baseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{Pct(additionalSwordDamageMultiplier)} per stack)</style> " +
             $"when it <style=cIsDamage>{(useImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
 
-        protected override string NewLangLore(string langID = null) => "<style=cMono>. . . . . . . . . .</style>\n" +
+        protected override string GetLoreString(string langID = null) => "<style=cMono>. . . . . . . . . .</style>\n" +
             "\n<style=cMono>THEY</style> have chosen to <style=cMono>LISTEN</style> to our words.\n" +
             "\n<style=cMono>WE</style> have chosen to <style=cMono>GRANT</style> upon you an exceptional <style=cMono>WEAPON</style> to <style=cMono>UTILIZE</style> your <style=cMono>SOULS TRUE STRENGTH</style>.\n" +
             "\nThe weapon will <style=cMono>ADAPT</style> to fit the needs of the <style=cMono>WIELDER</style>. Once wielded, it is no different than their very soul.\n" +
@@ -63,28 +64,34 @@ namespace Aetherium.Items
 
         public BlasterSword()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/BlasterSword.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/BlasterSwordIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/BlasterSword.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/BlasterSwordIcon.png";
+        }
 
-            onAttrib += (tokenIdent, namePrefix) =>
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
             {
-                var blasterSwordActiveBuff = new R2API.CustomBuff(
-                    new RoR2.BuffDef
-                    {
-                        buffColor = Color.white,
-                        canStack = false,
-                        isDebuff = false,
-                        name = namePrefix + ": Blaster Sword Active",
-                        iconPath = "@Aetherium:Assets/Textures/Icons/BlasterSwordBuffIcon.png"
-                    });
-                BlasterSwordActiveBuff = R2API.BuffAPI.Add(blasterSwordActiveBuff);
-            };
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
+            var blasterSwordActiveBuff = new R2API.CustomBuff(
+            new RoR2.BuffDef
+            {
+                buffColor = Color.white,
+                canStack = false,
+                isDebuff = false,
+                name = "ATHRMBlaster Sword Active",
+                iconPath = "@Aetherium:Assets/Textures/Icons/BlasterSwordBuffIcon.png"
+            });
+            BlasterSwordActiveBuff = R2API.BuffAPI.Add(blasterSwordActiveBuff);
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -332,13 +339,9 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
 
             //The base of this was provided by Rolo to us.
             SwordProjectile = useImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
@@ -386,8 +389,9 @@ namespace Aetherium.Items
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.CharacterBody.FixedUpdate -= ApplyBuffAsIndicatorForReady;
             On.RoR2.Orbs.GenericDamageOrb.Begin -= FireSwordOnOrbs;
             On.RoR2.OverlapAttack.Fire -= FireSwordOnMelee;

@@ -1,4 +1,6 @@
 ﻿using Aetherium.Equipment;
+using Aetherium.Items;
+using R2API;
 using RoR2;
 using RoR2.Orbs;
 using System;
@@ -22,11 +24,12 @@ namespace Aetherium.OrbVisuals
                 {
                     scale = 1,
                     origin = this.origin,
-                    genericFloat = base.duration
+                    genericFloat = base.duration,
+                    rootObject = Target
+                    
                 };
-
-                effectData.SetChildLocatorTransformReference(Target, Index);
-                EffectManager.SpawnEffect(JarOfReshaping.JarOrb, effectData, true);
+                //effectData.SetChildLocatorTransformReference(Target, Index);
+                EffectManager.SpawnEffect(JarOfReshaping.JarOrb, effectData, false);
             }
         }
     }

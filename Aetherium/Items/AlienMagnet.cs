@@ -1,4 +1,5 @@
-﻿using KomradeSpectre.Aetherium;
+﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
@@ -9,22 +10,22 @@ using UnityEngine;
 namespace Aetherium.Items
 {
 
-    public class AlienMagnet : Item<AlienMagnet>
+    public class AlienMagnet : Item_V2<AlienMagnet>
     {
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should the starting force multiplier of the Alien Magnet's pull be? (Default: 6 (6x))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should the starting force multiplier of the Alien Magnet's pull be? (Default: 6 (6x))", AutoConfigFlags.PreventNetMismatch)]
         public float startingForceMultiplier { get; private set; } = 6f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("How much additional force multiplier should be granted per Alien Magnet stack? (Default: 1 (1x))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much additional force multiplier should be granted per Alien Magnet stack? (Default: 1 (1x))", AutoConfigFlags.PreventNetMismatch)]
         public float additionalForceMultiplier { get; private set; } = 1f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should the minimum force multiplier be for the Alien Magnet? (Default: 5 (5x))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should the minimum force multiplier be for the Alien Magnet? (Default: 5 (5x))", AutoConfigFlags.PreventNetMismatch)]
         public float minimumForceMultiplier { get; private set; } = 5f;
 
-        [AutoUpdateEventInfo(AutoUpdateEventFlags.InvalidateDescToken)]
-        [AutoItemConfig("What should the maximum force multiplier be for the Alien Magnet? (Default: 10 (10x))", AutoItemConfigFlags.PreventNetMismatch)]
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("What should the maximum force multiplier be for the Alien Magnet? (Default: 10 (10x))", AutoConfigFlags.PreventNetMismatch)]
         public float maximumForceMultiplier { get; private set; } = 10f;
 
         public override string displayName => "Alien Magnet";
@@ -32,13 +33,13 @@ namespace Aetherium.Items
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
-        protected override string NewLangName(string langID = null) => displayName;
+        protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string NewLangPickup(string langID = null) => "Your attacks pull enemies towards you.";
+        protected override string GetPickupString(string langID = null) => "Your attacks pull enemies towards you.";
 
-        protected override string NewLangDesc(string langid = null) => $"Enemies hit by your attacks will be pulled towards you, starting at {startingForceMultiplier}x force <style=cStack>(+{additionalForceMultiplier}x force multiplier, up to {maximumForceMultiplier}x total force. The effect is more noticeable on higher health enemies.)</style>";
+        protected override string GetDescString(string langid = null) => $"Enemies hit by your attacks will be pulled towards you, starting at {startingForceMultiplier}x force <style=cStack>(+{additionalForceMultiplier}x force multiplier, up to {maximumForceMultiplier}x total force. The effect is more noticeable on higher health enemies.)</style>";
 
-        protected override string NewLangLore(string langID = null) => "A strange pylon that seems to bring enemies towards the wielder when their attacks hit. Only the truly brave or insane bring the fight to themselves.";
+        protected override string GetLoreString(string langID = null) => "A strange pylon that seems to bring enemies towards the wielder when their attacks hit. Only the truly brave or insane bring the fight to themselves.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
 
@@ -46,14 +47,24 @@ namespace Aetherium.Items
 
         public AlienMagnet()
         {
-            modelPathName = "@Aetherium:Assets/Models/Prefabs/AlienMagnet.prefab";
-            iconPathName = "@Aetherium:Assets/Textures/Icons/AlienMagnetIcon.png";
+            modelResourcePath = "@Aetherium:Assets/Models/Prefabs/AlienMagnet.prefab";
+            iconResourcePath = "@Aetherium:Assets/Textures/Icons/AlienMagnetIcon.png";
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
+            {
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = AetheriumPlugin.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
@@ -180,18 +191,15 @@ namespace Aetherium.Items
             return rules;
         }
 
-        protected override void LoadBehavior()
+        public override void Install()
         {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = regDef.pickupModelPrefab;
-                regItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
+            base.Install();
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
         }
 
-        protected override void UnloadBehavior()
+        public override void Uninstall()
         {
+            base.Uninstall();
             On.RoR2.HealthComponent.TakeDamage -= GetOverHere;
         }
 
