@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4186792062
+CRC: 2931765307
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a81deb72f54c28dfb4306d5104129be7
+    Hash: 7ee96b285abf85c13c937c2fe580fe93
   TypeTreeHash:
     serializedVersion: 2
     Hash: bcd7233c0762086102ae8a96e863a4b8
@@ -52,7 +52,6 @@ Assets:
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
 - Assets/Models/Raw Models/JarOfReshapingProjectile.blend
 - Assets/Textures/Materials/UnstableDesignFrontTexture.png
-- Assets/Animations/JarOfReshapingProjectile.anim
 - Assets/Textures/Materials/testnoise.jpg
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Raw Models/WeightedAnklet.blend
@@ -128,12 +127,12 @@ Assets:
 - Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
-- Assets/Animations/JarProjectileSpikes.controller
 - Assets/Animations/JarProjectileSawSecondary.controller
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexure.png
 - Assets/Models/Prefabs/JarOfReshapingProjectile.prefab
 - Assets/Animations/HexPendulum.anim
 - Assets/Textures/Icons/ShieldingCoreIconAlt.png
+- Assets/Animations/JarOfReshapingProjectileMain.controller
 - Assets/Textures/Icons/AccursedPotionIcon.png
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
@@ -173,6 +172,7 @@ Assets:
 - Assets/Textures/Materials/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/ShieldingCore.prefab
 - Assets/Models/Raw Models/BlasterSwordProjectile.blend
+- Assets/Animations/JarOfReshapingProjectileMain.anim
 - Assets/Textures/Materials/BlasterSwordTextureNormal.png
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexureDetailMask.png
 - Assets/Textures/Materials/VoidheartBlack.mat

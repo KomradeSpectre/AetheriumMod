@@ -3,13 +3,16 @@ using Aetherium.Utils;
 using EntityStates;
 using KomradeSpectre.Aetherium;
 using R2API;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
+using RewiredConsts;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net.WebSockets;
 using TILER2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -183,10 +186,9 @@ namespace Aetherium.Equipment
                 displayRules = GenerateItemDisplayRules();
             }
             base.SetupAttributes();
-        }
-        public override void Install()
-        {
-            base.Install();
+
+            NetworkingAPI.RegisterMessageType<SyncJarOrb>();
+
             //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
 
             JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
@@ -199,6 +201,8 @@ namespace Aetherium.Equipment
 
             var orbEffect = JarOrb.AddComponent<OrbEffect>();
 
+            orbEffect.startEffect = Resources.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
+            orbEffect.endEffect = Resources.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
             orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
             orbEffect.startVelocity2 = new Vector3(10, 13, 10);
             orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
@@ -216,10 +220,10 @@ namespace Aetherium.Equipment
 
             var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
-            model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
+            model.AddComponent<ProjectileGhostController>();
 
             var controller = JarProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
-            controller.procCoefficient = 0.8f;
+            controller.procCoefficient = 1;
             controller.ghostPrefab = model;
 
             JarProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Neutral;
@@ -231,9 +235,9 @@ namespace Aetherium.Equipment
             var impactExplosion = JarProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
             impactExplosion.destroyOnEnemy = true;
             impactExplosion.destroyOnWorld = true;
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/LunarWispTrackingBombExplosion");
-            impactExplosion.blastRadius = 2;
-            impactExplosion.blastProcCoefficient = 0.2f;
+            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath");
+            impactExplosion.blastRadius = 4;
+            impactExplosion.blastProcCoefficient = 1f;
 
             // register it for networking
             if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
@@ -243,7 +247,10 @@ namespace Aetherium.Equipment
             {
                 list.Add(JarProjectile);
             };
-
+        }
+        public override void Install()
+        {
+            base.Install();
             On.RoR2.EquipmentSlot.FixedUpdate += EquipmentUpdate;
         }
 
@@ -300,7 +307,6 @@ namespace Aetherium.Equipment
                     }
                 }
             }*/
-
             if (bulletTracker.jarBullets.Count > 0 && bulletTracker.ChargeTime <= 0 && bulletTracker.SuckTime <= 0)
             {
                 bulletTracker.ChargeTime = 1;
@@ -369,12 +375,23 @@ namespace Aetherium.Equipment
                                     if (projectileDamage)
                                     {
                                         jarBullets.Add(new JarBullet(projectileDamage.damage, projectileDamage.damageColorIndex, projectileDamage.damageType));
+
                                         var orb = new JarOfReshapingOrb();
-                                        orb.Target = TargetTransform ? TargetTransform.gameObject : body.gameObject;
-                                        //orb.Target = body.gameObject;
-                                        orb.origin = controller.transform.position;
-                                        orb.Index = TargetTransform ? -1 : 0;
-                                        OrbManager.instance.AddOrb(orb);
+                                        orb.Target = TargetTransform ? TargetTransform.gameObject : body.gameObject; //Where it is going to
+                                        orb.origin = controller.transform.position; //Where it is coming from
+                                        orb.Index = -1;
+                                        OrbManager.instance.AddOrb(orb); // Fire
+
+
+                                        var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
+                                        AetheriumPlugin._logger.LogDebug($"Body Identity: {bodyIdentity}");
+
+                                        if (bodyIdentity)
+                                        {
+                                            new SyncJarOrb(SyncJarOrb.MessageType.Fired, bodyIdentity.netId, controller.transform.position).Send(NetworkDestination.Clients);
+                                            AetheriumPlugin._logger.LogDebug($"Sent NetworkSync");
+                                        }
+
                                         EntityState.Destroy(controller.gameObject);
                                     }
                                 }
@@ -408,6 +425,151 @@ namespace Aetherium.Equipment
                         }
                     }
                 }
+            }
+        }
+
+        public class SyncJarCharging : INetMessage
+        {
+            private MessageType TypeOfMessage;
+            private bool ChargeState;
+            private float Duration;
+            private NetworkInstanceId BodyID;
+
+            public SyncJarCharging() 
+            { 
+            }
+
+            public SyncJarCharging(MessageType messageType, bool chargeState, float duration, NetworkInstanceId bodyId) 
+            {
+                TypeOfMessage = messageType;
+                ChargeState = chargeState;
+                Duration = duration;
+                BodyID = bodyId;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write((byte)TypeOfMessage);
+                writer.Write(ChargeState);
+                writer.Write(Duration);
+                writer.Write(BodyID);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                TypeOfMessage = (MessageType)reader.ReadByte();
+                ChargeState = reader.ReadBoolean();
+                Duration = reader.ReadSingle();
+                BodyID = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+                GameObject target = null;
+                var playerGameObject = Util.FindNetworkObject(BodyID);
+                if (playerGameObject)
+                {
+                    var playerBody = playerGameObject.GetComponent<CharacterBody>();
+                    if (playerBody)
+                    {
+                        var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
+                        target = eqp ? eqp.gameObject : playerGameObject;
+                    }
+
+                }
+                else
+                {
+                    Debug.LogError("We don't have a jar or a playerbody. Can't do an orb!");
+                    return;
+                }
+
+                if (target) 
+                {
+                    if (ChargeState)
+                    {
+
+                    }
+                }
+            }
+
+            public enum MessageType
+            {
+                Charging,
+                Firing
+            }
+        }
+
+        public class SyncJarOrb : INetMessage
+        {
+            private MessageType TypeOfMessage;
+            private NetworkInstanceId PlayerBody;
+            private Vector3 StartingPosition;
+
+            public SyncJarOrb()
+            {
+            }
+
+            public SyncJarOrb(MessageType messageType, NetworkInstanceId playerbody, Vector3 startingPosition)
+            {
+                TypeOfMessage = messageType;
+                AetheriumPlugin._logger.LogDebug($"MessageType: {TypeOfMessage}");
+                PlayerBody = playerbody;
+                AetheriumPlugin._logger.LogDebug($"PlayerBody: {PlayerBody}");
+                StartingPosition = startingPosition;
+                AetheriumPlugin._logger.LogDebug($"StartingPosition: {StartingPosition}");
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write((byte)TypeOfMessage);
+                writer.Write(PlayerBody);
+                writer.Write(StartingPosition);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                TypeOfMessage = (MessageType)reader.ReadByte();
+                PlayerBody = reader.ReadNetworkId();
+                AetheriumPlugin._logger.LogDebug($"DSPlayerBody: {PlayerBody}");
+                StartingPosition = reader.ReadVector3();
+                AetheriumPlugin._logger.LogDebug($"DSSTartingPosition: {StartingPosition}");
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+                AetheriumPlugin._logger.LogDebug($"Passed Active Check");
+                GameObject target = null;
+                var playerGameObject = Util.FindNetworkObject(PlayerBody);
+                if (playerGameObject)
+                {
+                    var playerBody = playerGameObject.GetComponent<CharacterBody>();
+                    if (playerBody) 
+                    {
+                        var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
+                        target = eqp ? eqp.gameObject : playerGameObject;
+                    }
+                    
+                }
+                else
+                {
+                    Debug.LogError("We don't have a jar or a playerbody. Can't do an orb!");
+                    return;
+                }
+
+                if (target) 
+                {
+                    var orb = new JarOfReshapingOrb();
+                    orb.Target = target;
+                    orb.origin = StartingPosition;
+                    orb.Index = -1;
+                    OrbManager.instance.AddOrb(orb);
+                }
+            }
+            public enum MessageType : byte
+            {
+                Fired
             }
         }
     }
