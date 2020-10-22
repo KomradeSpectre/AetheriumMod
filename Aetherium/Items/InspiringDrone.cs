@@ -147,6 +147,12 @@ namespace Aetherium.Items
             base.SetupAttributes();
         }
 
+        public override void SetupBehavior()
+        {
+            base.SetupBehavior();
+            NetworkingAPI.RegisterMessageType<SyncBotName>();
+        }
+
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
             //ItemFollowers are for creating itemdisplays you want to lag behind or have a tether. 
@@ -324,10 +330,13 @@ namespace Aetherium.Items
                 {
                     var BotStatsTracker = BotStatTracker.GetOrAddComponent(botToBeUpgradedMaster, summonerBody.master);
                     BotStatsTracker.UpdateTrackerBoosts();
-                    var queue = BotSyncQueue.GetOrAddComponent(summonerBody.master);
-                    NetworkIdentity masterId = summonerBody.master.GetComponent<NetworkIdentity>();
-                    NetworkIdentity bodyId = botBody.GetComponent<NetworkIdentity>();
-                    queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId, BotStatsTracker.name));
+                    if (!inspiringDroneBuffsImmediateEffect)
+                    {
+                        var queue = BotSyncQueue.GetOrAddComponent(summonerBody.master);
+                        NetworkIdentity masterId = summonerBody.master.GetComponent<NetworkIdentity>();
+                        NetworkIdentity bodyId = botBody.GetComponent<NetworkIdentity>();
+                        queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId, BotStatsTracker.name));
+                    }
                 }
             }
             return botToBeUpgradedMaster;
@@ -601,7 +610,7 @@ namespace Aetherium.Items
 
             private void FixedUpdate()
             {
-                if (syncData.Count > 0)
+                if (!instance.inspiringDroneBuffsImmediateEffect && syncData.Count > 0)
                 {
                     if (NetworkServer.active)
                     {
@@ -730,7 +739,7 @@ namespace Aetherium.Items
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if (instance.inspiringDroneBuffsImmediateEffect || NetworkServer.active) return;
                 GameObject ownerObject = Util.FindNetworkObject(ownerId);
                 if (!ownerObject) return;
                 CharacterMaster master = ownerObject.GetComponent<CharacterMaster>();
