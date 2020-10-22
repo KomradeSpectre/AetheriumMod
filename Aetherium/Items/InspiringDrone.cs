@@ -1,11 +1,13 @@
 ﻿using Aetherium.Utils;
-using KomradeSpectre.Aetherium;
 using R2API;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using RoR2;
 using RoR2.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using TILER2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -143,6 +145,12 @@ namespace Aetherium.Items
                 displayRules = GenerateItemDisplayRules();
             }
             base.SetupAttributes();
+        }
+
+        public override void SetupBehavior()
+        {
+            base.SetupBehavior();
+            NetworkingAPI.RegisterMessageType<SyncBotName>();
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -290,7 +298,6 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
             GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
@@ -316,12 +323,20 @@ namespace Aetherium.Items
         {
             var summonerBody = activator.gameObject.GetComponent<RoR2.CharacterBody>();
             var botToBeUpgradedMaster = orig(self, activator);
-            if (summonerBody && botToBeUpgradedMaster && botToBeUpgradedMaster.GetBody())
+            var botBody = botToBeUpgradedMaster.GetBody();
+            if (summonerBody && botToBeUpgradedMaster && botBody)
             {
                 if ((!inspiringDroneBuffsImmediateEffect && GetCount(summonerBody) > 0) || inspiringDroneBuffsImmediateEffect)
                 {
                     var BotStatsTracker = BotStatTracker.GetOrAddComponent(botToBeUpgradedMaster, summonerBody.master);
                     BotStatsTracker.UpdateTrackerBoosts();
+                    if (!inspiringDroneBuffsImmediateEffect)
+                    {
+                        var queue = BotSyncQueue.GetOrAddComponent(summonerBody.master);
+                        NetworkIdentity masterId = summonerBody.master.GetComponent<NetworkIdentity>();
+                        NetworkIdentity bodyId = botBody.GetComponent<NetworkIdentity>();
+                        queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId, BotStatsTracker.name));
+                    }
                 }
             }
             return botToBeUpgradedMaster;
@@ -586,6 +601,158 @@ namespace Aetherium.Items
                     UnityEngine.Object.Destroy(gameObject);
                 }
                 UnityEngine.Object.Destroy(spawnCard);
+            }
+        }
+
+        public class BotSyncQueue : MonoBehaviour
+        {
+            public List<BotSyncData> syncData { get; private set; } = new List<BotSyncData>();
+
+            private void FixedUpdate()
+            {
+                if (!instance.inspiringDroneBuffsImmediateEffect && syncData.Count > 0)
+                {
+                    if (NetworkServer.active)
+                    {
+                        if (NetworkUser.AllParticipatingNetworkUsersReady())
+                        {
+                            foreach (var data in syncData)
+                            {
+                                new SyncBotName(data).Send(NetworkDestination.Clients);
+                            }
+                            syncData.Clear();
+                        }
+                    }
+                    else
+                    {
+                        List<BotSyncData> leftovers = new List<BotSyncData>();
+                        foreach (var data in syncData)
+                        {
+                            if (!data.Body) leftovers.Add(data);
+                            else data.Body.baseNameToken = data.Name;
+                        }
+                        syncData.Clear();
+                        syncData.AddRange(leftovers);
+                    }
+                }
+            }
+
+            public static BotSyncQueue GetOrAddComponent(CharacterMaster owner)
+            {
+                return GetOrAddComponent(owner.gameObject);
+            }
+
+            public static BotSyncQueue GetOrAddComponent(GameObject owner)
+            {
+                return owner.GetComponent<BotSyncQueue>() ?? owner.AddComponent<BotSyncQueue>();
+            }
+        }
+
+        public struct BotSyncData
+        {
+            public NetworkInstanceId OwnerNetId { get; private set; }
+            public NetworkInstanceId NetId { get; private set; }
+            public string Name { get; private set; }
+            public GameObject BodyObject
+            {
+                get
+                {
+                    if (!_bodyObject) _bodyObject = Util.FindNetworkObject(NetId);
+                    return _bodyObject;
+                }
+            }
+            public CharacterBody Body
+            {
+                get
+                {
+                    if (!_body && BodyObject)
+                    {
+                        _body = BodyObject.GetComponent<CharacterBody>();
+                    }
+                    return _body;
+                }
+            }
+            public GameObject OwnerMasterObject
+            {
+                get
+                {
+                    if (!_ownerMasterObject) _ownerMasterObject = Util.FindNetworkObject(OwnerNetId);
+                    return _ownerMasterObject;
+                }
+            }
+            public CharacterMaster OwnerMaster
+            {
+                get
+                {
+                    if (!_ownerMaster && OwnerMasterObject)
+                    {
+                        _ownerMaster = OwnerMasterObject.GetComponent<CharacterMaster>();
+                    }
+                    return _ownerMaster;
+                }
+            }
+            private CharacterBody _body;
+            private GameObject _bodyObject;
+            private CharacterMaster _ownerMaster;
+            private GameObject _ownerMasterObject;
+
+            public BotSyncData(NetworkInstanceId ownerNetId, NetworkInstanceId networkInstanceId, string name)
+            {
+                OwnerNetId = ownerNetId;
+                NetId = networkInstanceId;
+                Name = name;
+                _body = null;
+                _bodyObject = null;
+                _ownerMaster = null;
+                _ownerMasterObject = null;
+            }
+        }
+
+        private class SyncBotName : INetMessage
+        {
+            private NetworkInstanceId ownerId;
+            private NetworkInstanceId netId;
+            private string newName;
+
+            public SyncBotName() { }
+
+            public SyncBotName(NetworkInstanceId ownerId, NetworkInstanceId netId, string newName)
+            {
+                this.ownerId = ownerId;
+                this.netId = netId;
+                this.newName = newName;
+            }
+
+            public SyncBotName(BotSyncData data)
+            {
+                ownerId = data.OwnerNetId;
+                netId = data.NetId;
+                newName = data.Name;
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                ownerId = reader.ReadNetworkId();
+                netId = reader.ReadNetworkId();
+                newName = reader.ReadString();
+            }
+
+            public void OnReceived()
+            {
+                if (instance.inspiringDroneBuffsImmediateEffect || NetworkServer.active) return;
+                GameObject ownerObject = Util.FindNetworkObject(ownerId);
+                if (!ownerObject) return;
+                CharacterMaster master = ownerObject.GetComponent<CharacterMaster>();
+                if (!master) return;
+                var queue = BotSyncQueue.GetOrAddComponent(master);
+                queue.syncData.Add(new BotSyncData(ownerId, netId, newName));
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(ownerId);
+                writer.Write(netId);
+                writer.Write(newName);
             }
         }
     }
