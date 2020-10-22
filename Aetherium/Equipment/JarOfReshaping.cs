@@ -27,11 +27,15 @@ namespace Aetherium.Equipment
 
         [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
         [AutoConfig("How long should the jar be in the projectile absorption state? (Default: 5 seconds)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
-        public static float projectileAbsorptionTime { get; private set; } = 5f;
+        public static float projectileAbsorptionTime { get; private set; } = 3f;
 
         [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
         [AutoConfig("How long should the jar's main cooldown be? (Default: 20 seconds)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public static float jarCooldown { get; private set; } = 20f;
+
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("If artifact of chaos is on, should we be able to absorb projectiles from other players?", AutoConfigFlags.PreventNetMismatch, false, true)]
+        public static bool iWantToLoseFriendsInChaosMode { get; private set; } = false;
 
         public override string displayName => "Jar of Reshaping";
 
@@ -55,6 +59,101 @@ namespace Aetherium.Equipment
         {
             modelResourcePath = "@Aetherium:Assets/Models/Prefabs/JarOfReshaping.prefab";
             iconResourcePath = "@Aetherium:Assets/Textures/Icons/JarOfReshapingIcon.png";
+        }
+
+        public override void SetupAttributes()
+        {
+            if (ItemBodyModelPrefab == null)
+            {
+                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                displayRules = GenerateItemDisplayRules();
+            }
+            base.SetupAttributes();
+
+            NetworkingAPI.RegisterMessageType<SyncJarOrb>();
+            NetworkingAPI.RegisterMessageType<SyncJarSucking>();
+            NetworkingAPI.RegisterMessageType<SyncJarCharging>();
+
+            JarChargeSphere = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingAbsorbEffect.prefab");
+
+            var chargeSphereEffectComponent = JarChargeSphere.AddComponent<RoR2.EffectComponent>();
+            chargeSphereEffectComponent.parentToReferencedTransform = true;
+            chargeSphereEffectComponent.positionAtReferencedTransform = true;
+
+            var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
+            chargeSphereTimer.duration = projectileAbsorptionTime;
+
+            var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
+            chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
+
+            JarChargeSphere.AddComponent<NetworkIdentity>();
+            if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
+            EffectAPI.AddEffect(JarChargeSphere);
+            //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
+
+            JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
+
+            var jarOrbEffectComponent = JarOrb.AddComponent<RoR2.EffectComponent>();
+
+            var vfxAttributes = JarOrb.AddComponent<RoR2.VFXAttributes>();
+            vfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            vfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
+
+            var orbEffect = JarOrb.AddComponent<OrbEffect>();
+
+            orbEffect.startEffect = Resources.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
+            orbEffect.endEffect = Resources.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
+            orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
+            orbEffect.startVelocity2 = new Vector3(10, 13, 10);
+            orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
+            orbEffect.endVelocity2 = new Vector3(10, 5, 10);
+            orbEffect.movementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+            JarOrb.AddComponent<NetworkIdentity>();
+
+            if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
+            EffectAPI.AddEffect(JarOrb);
+
+            OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
+
+            JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
+
+            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingProjectile.prefab");
+            model.AddComponent<NetworkIdentity>();
+            model.AddComponent<ProjectileGhostController>();
+
+            var controller = JarProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
+            controller.procCoefficient = 1;
+            controller.ghostPrefab = model;
+
+            JarProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Neutral;
+
+            var damage = JarProjectile.GetComponent<RoR2.Projectile.ProjectileDamage>();
+            damage.damageType = DamageType.Generic;
+            damage.damage = 0;
+
+            var impactExplosion = JarProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
+            impactExplosion.destroyOnEnemy = true;
+            impactExplosion.destroyOnWorld = true;
+            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath");
+            impactExplosion.blastRadius = 4;
+            impactExplosion.blastProcCoefficient = 1f;
+
+            // register it for networking
+            if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
+
+            // add it to the projectile catalog or it won't work in multiplayer
+            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
+            {
+                list.Add(JarProjectile);
+            };
+        }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            cooldown = jarCooldown;
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -187,106 +286,18 @@ namespace Aetherium.Equipment
             return rules;
         }
 
-        public override void SetupAttributes()
-        {
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
-                displayRules = GenerateItemDisplayRules();
-            }
-            base.SetupAttributes();
-
-            NetworkingAPI.RegisterMessageType<SyncJarOrb>();
-            NetworkingAPI.RegisterMessageType<SyncJarSucking>();
-            NetworkingAPI.RegisterMessageType<SyncJarCharging>();
-
-            JarChargeSphere = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingAbsorbEffect.prefab");
-
-            var chargeSphereEffectComponent = JarChargeSphere.AddComponent<RoR2.EffectComponent>();
-            chargeSphereEffectComponent.parentToReferencedTransform = true;
-            chargeSphereEffectComponent.positionAtReferencedTransform = true;
-
-            var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
-            chargeSphereTimer.duration = projectileAbsorptionTime;
-
-            var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
-            chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
-            chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
-
-            JarChargeSphere.AddComponent<NetworkIdentity>();
-            if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
-            EffectAPI.AddEffect(JarChargeSphere);
-            //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
-
-            JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
-
-            var jarOrbEffectComponent = JarOrb.AddComponent<RoR2.EffectComponent>();
-
-            var vfxAttributes = JarOrb.AddComponent<RoR2.VFXAttributes>();
-            vfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
-            vfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
-
-            var orbEffect = JarOrb.AddComponent<OrbEffect>();
-
-            orbEffect.startEffect = Resources.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
-            orbEffect.endEffect = Resources.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
-            orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
-            orbEffect.startVelocity2 = new Vector3(10, 13, 10);
-            orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
-            orbEffect.endVelocity2 = new Vector3(10, 5, 10);
-            orbEffect.movementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
-            JarOrb.AddComponent<NetworkIdentity>();
-
-            if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
-            EffectAPI.AddEffect(JarOrb);
-
-            OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
-
-            JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
-
-            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingProjectile.prefab");
-            model.AddComponent<NetworkIdentity>();
-            model.AddComponent<ProjectileGhostController>();
-
-            var controller = JarProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
-            controller.procCoefficient = 1;
-            controller.ghostPrefab = model;
-
-            JarProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Neutral;
-
-            var damage = JarProjectile.GetComponent<RoR2.Projectile.ProjectileDamage>();
-            damage.damageType = DamageType.Generic;
-            damage.damage = 0;
-
-            var impactExplosion = JarProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
-            impactExplosion.destroyOnEnemy = true;
-            impactExplosion.destroyOnWorld = true;
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath");
-            impactExplosion.blastRadius = 4;
-            impactExplosion.blastProcCoefficient = 1f;
-
-            // register it for networking
-            if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
-
-            // add it to the projectile catalog or it won't work in multiplayer
-            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-            {
-                list.Add(JarProjectile);
-            };
-        }
-
-        public override void SetupConfig()
-        {
-            base.SetupConfig();
-            cooldown = jarCooldown;
-        }
-
         public override void Install()
         {
             base.Install();
             On.RoR2.EquipmentSlot.Update += EquipmentUpdate;
             On.RoR2.CharacterBody.FixedUpdate += AddTrackerToBodies;
+        }
+
+        public override void Uninstall()
+        {
+            base.Uninstall();
+            On.RoR2.EquipmentSlot.Update -= EquipmentUpdate;
+            On.RoR2.CharacterBody.FixedUpdate -= AddTrackerToBodies;
         }
 
         private void AddTrackerToBodies(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -331,12 +342,6 @@ namespace Aetherium.Equipment
                 }
             }
             orig(self);
-        }
-
-        public override void Uninstall()
-        {
-            base.Uninstall();
-            On.RoR2.EquipmentSlot.Update -= EquipmentUpdate;
         }
 
         protected override bool PerformEquipmentAction(RoR2.EquipmentSlot slot)
@@ -439,7 +444,18 @@ namespace Aetherium.Equipment
                                 {
                                     if (ownerBody.teamComponent.teamIndex == body.teamComponent.teamIndex)
                                     {
-                                        continue;
+                                        if(FriendlyFireManager.friendlyFireMode != FriendlyFireManager.FriendlyFireMode.Off && iWantToLoseFriendsInChaosMode) 
+                                        {
+                                            if(ownerBody == body)
+                                            {
+                                                continue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
                                     }
                                     var projectileDamage = controller.gameObject.GetComponent<ProjectileDamage>();
                                     if (projectileDamage)
@@ -503,7 +519,6 @@ namespace Aetherium.Equipment
                         }
                         RoR2.Util.PlaySound(EntityStates.ClayBoss.FireTarball.attackSoundString, body.gameObject);
                         ClientBullets--;
-                        Debug.Log($"Bullets: {ClientBullets}");
                         if (jarBullets.Count > 0 || ClientBullets > 0)
                         {
                             ChargeTime += RefireTime;
@@ -556,21 +571,17 @@ namespace Aetherium.Equipment
             {
                 if (NetworkServer.active) return;
                 var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
-                Debug.Log($"OnReceive PlayerGameObject: {playerGameObject}");
                 if (playerGameObject)
                 {
                     var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    Debug.Log($"OnReceive body: {body}");
                     if (body)
                     {
                         var JarBulletTracker = body.GetComponent<JarBulletTracker>();
-                        Debug.Log($"OnReceive BulletTracker: {JarBulletTracker}");
                         if (JarBulletTracker)
                         {
                             JarBulletTracker.ChargeTime = ChargeTime;
                             JarBulletTracker.RefireTime = RefireTime;
                             JarBulletTracker.ClientBullets = BulletAmount;
-                            Debug.Log($"Received Bullets: {BulletAmount}");
                         }
                     }
                 }

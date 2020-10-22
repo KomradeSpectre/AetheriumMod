@@ -422,7 +422,7 @@ namespace Aetherium.Items
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
             {
-                Chat.AddMessage("GETCOMPONENT CALL");
+
                 BotStatTracker tracker = bot.gameObject.GetComponent<BotStatTracker>();
                 if (!tracker)
                 {
@@ -517,7 +517,6 @@ namespace Aetherium.Items
                     for (int i = 0; i < GenericSkills.Length; i++)
                     {
                         GenericSkills[i].maxStock = BotSkillStocks[i];
-                        Debug.Log(GenericSkills[i].maxStock);
                         GenericSkills[i].finalRechargeInterval = BotRechargeIntervals[i];
                     }
                 }
