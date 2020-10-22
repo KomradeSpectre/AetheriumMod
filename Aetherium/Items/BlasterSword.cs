@@ -1,5 +1,8 @@
 ﻿using Aetherium.Utils;
+using EntityStates.Merc;
 using KomradeSpectre.Aetherium;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using R2API;
 using RoR2;
 using RoR2.Projectile;
@@ -52,6 +55,8 @@ namespace Aetherium.Items
         public static GameObject SwordProjectile;
 
         public static bool RecursionPrevention;
+
+        public static Xoroshiro128Plus swordRandom = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
 
         public static HashSet<String> BlacklistedProjectiles = new HashSet<string>()
         {
@@ -383,16 +388,66 @@ namespace Aetherium.Items
             base.Install();
 
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
+            IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
             On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;
             On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
             On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
+        private void Anime(ILContext il)
+        {
+            var c = new ILCursor(il);
+
+            int damageInfoIndex = 4;
+            c.GotoNext(x => x.MatchNewobj<DamageInfo>(), x => x.MatchStloc(out damageInfoIndex));
+            c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<GlobalEventManager>("OnHitAll"));
+            c.Emit(OpCodes.Ldloc, damageInfoIndex);
+            c.EmitDelegate<Action<DamageInfo>>((damageInfo) =>
+            {
+                if (damageInfo.attacker)
+                {
+                    var body = damageInfo.attacker.GetComponent<CharacterBody>();
+                    if (body)
+                    {
+                        var InventoryCount = GetCount(body);
+                        if (InventoryCount > 0)
+                        {
+                            if (body.healthComponent.combinedHealthFraction >= 1)
+                            {
+                                var newProjectileInfo = new FireProjectileInfo();
+                                newProjectileInfo.owner = body.gameObject;
+                                newProjectileInfo.projectilePrefab = SwordProjectile;
+                                newProjectileInfo.speedOverride = 100.0f;
+                                newProjectileInfo.damage = body.damage * baseSwordDamageMultiplier + (body.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
+                                newProjectileInfo.damageTypeOverride = null;
+                                newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
+                                newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                                var positionChosen = damageInfo.position + new Vector3(swordRandom.RangeFloat(-10, 10), swordRandom.RangeFloat(0, 10), swordRandom.RangeFloat(-10, 10)).normalized * 4;
+                                newProjectileInfo.position = positionChosen;
+                                newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
+
+                                try
+                                {
+                                    RecursionPrevention = true;
+                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                }
+                                finally
+                                {
+                                    RecursionPrevention = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         public override void Uninstall()
         {
             base.Uninstall();
             On.RoR2.CharacterBody.FixedUpdate -= ApplyBuffAsIndicatorForReady;
+            IL.EntityStates.Merc.Evis.FixedUpdate -= Anime;
             On.RoR2.Orbs.GenericDamageOrb.Begin -= FireSwordOnOrbs;
             On.RoR2.OverlapAttack.Fire -= FireSwordOnMelee;
             On.RoR2.BulletAttack.Fire -= FireTheSwordOnBulletAttack;

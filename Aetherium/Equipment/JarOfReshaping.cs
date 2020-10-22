@@ -370,6 +370,7 @@ namespace Aetherium.Equipment
             }
             else if (bulletTracker.jarBullets.Count <= 0 && bulletTracker.SuckTime <= 0)
             {
+                bulletTracker.IsSuckingProjectiles = false;
                 bulletTracker.SuckTime = projectileAbsorptionTime;
             }
             return false;
