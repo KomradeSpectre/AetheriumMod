@@ -232,13 +232,6 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = itemDef.pickupModelPrefab;  
-                customItem.ItemDisplayRules = GenerateItemDisplayRules();
-
-            }
-
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;

@@ -86,6 +86,45 @@ namespace Aetherium.Items
                 iconPath = "@Aetherium:Assets/Textures/Icons/BlasterSwordBuffIcon.png"
             });
             BlasterSwordActiveBuff = R2API.BuffAPI.Add(blasterSwordActiveBuff);
+
+            //The base of this was provided by Rolo to us.
+            SwordProjectile = useImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
+
+            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/BlasterSwordProjectile.prefab");
+            model.AddComponent<NetworkIdentity>();
+            model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
+
+            var controller = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
+            controller.procCoefficient = 0.5f;
+            controller.ghostPrefab = model;
+
+            SwordProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Player;
+
+            var damage = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileDamage>();
+            damage.damageType = DamageType.CrippleOnHit;
+            damage.damage = 0;
+
+            var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
+            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
+            impactExplosion.blastRadius = 2;
+            impactExplosion.blastProcCoefficient = 0.2f;
+
+            if (useImpaleProjectile)
+            {
+                var stickOnImpact = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileStickOnImpact>();
+                stickOnImpact.alignNormals = false;
+                impactExplosion.lifetimeAfterImpact = 1.5f;
+                impactExplosion.timerAfterImpact = true;
+            }
+
+            // register it for networking
+            if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
+
+            // add it to the projectile catalog or it won't work in multiplayer
+            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
+            {
+                list.Add(SwordProjectile);
+            };
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -342,45 +381,6 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-
-            //The base of this was provided by Rolo to us.
-            SwordProjectile = useImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
-
-            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/BlasterSwordProjectile.prefab");
-            model.AddComponent<NetworkIdentity>();
-            model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
-
-            var controller = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
-            controller.procCoefficient = 0.5f;
-            controller.ghostPrefab = model;
-
-            SwordProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Player;
-
-            var damage = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileDamage>();
-            damage.damageType = DamageType.CrippleOnHit;
-            damage.damage = 0;
-
-            var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
-            impactExplosion.blastRadius = 2;
-            impactExplosion.blastProcCoefficient = 0.2f;
-
-            if (useImpaleProjectile)
-            {
-                var stickOnImpact = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileStickOnImpact>();
-                stickOnImpact.alignNormals = false;
-                impactExplosion.lifetimeAfterImpact = 1.5f;
-                impactExplosion.timerAfterImpact = true;
-            }
-
-            // register it for networking
-            if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
-
-            // add it to the projectile catalog or it won't work in multiplayer
-            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-            {
-                list.Add(SwordProjectile);
-            };
 
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
             On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;

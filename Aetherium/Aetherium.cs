@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿#undef DEBUG
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -18,11 +18,11 @@ namespace KomradeSpectre.Aetherium
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [BepInDependency(TILER2Plugin.ModGuid, TILER2Plugin.ModVer)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI), nameof(NetworkingAPI))]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
+    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI), nameof(NetworkingAPI), nameof(EffectAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.3.1";
+        public const string ModVer = "0.3.2";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         
@@ -54,10 +54,11 @@ namespace KomradeSpectre.Aetherium
             masterItemList = T2Module.InitAll<CatalogBoilerplate>(new T2Module.ModInfo
             {
                 displayName = "Aetherium",
-                longIdentifier = "AETHERIUM",
+                longIdentifier = "AETHERIUMMOD",
                 shortIdentifier = "ATHRM",
                 mainConfigFile = ConfigFile
             });
+
 
             T2Module.SetupAll_PluginAwake(masterItemList);
 

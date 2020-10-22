@@ -450,14 +450,11 @@ namespace Aetherium.Items
                 var inventoryCount = inst.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
-                    Chat.AddMessage("BOOSTING SHIT");
                     BoostCount = inventoryCount;
-                    Chat.AddMessage($"BOOST COUNT: {BoostCount}");
                     DamageBoost = BotOwnerBody.damage * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.damageGrantedPercentage) * BoostCount;
                     AttackSpeedBoost = BotOwnerBody.attackSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.attackSpeedGrantedPercentage) * BoostCount;
                     CritChanceBoost = BotOwnerBody.crit * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.critChanceGrantedPercentage) * BoostCount;
                     HealthBoost = BotOwnerBody.maxHealth * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.healthGrantedPercentage) * BoostCount;
-                    Chat.AddMessage($"Health Boost is: {HealthBoost}");
                     RegenBoost = BotOwnerBody.regen * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.regenGrantedPercentage) * BoostCount;
                     ArmorBoost = BotOwnerBody.armor * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.armorGrantedPercentage) * BoostCount;
                     MoveSpeedBoost = BotOwnerBody.moveSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.movementSpeedGrantedPercentage) * BoostCount;
@@ -520,6 +517,7 @@ namespace Aetherium.Items
                     for (int i = 0; i < GenericSkills.Length; i++)
                     {
                         GenericSkills[i].maxStock = BotSkillStocks[i];
+                        Debug.Log(GenericSkills[i].maxStock);
                         GenericSkills[i].finalRechargeInterval = BotRechargeIntervals[i];
                     }
                 }

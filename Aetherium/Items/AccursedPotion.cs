@@ -76,6 +76,10 @@ namespace Aetherium.Items
             if (ItemBodyModelPrefab == null)
             {
                 ItemBodyModelPrefab = Resources.Load<GameObject>(modelResourcePath);
+                var meshes = ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
+                meshes[2].material.SetFloat("_FillAmount", 0.28f);
+                var wobble = meshes[2].gameObject.AddComponent<Wobble>();
+                wobble.MaxWobble = 0.02f;
                 displayRules = GenerateItemDisplayRules();
             }
 
@@ -224,18 +228,6 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-            if (ItemBodyModelPrefab == null)
-            {
-                var meshes = itemDef.pickupModelPrefab.GetComponentsInChildren<MeshRenderer>();
-                meshes[2].material.SetFloat("_FillAmount", 0.28f);
-                var wobble = meshes[2].gameObject.AddComponent<Wobble>();
-                wobble.MaxWobble = 0.02f;
-
-                ItemBodyModelPrefab = itemDef.pickupModelPrefab;
-                customItem.ItemDisplayRules = GenerateItemDisplayRules();
-
-            }
-
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
         }
 

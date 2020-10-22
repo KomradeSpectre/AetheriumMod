@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2931765307
+CRC: 1258599140
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7ee96b285abf85c13c937c2fe580fe93
+    Hash: 4b14ad113d9c06ab341f3d29c8253e8d
   TypeTreeHash:
     serializedVersion: 2
-    Hash: bcd7233c0762086102ae8a96e863a4b8
+    Hash: 2d0d1cac587d17b61a3f971370c7f3e1
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -35,6 +35,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 96
   Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
 - Class: 111
   Script: {instanceID: 0}
 - Class: 135
@@ -54,8 +56,10 @@ Assets:
 - Assets/Textures/Materials/UnstableDesignFrontTexture.png
 - Assets/Textures/Materials/testnoise.jpg
 - Assets/Textures/Materials/ShieldingCoreGem.mat
+- Assets/Models/Prefabs/JarOfReshapingAbsorbEffect.prefab
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/FeatheredPlume.prefab
+- Assets/Animations/JarOfReshapingAbsorbEffect.controller
 - Assets/Animations/InspiringDroneHead.controller
 - Assets/Textures/Materials/teststringtexture.png
 - Assets/Textures/Materials/JarOfReshapingProjectileSecondary.mat
@@ -64,6 +68,7 @@ Assets:
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
+- Assets/Textures/Materials/BlueToTransparentRampSphere.png
 - Assets/Textures/Materials/BlasterSwordGold.mat
 - Assets/Shaders/StylizedGlass.shader
 - Assets/Textures/Materials/SharkTeethBone.mat
@@ -79,6 +84,7 @@ Assets:
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
+- Assets/Shaders/WaterShader.shader
 - Assets/Textures/Icons/SharkTeethIcon.png
 - Assets/Animations/InspiringDroneThrusterPlume.controller
 - Assets/Textures/Materials/Powergem.mat
@@ -87,6 +93,7 @@ Assets:
 - Assets/Textures/Materials/AccursedPotionWrapper.mat
 - Assets/Animations/InspiringDroneChest.controller
 - Assets/Shaders/Rim + Texture.shader
+- Assets/Textures/Materials/JarOfReshapingEffectInnerRim.mat
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexureOcclusion.png
 - Assets/Textures/Materials/HexPendulumArc.mat
 - Assets/Models/Raw Models/ShieldingCore.blend
@@ -104,6 +111,7 @@ Assets:
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Textures/Materials/InspiringDroneMain1.mat
 - Assets/Textures/Materials/BlasterSwordCore.mat
+- Assets/Textures/Materials/BlueToTransparentRamp.png
 - Assets/Textures/Icons/BlasterSwordIcon.png
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.png
@@ -115,11 +123,13 @@ Assets:
 - Assets/Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Materials/SnowGradient.PNG
 - Assets/Textures/Materials/InspiringDroneScreenGlass.mat
+- Assets/Animations/JarOfReshapingSphere.anim
 - Assets/Models/Raw Models/AccursedPotionVial.blend
 - Assets/Models/Prefabs/WeightedAnklet.prefab
 - Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Materials/InspiringDroneJointMetal.mat
 - Assets/Textures/Icons/InspiringDroneIcon.png
+- Assets/Models/Raw Models/JarOfReshapingAbsorbEffect.blend
 - Assets/Textures/Materials/UnstableDesignHolderTexture.mat
 - Assets/Textures/Materials/Powergem.png
 - Assets/Textures/Materials/BlasterSwordCoreGlass.mat
@@ -135,16 +145,20 @@ Assets:
 - Assets/Animations/JarOfReshapingProjectileMain.controller
 - Assets/Textures/Icons/AccursedPotionIcon.png
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
+- Assets/Textures/Materials/JarOfReshapingEffect.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.mat
 - Assets/Animations/InspiringDroneChest.anim
 - Assets/Animations/JarOfReshapingProjectileSecondary.anim
 - Assets/Models/Raw Models/Voidheart.blend
+- Assets/Textures/Materials/JarOfReshapingEffect2.mat
 - Assets/Textures/Materials/VoidheartVeins.mat
 - Assets/Models/Prefabs/SharkTeeth.prefab
 - Assets/Textures/Materials/JarOfReshapingVase.mat
 - Assets/Textures/Materials/AccursedPotionFill.mat
 - Assets/Textures/Materials/AccursedPotionStopper.mat
+- Assets/Textures/Materials/BlueToTransparentRampBlinds.png
+- Assets/Textures/Materials/BlueToTransparentRampCircular.png
 - Assets/Textures/Materials/JarOfReshapingGlass.mat
 - Assets/Models/Raw Models/BlasterSword.blend
 - Assets/Textures/Materials/UnstableDesignBackTexture.png
@@ -163,6 +177,7 @@ Assets:
 - Assets/Shaders/SonarFx.shader
 - Assets/Textures/Materials/ShieldingCoreFlap.mat
 - Assets/Models/Raw Models/BloodSoakedShield.blend
+- Assets/Textures/Materials/BlueToTransparentRampInner.png
 - Assets/Models/Raw Models/InspiringDrone.blend
 - Assets/Textures/Materials/BlasterSwordTexture.png
 - Assets/Textures/Materials/ShieldingMetal.mat

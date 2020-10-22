@@ -218,11 +218,6 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-            if (ItemBodyModelPrefab == null)
-            {
-                ItemBodyModelPrefab = itemDef.pickupModelPrefab;
-                customItem.ItemDisplayRules = GenerateItemDisplayRules();
-            }
             On.RoR2.HealthComponent.TakeDamage += CalculateSpeedReward;
             GetStatCoefficients += AddSpeedReward;
         }

@@ -25,6 +25,14 @@ namespace Aetherium.Equipment
         [AutoConfig("What radius should the jar devour bullets? (Default: 20m)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
         public static float baseRadiusGranted { get; private set; } = 20f;
 
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How long should the jar be in the projectile absorption state? (Default: 5 seconds)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public static float projectileAbsorptionTime { get; private set; } = 5f;
+
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How long should the jar's main cooldown be? (Default: 20 seconds)", AutoConfigFlags.PreventNetMismatch, 0f, float.MaxValue)]
+        public static float jarCooldown { get; private set; } = 20f;
+
         public override string displayName => "Jar of Reshaping";
 
         protected override string GetNameString(string langID = null) => displayName;
@@ -35,12 +43,13 @@ namespace Aetherium.Equipment
 
         protected override string GetPickupString(string langID = null) => "";
 
-
         public static GameObject ItemBodyModelPrefab;
 
         public static GameObject JarProjectile;
 
         public static GameObject JarOrb;
+
+        public static GameObject JarChargeSphere;
 
         public JarOfReshaping()
         {
@@ -188,12 +197,30 @@ namespace Aetherium.Equipment
             base.SetupAttributes();
 
             NetworkingAPI.RegisterMessageType<SyncJarOrb>();
+            NetworkingAPI.RegisterMessageType<SyncJarSucking>();
+            NetworkingAPI.RegisterMessageType<SyncJarCharging>();
 
+            JarChargeSphere = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingAbsorbEffect.prefab");
+
+            var chargeSphereEffectComponent = JarChargeSphere.AddComponent<RoR2.EffectComponent>();
+            chargeSphereEffectComponent.parentToReferencedTransform = true;
+            chargeSphereEffectComponent.positionAtReferencedTransform = true;
+
+            var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
+            chargeSphereTimer.duration = projectileAbsorptionTime;
+
+            var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
+            chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
+
+            JarChargeSphere.AddComponent<NetworkIdentity>();
+            if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
+            EffectAPI.AddEffect(JarChargeSphere);
             //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
 
             JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/JarOfReshapingOrb.prefab");
 
-            var effectComponent = JarOrb.AddComponent<RoR2.EffectComponent>();
+            var jarOrbEffectComponent = JarOrb.AddComponent<RoR2.EffectComponent>();
 
             var vfxAttributes = JarOrb.AddComponent<RoR2.VFXAttributes>();
             vfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
@@ -248,13 +275,39 @@ namespace Aetherium.Equipment
                 list.Add(JarProjectile);
             };
         }
+
+        public override void SetupConfig()
+        {
+            base.SetupConfig();
+            cooldown = jarCooldown;
+        }
+
         public override void Install()
         {
             base.Install();
-            On.RoR2.EquipmentSlot.FixedUpdate += EquipmentUpdate;
+            On.RoR2.EquipmentSlot.Update += EquipmentUpdate;
+            On.RoR2.CharacterBody.FixedUpdate += AddTrackerToBodies;
         }
 
-        private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_FixedUpdate orig, RoR2.EquipmentSlot self)
+        private void AddTrackerToBodies(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        {
+            var slot = self.equipmentSlot;
+            if (slot)
+            {
+                if (slot.equipmentIndex == equipmentDef.equipmentIndex)
+                {
+                    var bulletTracker = self.GetComponent<JarBulletTracker>();
+                    if (!bulletTracker)
+                    {
+                        bulletTracker = self.gameObject.AddComponent<JarBulletTracker>();
+                        bulletTracker.body = self;
+                    }
+                }
+            }
+            orig(self);
+        }
+
+        private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_Update orig, RoR2.EquipmentSlot self)
         {
             if (self.equipmentIndex == equipmentDef.equipmentIndex)
             {
@@ -262,11 +315,19 @@ namespace Aetherium.Equipment
                 var body = self.characterBody;
                 if (selfDisplay && body)
                 {
+                    var bulletTracker = body.GetComponent<JarBulletTracker>();
                     var input = body.inputBank;
-                    if (input)
+                    if (input && bulletTracker)
                     {
-                        selfDisplay.rotation = Util.QuaternionSafeLookRotation(input.aimDirection);
+                        //Debug.Log($"Update ChargeTime: {bulletTracker.ChargeTime}");
+                        if (bulletTracker.ChargeTime > 0)
+                        {
+                            selfDisplay.rotation = Quaternion.Slerp(selfDisplay.rotation, RoR2.Util.QuaternionSafeLookRotation(input.aimDirection), 0.15f);
+                            orig(self);
+                            return;
+                        }
                     }
+                    selfDisplay.rotation = Quaternion.Slerp(selfDisplay.rotation, RoR2.Util.QuaternionSafeLookRotation(Vector3.up), 0.15f);
                 }
             }
             orig(self);
@@ -275,13 +336,14 @@ namespace Aetherium.Equipment
         public override void Uninstall()
         {
             base.Uninstall();
-            On.RoR2.EquipmentSlot.FixedUpdate -= EquipmentUpdate;
+            On.RoR2.EquipmentSlot.Update -= EquipmentUpdate;
         }
 
         protected override bool PerformEquipmentAction(RoR2.EquipmentSlot slot)
         {
             if (!slot.characterBody || !slot.characterBody.teamComponent) return false;
             var body = slot.characterBody;
+            var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
             var bulletTracker = body.GetComponent<JarBulletTracker>();
             if (!bulletTracker) 
             {
@@ -294,19 +356,7 @@ namespace Aetherium.Equipment
             {
                 bulletTracker.TargetTransform = equipmentDisplayTransform;
             }
-            /*var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
-            if (equipmentDisplayTransform) 
-            { 
-                var coreChildLocator = equipmentDisplayTransform.GetComponentInChildren<ChildLocator>();
-                if (coreChildLocator)
-                {
-                    Transform targetTransform = coreChildLocator.FindChild("SuctionTarget");
-                    if (targetTransform)
-                    {
-                        bulletTracker.TargetTransform = targetTransform;
-                    }
-                }
-            }*/
+
             if (bulletTracker.jarBullets.Count > 0 && bulletTracker.ChargeTime <= 0 && bulletTracker.SuckTime <= 0)
             {
                 bulletTracker.ChargeTime = 1;
@@ -315,7 +365,7 @@ namespace Aetherium.Equipment
             }
             else if (bulletTracker.jarBullets.Count <= 0 && bulletTracker.SuckTime <= 0)
             {
-                bulletTracker.SuckTime = 3;
+                bulletTracker.SuckTime = projectileAbsorptionTime;
             }
             return false;
         }
@@ -343,12 +393,32 @@ namespace Aetherium.Equipment
             public float SuckTime;
             public float ChargeTime;
             public float RefireTime;
+            public int ClientBullets;
+            public bool IsSuckingProjectiles;
+            public bool IsCharging;
 
             public void FixedUpdate()
             {
                 var input = body.inputBank;
                 if (SuckTime > 0)
                 {
+                    if (!IsSuckingProjectiles)
+                    {
+                        RoR2.EffectData sphere = new RoR2.EffectData
+                        {
+                            origin = TargetTransform ? TargetTransform.position : body.transform.position,
+                            rotation = TargetTransform ? TargetTransform.rotation : body.transform.rotation,
+                            rootObject = TargetTransform ? TargetTransform.gameObject : body.gameObject
+                        };
+                        RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
+
+                        var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
+                        if (bodyIdentity && NetworkServer.active) 
+                        {
+                            new SyncJarSucking(SyncJarSucking.MessageType.Charging, true, projectileAbsorptionTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
+                        }
+                        IsSuckingProjectiles = true;
+                    }
                     SuckTime -= Time.fixedDeltaTime;
                     List<ProjectileController> bullets = new List<ProjectileController>();
                     new RoR2.SphereSearch
@@ -384,62 +454,141 @@ namespace Aetherium.Equipment
 
 
                                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
-                                        AetheriumPlugin._logger.LogDebug($"Body Identity: {bodyIdentity}");
 
-                                        if (bodyIdentity)
+                                        if (bodyIdentity && NetworkServer.active)
                                         {
                                             new SyncJarOrb(SyncJarOrb.MessageType.Fired, bodyIdentity.netId, controller.transform.position).Send(NetworkDestination.Clients);
-                                            AetheriumPlugin._logger.LogDebug($"Sent NetworkSync");
                                         }
-
+                                        RoR2.Util.PlayScaledSound(EntityStates.Engi.EngiWeapon.ChargeGrenades.chargeStockSoundString, body.gameObject, jarBullets.Count);
                                         EntityState.Destroy(controller.gameObject);
                                     }
                                 }
                             }
                         }
-                        RoR2.Util.PlayScaledSound(EntityStates.ClayBoss.PrepTarBall.prepTarBallSoundString, body.gameObject, 1);
                     }
+                }
+                else
+                {
+                    IsSuckingProjectiles = false;
                 }
                 if (ChargeTime > 0)
                 {
+                    if (!IsCharging && NetworkServer.active)
+                    {
+                        var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
+                        if (bodyIdentity)
+                        {
+                            new SyncJarCharging(jarBullets.Count, ChargeTime, RefireTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
+                        }
+                        IsCharging = true;
+                    }
                     ChargeTime -= Time.fixedDeltaTime;
                     if (ChargeTime <= 0)
-                    { 
-                        var bullet = jarBullets.Last();
-                        FireProjectileInfo projectileInfo = new FireProjectileInfo();
-                        projectileInfo.projectilePrefab = JarProjectile;
-                        projectileInfo.damage = bullet.Damage;
-                        projectileInfo.damageColorIndex = bullet.DamageColorIndex;
-                        projectileInfo.damageTypeOverride = bullet.DamageType;
-                        projectileInfo.owner = body.gameObject;
-                        projectileInfo.procChainMask = default(RoR2.ProcChainMask);
-                        projectileInfo.position = TargetTransform ? TargetTransform.position : body.corePosition;
-                        projectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(input ? input.aimDirection : body.transform.forward);
-                        projectileInfo.speedOverride = 120;
-                        ProjectileManager.instance.FireProjectile(projectileInfo);
+                    {
+                        if (NetworkServer.active)
+                        {
+                            var bullet = jarBullets.Last();
+                            FireProjectileInfo projectileInfo = new FireProjectileInfo();
+                            projectileInfo.projectilePrefab = JarProjectile;
+                            projectileInfo.damage = 20 + bullet.Damage * 2;
+                            projectileInfo.damageColorIndex = bullet.DamageColorIndex;
+                            projectileInfo.damageTypeOverride = bullet.DamageType;
+                            projectileInfo.owner = body.gameObject;
+                            projectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                            projectileInfo.position = TargetTransform ? TargetTransform.position : body.corePosition;
+                            projectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(input ? input.aimDirection : body.transform.forward);
+                            projectileInfo.speedOverride = 120;
+                            ProjectileManager.instance.FireProjectile(projectileInfo);
+                            jarBullets.RemoveAt(jarBullets.Count - 1);
+                        }
                         RoR2.Util.PlaySound(EntityStates.ClayBoss.FireTarball.attackSoundString, body.gameObject);
-                        jarBullets.RemoveAt(jarBullets.Count - 1);
-                        if(jarBullets.Count > 0)
+                        ClientBullets--;
+                        Debug.Log($"Bullets: {ClientBullets}");
+                        if (jarBullets.Count > 0 || ClientBullets > 0)
                         {
                             ChargeTime += RefireTime;
                         }
                     }
+                }
+                else
+                {
+                    IsCharging = false;
                 }
             }
         }
 
         public class SyncJarCharging : INetMessage
         {
+            private int BulletAmount;
+            private float ChargeTime;
+            private float RefireTime;
+            private NetworkInstanceId BodyID;
+
+            public SyncJarCharging()
+            {
+            }
+
+            public SyncJarCharging(int bulletamount, float chargeTime, float refireTime, NetworkInstanceId bodyID)
+            {
+                BulletAmount = bulletamount;
+                ChargeTime = chargeTime;
+                RefireTime = refireTime;
+                BodyID = bodyID;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(BulletAmount);
+                writer.Write(ChargeTime);
+                writer.Write(RefireTime);
+                writer.Write(BodyID);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                BulletAmount = reader.ReadInt32();
+                ChargeTime = reader.ReadSingle();
+                RefireTime = reader.ReadSingle();
+                BodyID = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+                var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
+                Debug.Log($"OnReceive PlayerGameObject: {playerGameObject}");
+                if (playerGameObject)
+                {
+                    var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
+                    Debug.Log($"OnReceive body: {body}");
+                    if (body)
+                    {
+                        var JarBulletTracker = body.GetComponent<JarBulletTracker>();
+                        Debug.Log($"OnReceive BulletTracker: {JarBulletTracker}");
+                        if (JarBulletTracker)
+                        {
+                            JarBulletTracker.ChargeTime = ChargeTime;
+                            JarBulletTracker.RefireTime = RefireTime;
+                            JarBulletTracker.ClientBullets = BulletAmount;
+                            Debug.Log($"Received Bullets: {BulletAmount}");
+                        }
+                    }
+                }
+            }
+        }
+
+        public class SyncJarSucking : INetMessage
+        {
             private MessageType TypeOfMessage;
             private bool ChargeState;
             private float Duration;
             private NetworkInstanceId BodyID;
 
-            public SyncJarCharging() 
+            public SyncJarSucking() 
             { 
             }
 
-            public SyncJarCharging(MessageType messageType, bool chargeState, float duration, NetworkInstanceId bodyId) 
+            public SyncJarSucking(MessageType messageType, bool chargeState, float duration, NetworkInstanceId bodyId) 
             {
                 TypeOfMessage = messageType;
                 ChargeState = chargeState;
@@ -467,29 +616,35 @@ namespace Aetherium.Equipment
             {
                 if (NetworkServer.active) return;
                 GameObject target = null;
-                var playerGameObject = Util.FindNetworkObject(BodyID);
+                var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
                 if (playerGameObject)
                 {
-                    var playerBody = playerGameObject.GetComponent<CharacterBody>();
+                    var playerBody = playerGameObject.GetComponent<RoR2.CharacterBody>();
                     if (playerBody)
                     {
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
+
+                        if (target)
+                        {
+                            if (ChargeState)
+                            {
+                                RoR2.EffectData sphere = new RoR2.EffectData
+                                {
+                                    origin = target.transform.position,
+                                    rotation = target.transform.rotation,
+                                    rootObject = target
+                                };
+                                RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
+                            }
+                        }
                     }
 
                 }
                 else
                 {
-                    Debug.LogError("We don't have a jar or a playerbody. Can't do an orb!");
+                    Debug.LogError("We don't have a jar or a playerbody. Can't do a sphere!");
                     return;
-                }
-
-                if (target) 
-                {
-                    if (ChargeState)
-                    {
-
-                    }
                 }
             }
 
@@ -513,11 +668,8 @@ namespace Aetherium.Equipment
             public SyncJarOrb(MessageType messageType, NetworkInstanceId playerbody, Vector3 startingPosition)
             {
                 TypeOfMessage = messageType;
-                AetheriumPlugin._logger.LogDebug($"MessageType: {TypeOfMessage}");
                 PlayerBody = playerbody;
-                AetheriumPlugin._logger.LogDebug($"PlayerBody: {PlayerBody}");
                 StartingPosition = startingPosition;
-                AetheriumPlugin._logger.LogDebug($"StartingPosition: {StartingPosition}");
             }
 
             public void Serialize(NetworkWriter writer)
@@ -531,20 +683,17 @@ namespace Aetherium.Equipment
             {
                 TypeOfMessage = (MessageType)reader.ReadByte();
                 PlayerBody = reader.ReadNetworkId();
-                AetheriumPlugin._logger.LogDebug($"DSPlayerBody: {PlayerBody}");
                 StartingPosition = reader.ReadVector3();
-                AetheriumPlugin._logger.LogDebug($"DSSTartingPosition: {StartingPosition}");
             }
 
             public void OnReceived()
             {
                 if (NetworkServer.active) return;
-                AetheriumPlugin._logger.LogDebug($"Passed Active Check");
                 GameObject target = null;
-                var playerGameObject = Util.FindNetworkObject(PlayerBody);
+                var playerGameObject = RoR2.Util.FindNetworkObject(PlayerBody);
                 if (playerGameObject)
                 {
-                    var playerBody = playerGameObject.GetComponent<CharacterBody>();
+                    var playerBody = playerGameObject.GetComponent<RoR2.CharacterBody>();
                     if (playerBody) 
                     {
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
