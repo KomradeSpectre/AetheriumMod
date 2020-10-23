@@ -301,10 +301,7 @@ namespace Aetherium.Items
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
             GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
-            if (inspiringDroneBuffsImmediateEffect)
-            {
-                On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
-            }
+            On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
         }
 
         public override void Uninstall()
@@ -313,10 +310,7 @@ namespace Aetherium.Items
             On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster -= RetrieveBotAndSetBoosts;
             GetStatCoefficients -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
-            if (inspiringDroneBuffsImmediateEffect)
-            {
-                On.RoR2.CharacterBody.OnInventoryChanged -= UpdateAllTrackers;
-            }
+            On.RoR2.CharacterBody.OnInventoryChanged -= UpdateAllTrackers;
         }
 
         private RoR2.CharacterMaster RetrieveBotAndSetBoosts(On.RoR2.SummonMasterBehavior.orig_OpenSummonReturnMaster orig, RoR2.SummonMasterBehavior self, RoR2.Interactor activator)
@@ -330,13 +324,6 @@ namespace Aetherium.Items
                 {
                     var BotStatsTracker = BotStatTracker.GetOrAddComponent(botToBeUpgradedMaster, summonerBody.master);
                     BotStatsTracker.UpdateTrackerBoosts();
-                    if (!inspiringDroneBuffsImmediateEffect)
-                    {
-                        var queue = BotSyncQueue.GetOrAddComponent(summonerBody.master);
-                        NetworkIdentity masterId = summonerBody.master.GetComponent<NetworkIdentity>();
-                        NetworkIdentity bodyId = botBody.GetComponent<NetworkIdentity>();
-                        queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId, BotStatsTracker.name));
-                    }
                 }
             }
             return botToBeUpgradedMaster;
@@ -373,6 +360,10 @@ namespace Aetherium.Items
         private void UpdateAllTrackers(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
+            if (!inspiringDroneBuffsImmediateEffect)
+            {
+                return;
+            }
             CharacterMaster ownerMaster = self.master;
             MinionOwnership[] minionOwnerships = UnityEngine.Object.FindObjectsOfType<MinionOwnership>();
             foreach (MinionOwnership minionOwnership in minionOwnerships)
@@ -454,7 +445,7 @@ namespace Aetherium.Items
 
             public void UpdateTrackerBoosts()
             {
-                if (!BotBody || !BotOwnerBody)
+                if (!BotOwnerMaster || !BotMaster || !BotBody || !BotOwnerBody)
                 {
                     return;
                 }
@@ -506,6 +497,13 @@ namespace Aetherium.Items
                             BotRechargeIntervals.Add(DefaultRechargeIntervals[i] * (float)Math.Pow(0.5, BoostCount));
                         }
                     }
+                }
+                if (NetworkServer.active && !inst.inspiringDroneBuffsImmediateEffect)
+                {
+                    var queue = BotSyncQueue.GetOrAddComponent(BotOwnerMaster);
+                    NetworkIdentity masterId = BotOwnerMaster.GetComponent<NetworkIdentity>();
+                    NetworkIdentity bodyId = BotBody.GetComponent<NetworkIdentity>();
+                    queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId));
                 }
             }
 
@@ -628,8 +626,8 @@ namespace Aetherium.Items
                         List<BotSyncData> leftovers = new List<BotSyncData>();
                         foreach (var data in syncData)
                         {
-                            if (!data.Body) leftovers.Add(data);
-                            else data.Body.baseNameToken = data.Name;
+                            if (!data.Master) leftovers.Add(data);
+                            else BotStatTracker.GetOrAddComponent(data.Master);
                         }
                         syncData.Clear();
                         syncData.AddRange(leftovers);
@@ -652,24 +650,23 @@ namespace Aetherium.Items
         {
             public NetworkInstanceId OwnerNetId { get; private set; }
             public NetworkInstanceId NetId { get; private set; }
-            public string Name { get; private set; }
-            public GameObject BodyObject
+            public GameObject MasterObject
             {
                 get
                 {
-                    if (!_bodyObject) _bodyObject = Util.FindNetworkObject(NetId);
-                    return _bodyObject;
+                    if (!_masterObject) _masterObject = Util.FindNetworkObject(NetId);
+                    return _masterObject;
                 }
             }
-            public CharacterBody Body
+            public CharacterMaster Master
             {
                 get
                 {
-                    if (!_body && BodyObject)
+                    if (!_master && MasterObject)
                     {
-                        _body = BodyObject.GetComponent<CharacterBody>();
+                        _master = MasterObject.GetComponent<CharacterMaster>();
                     }
-                    return _body;
+                    return _master;
                 }
             }
             public GameObject OwnerMasterObject
@@ -691,18 +688,17 @@ namespace Aetherium.Items
                     return _ownerMaster;
                 }
             }
-            private CharacterBody _body;
-            private GameObject _bodyObject;
+            private CharacterMaster _master;
+            private GameObject _masterObject;
             private CharacterMaster _ownerMaster;
             private GameObject _ownerMasterObject;
 
-            public BotSyncData(NetworkInstanceId ownerNetId, NetworkInstanceId networkInstanceId, string name)
+            public BotSyncData(NetworkInstanceId ownerNetId, NetworkInstanceId networkInstanceId)
             {
                 OwnerNetId = ownerNetId;
                 NetId = networkInstanceId;
-                Name = name;
-                _body = null;
-                _bodyObject = null;
+                _master = null;
+                _masterObject = null;
                 _ownerMaster = null;
                 _ownerMasterObject = null;
             }
@@ -712,7 +708,6 @@ namespace Aetherium.Items
         {
             private NetworkInstanceId ownerId;
             private NetworkInstanceId netId;
-            private string newName;
 
             public SyncBotName() { }
 
@@ -720,21 +715,18 @@ namespace Aetherium.Items
             {
                 this.ownerId = ownerId;
                 this.netId = netId;
-                this.newName = newName;
             }
 
             public SyncBotName(BotSyncData data)
             {
                 ownerId = data.OwnerNetId;
                 netId = data.NetId;
-                newName = data.Name;
             }
 
             public void Deserialize(NetworkReader reader)
             {
                 ownerId = reader.ReadNetworkId();
                 netId = reader.ReadNetworkId();
-                newName = reader.ReadString();
             }
 
             public void OnReceived()
@@ -745,14 +737,13 @@ namespace Aetherium.Items
                 CharacterMaster master = ownerObject.GetComponent<CharacterMaster>();
                 if (!master) return;
                 var queue = BotSyncQueue.GetOrAddComponent(master);
-                queue.syncData.Add(new BotSyncData(ownerId, netId, newName));
+                queue.syncData.Add(new BotSyncData(ownerId, netId));
             }
 
             public void Serialize(NetworkWriter writer)
             {
                 writer.Write(ownerId);
                 writer.Write(netId);
-                writer.Write(newName);
             }
         }
     }
