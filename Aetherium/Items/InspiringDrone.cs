@@ -501,9 +501,9 @@ namespace Aetherium.Items
                 if (NetworkServer.active && !inst.inspiringDroneBuffsImmediateEffect)
                 {
                     var queue = BotSyncQueue.GetOrAddComponent(BotOwnerMaster);
-                    NetworkIdentity masterId = BotOwnerMaster.GetComponent<NetworkIdentity>();
-                    NetworkIdentity bodyId = BotBody.GetComponent<NetworkIdentity>();
-                    queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId));
+                    NetworkIdentity ownerMasterId = BotOwnerMaster.GetComponent<NetworkIdentity>();
+                    NetworkIdentity masterId = BotMaster.GetComponent<NetworkIdentity>();
+                    queue.syncData.Add(new BotSyncData(ownerMasterId.netId, masterId.netId));
                 }
             }
 
