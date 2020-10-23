@@ -5,6 +5,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
 using RoR2;
+using RoR2.Orbs;
 using RoR2.Projectile;
 using System;
 using System.Collections.Generic;
@@ -389,10 +390,68 @@ namespace Aetherium.Items
 
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
             IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
+            IL.EntityStates.Treebot.TreebotFlower.TreebotFlower2Projectile.RootPulse += FireSwordsFromFlower;
             On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;
             On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
             On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
+        }
+
+        private void FireSwordsFromFlower(ILContext il)
+        {
+            var c = new ILCursor(il);
+
+            int damageInfoIndex = 15;
+            c.GotoNext(x => x.MatchNewobj<DamageInfo>());
+            c.GotoNext(x => x.MatchStloc(out damageInfoIndex));
+            c.GotoNext(MoveType.After, x => x.MatchLdfld<HurtBox>("hurtBoxGroup"));
+            c.Emit(OpCodes.Ldloc, damageInfoIndex);
+            c.EmitDelegate<Action<DamageInfo>>((damageInfo) =>
+            {
+                if (damageInfo.attacker)
+                {
+                    var body = damageInfo.attacker.GetComponent<CharacterBody>();
+                    if (body)
+                    {
+                        var InventoryCount = GetCount(body);
+                        if (InventoryCount > 0)
+                        {
+                            if (body.healthComponent.combinedHealthFraction >= 1)
+                            {
+                                var swordsPerFlower = (int)body.attackSpeed * 2;
+                                for (int i = 1; i <= swordsPerFlower; i++)
+                                {
+                                    var newProjectileInfo = new FireProjectileInfo();
+                                    newProjectileInfo.owner = body.gameObject;
+                                    newProjectileInfo.projectilePrefab = SwordProjectile;
+                                    newProjectileInfo.speedOverride = 150.0f;
+                                    newProjectileInfo.damage = body.damage * baseSwordDamageMultiplier + (body.damage * additionalSwordDamageMultiplier * (InventoryCount - 1));
+                                    newProjectileInfo.damageTypeOverride = null;
+                                    newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
+                                    newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                                    var theta = (Math.PI * 2) / swordsPerFlower;
+                                    var angle = theta * i;
+                                    var radius = 3;
+                                    var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + damageInfo.position.x), damageInfo.position.y + 3, (float)(radius * Math.Sin(angle) + damageInfo.position.z));
+                                    newProjectileInfo.position = positionChosen;
+                                    newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
+
+                                    try
+                                    {
+                                        RecursionPrevention = true;
+                                        RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                    }
+                                    finally
+                                    {
+                                        RecursionPrevention = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
         }
 
         private void Anime(ILContext il)
