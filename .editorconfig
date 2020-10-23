@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = silent
+
+# CS0618: Type or member is obsolete
+dotnet_diagnostic.CS0618.severity = silent

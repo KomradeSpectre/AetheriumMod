@@ -1,18 +1,17 @@
 ﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
-using R2API.Networking;
-using R2API.Networking.Interfaces;
 using RoR2;
-using RoR2.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Common;
 using TILER2;
 using UnityEngine;
 using UnityEngine.Networking;
+using static RoR2.Navigation.MapNodeGroup;
 using static TILER2.MiscUtil;
 using static TILER2.StatHooks;
+using Object = UnityEngine.Object;
 
 namespace Aetherium.Items
 {
@@ -74,23 +73,20 @@ namespace Aetherium.Items
         [AutoConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoConfigFlags.PreventNetMismatch)]
         public float droneTeleportationDistanceAroundOwner { get; private set; } = 30f;
 
-        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
-        [AutoConfig("Should previously purchased drones be affected by Inspiring Drone instead of applying only the bonus on newly purchased ones?", AutoConfigFlags.PreventNetMismatch)]
-        public bool inspiringDroneBuffsImmediateEffect { get; private set; } = false;
-
         public override string displayName => "Inspiring Drone";
 
-        public override ItemTier itemTier => RoR2.ItemTier.Tier3;
+        public override ItemTier itemTier => ItemTier.Tier3;
 
-        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] {ItemTag.AIBlacklist, ItemTag.Utility});
+        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.AIBlacklist, ItemTag.Utility });
+
         protected override string GetNameString(string langID = null) => displayName;
 
         protected override string GetPickupString(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
 
-        protected override string GetDescString(string langid = null) 
+        protected override string GetDescString(string langid = null)
         {
             string description;
-            if (setAllStatValuesAtOnce) 
+            if (setAllStatValuesAtOnce)
             {
                 description = $"When a bot is purchased, it gains a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of its stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>.\n" +
                 "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
@@ -126,9 +122,20 @@ namespace Aetherium.Items
             "\n[A cacophony of beeps, boops, and bips can be heard.]\n" +
             "<style=cMono>[END OF FILE]</style>";
 
-
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
+
+        private static readonly List<string> DronesList = new List<string>
+        {
+            "DroneBackup",
+            "Drone1",
+            "Drone2",
+            "EmergencyDrone",
+            "FlameDrone",
+            "MegaDrone",
+            "DroneMissile",
+            "Turret1"
+        };
 
         public InspiringDrone()
         {
@@ -147,15 +154,9 @@ namespace Aetherium.Items
             base.SetupAttributes();
         }
 
-        public override void SetupBehavior()
-        {
-            base.SetupBehavior();
-            NetworkingAPI.RegisterMessageType<SyncBotName>();
-        }
-
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
-            //ItemFollowers are for creating itemdisplays you want to lag behind or have a tether. 
+            //ItemFollowers are for creating itemdisplays you want to lag behind or have a tether.
             //I mean that's not all they have on them, but that's the main purposes.
             //The ItemFollower component I reference here is a slightly modified version of the base one.
             //Since the base one has no virtuals on their methods, couldn't override it.
@@ -169,7 +170,6 @@ namespace Aetherium.Items
             ItemFollower.distanceMaxSpeed = 100;
             ItemFollower.SmoothingNumber = 0.25f;
 
-
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -180,7 +180,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(1.5f, -0.5f, -1f),
                     localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -298,35 +297,36 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-            On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster += RetrieveBotAndSetBoosts;
             GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
+            CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
         }
 
         public override void Uninstall()
         {
             base.Uninstall();
-            On.RoR2.SummonMasterBehavior.OpenSummonReturnMaster -= RetrieveBotAndSetBoosts;
             GetStatCoefficients -= AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged -= RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged -= UpdateAllTrackers;
+            CharacterBody.onBodyStartGlobal -= CharacterBody_onBodyStartGlobal;
         }
 
-        private RoR2.CharacterMaster RetrieveBotAndSetBoosts(On.RoR2.SummonMasterBehavior.orig_OpenSummonReturnMaster orig, RoR2.SummonMasterBehavior self, RoR2.Interactor activator)
+        private void CharacterBody_onBodyStartGlobal(CharacterBody obj)
         {
-            var summonerBody = activator.gameObject.GetComponent<RoR2.CharacterBody>();
-            var botToBeUpgradedMaster = orig(self, activator);
-            var botBody = botToBeUpgradedMaster.GetBody();
-            if (summonerBody && botToBeUpgradedMaster && botBody)
+            CharacterMaster botMaster = obj.master;
+            if (!botMaster) return;
+            MinionOwnership minionOwnership = botMaster.minionOwnership;
+            if (!minionOwnership) return;
+            if (DronesList.Exists((droneSubstring) => { return botMaster.name.Contains(droneSubstring); }))
             {
-                if ((!inspiringDroneBuffsImmediateEffect && GetCount(summonerBody) > 0) || inspiringDroneBuffsImmediateEffect)
+                CharacterMaster ownerMaster = botMaster.minionOwnership.ownerMaster;
+                if (ownerMaster)
                 {
-                    var BotStatsTracker = BotStatTracker.GetOrAddComponent(botToBeUpgradedMaster, summonerBody.master);
-                    BotStatsTracker.UpdateTrackerBoosts();
+                    BotStatTracker tracker = BotStatTracker.GetOrAddComponent(botMaster, ownerMaster, obj, ownerMaster.GetBody());
+                    tracker.UpdateTrackerBoosts();
                 }
             }
-            return botToBeUpgradedMaster;
         }
 
         private void AddBoostsToBot(CharacterBody sender, StatHookEventArgs args)
@@ -334,25 +334,25 @@ namespace Aetherium.Items
             CharacterMaster master = sender.master;
             if (master)
             {
-                var BotStatsTracker = master.GetComponent<BotStatTracker>();
-                if (BotStatsTracker)
+                BotStatTracker tracker = master.GetComponent<BotStatTracker>();
+                if (tracker)
                 {
-                    BotStatsTracker.ApplyTrackerBoosts(args);
+                    tracker.ApplyTrackerBoosts(args);
                     Chat.AddMessage($"HP After: {sender.maxHealth}");
                 }
             }
         }
 
-        private void RemoveItemFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
+        private void RemoveItemFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
-            var InventoryCount = GetCount(self);
-            if (InventoryCount > 0 && self.master)
+            var inventoryCount = GetCount(self);
+            if (inventoryCount > 0 && self.master && self.inventory)
             {
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //YEAH, YEAH, TAKE THAT YOU DANG DEPLOYABLES. NO CUTE DRONE FOR YOU!
-                    self.inventory.RemoveItem(itemDef.itemIndex, InventoryCount);
+                    self.inventory.RemoveItem(itemDef.itemIndex, inventoryCount);
                 }
             }
         }
@@ -360,12 +360,8 @@ namespace Aetherium.Items
         private void UpdateAllTrackers(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
-            if (!inspiringDroneBuffsImmediateEffect)
-            {
-                return;
-            }
             CharacterMaster ownerMaster = self.master;
-            MinionOwnership[] minionOwnerships = UnityEngine.Object.FindObjectsOfType<MinionOwnership>();
+            MinionOwnership[] minionOwnerships = Object.FindObjectsOfType<MinionOwnership>();
             foreach (MinionOwnership minionOwnership in minionOwnerships)
             {
                 if (minionOwnership && minionOwnership.ownerMaster && minionOwnership.ownerMaster == ownerMaster)
@@ -374,13 +370,22 @@ namespace Aetherium.Items
                     if (minionMaster)
                     {
                         BotStatTracker tracker = minionMaster.GetComponent<BotStatTracker>();
-                        if (tracker)
-                        {
-                            tracker.UpdateTrackerBoosts();
-                        }
+                        if (tracker) tracker.UpdateTrackerBoosts();
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Allows a custom drone to be Inspired by Inspiring Drone.
+        /// </summary>
+        /// <param name="masterName">The CharacterMaster name of the custom drone.</param>
+        /// <returns>True if the customd rone is now supported. False if the custom drone is already supported.</returns>
+        public bool AddCustomDrone(string masterName)
+        {
+            if (DronesList.Contains(masterName)) return false;
+            DronesList.Add(masterName);
+            return true;
         }
 
         public class BotStatTracker : MonoBehaviour
@@ -392,89 +397,61 @@ namespace Aetherium.Items
             public float RegenBoost;
             public float ArmorBoost;
             public float MoveSpeedBoost;
-
             public string BotName;
             public CharacterMaster BotOwnerMaster;
             public CharacterMaster BotMaster;
+            public CharacterBody BotOwnerBody;
+            public CharacterBody BotBody;
+            public float TeleportTimer = 0f;
+            public int BoostCount = -1;
+            public readonly List<int> BotSkillStocks = new List<int>();
+            public readonly List<float> BotRechargeIntervals = new List<float>();
+            public readonly List<int> DefaultSkillStocks = new List<int>();
+            public readonly List<float> DefaultRechargeIntervals = new List<float>();
 
-            private CharacterBody _BotOwnerBody;
-            private CharacterBody _BotBody;
-            private float TeleportTimer = 0f;
-            private int BoostCount = -1;
-            private List<int> BotSkillStocks = new List<int>();
-            private List<float> BotRechargeIntervals = new List<float>();
-            private List<int> DefaultSkillStocks = new List<int>();
-            private List<float> DefaultRechargeIntervals = new List<float>();
-            private static string[] BlacklistedStockBots = { "Drone2Master", "EmergencyDroneMaster", "FlameDroneMaster", "EquipmentDroneMaster" };
             private string OriginalName = "";
-            private InspiringDrone inst = InspiringDrone.instance;
+            private readonly string[] BlacklistedStockBots = { "Drone2", "EmergencyDrone", "FlameDrone", "EquipmentDrone" };
 
-            public CharacterBody BotBody
+            public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner, CharacterBody botBody, CharacterBody ownerBody)
             {
-                get
-                {
-                    if (!_BotBody) _BotBody = BotMaster.GetBody();
-                    return _BotBody;
-                }
-            }
-            public CharacterBody BotOwnerBody
-            {
-                get
-                {
-                    if (!_BotOwnerBody) _BotOwnerBody = BotOwnerMaster.GetBody();
-                    return _BotOwnerBody;
-                }
-            }
-
-            public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner = null)
-            {
-
                 BotStatTracker tracker = bot.gameObject.GetComponent<BotStatTracker>();
                 if (!tracker)
                 {
                     tracker = bot.gameObject.AddComponent<BotStatTracker>();
                     tracker.BotMaster = bot;
                     tracker.BotOwnerMaster = owner;
-                }
-                else if (owner)
-                {
-                    tracker.BotOwnerMaster = owner;
+                    tracker.BotBody = botBody;
+                    tracker.BotOwnerBody = ownerBody;
                 }
                 return tracker;
             }
 
             public void UpdateTrackerBoosts()
             {
-                if (!BotOwnerMaster || !BotMaster || !BotBody || !BotOwnerBody)
+                if (!BotBody || !BotOwnerBody)
                 {
+                    AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
                     return;
                 }
-                if (OriginalName == "")
-                {
-                    OriginalName = BotBody.GetDisplayName();
-                }
-                var inventoryCount = inst.GetCount(BotOwnerBody);
+                int inventoryCount = instance.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
+                    if (OriginalName == "") OriginalName = BotBody.GetDisplayName();
                     BoostCount = inventoryCount;
-                    DamageBoost = BotOwnerBody.damage * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.damageGrantedPercentage) * BoostCount;
-                    AttackSpeedBoost = BotOwnerBody.attackSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.attackSpeedGrantedPercentage) * BoostCount;
-                    CritChanceBoost = BotOwnerBody.crit * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.critChanceGrantedPercentage) * BoostCount;
-                    HealthBoost = BotOwnerBody.maxHealth * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.healthGrantedPercentage) * BoostCount;
-                    RegenBoost = BotOwnerBody.regen * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.regenGrantedPercentage) * BoostCount;
-                    ArmorBoost = BotOwnerBody.armor * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.armorGrantedPercentage) * BoostCount;
-                    MoveSpeedBoost = BotOwnerBody.moveSpeed * (inst.setAllStatValuesAtOnce ? inst.allStatValueGrantedPercentage : inst.movementSpeedGrantedPercentage) * BoostCount;
+                    DamageBoost = CalculateStat(BotOwnerBody.damage, instance.damageGrantedPercentage);
+                    AttackSpeedBoost = CalculateStat(BotOwnerBody.attackSpeed, instance.attackSpeedGrantedPercentage);
+                    CritChanceBoost = CalculateStat(BotOwnerBody.crit, instance.critChanceGrantedPercentage);
+                    HealthBoost = CalculateStat(BotOwnerBody.maxHealth, instance.healthGrantedPercentage);
+                    RegenBoost = CalculateStat(BotOwnerBody.regen, instance.regenGrantedPercentage);
+                    ArmorBoost = CalculateStat(BotOwnerBody.armor, instance.armorGrantedPercentage);
+                    MoveSpeedBoost = CalculateStat(BotOwnerBody.moveSpeed, instance.movementSpeedGrantedPercentage);
                     BotName = "";
-                    if (BoostCount > 0)
-                    {
-                        BotName += "Inspired ";
-                    }
+                    if (BoostCount > 0) BotName += "Inspired ";
                     BotName += OriginalName;
                     BotBody.statsDirty = true;
 
                     //Add stock to bots that can use it.
-                    var BotIsBlacklisted = Array.Exists(BlacklistedStockBots, element => BotMaster.gameObject.name.StartsWith(element));
-                    if (!BotIsBlacklisted)
+                    if (!IsBlacklisted())
                     {
                         //Clear for updating.
                         Chat.AddMessage("FIRED CLEAR");
@@ -498,21 +475,11 @@ namespace Aetherium.Items
                         }
                     }
                 }
-                if (NetworkServer.active && !inst.inspiringDroneBuffsImmediateEffect)
-                {
-                    var queue = BotSyncQueue.GetOrAddComponent(BotOwnerMaster);
-                    NetworkIdentity masterId = BotOwnerMaster.GetComponent<NetworkIdentity>();
-                    NetworkIdentity bodyId = BotBody.GetComponent<NetworkIdentity>();
-                    queue.syncData.Add(new BotSyncData(masterId.netId, bodyId.netId));
-                }
             }
 
             public void ApplyTrackerBoosts(StatHookEventArgs args)
             {
-                if (!BotBody)
-                {
-                    return;
-                }
+                if (!BotBody || BoostCount < 0) return;
                 args.attackSpeedMultAdd += AttackSpeedBoost;
                 args.baseDamageAdd += DamageBoost;
                 args.critAdd += CritChanceBoost;
@@ -524,9 +491,9 @@ namespace Aetherium.Items
                 BotBody.baseNameToken = BotName;
 
                 //We increase the stock and cut down the time between recharging the stocks.
-                if (BotSkillStocks.Count > 0 && BotRechargeIntervals.Count > 0)
+                if (!IsBlacklisted() && BotSkillStocks.Count > 0 && BotRechargeIntervals.Count > 0)
                 {
-                    var GenericSkills = BotBody.GetComponentsInChildren<RoR2.GenericSkill>();
+                    var GenericSkills = BotBody.GetComponentsInChildren<GenericSkill>();
                     for (int i = 0; i < GenericSkills.Length; i++)
                     {
                         GenericSkills[i].maxStock = BotSkillStocks[i];
@@ -535,48 +502,69 @@ namespace Aetherium.Items
                 }
             }
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Used by UnityEngine")]
             private void FixedUpdate()
             {
                 TeleportNearOwner();
+                if (BoostCount < 0) UpdateTrackerBoosts();
+            }
+
+            private float CalculateStat(float baseStat, float bonus)
+            {
+                return baseStat * (instance.setAllStatValuesAtOnce ? instance.allStatValueGrantedPercentage : bonus) * BoostCount;
+            }
+
+            private bool IsBlacklisted()
+            {
+                if (!BotMaster) return true;
+                return Array.Exists(BlacklistedStockBots, element => BotMaster.gameObject.name.StartsWith(element));
             }
 
             private void TeleportNearOwner()
             {
-                if (NetworkServer.active && BotOwnerBody && BotBody && inst.GetCount(BotOwnerBody) > 0)
+                if (!NetworkServer.active || !BotOwnerBody || !BotBody) return;
+                if (!Util.HasEffectiveAuthority(BotBody.gameObject) || instance.GetCount(BotOwnerMaster) <= 0) return;
+                if (TeleportTimer > 0)
                 {
                     TeleportTimer -= Time.fixedDeltaTime;
-                    if (TeleportTimer <= 0)
+                    return;
+                }
+                else
+                {
+                    float distance = Vector3.Distance(BotBody.corePosition, BotOwnerBody.corePosition);
+                    float maxDistance, duration;
+                    GraphType graphType;
+                    if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
                     {
-                        TeleportTimer = inst.teleportationCheckCooldownDuration;
-                        float distance = Vector3.Distance(BotBody.corePosition, BotOwnerBody.corePosition);
-                        if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
-                        {
-                            if (distance >= inst.turretTeleportationDistanceAroundOwner)
-                            {
-                                TeleportBody(BotOwnerBody.corePosition, MapNodeGroup.GraphType.Ground);
-                                BotBody.transform.position += BotBody.transform.up * .9f;
-                                TeleportTimer = inst.turretTeleportationCooldownDuration;
-                            }
-                        }
-                        else
-                        {
-                            if (distance >= inst.droneTeleportationDistanceAroundOwner)
-                            {
-                                TeleportBody(BotOwnerBody.corePosition, MapNodeGroup.GraphType.Air);
-                                TeleportTimer = inst.droneTeleportationCooldownDuration;
-                            }
-                        }
+                        maxDistance = instance.turretTeleportationDistanceAroundOwner;
+                        graphType = GraphType.Ground;
+                        duration = instance.turretTeleportationCooldownDuration;
                     }
+                    else
+                    {
+                        maxDistance = instance.droneTeleportationDistanceAroundOwner;
+                        graphType = GraphType.Air;
+                        duration = instance.droneTeleportationCooldownDuration;
+                    }
+                    TeleportLogic(distance, maxDistance, graphType, duration);
                 }
             }
 
-            private void TeleportBody(Vector3 desiredPosition, MapNodeGroup.GraphType nodeGraphType)
+            private void TeleportLogic(float distance, float maxDistance, GraphType graphType, float duration)
             {
-                if (!Util.HasEffectiveAuthority(BotBody.gameObject))
+                if (distance >= maxDistance)
                 {
-                    return;
+                    if (!TeleportBody(BotOwnerBody.corePosition, graphType)) return;
+                    if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
+                    {
+                        BotBody.transform.position += BotBody.transform.up * .9f;
+                    }
+                    TeleportTimer = duration;
                 }
+            }
 
+            private bool TeleportBody(Vector3 desiredPosition, GraphType nodeGraphType)
+            {
                 SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
                 spawnCard.hullSize = BotBody.hullClassification;
                 spawnCard.nodeGraphType = nodeGraphType;
@@ -596,154 +584,15 @@ namespace Aetherium.Items
                     {
                         EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
                     }
-                    UnityEngine.Object.Destroy(gameObject);
+                    Destroy(gameObject);
+                    Destroy(spawnCard);
+                    return true;
                 }
-                UnityEngine.Object.Destroy(spawnCard);
-            }
-        }
-
-        public class BotSyncQueue : MonoBehaviour
-        {
-            public List<BotSyncData> syncData { get; private set; } = new List<BotSyncData>();
-
-            private void FixedUpdate()
-            {
-                if (!instance.inspiringDroneBuffsImmediateEffect && syncData.Count > 0)
+                else
                 {
-                    if (NetworkServer.active)
-                    {
-                        if (NetworkUser.AllParticipatingNetworkUsersReady())
-                        {
-                            foreach (var data in syncData)
-                            {
-                                new SyncBotName(data).Send(NetworkDestination.Clients);
-                            }
-                            syncData.Clear();
-                        }
-                    }
-                    else
-                    {
-                        List<BotSyncData> leftovers = new List<BotSyncData>();
-                        foreach (var data in syncData)
-                        {
-                            if (!data.Master) leftovers.Add(data);
-                            else BotStatTracker.GetOrAddComponent(data.Master);
-                        }
-                        syncData.Clear();
-                        syncData.AddRange(leftovers);
-                    }
+                    Destroy(spawnCard);
+                    return false;
                 }
-            }
-
-            public static BotSyncQueue GetOrAddComponent(CharacterMaster owner)
-            {
-                return GetOrAddComponent(owner.gameObject);
-            }
-
-            public static BotSyncQueue GetOrAddComponent(GameObject owner)
-            {
-                return owner.GetComponent<BotSyncQueue>() ?? owner.AddComponent<BotSyncQueue>();
-            }
-        }
-
-        public struct BotSyncData
-        {
-            public NetworkInstanceId OwnerNetId { get; private set; }
-            public NetworkInstanceId NetId { get; private set; }
-            public GameObject MasterObject
-            {
-                get
-                {
-                    if (!_masterObject) _masterObject = Util.FindNetworkObject(NetId);
-                    return _masterObject;
-                }
-            }
-            public CharacterMaster Master
-            {
-                get
-                {
-                    if (!_master && MasterObject)
-                    {
-                        _master = MasterObject.GetComponent<CharacterMaster>();
-                    }
-                    return _master;
-                }
-            }
-            public GameObject OwnerMasterObject
-            {
-                get
-                {
-                    if (!_ownerMasterObject) _ownerMasterObject = Util.FindNetworkObject(OwnerNetId);
-                    return _ownerMasterObject;
-                }
-            }
-            public CharacterMaster OwnerMaster
-            {
-                get
-                {
-                    if (!_ownerMaster && OwnerMasterObject)
-                    {
-                        _ownerMaster = OwnerMasterObject.GetComponent<CharacterMaster>();
-                    }
-                    return _ownerMaster;
-                }
-            }
-            private CharacterMaster _master;
-            private GameObject _masterObject;
-            private CharacterMaster _ownerMaster;
-            private GameObject _ownerMasterObject;
-
-            public BotSyncData(NetworkInstanceId ownerNetId, NetworkInstanceId networkInstanceId)
-            {
-                OwnerNetId = ownerNetId;
-                NetId = networkInstanceId;
-                _master = null;
-                _masterObject = null;
-                _ownerMaster = null;
-                _ownerMasterObject = null;
-            }
-        }
-
-        private class SyncBotName : INetMessage
-        {
-            private NetworkInstanceId ownerId;
-            private NetworkInstanceId netId;
-
-            public SyncBotName() { }
-
-            public SyncBotName(NetworkInstanceId ownerId, NetworkInstanceId netId, string newName)
-            {
-                this.ownerId = ownerId;
-                this.netId = netId;
-            }
-
-            public SyncBotName(BotSyncData data)
-            {
-                ownerId = data.OwnerNetId;
-                netId = data.NetId;
-            }
-
-            public void Deserialize(NetworkReader reader)
-            {
-                ownerId = reader.ReadNetworkId();
-                netId = reader.ReadNetworkId();
-            }
-
-            public void OnReceived()
-            {
-                if (instance.inspiringDroneBuffsImmediateEffect || NetworkServer.active) return;
-                GameObject ownerObject = Util.FindNetworkObject(ownerId);
-                if (!ownerObject) return;
-                CharacterMaster master = ownerObject.GetComponent<CharacterMaster>();
-                if (!master) return;
-                var queue = BotSyncQueue.GetOrAddComponent(master);
-                queue.syncData.Add(new BotSyncData(ownerId, netId));
-            }
-
-            public void Serialize(NetworkWriter writer)
-            {
-                writer.Write(ownerId);
-                writer.Write(netId);
             }
         }
     }
