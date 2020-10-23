@@ -420,9 +420,9 @@ namespace Aetherium.Items
                     tracker = bot.gameObject.AddComponent<BotStatTracker>();
                     tracker.BotMaster = bot;
                     tracker.BotOwnerMaster = owner;
-                    tracker.BotBody = botBody;
-                    tracker.BotOwnerBody = ownerBody;
                 }
+                tracker.BotBody = botBody;
+                tracker.BotOwnerBody = ownerBody;
                 return tracker;
             }
 
