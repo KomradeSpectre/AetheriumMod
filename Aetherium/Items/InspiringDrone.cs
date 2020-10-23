@@ -410,6 +410,7 @@ namespace Aetherium.Items
             public readonly List<float> DefaultRechargeIntervals = new List<float>();
 
             private string OriginalName = "";
+            private bool forceRecalculateOnSpawn = true;
             private readonly string[] BlacklistedStockBots = { "Drone2", "EmergencyDrone", "FlameDrone", "EquipmentDrone" };
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner, CharacterBody botBody, CharacterBody ownerBody)
@@ -420,9 +421,9 @@ namespace Aetherium.Items
                     tracker = bot.gameObject.AddComponent<BotStatTracker>();
                     tracker.BotMaster = bot;
                     tracker.BotOwnerMaster = owner;
-                    tracker.BotBody = botBody;
-                    tracker.BotOwnerBody = ownerBody;
                 }
+                tracker.BotBody = botBody;
+                tracker.BotOwnerBody = ownerBody;
                 return tracker;
             }
 
@@ -430,6 +431,7 @@ namespace Aetherium.Items
             {
                 if (!BotBody || !BotOwnerBody)
                 {
+                    forceRecalculateOnSpawn = true;
                     AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
                     return;
                 }
@@ -448,7 +450,6 @@ namespace Aetherium.Items
                     BotName = "";
                     if (BoostCount > 0) BotName += "Inspired ";
                     BotName += OriginalName;
-                    BotBody.statsDirty = true;
 
                     //Add stock to bots that can use it.
                     if (!IsBlacklisted())
@@ -507,6 +508,11 @@ namespace Aetherium.Items
             {
                 TeleportNearOwner();
                 if (BoostCount < 0) UpdateTrackerBoosts();
+                if (forceRecalculateOnSpawn && BotBody)
+                {
+                    BotBody.RecalculateStats();
+                    forceRecalculateOnSpawn = false;
+                }
             }
 
             private float CalculateStat(float baseStat, float bonus)
