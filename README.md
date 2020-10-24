@@ -46,10 +46,21 @@ and as such the ones that were I will list the person that came up with the idea
 	- **Lunar Rarity** - "On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage.
 	- **Known Issues** - With PlayableVoidcrab mod, all runs (including the current) after the Voidcrab has died will cause every Voidcrab explosion to occur instantly when triggered, including this. This is fixed by restarting.
 ----
-
+- **Jar of Reshaping** (Original idea)
+	- **Equipment** - On activation, absorb projectiles in a 20m radius for 3 second(s).  
+	Upon success, fire all of the projectiles out of the jar upon next activation.  
+	The damage traits of each projectiles fired from the jar depends on the bullets you absorbed.  
+	After all the projectiles have been fired from the jar, it will need to cool down.  
+	- **Improvements to be Made** - Give more sounds and VFX to the Jar, like an area of effect indicator.
+----
 ## Changelog
-[0.3.2]
-+ BIG Inspiring Drone update. Code quality has improved greatly thanks to Chen. The drone can now work actively (new), or only on Purchase (default), and a fair handful of bugfixes in my default logic by Chen to make this item fantastic.
+[0.4.0]
++ BIG Inspiring Drone update. Code quality has improved greatly thanks to Chen. The drone by default is active now (config in a later update to make it able to be on purchase again if you want that), and a fair handful of bugfixes in my default logic by Chen to make this item fantastic.
++ Added Integration for Eviscerate (Mercenary's first R attack) into the Blaster Sword. Enjoy!
++ Added Integration for Rex's Root R move, it's a bit janky as it works at full health only and will not work on things already entangled if your health didn't meet the threshold prior to them being tangled up. Will make better soon.
++ Added Jar of Reshaping, my first equipment!
++ Migration to TILER2 3.0.4, everything should be stable, but if it's not, let me know.
++ Fixed Inspiring Drone being upside down on MUL-T, he was vibin' now he isn't.
 
 [0.3.1]
 + Turrets teleporting into the ground with inspiring drone has been fixed by Chen (Chen's Classic Items/Chen's Gradius Mod). Thanks!
@@ -83,16 +94,6 @@ and as such the ones that were I will list the person that came up with the idea
 + Fixed issue related to Dio's Best Friend revival adding another Unstable Design Chimera. Oops.
 + Made Blood Soaked Shield work with Forgive Me Please.
 + Added "Heart of the Void".
-
-[0.1.3]  
-+ Fixed issue related to turrets being able to summon individual Lunar Chimeras from Unstable Design.  
-+ Fixed issue where Lunar Chimera would not teleport back up when falling into deathzones.  
-+ Fixed Shielding Core model to actually use transparency for the gem (as I intended it to).  
-+ Added a skill the Lunar Chimera will use on its enemy if it is in the air.  
-
-[0.1.2]  
-+ Added Unstable Design  
-+ Fixed styletag issue with Shark Teeth displaying the style tags ingame as text.  
 
 ---
 ## Special Thanks  

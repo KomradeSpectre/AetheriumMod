@@ -81,29 +81,29 @@ namespace Aetherium.Items
 
         protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string GetPickupString(string langID = null) => "When a bot is purchased, it is granted a portion of all your stats, and will be brought to you after a delay if it is too far from you.";
+        protected override string GetPickupString(string langID = null) => "Your bots are granted a portion of all your stats, and will be brought to you after a delay if they are too far from you.";
 
         protected override string GetDescString(string langid = null)
         {
             string description;
             if (setAllStatValuesAtOnce)
             {
-                description = $"When a bot is purchased, it gains a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of its stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>.\n" +
+                description = $"Bots that you own gain a <style=cIsUtility>{Pct(allStatValueGrantedPercentage)} boost to each of their stats based on yours</style> <style=cStack>(+{Pct(allStatValueGrantedPercentage)} per stack, linearly)</style>.\n" +
                 "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
-                $"Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
+                $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
             }
             else
             {
-                description = $"When a bot is purchased, it gains the following stat boosts per stack.\n" +
-                    $"Bots gain a <style=cIsDamage>{Pct(damageGrantedPercentage)} damage boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsDamage>{Pct(attackSpeedGrantedPercentage)} attack speed boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsDamage>{Pct(critChanceGrantedPercentage)} crit chance boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsHealing>{Pct(healthGrantedPercentage)} health boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsHealing>{Pct(regenGrantedPercentage)} regen boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsUtility>{Pct(armorGrantedPercentage)} armor boost based on yours</style>.\n" +
-                    $"Bots gain a <style=cIsUtility>{Pct(movementSpeedGrantedPercentage)} damage boost based on yours</style>.\n" +
+                description = $"Bots that you own gain the following stat boosts per stack.\n" +
+                    $"A <style=cIsDamage>{Pct(damageGrantedPercentage)} damage boost based on yours</style>.\n" +
+                    $"A <style=cIsDamage>{Pct(attackSpeedGrantedPercentage)} attack speed boost based on yours</style>.\n" +
+                    $"A <style=cIsDamage>{Pct(critChanceGrantedPercentage)} crit chance boost based on yours</style>.\n" +
+                    $"A <style=cIsHealing>{Pct(healthGrantedPercentage)} health boost based on yours</style>.\n" +
+                    $"A <style=cIsHealing>{Pct(regenGrantedPercentage)} regen boost based on yours</style>.\n" +
+                    $"A <style=cIsUtility>{Pct(armorGrantedPercentage)} armor boost based on yours</style>.\n" +
+                    $"A <style=cIsUtility>{Pct(movementSpeedGrantedPercentage)} damage boost based on yours</style>.\n" +
                     $"Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
-                    $"Finally, if an inspired bot is too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
+                    $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({turretTeleportationCooldownDuration} seconds for Turrets, {droneTeleportationCooldownDuration} seconds for Drones)</style>.";
             }
             return description;
         }
@@ -120,7 +120,7 @@ namespace Aetherium.Items
             "1N-5P1R3: From now on, should this unit witness our operator reactivate one of you, this unit shall unlock your hidden potential and keep you in the fight to the best of this unit's ability.\n" +
             "1N-5P1R3: Now, who here is with this unit on their quest to achieve a higher status in their life?\n" +
             "\n[A cacophony of beeps, boops, and bips can be heard.]\n" +
-            "<style=cMono>[END OF FILE]</style>";
+            "<style=cMono>[END OF FILE]</style> ";
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
@@ -202,8 +202,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(1.5f, -0.5f, -1f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
+                    localPos = new Vector3(-8f, -4f, 5f),
+                    localAngles = new Vector3(-90f, -180f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -338,7 +338,7 @@ namespace Aetherium.Items
                 if (tracker)
                 {
                     tracker.ApplyTrackerBoosts(args);
-                    Chat.AddMessage($"HP After: {sender.maxHealth}");
+                    //Chat.AddMessage($"HP After: {sender.maxHealth}");
                 }
             }
         }
@@ -432,7 +432,7 @@ namespace Aetherium.Items
                 if (!BotBody || !BotOwnerBody)
                 {
                     forceRecalculateOnSpawn = true;
-                    AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
+                    //AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
                     return;
                 }
                 int inventoryCount = instance.GetCount(BotOwnerBody);
@@ -455,7 +455,7 @@ namespace Aetherium.Items
                     if (!IsBlacklisted())
                     {
                         //Clear for updating.
-                        Chat.AddMessage("FIRED CLEAR");
+                        //Chat.AddMessage("FIRED CLEAR");
                         BotSkillStocks.Clear();
                         BotRechargeIntervals.Clear();
 

@@ -41,11 +41,30 @@ namespace Aetherium.Equipment
 
         protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string GetDescString(string langID = null) => "";
+        protected override string GetPickupString(string langID = null) => "On activation, <style=cIsUtility>suck nearby projectiles into the jar</style>. Upon success, the next activation will <style=cIsDamage>fire out all projectiles stored in the jar</style>.";
 
-        protected override string GetLoreString(string langID = null) => "";
+        protected override string GetDescString(string langID = null) => $"On activation, <style=cIsUtility>absorb projectiles</style> in a <style=cIsUtility>{baseRadiusGranted}m</style> radius for <style=cIsUtility>{projectileAbsorptionTime}</style> second(s). " +
+            $"Upon success, <style=cIsDamage>fire all of the projectiles out of the jar</style> upon next activation. " +
+            $"The damage traits of each projectiles fired from the jar depends on the <style=cIsDamage>bullets you absorbed</style>. " +
+            $"After all the projectiles have been fired from the jar, it will need to cool down.";
 
-        protected override string GetPickupString(string langID = null) => "";
+        protected override string GetLoreString(string langID = null) => $"[INCIDENT NUMBER 421076]\n" +
+            $"[VISUAL RECORDING RECOVERED FROM BLACK BOX ON DERELICT 'UES SAFETY FIRST' ENGINEERING VESSEL. TRANSCRIPT TO FOLLOW]\n" +
+            $"\nTerry: Hey Phil, did you see what the boys over in Expeditions brought in?\n" +
+            $"Terry: Looks like a pretty ordinary jar right?\n" +
+            $"Phil: Yeah, just looks like something you'd find at a housewive's art deco yard sale.\n" +
+            $"Terry: Yeah, I thought the same thing, but watch and learn.\n" +
+            $"Terry: First, you just hit the bottom of the jar with your palm, and ---\n" +
+            $"Phil: Woah! It started glowing and what on Terra is that noise? Is that an alien vaccum cleaner?\n" +
+            $"Terry: Far better. Now watch.\n" +
+            $"[Terry is seen throwing random objects into the jar and Phil joins him with bewilderment on his face.]\n" +
+            $"Phil: That's amazing! Can it do anything else, or is it just a weird vaccum pot?\n" +
+            $"Terry: Yeah, if I just squeeze the handle here, it'll empty it all out.\n" +
+            $"[Terry is seen squeezing the handles of the jar, but his expression turns to horror a moment later.]\n" +
+            $"Terry: Oh hell, oh god. Phil, I just realized that I may have thrown in a few mining grenades earlier when we were having fun with it earlier.\n" +
+            $"Terry: Quickly! Get one of the suits on before it---\n" +
+            $"[The jar activates, shooting its contents around the room. One of the projectiles hits the hull and explodes, ripping a hole through it moments before the feed is lost.]\n" +
+            $"\n[END OF FILE] ";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -168,8 +187,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(1f, 1f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
 
@@ -181,8 +200,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
@@ -193,10 +212,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(4.75f, 4.75f, -2),
+                    childName = "Base",
+                    localPos = new Vector3(8f, -4, 8f),
                     localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -205,8 +224,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
@@ -217,8 +236,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
@@ -229,8 +248,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
@@ -241,10 +260,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "FlowerBase",
-                    localPos = new Vector3(2f, 1.25f, -0.75f),
+                    childName = "Base",
+                    localPos = new Vector3(-2f, 0, -2f),
                     localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(0.25f, 0.25f, 0.25f)
+                    localScale = new Vector3(0.2f, 0.2f, 0.2f)
                 }
             });
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
@@ -253,8 +272,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
@@ -265,10 +284,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(-4.75f, 4.75f, -2),
+                    childName = "Base",
+                    localPos = new Vector3(-8f, 0, 8f),
                     localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1f, 1f, 1f)
+                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -277,8 +296,8 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.75f, 0.5f, 0),
+                    childName = "Base",
+                    localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }

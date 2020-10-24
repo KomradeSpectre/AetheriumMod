@@ -35,7 +35,7 @@ namespace Aetherium.Items
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility });
         protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string GetPickupString(string langID = null) => "On being hit while shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
+        protected override string GetPickupString(string langID = null) => "While shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
         protected override string GetDescString(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
             $" The first stack of this item will grant 4% of your max health as shield on pickup.";
