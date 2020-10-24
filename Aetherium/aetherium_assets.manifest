@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1258599140
+CRC: 93414626
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 4b14ad113d9c06ab341f3d29c8253e8d
+    Hash: 4a5b3a46202b10649136804206406f91
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -65,6 +65,7 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingProjectileSecondary.mat
 - Assets/Textures/Icons/VoidInstabilityDebuffIcon.png
 - Assets/Shaders/CelShader.shader
+- Assets/Models/Prefabs/WitchesRing.prefab
 - Assets/Textures/Materials/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Textures/Icons/FeatheredPlumeBuffIcon.png
@@ -84,6 +85,7 @@ Assets:
 - Assets/Textures/Icons/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/ShieldingCoreRivets.mat
+- Assets/Textures/Materials/WitchesRingEmissionMap.png
 - Assets/Shaders/WaterShader.shader
 - Assets/Textures/Icons/SharkTeethIcon.png
 - Assets/Animations/InspiringDroneThrusterPlume.controller
@@ -101,12 +103,16 @@ Assets:
 - Assets/Models/Raw Models/FeatheredPlume.blend
 - Assets/Textures/Materials/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/WeightedAnkletIcon.png
+- Assets/Textures/Materials/WitchesRingMain.mat
 - Assets/Textures/Materials/JarOfReshapingPowerCore.mat
 - Assets/Animations/HexPendulum.controller
+- Assets/Models/Raw Models/WitchesBand.blend
 - Assets/Textures/Materials/BlasterSwordBladeOuter.mat
 - Assets/Models/Prefabs/BlasterSword.prefab
 - Assets/Models/Prefabs/AlienMagnet.prefab
+- Assets/Textures/Materials/WitchesRingGem.mat
 - Assets/Textures/Icons/SharkTeethIconAlt.png
+- Assets/Textures/Icons/WitchesRingIcon.png
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Textures/Materials/InspiringDroneMain1.mat
@@ -138,6 +144,7 @@ Assets:
 - Assets/Textures/Materials/JarOfReshapingHandles.mat
 - Assets/Textures/Materials/InspiringDroneAfterburnerPlumes.mat
 - Assets/Animations/JarProjectileSawSecondary.controller
+- Assets/Textures/Materials/WitchesRingOcclusionMap.png
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexure.png
 - Assets/Models/Prefabs/JarOfReshapingProjectile.prefab
 - Assets/Animations/HexPendulum.anim
@@ -145,13 +152,13 @@ Assets:
 - Assets/Animations/JarOfReshapingProjectileMain.controller
 - Assets/Textures/Icons/AccursedPotionIcon.png
 - Assets/Textures/Materials/UnstableDesignBackTexture.mat
-- Assets/Textures/Materials/JarOfReshapingEffect.mat
+- Assets/Textures/Materials/FractureOuter.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/InspiringDroneHeadsetWireTexture.mat
 - Assets/Animations/InspiringDroneChest.anim
 - Assets/Animations/JarOfReshapingProjectileSecondary.anim
 - Assets/Models/Raw Models/Voidheart.blend
-- Assets/Textures/Materials/JarOfReshapingEffect2.mat
+- Assets/Textures/Materials/FractureInner.mat
 - Assets/Textures/Materials/VoidheartVeins.mat
 - Assets/Models/Prefabs/SharkTeeth.prefab
 - Assets/Textures/Materials/JarOfReshapingVase.mat
