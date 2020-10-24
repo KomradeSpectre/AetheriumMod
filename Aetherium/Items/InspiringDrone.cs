@@ -1,5 +1,4 @@
 ﻿using Aetherium.Utils;
-using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System;
@@ -404,10 +403,10 @@ namespace Aetherium.Items
             public CharacterBody BotBody;
             public float TeleportTimer = 0f;
             public int BoostCount = -1;
-            public readonly List<int> BotSkillStocks = new List<int>();
-            public readonly List<float> BotRechargeIntervals = new List<float>();
-            public readonly List<int> DefaultSkillStocks = new List<int>();
-            public readonly List<float> DefaultRechargeIntervals = new List<float>();
+            public List<int> BotSkillStocks = new List<int>();
+            public List<float> BotRechargeIntervals = new List<float>();
+            public List<int> DefaultSkillStocks = new List<int>();
+            public List<float> DefaultRechargeIntervals = new List<float>();
 
             private string OriginalName = "";
             private bool forceRecalculateOnSpawn = true;
@@ -471,8 +470,8 @@ namespace Aetherium.Items
                         }
                         for (int i = 0; i < DefaultSkillStocks.Count; i++)
                         {
-                            BotSkillStocks.Add((DefaultSkillStocks[i] + 1) * (int)Math.Ceiling(AttackSpeedBoost));
-                            BotRechargeIntervals.Add(DefaultRechargeIntervals[i] * (float)Math.Pow(0.5, BoostCount));
+                            BotSkillStocks.Add(DefaultSkillStocks[i] * (Mathf.CeilToInt(AttackSpeedBoost) + 1));
+                            BotRechargeIntervals.Add(DefaultRechargeIntervals[i] * Mathf.Pow(.8f, BoostCount));
                         }
                     }
                 }
