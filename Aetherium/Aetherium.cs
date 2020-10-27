@@ -22,7 +22,7 @@ namespace KomradeSpectre.Aetherium
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI), nameof(NetworkingAPI), nameof(EffectAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.4.0";
+        public const string ModVer = "0.4.2";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         
@@ -61,12 +61,11 @@ namespace KomradeSpectre.Aetherium
 
 
             T2Module.SetupAll_PluginAwake(masterItemList);
-
+            T2Module.SetupAll_PluginStart(masterItemList);
         }
 
         private void Start()
         {
-            T2Module.SetupAll_PluginStart(masterItemList);
             CatalogBoilerplate.ConsoleDump(Logger, masterItemList);
         }
 

@@ -38,7 +38,7 @@ namespace Aetherium.Items
 
         public override ItemTier itemTier => RoR2.ItemTier.Lunar;
 
-        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility | ItemTag.Cleansable});
+        public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Utility | ItemTag.Cleansable });
         protected override string GetNameString(string langID = null) => displayName;
 
         protected override string GetPickupString(string langID = null) => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
@@ -265,11 +265,11 @@ namespace Aetherium.Items
                                 var body = hurtBoxes[i].healthComponent.body;
                                 if (body)
                                 {
-                                    CheckIfAuthorityThenAddBuff(ChosenBuff, randomEffectDuration, BuffCount, body);
+                                    AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, body);
                                 }
                             }
-                            CheckIfAuthorityThenAddBuff(AccursedPotionSipCooldownDebuff, baseSipCooldownDuration * (float)Math.Pow(additionalStackSipCooldownReductionPercentage, InventoryCount - 1), 1, self);
-                            CheckIfAuthorityThenAddBuff(ChosenBuff, randomEffectDuration, BuffCount, self);
+                            AddBuffAndDot(AccursedPotionSipCooldownDebuff, baseSipCooldownDuration * (float)Math.Pow(additionalStackSipCooldownReductionPercentage, InventoryCount - 1), 1, self);
+                            AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, self);
                         }
                     }
                 }
@@ -277,17 +277,18 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        public void CheckIfAuthorityThenAddBuff(BuffIndex buff, float duration, int stackCount, RoR2.CharacterBody body)
+        public void AddBuffAndDot(BuffIndex buff, float duration, int stackCount, RoR2.CharacterBody body)
         {
+            DotController.DotIndex index = (DotController.DotIndex)Array.FindIndex(DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
             for (int y = 0; y < stackCount; y++)
             {
-                if (body.localPlayerAuthority)
+                if (index != DotController.DotIndex.None)
                 {
-                    body.AddTimedBuffAuthority(buff, duration);
+                    DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f);
                 }
                 else
                 {
-                    body.AddTimedBuff(buff, duration);
+                    body.AddTimedBuffAuthority(buff, duration);
                 }
             }
         }

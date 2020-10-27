@@ -36,11 +36,9 @@ and as such the ones that were I will list the person that came up with the idea
 ----
 - **Weighted Anklet** (Original Idea)
 	- **Lunar Rarity** - Gain a 25% reduction to knockback from attacks (+25% per stack (up to 100%) linearly). Lose 10% move speed (+10% per stack (up to 40%) linearly).
-	- **Upcoming** - I may up the cap for the movement speed loss to allow a bigger downside when using randomizers or challenges.
 ----
 - **Unstable Design** (Original idea by Spooky Boogie, altered a bit to improve)
 	- **Lunar Rarity** - "Every 30 seconds you are compelled to create a very 'FRIENDLY' Lunar Chimera, if one of your creations does not already exist. It has a 400% base damage boost (+100% per stack), a 10% base HP boost (+10% per stack), a 300% base attack speed boost, and finally a 24% base movement speed boost (+24% per stack). This monstrosity can level up from kills."
-	- **Upcoming** - Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Make it configurable between individual per player or similar to halcyon seed.
 ----
 - **Heart of the Void** (Original idea by Hyperion_21, altered a bit to improve)
 	- **Lunar Rarity** - "On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage.
@@ -51,9 +49,33 @@ and as such the ones that were I will list the person that came up with the idea
 	Upon success, fire all of the projectiles out of the jar upon next activation.  
 	The damage traits of each projectiles fired from the jar depends on the bullets you absorbed.  
 	After all the projectiles have been fired from the jar, it will need to cool down.  
-	- **Improvements to be Made** - Give more sounds and VFX to the Jar, like an area of effect indicator.
 ----
+
+## Upcoming
+----
+- Version 1.0.0 will include a new survivor, we're building up to that.  
+
+- ItemStatsMod integration soon, possibly 0.4.3.  
+
+- The Key of Solomon idea is being brainstormed, but will still likely focus on stealing skills from enemies. However, those skills will likely be custom made by me, who knows.  
+
+- Weighted Anklet will be reworked soon to be more desirable. How I'll do that? I'll have to think on it.  
+
+- Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Make its spawn behavior configurable between individual per player or similar to halcyon seed.  
+
+- Will be adding more custom VFX/SFX to the Jar of Reshaping now that I'm more familiar with effect networking.  
+----
+
 ## Changelog
+----
+[0.4.2]
++ Added Witches Ring.  
++ Fixed DOT effects doing nothing on the Accursed Potion. Be wary of how many potions you have now.  
++ Fixed a weird bug involving loading due to TILER2.  
+
+[0.4.1]
++ Quick hotfix by Chen. Bots that had stocks able to be modified by Inspiring Drone couldn't fire if their owner didn't have an Inspiring Drone, woops, fixed now.
+
 [0.4.0]
 + BIG Inspiring Drone update. Code quality has improved greatly thanks to Chen. The drone by default is active now (config in a later update to make it able to be on purchase again if you want that), and a fair handful of bugfixes in my default logic by Chen to make this item fantastic.
 + Added Integration for Eviscerate (Mercenary's first R attack) into the Blaster Sword. Enjoy!
@@ -83,17 +105,6 @@ and as such the ones that were I will list the person that came up with the idea
 [0.1.51]
 + Made my mod item classes public so modders can easily reference them to add Item Displays of Aetherium items to their characters. These can be accessed with the path "Aetherium.Items.WeightedAnklet.ItemBodyModelPrefab" for instance.  
 + Updated the modpage to properly credit WaltzingPhantom for their nice icon art. I forgot when I uploaded 0.1.5 to do that here but did it everywhere else, woopsie!  
-
-[0.1.5]
-+ Fixed issue related to Heart of the Void killing you on stage start if the difference between your item gained max health and base max health was greater than the activation percent on Heart of the Void. (Big thanks to Rico for the component that allowed this!)
-+ Fixed being able to increase your turret stock by placing down another turret with Heart of the Void. (Sorry, mobile turret bombers.)
-+ New Icon Art for Feathered Plume and Blood Soaked Shield courtesy of WaltzingPhantom! They're set by default, but if you prefer the old icons for some reason, there is a config to re-enable those per item.
-+ Added Inspiring Drone.
-
-[0.1.4]
-+ Fixed issue related to Dio's Best Friend revival adding another Unstable Design Chimera. Oops.
-+ Made Blood Soaked Shield work with Forgive Me Please.
-+ Added "Heart of the Void".
 
 ---
 ## Special Thanks  
