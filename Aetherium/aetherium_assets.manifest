@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1309445828
+CRC: 726384464
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a8b5f153ef4e252d88144091b6e0ed48
+    Hash: da864e0843339049bf6de768800350a3
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -55,6 +55,8 @@ Assets:
 - Assets/Textures/Icons/ankletOfMomentumIcon.png
 - Assets/Models/Raw Models/JarOfReshapingProjectile.blend
 - Assets/Textures/Materials/UnstableDesignFrontTexture.png
+- Assets/Textures/Materials/index.png
+- Assets/Textures/Materials/PearlescentRamp.png
 - Assets/Textures/Materials/testnoise.jpg
 - Assets/Textures/Materials/ShieldingCoreGem.mat
 - Assets/Models/Prefabs/JarOfReshapingAbsorbEffect.prefab
@@ -97,7 +99,7 @@ Assets:
 - Assets/Models/Prefabs/BloodSoakedShield.prefab
 - Assets/Textures/Materials/iridescentRainbow.png
 - Assets/Shaders/FireParticleShader.shader
-- Assets/Textures/Icons/KaleidoscopicSoulBuffIcon.png
+- Assets/Textures/Icons/CrystallineSoulBuffIcon.png
 - Assets/Textures/Materials/Gem Glass.mat
 - Assets/Textures/Materials/AccursedPotionWrapper.mat
 - Assets/Animations/InspiringDroneChest.controller
@@ -118,6 +120,7 @@ Assets:
 - Assets/Animations/HexPendulum.controller
 - Assets/Models/Raw Models/WitchesBand.blend
 - Assets/Textures/Materials/BlasterSwordBladeOuter.mat
+- Assets/Models/Raw Models/TheirReminder.blend
 - Assets/Models/Prefabs/BlasterSword.prefab
 - Assets/Models/Prefabs/AlienMagnet.prefab
 - Assets/Textures/Materials/WitchesRingGem.mat
@@ -126,6 +129,7 @@ Assets:
 - Assets/Textures/Icons/AlienMagnetIcon.png
 - Assets/Textures/Materials/FeatheredPlumeFeather.mat
 - Assets/Textures/Materials/InspiringDroneMain1.mat
+- Assets/Models/Prefabs/TheirReminder.prefab
 - Assets/Textures/Materials/BlasterSwordCore.mat
 - Assets/Textures/Materials/BlueToTransparentRamp.png
 - Assets/Textures/Icons/BlasterSwordIcon.png
@@ -142,7 +146,7 @@ Assets:
 - Assets/Textures/Materials/SnowGradient.PNG
 - Assets/Textures/Materials/InspiringDroneScreenGlass.mat
 - Assets/Animations/JarOfReshapingSphere.anim
-- Assets/Models/Prefabs/KaleidoscopicSoul.prefab
+- Assets/Models/Prefabs/CrystallineSoul.prefab
 - Assets/Models/Raw Models/AccursedPotionVial.blend
 - Assets/Models/Prefabs/WeightedAnklet.prefab
 - Assets/Shaders/Iridescent.shader
@@ -160,7 +164,7 @@ Assets:
 - Assets/Shaders/FireMaskShader.shader
 - Assets/Animations/JarProjectileSawSecondary.controller
 - Assets/Textures/Materials/WitchesRingOcclusionMap.png
-- Assets/Models/Raw Models/KaleidoscopicSoul.blend
+- Assets/Models/Raw Models/CrystallineSoul.blend
 - Assets/Textures/Materials/Normals/WeirdNormalLine.png
 - Assets/Shaders/Ghost.shader
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexure.png
@@ -180,8 +184,10 @@ Assets:
 - Assets/Textures/Materials/FractureInner.mat
 - Assets/Textures/Materials/VoidheartVeins.mat
 - Assets/Models/Prefabs/SharkTeeth.prefab
+- Assets/Textures/Icons/TheirReminderBuffIcon.png
 - Assets/Textures/Materials/JarOfReshapingVase.mat
 - Assets/Textures/Materials/AccursedPotionFill.mat
+- Assets/Shaders/StandardToonLit.shader
 - Assets/Textures/Materials/AccursedPotionStopper.mat
 - Assets/Textures/Materials/BlueToTransparentRampBlinds.png
 - Assets/Textures/Materials/BlackHole.mat
@@ -203,8 +209,7 @@ Assets:
 - Assets/Shaders/GhostRim.shader
 - Assets/Textures/Materials/1678-bump.jpg
 - Assets/Models/Prefabs/BlasterSwordProjectile.prefab
-- Assets/Textures/Icons/KaleidoscopicSoulIcon.png
-- Assets/Textures/Materials/Noise1.png
+- Assets/Textures/Icons/CrystallineSoulIcon.png
 - Assets/Textures/Materials/UnstableDesignHolderTexture.png
 - Assets/Textures/Materials/JarOfReshapingProjectileMain.mat
 - Assets/Shaders/SonarFx.shader
@@ -218,14 +223,16 @@ Assets:
 - Assets/Textures/Materials/BlasterSwordTexture.png
 - Assets/Textures/Materials/ShieldingMetal.mat
 - Assets/Textures/Materials/BlasterSwordTrail.mat
+- Assets/Shaders/ToonSpecularShader.shader
 - Assets/Textures/Materials/InspiringDroneEarBase.mat
 - Assets/Shaders/LavaShader.shader
-- Assets/Textures/Materials/KaleidoscopicSoul.mat
+- Assets/Textures/Materials/CrystallineSoul.mat
 - Assets/Textures/Materials/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/ShieldingCore.prefab
 - Assets/Models/Raw Models/BlasterSwordProjectile.blend
 - Assets/Animations/JarOfReshapingProjectileMain.anim
 - Assets/Textures/Materials/BlasterSwordTextureNormal.png
+- Assets/Shaders/AuraOutline.shader
 - Assets/Textures/Materials/BlasterSwordCoreGlassTexureDetailMask.png
 - Assets/Textures/Materials/VoidheartBlack.mat
 - Assets/Textures/Materials/InspiringDroneEyes.mat
@@ -252,8 +259,10 @@ Assets:
 - Assets/Textures/Materials/BloodSoakedShieldHandle.mat
 - Assets/Animations/InspiringDroneUpperArmR.controller
 - Assets/Textures/Materials/HexTotemTextureEye.mat
+- Assets/Textures/Materials/TheirReminder.mat
 - Assets/Textures/Materials/BloodSoakedShieldMain.mat
 - Assets/Textures/Materials/BlasterSwordProjectile.mat
+- Assets/Textures/Icons/TheirReminderIcon.png
 - Assets/Textures/Materials/UnstableDesignFrontTexture.mat
 - Assets/Animations/InspiringDroneThrusterPlume.anim
 - Assets/Textures/Icons/WitchesRingBuffIcon.png
@@ -261,4 +270,5 @@ Assets:
 - Assets/Models/Raw Models/InspiringDroneTracker.blend
 - Assets/Textures/Materials/InspiringDroneSnowPuff.mat
 - Assets/Textures/Materials/InspiringDroneScreen.mat
+- Assets/Textures/Materials/PearlescentRainbow.png
 Dependencies: []
