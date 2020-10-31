@@ -61,16 +61,14 @@ namespace Aetherium.Items
         public float droneTeleportationCooldownDuration { get; private set; } = 30f;
 
         [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
-        [AutoConfig("How many seconds between checking if we can teleport things? (Default: 10 (10 seconds))", AutoConfigFlags.PreventNetMismatch)]
-        public float teleportationCheckCooldownDuration { get; private set; } = 10f;
-
-        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
         [AutoConfig("How far out should we place turrets from the owner when teleporting them? (Default: 20 (20m))", AutoConfigFlags.PreventNetMismatch)]
         public float turretTeleportationDistanceAroundOwner { get; private set; } = 20f;
 
         [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
         [AutoConfig("How far out should we place drones from the owner when teleporting them? (Default: 30 (30m))", AutoConfigFlags.PreventNetMismatch)]
         public float droneTeleportationDistanceAroundOwner { get; private set; } = 30f;
+
+        public override bool itemIsAIBlacklisted { get; protected set; } = true;
 
         public override string displayName => "Inspiring Drone";
 
