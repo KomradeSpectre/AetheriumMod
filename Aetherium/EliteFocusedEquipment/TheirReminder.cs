@@ -24,13 +24,22 @@ namespace Aetherium.EliteFocusedEquipment
 
         protected override string GetLoreString(string langID = null) => $"";
 
-        public static EliteAffixCard HyperchargedEliteCard { get; set; }
-        public static EliteIndex HyperchargedEliteIndex;
-        public static BuffIndex HyperchargedBuffIndex;
+        public static string EliteBuffName = "Affix_Hypercharged";
+        public static string EliteBuffIconPath = "@Aetherium:Assets/Textures/Icons/TheirReminderBuffIcon.png";
 
-        public static Material HyperchargedMaterial;
+        public static string ElitePrefixName = "Hypercharged";
+        public static string EliteModifierString = "AETHERIUM_ELITE_MODIFIER_HYPERCHARGED";
+        public static int EliteTier = 2;
+
+        public static EliteAffixCard EliteCard { get; set; }
+        public static EliteIndex EliteIndex;
+        public static BuffIndex EliteBuffIndex;
+
+        public static Material EliteMaterial;
 
         public static GameObject HyperchargedProjectile;
+
+        public static Xoroshiro128Plus random = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
 
         public TheirReminder()
         {
@@ -43,46 +52,46 @@ namespace Aetherium.EliteFocusedEquipment
             base.SetupAttributes();
             equipmentDef.canDrop = false;
             equipmentDef.enigmaCompatible = false;
+            equipmentDef.cooldown = 60;
 
-
-            var hyperchargedEliteIndex = new CustomElite(
-            new RoR2.EliteDef
+            var buffDef = new RoR2.BuffDef
             {
-                name = "Hypercharged",
-                modifierToken = "AETHERIUM_ELITE_MODIFIER_HYPERCHARGED",
-                color = new Color32(128, 128, 128, 255),
-                eliteEquipmentIndex = equipmentDef.equipmentIndex
-            }, 1);
-            HyperchargedEliteIndex = EliteAPI.Add(hyperchargedEliteIndex);
-            LanguageAPI.Add(hyperchargedEliteIndex.EliteDef.modifierToken, "Hypercharged {0}");
+                name = EliteBuffName,
+                buffColor = new Color32(255, 255, 255, byte.MaxValue),
+                iconPath = EliteBuffIconPath,
+                canStack = false,
+            }; 
+            buffDef.eliteIndex = EliteIndex;
+            var buffIndex = new CustomBuff(buffDef);
+            EliteBuffIndex = BuffAPI.Add(buffIndex);
+            equipmentDef.passiveBuff = EliteBuffIndex;
 
-
-            var hyperchargedEliteBuff = new CustomBuff(
-            new RoR2.BuffDef
+            var eliteDef = new RoR2.EliteDef
             {
-                name = "Affix_Hypercharged",
-                buffColor = new Color32(255, 255, 255, 255),
-                iconPath = "@Aetherium:Assets/Textures/Icons/TheirReminderBuffIcon.png",
-                eliteIndex = HyperchargedEliteIndex,
-                canStack = false
-            });
-            HyperchargedBuffIndex = BuffAPI.Add(hyperchargedEliteBuff);
-            equipmentDef.passiveBuff = HyperchargedBuffIndex;
+                name = ElitePrefixName,
+                modifierToken = EliteModifierString,
+                color = buffDef.buffColor,
+            };
+            eliteDef.eliteEquipmentIndex = equipmentDef.equipmentIndex;
+            var eliteIndex = new CustomElite(eliteDef, EliteTier);
+            EliteIndex = EliteAPI.Add(eliteIndex);
 
-            HyperchargedEliteCard = new EliteAffixCard
+            var card = new EliteAffixCard
             {
                 spawnWeight = 0.5f,
                 costMultiplier = 30.0f,
                 damageBoostCoeff = 2.0f,
                 healthBoostCoeff = 4.5f,
                 eliteOnlyScaling = 0.5f,
-                eliteType = HyperchargedEliteIndex,
+                eliteType = EliteIndex
             };
-            EsoLib.Cards.Add(HyperchargedEliteCard);
+            EsoLib.Cards.Add(card);
+            EliteCard = card;
 
+            LanguageAPI.Add(eliteDef.modifierToken, ElitePrefixName + " {0}");
 
             //If we want to load a base game material, then we use this.
-            GameObject worm = Resources.Load<GameObject>("Prefabs/characterbodies/ElectricWormBody");
+            /*GameObject worm = Resources.Load<GameObject>("Prefabs/characterbodies/ElectricWormBody");
             Debug.Log($"WORM: {worm}");
             var modelLocator = worm.GetComponent<ModelLocator>();
             Debug.Log($"MODEL LOCATOR: {modelLocator}");
@@ -91,22 +100,25 @@ namespace Aetherium.EliteFocusedEquipment
             if (model)
             {
                 var rendererInfos = model.baseRendererInfos;
-                foreach(CharacterModel.RendererInfo renderer in rendererInfos)
+                foreach (CharacterModel.RendererInfo renderer in rendererInfos)
                 {
                     if (renderer.defaultMaterial.name == "matElectricWorm")
                     {
                         HyperchargedMaterial = renderer.defaultMaterial;
                     }
                 }
-            }
+            }*/
 
             //If we want to load our own, uncomment the one below.
-            //HyperchargedMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/TheirReminder.mat");
-
+            EliteMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/TheirReminder.mat");
 
             HyperchargedProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake"), "HyperchargedProjectile", true);
 
+            var controller = HyperchargedProjectile.GetComponent<ProjectileController>();
+            controller.startSound = "Play_titanboss_shift_shoot";
+
             var impactExplosion = HyperchargedProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
+            impactExplosion.lifetime = 0.5f;
             impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact");
             impactExplosion.blastRadius = 7f;
             impactExplosion.bonusBlastForce = new Vector3(0, 750, 0);
@@ -114,7 +126,7 @@ namespace Aetherium.EliteFocusedEquipment
             // register it for networking
             if (HyperchargedProjectile) PrefabAPI.RegisterNetworkPrefab(HyperchargedProjectile);
 
-            // add it to the projectile catalog or it won't work in multiplayer
+            // add it to the projectile catalog or it won't work in multiplayer 
             RoR2.ProjectileCatalog.getAdditionalEntries += list =>
             {
                 list.Add(HyperchargedProjectile);
@@ -125,25 +137,62 @@ namespace Aetherium.EliteFocusedEquipment
         {
             base.Install();
 
-            On.RoR2.CharacterBody.FixedUpdate += AddHyperchargedMaterials;
+            On.RoR2.CharacterBody.FixedUpdate += AddEliteMaterials;
             On.RoR2.GlobalEventManager.OnHitAll += SpawnLightningPillar;
         }
 
         public override void Uninstall()
         {
             base.Uninstall();
-            On.RoR2.CharacterBody.FixedUpdate -= AddHyperchargedMaterials;
+            On.RoR2.CharacterBody.FixedUpdate -= AddEliteMaterials;
             On.RoR2.GlobalEventManager.OnHitAll -= SpawnLightningPillar;
+        }
+
+        //Sourced from source code, couldn't access because it was private, modified a little
+        private Vector3? RaycastToFloor(Vector3 position, float maxDistance)
+        {
+            RaycastHit raycastHit;
+            if (Physics.Raycast(new Ray(position, Vector3.down), out raycastHit, maxDistance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
+            {
+                return raycastHit.point;
+            }
+            return null;
         }
 
         protected override bool PerformEquipmentAction(RoR2.EquipmentSlot slot)
         {
-            return false;
+            if (!slot.characterBody) { return false; }
+
+            var body = slot.characterBody;
+            for(int i = 1; i <= 16; i++)
+            {
+                var newProjectileInfo = new FireProjectileInfo();
+                newProjectileInfo.owner = body.gameObject;
+                newProjectileInfo.projectilePrefab = HyperchargedProjectile;
+                newProjectileInfo.speedOverride = 150.0f;
+                newProjectileInfo.damage = body.damage;
+                newProjectileInfo.damageTypeOverride = null;
+                newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
+                newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                var theta = (Math.PI * 2) / 16;
+                var angle = theta * i;
+                var radius = 20 + random.RangeFloat(-15, 15);
+                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + body.corePosition.x), body.corePosition.y + 1, (float)(radius * Math.Sin(angle) + body.corePosition.z));
+                var raycastedChosen = RaycastToFloor(positionChosen, 1000f);
+                if(raycastedChosen != null)
+                {
+                    positionChosen = raycastedChosen.Value;
+                }
+                newProjectileInfo.position = positionChosen;
+                newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(positionChosen + Vector3.down);
+                ProjectileManager.instance.FireProjectile(newProjectileInfo);
+            }
+            return true;
         }
 
         private void SpawnLightningPillar(On.RoR2.GlobalEventManager.orig_OnHitAll orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject hitObject)
         {
-            if(damageInfo.procCoefficient == 0f || damageInfo.rejected) { return; }
+            if (damageInfo.procCoefficient == 0f || damageInfo.rejected) { return; }
 
             var attacker = damageInfo.attacker;
             if (attacker)
@@ -151,7 +200,7 @@ namespace Aetherium.EliteFocusedEquipment
                 var body = attacker.GetComponent<CharacterBody>();
                 if (body)
                 {
-                    if (body.HasBuff(HyperchargedBuffIndex))
+                    if (body.HasBuff(EliteBuffIndex))
                     {
                         float damageCoefficient2 = 0.5f;
                         float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, damageCoefficient2);
@@ -163,23 +212,35 @@ namespace Aetherium.EliteFocusedEquipment
             }
         }
 
-        private void AddHyperchargedMaterials(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void AddEliteMaterials(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
-            if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(HyperchargedBuffIndex) && !self.GetComponent<HyperchargedBuffTracker>())
+            if (self.HasBuff(EliteBuffIndex) && !self.GetComponent<HyperchargedBuffTracker>())
             {
-                RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
-                overlay.duration = float.PositiveInfinity;
-                overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-                overlay.animateShaderAlpha = true;
-                overlay.destroyComponentOnEnd = true;
-                overlay.originalMaterial = HyperchargedMaterial;
-                overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
-                var hyperchargedBuffTracker = self.gameObject.AddComponent<HyperchargedBuffTracker>();
-                hyperchargedBuffTracker.Overlay = overlay;
-                hyperchargedBuffTracker.Body = self;
+                var modelLocator = self.modelLocator;
+                if (modelLocator)
+                {
+                    var modelTransform = self.modelLocator.modelTransform;
+                    if (modelTransform)
+                    {
+                        var model = self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>();
+                        if (model) {
+                            var hyperchargedBuffTracker = self.gameObject.AddComponent<HyperchargedBuffTracker>();
+                            hyperchargedBuffTracker.Body = self;
+                            TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
+                            overlay.duration = float.PositiveInfinity;
+                            overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+                            overlay.animateShaderAlpha = true;
+                            overlay.destroyComponentOnEnd = true;
+                            overlay.originalMaterial = EliteMaterial;
+                            overlay.AddToCharacerModel(model);
+                            hyperchargedBuffTracker.Overlay = overlay;
+                        }
+                    }
+                }
             }
             orig(self);
         }
+
 
         public class HyperchargedBuffTracker : MonoBehaviour
         {
@@ -188,7 +249,7 @@ namespace Aetherium.EliteFocusedEquipment
 
             public void FixedUpdate()
             {
-                if (!Body.HasBuff(HyperchargedBuffIndex))
+                if (!Body.HasBuff(EliteBuffIndex))
                 {
                     UnityEngine.Object.Destroy(Overlay);
                     UnityEngine.Object.Destroy(this);
