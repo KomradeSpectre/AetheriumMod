@@ -305,6 +305,78 @@ namespace Aetherium.EliteFocusedEquipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0.2101f, 0.298f, 0.18f),
+                    localAngles = new Vector3(155, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.05f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.2101f, 0.298f, 0.18f),
+                    localAngles = new Vector3(155, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.05f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0.0815f, 0.2384f, 0.2304f),
+                    localAngles = new Vector3(155, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.05f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.0815f, 0.2384f, 0.2304f),
+                    localAngles = new Vector3(155, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.05f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0.083f, -0.078f, 0.193f),
+                    localAngles = new Vector3(180, 45, 0),
+                    localScale = new Vector3(0.03f, 0.03f, 0.04f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.083f, -0.078f, 0.193f),
+                    localAngles = new Vector3(180, -45, 0),
+                    localScale = new Vector3(0.03f, 0.03f, 0.04f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0.14f, 0.466f, -0.15f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.04f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.14f, 0.466f, -0.15f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0.04f, 0.04f, 0.04f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
                     childName = "CannonHeadL",
                     localPos = new Vector3(0.223f, 0.233f, 0.229f),
                     localAngles = new Vector3(0, 45, 0),
@@ -336,6 +408,51 @@ namespace Aetherium.EliteFocusedEquipment
                     localPos = new Vector3(-0.223f, 0.384f, 0.233f),
                     localAngles = new Vector3(0, -45, 0),
                     localScale = new Vector3(0.03f, 0.03f, 0.15f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = SecondaryItemBodyModelPrefab,
+                    childName = "HeadCenter",
+                    localPos = new Vector3(0f, -0.054f, 0f),
+                    localAngles = new Vector3(-70, 0, 0),
+                    localScale = new Vector3(0.1f, 0.12f, 0.12f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LowerArmL",
+                    localPos = new Vector3(0f, 0.15f, 0f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.12f, 0.12f, 0.1f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LowerArmR",
+                    localPos = new Vector3(0f, 0.15f, 0f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.11f, 0.11f, 0.1f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CalfL",
+                    localPos = new Vector3(0f, 0.299f, 0.044f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.12f, 0.12f, 0.1f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CalfR",
+                    localPos = new Vector3(0f, 0.299f, 0.044f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.12f, 0.12f, 0.1f)
                 }
             });
             rules.Add("mdlMage", new ItemDisplayRule[]
@@ -732,6 +849,27 @@ namespace Aetherium.EliteFocusedEquipment
                     localPos = new Vector3(0f, 0f, 0f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(1.5f, 1.5f, 2f)
+                }
+            });
+            rules.Add("mdlBell", new ItemDisplayRule[]
+            {
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "ShieldL",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(4.3f, 4.3f, 4.3f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "ShieldR",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(4.3f, 4.3f, 4.3f)
                 }
             });
             rules.Add("mdlBison", new ItemDisplayRule[]
