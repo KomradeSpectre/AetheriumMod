@@ -1,5 +1,4 @@
 ﻿using Aetherium.Utils;
-using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System.Collections.ObjectModel;
