@@ -19,6 +19,7 @@ namespace KomradeSpectre.Aetherium
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [BepInDependency(TILER2Plugin.ModGuid, TILER2Plugin.ModVer)]
     [BepInDependency(EliteSpawningOverhaul.EsoPlugin.PluginGuid)]
+    [BepInDependency("com.rob.MinerUnearthed", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI), nameof(NetworkingAPI), nameof(EffectAPI), nameof(EliteAPI))]
     public class AetheriumPlugin : BaseUnityPlugin

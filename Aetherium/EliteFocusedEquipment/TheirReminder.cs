@@ -9,6 +9,7 @@ using R2API;
 using R2API.Utils;
 using RoR2.Projectile;
 using Mono.Cecil;
+using Aetherium.Utils;
 
 namespace Aetherium.EliteFocusedEquipment
 {
@@ -148,17 +149,6 @@ namespace Aetherium.EliteFocusedEquipment
             On.RoR2.GlobalEventManager.OnHitAll -= SpawnLightningPillar;
         }
 
-        //Sourced from source code, couldn't access because it was private, modified a little
-        private Vector3? RaycastToFloor(Vector3 position, float maxDistance)
-        {
-            RaycastHit raycastHit;
-            if (Physics.Raycast(new Ray(position, Vector3.down), out raycastHit, maxDistance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
-            {
-                return raycastHit.point;
-            }
-            return null;
-        }
-
         protected override bool PerformEquipmentAction(RoR2.EquipmentSlot slot)
         {
             if (!slot.characterBody) { return false; }
@@ -178,7 +168,7 @@ namespace Aetherium.EliteFocusedEquipment
                 var angle = theta * i;
                 var radius = 20 + random.RangeFloat(-15, 15);
                 var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + body.corePosition.x), body.corePosition.y + 1, (float)(radius * Math.Sin(angle) + body.corePosition.z));
-                var raycastedChosen = RaycastToFloor(positionChosen, 1000f);
+                var raycastedChosen = MiscUtils.RaycastToFloor(positionChosen, 1000f);
                 if(raycastedChosen != null)
                 {
                     positionChosen = raycastedChosen.Value;

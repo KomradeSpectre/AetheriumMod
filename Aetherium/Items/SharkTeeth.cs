@@ -220,19 +220,22 @@ namespace Aetherium.Items
 
         private void TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
-            var bleedComponent = self.GetComponent<BleedTrackerComponent>();
-            if (!bleedComponent) { bleedComponent = self.gameObject.AddComponent<BleedTrackerComponent>(); }
-            var inventoryCount = GetCount(self.body.inventory);
-            //var healthBefore = self.health; //debug
-            if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
+            if (!damageInfo.rejected || damageInfo == null)
             {
-                //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
-                var percentage = baseDamageSpreadPercentage + (maxDamageSpreadPercentage - maxDamageSpreadPercentage / (1 + additionalDamageSpreadPercentage * (inventoryCount - 1)));
-                var damage = damageInfo.damage * percentage;
-                var time = durationOfDamageSpread;
-                var segments = ticksOfDamageDuringDuration;
-                damageInfo.damage -= damage;
-                bleedComponent.BleedStacks.Add(new BleedStack(time / segments, damage / segments, segments, damageInfo.attacker, damageInfo.damageType));
+                var bleedComponent = self.GetComponent<BleedTrackerComponent>();
+                if (!bleedComponent) { bleedComponent = self.gameObject.AddComponent<BleedTrackerComponent>(); }
+                var inventoryCount = GetCount(self.body.inventory);
+                //var healthBefore = self.health; //debug
+                if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
+                {
+                    //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
+                    var percentage = baseDamageSpreadPercentage + (maxDamageSpreadPercentage - maxDamageSpreadPercentage / (1 + additionalDamageSpreadPercentage * (inventoryCount - 1)));
+                    var damage = damageInfo.damage * percentage;
+                    var time = durationOfDamageSpread;
+                    var segments = ticksOfDamageDuringDuration;
+                    damageInfo.damage -= damage;
+                    bleedComponent.BleedStacks.Add(new BleedStack(time / segments, damage / segments, segments, damageInfo.attacker, damageInfo.damageType));
+                }
             }
 
             orig(self, damageInfo);

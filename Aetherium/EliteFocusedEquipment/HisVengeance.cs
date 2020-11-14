@@ -11,6 +11,7 @@ using UnityEngine.Networking;
 using RoR2.Projectile;
 using Aetherium.Items;
 using Aetherium.Utils;
+using System.Linq;
 
 namespace Aetherium.EliteFocusedEquipment
 {
@@ -98,8 +99,8 @@ namespace Aetherium.EliteFocusedEquipment
             EliteCard = card;
 
             LanguageAPI.Add(eliteDef.modifierToken, ElitePrefixName + " {0}");
-            
-            EliteMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/HisVengeance.mat");
+
+            EliteMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/HisVengeanceBody.mat");
 
             SplinteringProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/ImpVoidspikeProjectile"), "SplinteringProjectile", true);
 
@@ -851,27 +852,6 @@ namespace Aetherium.EliteFocusedEquipment
                     localScale = new Vector3(1.5f, 1.5f, 2f)
                 }
             });
-            rules.Add("mdlBell", new ItemDisplayRule[]
-            {
-                new ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = ItemBodyModelPrefab,
-                    childName = "ShieldL",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(4.3f, 4.3f, 4.3f)
-                },
-                new ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = ItemBodyModelPrefab,
-                    childName = "ShieldR",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(4.3f, 4.3f, 4.3f)
-                }
-            });
             rules.Add("mdlBison", new ItemDisplayRule[]
             {
                 new ItemDisplayRule
@@ -884,13 +864,64 @@ namespace Aetherium.EliteFocusedEquipment
                     localScale = new Vector3(0.3f, 0.3f, 0.3f)
                 }
             });
+            rules.Add("mdlMiner", new ItemDisplayRule[]
+            {
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(4.3f, 4.3f, 4.3f)
+                }
+            });
             return rules;
         }
 
         public override void Install()
         {
             base.Install();
-
+            /*Debug.Log(BodyCatalog.allBodyPrefabs);
+            var minerPrefab = BodyCatalog.allBodyPrefabs.FirstOrDefault(x => x.name == "MinerBody");
+            //Debug.Log($"Returned: {minerPrefab} from catalog");
+            if (minerPrefab)
+            {
+                Debug.Log("Modelprefab found");
+                List<ItemDisplayRule> minerRules = new List<ItemDisplayRule>
+                {
+                    new ItemDisplayRule
+                    {
+                        ruleType = ItemDisplayRuleType.ParentedPrefab,
+                        followerPrefab = ItemBodyModelPrefab,
+                        childName = "Chest",
+                        localPos = new Vector3(0f, 0f, 0f),
+                        localAngles = new Vector3(0, 0, 0),
+                        localScale = new Vector3(4.3f, 4.3f, 4.3f)
+                    },
+                    new ItemDisplayRule
+                    {
+                        ruleType = ItemDisplayRuleType.ParentedPrefab,
+                        followerPrefab = ItemBodyModelPrefab,
+                        childName = "Chest",
+                        localPos = new Vector3(0f, 0f, 0f),
+                        localAngles = new Vector3(0, 0, 0),
+                        localScale = new Vector3(4.3f, 4.3f, 4.3f)
+                    }
+                };
+                var minerModel = minerPrefab.GetComponentInChildren<CharacterModel>();
+                Debug.Log("Model being grabbed");
+                if (minerModel)
+                {
+                    Debug.Log("Model found");
+                    if (minerModel.itemDisplayRuleSet)
+                    {
+                        Debug.Log("Moved into itemrulesetup");
+                        minerModel.itemDisplayRuleSet.SetItemDisplayRuleGroup(name, new DisplayRuleGroup { rules = minerRules.ToArray() });
+                        minerModel.itemDisplayRuleSet.GenerateRuntimeValues();
+                    }
+                }
+            }*/
             On.RoR2.CharacterBody.FixedUpdate += AddEliteMaterials;
             On.RoR2.HealthComponent.TakeDamage += FireSplinter;
         }
@@ -984,7 +1015,7 @@ namespace Aetherium.EliteFocusedEquipment
                     }
                     newProjectileInfo.position = damageInfo.position;
                     newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(PositionChosen - damageInfo.position);
-                    if (NetworkServer.active) { EffectManager.SimpleEffect(Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath"), newProjectileInfo.position, newProjectileInfo.rotation, true); }                    
+                    if (NetworkServer.active) { EffectManager.SimpleEffect(Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath"), newProjectileInfo.position, newProjectileInfo.rotation, true); }
                     ProjectileManager.instance.FireProjectile(newProjectileInfo);
 
                 }
