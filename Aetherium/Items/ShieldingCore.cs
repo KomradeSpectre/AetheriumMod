@@ -1,11 +1,6 @@
 ﻿using Aetherium.Utils;
-using KomradeSpectre.Aetherium;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
@@ -27,6 +22,10 @@ namespace Aetherium.Items
         [AutoConfig("How much armor should each additional Shielding Core grant? (Default: 10)", AutoConfigFlags.PreventNetMismatch)]
         public float additionalShieldingCoreArmorGrant { get; private set; } = 10f;
 
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much should the starting shield be upon receiving the item? (Default: 0.04 (4%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float baseGrantShieldMultiplier { get; private set; } = 0.04f;
+
         public BuffIndex shieldedCoreArmorBuff { get; private set; }
         public override string displayName => "Shielding Core";
 
@@ -42,7 +41,6 @@ namespace Aetherium.Items
 
         protected override string GetLoreString(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 
-        private static List<CharacterBody> Playername = new List<CharacterBody>();
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -201,8 +199,8 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-
-            IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
+            //IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
+            GetStatCoefficients += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
@@ -210,34 +208,44 @@ namespace Aetherium.Items
         public override void Uninstall()
         {
             base.Uninstall();
-            IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
+            //IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
+            GetStatCoefficients -= GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate -= ShieldedCoreValidator;
             GetStatCoefficients -= ShieldedCoreArmorCalc;
         }
 
-        private void GrantBaseShield(ILContext il)
+        private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)
         {
-            //Provided by Harb from their HarbCrate mod. Thanks Harb!
-            ILCursor c = new ILCursor(il);
-            int shieldsLoc = 33;
-            c.GotoNext(
-                MoveType.Before,
-                x => x.MatchLdloc(out shieldsLoc),
-                x => x.MatchCallvirt<CharacterBody>("set_maxShield")
-            );
-            c.Emit(OpCodes.Ldloc, shieldsLoc);
-            c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+            if (GetCount(sender) > 0)
             {
-                var InventoryCount = GetCount(self);
-                if (InventoryCount > 0)
-                {
-                    shields += self.maxHealth * 0.04f;
-                }
-                return shields;
-            });
-            c.Emit(OpCodes.Stloc, shieldsLoc);
-            c.Emit(OpCodes.Ldarg_0);
+                HealthComponent healthC = sender.GetComponent<HealthComponent>();
+                args.baseShieldAdd += healthC.fullHealth * baseGrantShieldMultiplier;
+            }
         }
+
+        //private void GrantBaseShield(ILContext il)
+        //{
+        //    //Provided by Harb from their HarbCrate mod. Thanks Harb!
+        //    ILCursor c = new ILCursor(il);
+        //    int shieldsLoc = 33;
+        //    c.GotoNext(
+        //        MoveType.Before,
+        //        x => x.MatchLdloc(out shieldsLoc),
+        //        x => x.MatchCallvirt<CharacterBody>("set_maxShield")
+        //    );
+        //    c.Emit(OpCodes.Ldloc, shieldsLoc);
+        //    c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+        //    {
+        //        var InventoryCount = GetCount(self);
+        //        if (InventoryCount > 0)
+        //        {
+        //            shields += self.maxHealth * 0.04f;
+        //        }
+        //        return shields;
+        //    });
+        //    c.Emit(OpCodes.Stloc, shieldsLoc);
+        //    c.Emit(OpCodes.Ldarg_0);
+        //}
 
         private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
         {

@@ -1,10 +1,6 @@
 ﻿using Aetherium.Utils;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
@@ -49,7 +45,6 @@ namespace Aetherium.Items
 
         protected override string GetLoreString(string langID = null) => "An old gladiatorial round shield. The bloody spikes and Greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
-        private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
 
         public BloodSoakedShield()
