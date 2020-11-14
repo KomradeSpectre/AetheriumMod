@@ -1,5 +1,4 @@
 ﻿using Aetherium.Utils;
-using KomradeSpectre.Aetherium;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
@@ -10,6 +9,7 @@ using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
 using static TILER2.MiscUtil;
+using static TILER2.StatHooks;
 
 namespace Aetherium.Items
 {
@@ -30,6 +30,10 @@ namespace Aetherium.Items
         [AutoConfig("What should our maximum percentage shield restored per kill be? (Default: 0.5 (50%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
         public float maximumPercentageShieldRestoredPerKill { get; private set; } = 0.5f;
 
+        [AutoConfigUpdateActions(AutoConfigUpdateActionTypes.InvalidateLanguage)]
+        [AutoConfig("How much should the starting shield be upon receiving the item? (Default: 0.08 (8%))", AutoConfigFlags.PreventNetMismatch, 0f, 1f)]
+        public float baseGrantShieldMultiplier { get; private set; } = 0.08f;
+
         public override string displayName => "Blood Soaked Shield";
 
         public override ItemTier itemTier => RoR2.ItemTier.Tier2;
@@ -39,10 +43,11 @@ namespace Aetherium.Items
 
         protected override string GetPickupString(string langID = null) => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
 
-        protected override string GetDescString(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> <style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style>" +
-            $" The first stack of this item will grant 8% of your max health as shield on pickup. ";
+        protected override string GetDescString(string langid = null) => $"Killing an enemy restores <style=cIsUtility>{Pct(shieldPercentageRestoredPerKill)} max shield</style> " +
+            $"<style=cStack>(+{Pct(additionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style> " +
+            $"This item will grant <style=cIsUtility>{Pct(baseGrantShieldMultiplier)}</style> of your max health as shield on pickup once.";
 
-        protected override string GetLoreString(string langID = null) => "An old gladitorial round shield. The bloody spikes and greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
+        protected override string GetLoreString(string langID = null) => "An old gladiatorial round shield. The bloody spikes and Greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
         private static List<RoR2.CharacterBody> Playername = new List<RoR2.CharacterBody>();
         public static GameObject ItemBodyModelPrefab;
@@ -200,41 +205,51 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-
-            IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
+            //IL.RoR2.CharacterBody.RecalculateStats += GrantBaseShield;
+            GetStatCoefficients += GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
         public override void Uninstall()
         {
             base.Uninstall();
-            IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
+            //IL.RoR2.CharacterBody.RecalculateStats -= GrantBaseShield;
+            GetStatCoefficients -= GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath -= GrantShieldReward;
         }
 
-        private void GrantBaseShield(ILContext il)
+        private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)
         {
-            //Provided by Harb from their HarbCrate mod. Thanks Harb!
-            ILCursor c = new ILCursor(il);
-            int shieldsLoc = 33;
-            c.GotoNext(
-                MoveType.Before,
-                x => x.MatchLdloc(out shieldsLoc),
-                x => x.MatchCallvirt<CharacterBody>("set_maxShield")
-            );
-            c.Emit(OpCodes.Ldloc, shieldsLoc);
-            c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+            if (GetCount(sender) > 0)
             {
-                var InventoryCount = GetCount(self);
-                if (InventoryCount > 0)
-                {
-                    shields += self.maxHealth * 0.08f;
-                }
-                return shields;
-            });
-            c.Emit(OpCodes.Stloc, shieldsLoc);
-            c.Emit(OpCodes.Ldarg_0);
+                HealthComponent healthC = sender.GetComponent<HealthComponent>();
+                args.baseShieldAdd += healthC.fullHealth * baseGrantShieldMultiplier;
+            }
         }
+
+        //private void GrantBaseShield(ILContext il)
+        //{
+        //    //Provided by Harb from their HarbCrate mod. Thanks Harb!
+        //    ILCursor c = new ILCursor(il);
+        //    int shieldsLoc = 33;
+        //    c.GotoNext(
+        //        MoveType.Before,
+        //        x => x.MatchLdloc(out shieldsLoc),
+        //        x => x.MatchCallvirt<CharacterBody>("set_maxShield")
+        //    );
+        //    c.Emit(OpCodes.Ldloc, shieldsLoc);
+        //    c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
+        //    {
+        //        var InventoryCount = GetCount(self);
+        //        if (InventoryCount > 0)
+        //        {
+        //            shields += self.maxHealth * 0.08f;
+        //        }
+        //        return shields;
+        //    });
+        //    c.Emit(OpCodes.Stloc, shieldsLoc);
+        //    c.Emit(OpCodes.Ldarg_0);
+        //}
 
         private void GrantShieldReward(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
         {
