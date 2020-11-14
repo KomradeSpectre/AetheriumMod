@@ -36,8 +36,8 @@ namespace Aetherium.Items
 
         protected override string GetPickupString(string langID = null) => "While shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        protected override string GetDescString(string langid = null) => $"You gain {baseShieldingCoreArmorGrant} <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
-            $" The first stack of this item will grant 4% of your max health as shield on pickup.";
+        protected override string GetDescString(string langid = null) => $"You gain <style=cIsUtility>{baseShieldingCoreArmorGrant}</style> <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
+            $" The first stack of this item will grant <style=cIsUtility>{baseGrantShieldMultiplier}</style> of your max health as shield on pickup.";
 
         protected override string GetLoreString(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 
