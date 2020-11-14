@@ -4,6 +4,7 @@ using RoR2;
 using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
+using static TILER2.MiscUtil;
 using static TILER2.StatHooks;
 
 namespace Aetherium.Items
@@ -37,7 +38,7 @@ namespace Aetherium.Items
         protected override string GetPickupString(string langID = null) => "While shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
         protected override string GetDescString(string langid = null) => $"You gain <style=cIsUtility>{baseShieldingCoreArmorGrant}</style> <style=cStack>(+{additionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
-            $" The first stack of this item will grant <style=cIsUtility>{baseGrantShieldMultiplier}</style> of your max health as shield on pickup.";
+            $" The first stack of this item will grant <style=cIsUtility>{Pct(baseGrantShieldMultiplier)}</style> of your max health as shield on pickup.";
 
         protected override string GetLoreString(string langID = null) => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 

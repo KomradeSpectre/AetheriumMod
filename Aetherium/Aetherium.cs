@@ -3,15 +3,13 @@
 using BepInEx;
 using BepInEx.Configuration;
 using R2API;
+using R2API.Networking;
 using R2API.Utils;
 using System.Reflection;
-using UnityEngine;
-using Path = System.IO.Path;
 using TILER2;
+using UnityEngine;
 using static TILER2.MiscUtil;
-using RoR2;
-using R2API.AssetPlus;
-using R2API.Networking;
+using Path = System.IO.Path;
 
 namespace KomradeSpectre.Aetherium
 {
