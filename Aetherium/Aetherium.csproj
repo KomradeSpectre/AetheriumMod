@@ -45,6 +45,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AffixGen">
+      <HintPath>lib\AffixGen.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>

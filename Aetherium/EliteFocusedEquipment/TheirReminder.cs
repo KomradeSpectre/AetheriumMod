@@ -132,6 +132,19 @@ namespace Aetherium.EliteFocusedEquipment
             {
                 list.Add(HyperchargedProjectile);
             };
+
+            //This is where the AffixGen compat happens, all it needs is the bool from the check and some of your existing fields
+            if (KomradeSpectre.Aetherium.AetheriumPlugin.affixGenEnabled)
+            {
+                AffixGen.AffixTrackerLib.affixTrackers.Add(new AffixGen.AffixTracker
+                {
+                    affixNameTag = "Hypercharge", //These tend to be nouns, but aren't actually used yet
+                    buffIndex = equipmentDef.passiveBuff,
+                    eliteIndex = EliteIndex,
+                    equipmentIndex = equipmentDef.equipmentIndex,
+                    loopsRequired = EliteTier - 1
+                });
+            }
         }
 
         public override void Install()
