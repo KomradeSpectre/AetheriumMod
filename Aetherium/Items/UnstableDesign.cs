@@ -271,8 +271,6 @@ namespace Aetherium.Items
                             if (gameObject)
                             {
                                 RoR2.CharacterMaster component = gameObject.GetComponent<RoR2.CharacterMaster>();
-                                AIOwnership component2 = gameObject.GetComponent<AIOwnership>();
-                                BaseAI component3 = gameObject.GetComponent<BaseAI>();
 
                                 if (component)
                                 {

@@ -21,9 +21,9 @@ namespace Aetherium.EliteFocusedEquipment
 
         protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string GetPickupString(string langID = null) => "Release shards when you are hit.";
+        protected override string GetPickupString(string langID = null) => "Become an aspect of crystal.";
 
-        protected override string GetDescString(string langID = null) => $"";
+        protected override string GetDescString(string langID = null) => $"Release shards when you are hit.";
 
         protected override string GetLoreString(string langID = null) => $"";
 

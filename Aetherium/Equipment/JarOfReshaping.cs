@@ -177,8 +177,8 @@ namespace Aetherium.Equipment
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
         {
-            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
