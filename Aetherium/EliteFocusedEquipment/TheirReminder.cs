@@ -19,9 +19,9 @@ namespace Aetherium.EliteFocusedEquipment
 
         protected override string GetNameString(string langID = null) => displayName;
 
-        protected override string GetPickupString(string langID = null) => "Attacks will detonate into lightning bolts.";
+        protected override string GetPickupString(string langID = null) => "Become an aspect of the storm.";
 
-        protected override string GetDescString(string langID = null) => $"";
+        protected override string GetDescString(string langID = null) => $"Attacks will detonate into lightning bolts.";
 
         protected override string GetLoreString(string langID = null) => $"";
 
@@ -156,14 +156,16 @@ namespace Aetherium.EliteFocusedEquipment
             var body = slot.characterBody;
             for(int i = 1; i <= 16; i++)
             {
-                var newProjectileInfo = new FireProjectileInfo();
-                newProjectileInfo.owner = body.gameObject;
-                newProjectileInfo.projectilePrefab = HyperchargedProjectile;
-                newProjectileInfo.speedOverride = 150.0f;
-                newProjectileInfo.damage = body.damage;
-                newProjectileInfo.damageTypeOverride = null;
-                newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
-                newProjectileInfo.procChainMask = default(RoR2.ProcChainMask);
+                var newProjectileInfo = new FireProjectileInfo
+                {
+                    owner = body.gameObject,
+                    projectilePrefab = HyperchargedProjectile,
+                    speedOverride = 150.0f,
+                    damage = body.damage,
+                    damageTypeOverride = null,
+                    damageColorIndex = DamageColorIndex.Default,
+                    procChainMask = default
+                };
                 var theta = (Math.PI * 2) / 16;
                 var angle = theta * i;
                 var radius = 20 + random.RangeFloat(-15, 15);

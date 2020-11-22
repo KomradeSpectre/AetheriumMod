@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="EliteFocusedEquipment\ApollosBrilliance.cs" />
     <Compile Remove="EliteFocusedEquipment\CallToWorship.cs" />
     <Compile Remove="EliteFocusedEquipment\CrystallineSoul.cs" />
     <Compile Remove="EliteFocusedEquipment\HisCourage.cs" />
