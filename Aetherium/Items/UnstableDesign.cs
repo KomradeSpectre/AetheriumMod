@@ -1,9 +1,12 @@
 ﻿using Aetherium.Utils;
 using KomradeSpectre.Aetherium;
 using R2API;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Skills;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TILER2;
 using UnityEngine;
@@ -44,7 +47,7 @@ namespace Aetherium.Items
 
         public override string displayName => "Unstable Design";
 
-        public override ItemTier itemTier => RoR2.ItemTier.Lunar;
+        public override ItemTier itemTier => ItemTier.Lunar;
 
         public override ReadOnlyCollection<ItemTag> itemTags => new ReadOnlyCollection<ItemTag>(new[] { ItemTag.Cleansable });
         protected override string GetNameString(string langID = null) => displayName;
@@ -65,8 +68,20 @@ namespace Aetherium.Items
             "Thanks Jimenez.";
 
         public static GameObject ItemBodyModelPrefab;
+        public static SpawnCard lunarChimeraSpawnCard;
+        public static GameObject lunarChimeraMasterPrefab;
+        public static GameObject lunarChimeraBodyPrefab;
+        public static SkillDef airSkill
+        {
+            get
+            {
+                if (!_airSkill) _airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
+                return _airSkill;
+            }
+        }
 
-        public static SkillDef airSkill;
+        private static readonly string nameSuffix = "UnstableDesign(Aetherium)";
+        private static SkillDef _airSkill = null;
 
         public UnstableDesign()
         {
@@ -82,6 +97,23 @@ namespace Aetherium.Items
                 displayRules = GenerateItemDisplayRules();
             }
             base.SetupAttributes();
+        }
+
+        public override void SetupBehavior()
+        {
+            base.SetupBehavior();
+            lunarChimeraSpawnCard = Resources.Load<SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
+            lunarChimeraSpawnCard = Object.Instantiate(lunarChimeraSpawnCard);
+            lunarChimeraMasterPrefab = lunarChimeraSpawnCard.prefab;
+            lunarChimeraMasterPrefab = lunarChimeraMasterPrefab.InstantiateClone($"{lunarChimeraMasterPrefab.name}{nameSuffix}");
+            CharacterMaster masterPrefab = lunarChimeraMasterPrefab.GetComponent<CharacterMaster>();
+            lunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
+            lunarChimeraBodyPrefab = lunarChimeraBodyPrefab.InstantiateClone($"{lunarChimeraBodyPrefab.name}{nameSuffix}");
+            masterPrefab.bodyPrefab = lunarChimeraBodyPrefab;
+            lunarChimeraSpawnCard.prefab = lunarChimeraMasterPrefab;
+            MasterCatalog.getAdditionalEntries += list => list.Add(lunarChimeraMasterPrefab);
+            BodyCatalog.getAdditionalEntries += list => list.Add(lunarChimeraBodyPrefab);
+            NetworkingAPI.RegisterMessageType<AssignOwner>();
         }
 
         private static ItemDisplayRuleDict GenerateItemDisplayRules()
@@ -216,9 +248,7 @@ namespace Aetherium.Items
         public override void Install()
         {
             base.Install();
-
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
-            On.RoR2.CharacterBody.FixedUpdate += LunarChimeraRetarget;
             On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
         }
 
@@ -226,80 +256,70 @@ namespace Aetherium.Items
         {
             base.Uninstall();
             On.RoR2.CharacterBody.FixedUpdate -= SummonLunarChimera;
-            On.RoR2.CharacterBody.FixedUpdate -= LunarChimeraRetarget;
             On.RoR2.MapZone.TryZoneStart -= LunarChimeraFall;
         }
 
-        private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
         {
-            if (NetworkServer.active && self.master)
+            int inventoryCount = GetCount(self);
+            CharacterMaster master = self.master;
+            if (NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master)) //Check if we're a minion or not. If we are, we don't summon a chimera.
             {
-                var LunarChimeraComponent = self.master.GetComponent<LunarChimeraComponent>();
-                if (!LunarChimeraComponent) { LunarChimeraComponent = self.masterObject.AddComponent<LunarChimeraComponent>(); }
-
-                var SummonerBodyMaster = self.master;
-                if (SummonerBodyMaster) //Check if we're a minion or not. If we are, we don't summon a chimera.
+                LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(master);
+                if (!lcComponent.LastChimeraSpawned || !lcComponent.LastChimeraSpawned.master || !lcComponent.LastChimeraSpawned.master.hasBody)
                 {
-                    if (SummonerBodyMaster.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                    lcComponent.LastChimeraSpawned = null;
+                    lcComponent.ResummonCooldown -= Time.fixedDeltaTime;
+                    if (lcComponent.ResummonCooldown <= 0f && SceneCatalog.mostRecentSceneDef != SceneCatalog.GetSceneDefFromSceneName("bazaar"))
                     {
-                        orig(self);
-                        return;
-                    }
-                }
-
-                int InventoryCount = GetCount(self);
-                if (InventoryCount > 0)
-                {
-                    if (LunarChimeraComponent.LastChimeraSpawned == null || !LunarChimeraComponent.LastChimeraSpawned.master || !LunarChimeraComponent.LastChimeraSpawned.master.hasBody)
-                    {
-                        LunarChimeraComponent.LastChimeraSpawned = null;
-                        LunarChimeraComponent.ResummonCooldown -= Time.fixedDeltaTime;
-                        if (LunarChimeraComponent.ResummonCooldown <= 0f && RoR2.SceneCatalog.mostRecentSceneDef != RoR2.SceneCatalog.GetSceneDefFromSceneName("bazaar"))
+                        DirectorPlacementRule placeRule = new DirectorPlacementRule
                         {
-
-                            RoR2.DirectorSpawnRequest directorSpawnRequest = new RoR2.DirectorSpawnRequest((RoR2.SpawnCard)Resources.Load("SpawnCards/CharacterSpawnCards/cscLunarGolem"), new RoR2.DirectorPlacementRule
+                            placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                            minDistance = 10f,
+                            maxDistance = 40f,
+                            spawnOnTarget = self.transform
+                        };
+                        DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(lunarChimeraSpawnCard, placeRule, RoR2Application.rng)
+                        {
+                            teamIndexOverride = TeamIndex.Player
+                            //summonerBodyObject = self.gameObject
+                        };
+                        GameObject gameObject = DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                        if (gameObject)
+                        {
+                            CharacterMaster cMaster = gameObject.GetComponent<CharacterMaster>();
+                            if (cMaster)
                             {
-                                placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
-                                minDistance = 10f,
-                                maxDistance = 40f,
-                                spawnOnTarget = self.transform
-                            }, RoR2.RoR2Application.rng);
-                            //directorSpawnRequest.summonerBodyObject = self.gameObject;
-                            directorSpawnRequest.teamIndexOverride = TeamIndex.Player;
-                            GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                                //RoR2.Chat.AddMessage($"Character Master Found: {component}");
+                                cMaster.teamIndex = TeamIndex.Neutral;
+                                cMaster.inventory.GiveItem(ItemIndex.BoostDamage, lunarChimeraBaseDamageBoost + (lunarChimeraAdditionalDamageBoost * inventoryCount - 1));
+                                cMaster.inventory.GiveItem(ItemIndex.BoostHp, lunarChimeraBaseHPBoost * inventoryCount);
+                                cMaster.inventory.GiveItem(ItemIndex.BoostAttackSpeed, lunarChimeraBaseAttackSpeedBoost);
+                                cMaster.inventory.GiveItem(ItemIndex.Hoof, lunarChimeraBaseMovementSpeedBoost * inventoryCount);
+                                cMaster.minionOwnership.SetOwner(master);
 
-                            if (gameObject)
-                            {
-                                RoR2.CharacterMaster component = gameObject.GetComponent<RoR2.CharacterMaster>();
-
-                                if (component)
+                                CharacterBody cBody = cMaster.GetBody();
+                                if (cBody)
                                 {
-                                    //RoR2.Chat.AddMessage($"Character Master Found: {component}");
-                                    component.GetBody().teamComponent.teamIndex = TeamIndex.Neutral;
-                                    component.teamIndex = TeamIndex.Neutral;
-
-                                    component.inventory.GiveItem(ItemIndex.BoostDamage, lunarChimeraBaseDamageBoost + (lunarChimeraAdditionalDamageBoost * InventoryCount-1));
-                                    component.inventory.GiveItem(ItemIndex.BoostHp, lunarChimeraBaseHPBoost * InventoryCount);
-                                    component.inventory.GiveItem(ItemIndex.BoostAttackSpeed, lunarChimeraBaseAttackSpeedBoost);
-                                    component.inventory.GiveItem(ItemIndex.Hoof, lunarChimeraBaseMovementSpeedBoost * InventoryCount);
-
-                                    RoR2.CharacterBody component4 = component.GetBody();
-                                    if (component4)
+                                    //RoR2.Chat.AddMessage($"CharacterBody Found: {component4}");
+                                    cBody.teamComponent.teamIndex = TeamIndex.Neutral;
+                                    cBody.gameObject.AddComponent<LunarChimeraRetargetComponent>();
+                                    lcComponent.LastChimeraSpawned = cBody;
+                                    DeathRewards deathRewards = cBody.GetComponent<DeathRewards>();
+                                    if (deathRewards)
                                     {
-                                        //RoR2.Chat.AddMessage($"CharacterBody Found: {component4}");
-                                        component4.gameObject.AddComponent<LunarChimeraRetargetComponent>();
-                                        LunarChimeraComponent.LastChimeraSpawned = component4;
-                                        RoR2.DeathRewards component5 = component4.GetComponent<RoR2.DeathRewards>();
-                                        if (component5)
-                                        {
-                                            //RoR2.Chat.AddMessage($"DeathRewards Found: {component5}");
-                                            component5.goldReward = 0;
-                                            component5.expReward = 0;
-                                        }
+                                        //RoR2.Chat.AddMessage($"DeathRewards Found: {component5}");
+                                        deathRewards.goldReward = 0;
+                                        deathRewards.expReward = 0;
+                                    }
+                                    NetworkIdentity bodyNet = cBody.GetComponent<NetworkIdentity>();
+                                    if (bodyNet)
+                                    {
+                                        new AssignOwner(lcComponent.netId, bodyNet.netId).Send(NetworkDestination.Clients);
                                     }
                                 }
                             }
-                            if (gameObject) {LunarChimeraComponent.ResummonCooldown = lunarChimeraResummonCooldownDuration;}
+                            lcComponent.ResummonCooldown = lunarChimeraResummonCooldownDuration;
                         }
                     }
                 }
@@ -307,59 +327,16 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        private void LunarChimeraRetarget(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, MapZone self, Collider other)
         {
-            var characterMaster = self.master;
-            if (characterMaster)
+            if (IsUnstableDesignChimera(other.gameObject))
             {
-                var baseAIComponent = characterMaster.GetComponent<BaseAI>();
-                var retargetComponent = self.GetComponent<LunarChimeraRetargetComponent>();
-                if (baseAIComponent && retargetComponent)
-                {
-                    if (!airSkill) 
-                    {
-                        airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
-                    }
-
-                    var skillComponent = self.GetComponent<SkillLocator>();
-                    if (skillComponent)
-                    {
-                        var body = baseAIComponent.currentEnemy.characterBody;
-                        if (body && (!body.characterMotor || !body.characterMotor.isGrounded))
-                        {
-                            skillComponent.primary.SetSkillOverride(self, airSkill, GenericSkill.SkillOverridePriority.Replacement);
-                        }
-                        else
-                        {
-                            skillComponent.primary.UnsetSkillOverride(self, airSkill, GenericSkill.SkillOverridePriority.Replacement);
-                        }
-                    }
-                    retargetComponent.RetargetTimer -= Time.fixedDeltaTime;
-                    if (retargetComponent.RetargetTimer <= 0)
-                    {
-                        if (!baseAIComponent.currentEnemy.hasLoS)
-                        {
-                            baseAIComponent.currentEnemy.Reset();
-                            baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
-                            retargetComponent.RetargetTimer = lunarChimeraRetargetingCooldown;
-                        }
-                    }
-                }
-            }
-            orig(self);
-        }
-
-        private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, RoR2.MapZone self, Collider other)
-        {
-            var body = other.GetComponent<CharacterBody>();
-            if (body)
-            {
-                var LunarChimeraRetargeter = body.GetComponent<LunarChimeraRetargetComponent>();
-                if (LunarChimeraRetargeter)
+                CharacterBody body = other.GetComponent<CharacterBody>();
+                if (body)
                 {
                     var teamComponent = body.teamComponent;
-                    teamComponent.teamIndex = TeamIndex.Player;  //Set the team of it to player to avoid it dying when it falls into a hellzone.
-                    orig(self, other);                           //Run the effect of whatever zone it is in on it. Since it is of the Player team, it obviously gets teleported back into the zone.
+                    teamComponent.teamIndex = TeamIndex.Player; //Set the team of it to player to avoid it dying when it falls into a hellzone.
+                    orig(self, other); //Run the effect of whatever zone it is in on it. Since it is of the Player team, it obviously gets teleported back into the zone.
                     teamComponent.teamIndex = TeamIndex.Neutral; //Now make it hostile again. Thanks Obama.
                     return;
                 }
@@ -367,16 +344,148 @@ namespace Aetherium.Items
             orig(self, other);
         }
 
+        private bool IsMinion(CharacterMaster master)
+        {
+            // Replace the old minion checker so that it can support enemies that get lunar items too
+            return master.minionOwnership &&
+                   master.minionOwnership.ownerMaster;
+        }
+
+        private bool IsUnstableDesignChimera(GameObject obj) => obj.name.Contains(nameSuffix);
+
         public class LunarChimeraComponent : MonoBehaviour
         {
-            public RoR2.CharacterBody LastChimeraSpawned;
-            public float ResummonCooldown;
+            public CharacterBody LastChimeraSpawned;
+            public float ResummonCooldown = 0f;
+            public Queue<NetworkInstanceId> syncIds = new Queue<NetworkInstanceId>();
+            public NetworkInstanceId netId;
+            public CharacterMaster master;
+
+            private void Awake()
+            {
+                master = gameObject.GetComponent<CharacterMaster>();
+                netId = gameObject.GetComponent<NetworkIdentity>().netId;
+            }
+
+            private void FixedUpdate()
+            {
+                if (syncIds.Count > 0)
+                {
+                    NetworkInstanceId syncId = syncIds.Dequeue();
+                    GameObject supposedChimera = Util.FindNetworkObject(syncId);
+                    if (supposedChimera)
+                    {
+                        LastChimeraSpawned = supposedChimera.GetComponent<CharacterBody>();
+                        CharacterMaster cMaster = LastChimeraSpawned.master;
+                        cMaster.minionOwnership.ownerMasterId = netId;
+                        MinionOwnership.MinionGroup.SetMinionOwner(cMaster.minionOwnership, netId);
+                    }
+                    else
+                    {
+                        syncIds.Enqueue(syncId);
+                    }
+                }
+            }
+
+            public static LunarChimeraComponent GetOrCreateComponent(CharacterMaster master)
+            {
+                return GetOrCreateComponent(master.gameObject);
+            }
+
+            public static LunarChimeraComponent GetOrCreateComponent(GameObject masterObject)
+            {
+                return masterObject.GetComponent<LunarChimeraComponent>() ?? masterObject.AddComponent<LunarChimeraComponent>();
+            }
         }
 
         public class LunarChimeraRetargetComponent : MonoBehaviour
         {
-            public float RetargetTimer;
+            // make public if you want it to be viewable in RuntimeInspector
+            private float retargetTimer = 0f;
+            private CharacterMaster master;
+            private CharacterBody body;
+
+            private void Awake()
+            {
+                body = gameObject.GetComponent<CharacterBody>();
+                master = body.master;
+                SetCooldown();
+            }
+
+            private void FixedUpdate()
+            {
+                BaseAI baseAIComponent = master.GetComponent<BaseAI>();
+                if (baseAIComponent)
+                {
+                    SkillLocator skillComponent = gameObject.GetComponent<SkillLocator>();
+                    if (skillComponent)
+                    {
+                        CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
+                        if (targetBody && (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded))
+                        {
+                            skillComponent.primary.SetSkillOverride(body, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                        }
+                        else
+                        {
+                            skillComponent.primary.UnsetSkillOverride(body, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                        }
+                    }
+                    retargetTimer -= Time.fixedDeltaTime;
+                    if (retargetTimer <= 0)
+                    {
+                        if (!baseAIComponent.currentEnemy.hasLoS)
+                        {
+                            baseAIComponent.currentEnemy.Reset();
+                            baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+                            SetCooldown();
+                        }
+                    }
+                }
+            }
+
+            private void SetCooldown(float? customCooldown = null)
+            {
+                if (customCooldown == null) retargetTimer = instance.lunarChimeraRetargetingCooldown;
+                else retargetTimer = (float)customCooldown;
+            }
         }
 
+        public class AssignOwner : INetMessage
+        {
+            private NetworkInstanceId ownerNetId;
+            private NetworkInstanceId minionNetId;
+
+            public AssignOwner()
+            {
+            }
+
+            public AssignOwner(NetworkInstanceId ownerNetId, NetworkInstanceId minionNetId)
+            {
+                this.ownerNetId = ownerNetId;
+                this.minionNetId = minionNetId;
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                ownerNetId = reader.ReadNetworkId();
+                minionNetId = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+                GameObject owner = Util.FindNetworkObject(ownerNetId);
+                if (!owner) return;
+
+                LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(owner);
+                lcComponent.syncIds.Enqueue(minionNetId);
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(ownerNetId);
+                writer.Write(minionNetId);
+            }
+        }
     }
 }
