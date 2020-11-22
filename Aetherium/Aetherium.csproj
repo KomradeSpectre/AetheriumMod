@@ -17,11 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="EliteFocusedEquipment\ApollosBrilliance.cs" />
     <Compile Remove="EliteFocusedEquipment\CallToWorship.cs" />
     <Compile Remove="EliteFocusedEquipment\CrystallineSoul.cs" />
     <Compile Remove="EliteFocusedEquipment\HisCourage.cs" />
     <Compile Remove="EliteFocusedEquipment\HisVengeance.cs" />
+    <Compile Remove="EliteFocusedEquipment\MoiraesBond.cs" />
     <Compile Remove="Equipment\FrenzyPotion.cs" />
     <Compile Remove="Items\HexPendulum.cs" />
     <Compile Remove="Utils\GetMethodsOfEntityStates.cs" />
