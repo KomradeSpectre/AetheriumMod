@@ -442,6 +442,7 @@ namespace Aetherium.Items
 
             private string OriginalName = "";
             private bool forceRecalculateOnSpawn = true;
+            private bool reassignBodies = false;
             private readonly string[] BlacklistedStockBots = { "Drone2", "EmergencyDrone", "FlameDrone", "EquipmentDrone" };
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner, CharacterBody botBody, CharacterBody ownerBody)
@@ -462,7 +463,7 @@ namespace Aetherium.Items
             {
                 if (!BotBody || !BotOwnerBody)
                 {
-                    forceRecalculateOnSpawn = true;
+                    reassignBodies = true;
                     //AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
                     return;
                 }
@@ -534,9 +535,14 @@ namespace Aetherium.Items
                 }
             }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Used by UnityEngine")]
             private void FixedUpdate()
             {
+                if (reassignBodies)
+                {
+                    if (!BotBody) BotBody = BotMaster.GetBody();
+                    if (!BotOwnerBody) BotOwnerBody = BotOwnerMaster.GetBody();
+                    if (BotBody && BotOwnerBody) reassignBodies = false;
+                }
                 TeleportNearOwner();
                 if (BoostCount < 0) UpdateTrackerBoosts();
                 if (forceRecalculateOnSpawn && BotBody)
