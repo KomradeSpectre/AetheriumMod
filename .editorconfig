@@ -5,3 +5,6 @@ dotnet_diagnostic.IDE1006.severity = silent
 
 # CS0618: Type or member is obsolete
 dotnet_diagnostic.CS0618.severity = silent
+
+# IDE0051: Remove unused private members
+dotnet_diagnostic.IDE0051.severity = silent

@@ -1,4 +1,5 @@
 ﻿using Aetherium.Utils;
+using KomradeSpectre.Aetherium;
 using R2API;
 using RoR2;
 using System;
@@ -133,6 +134,7 @@ namespace Aetherium.Items
             "DroneMissile",
             "Turret1"
         };
+        private static readonly List<string> BannedTeleportDrones = new List<string>();
 
         public InspiringDrone()
         {
@@ -315,7 +317,7 @@ namespace Aetherium.Items
             if (!botMaster) return;
             MinionOwnership minionOwnership = botMaster.minionOwnership;
             if (!minionOwnership) return;
-            if (DronesList.Exists((droneSubstring) => { return botMaster.name.Contains(droneSubstring); }))
+            if (IsDroneSupported(botMaster))
             {
                 CharacterMaster ownerMaster = botMaster.minionOwnership.ownerMaster;
                 if (ownerMaster)
@@ -373,15 +375,47 @@ namespace Aetherium.Items
             }
         }
 
+        private bool IsDroneSupported(CharacterMaster botMaster)
+        {
+            return IsDroneSupported(botMaster.name);
+        }
+
+        private bool IsDroneSupported(string botMasterName)
+        {
+            return DronesList.Exists((droneSubstring) => { return botMasterName.Contains(droneSubstring); });
+        }
+
+        private bool IsDroneTeleportBanned(CharacterMaster botMaster)
+        {
+            return IsDroneTeleportBanned(botMaster.name);
+        }
+
+        private bool IsDroneTeleportBanned(string botMasterName)
+        {
+            return BannedTeleportDrones.Exists((droneSubstring) => { return botMasterName.Contains(droneSubstring); });
+        }
+
         /// <summary>
         /// Allows a custom drone to be Inspired by Inspiring Drone.
         /// </summary>
         /// <param name="masterName">The CharacterMaster name of the custom drone.</param>
-        /// <returns>True if the customd rone is now supported. False if the custom drone is already supported.</returns>
+        /// <returns>True if the custom drone is now supported. False if the custom drone is already supported.</returns>
         public bool AddCustomDrone(string masterName)
         {
-            if (DronesList.Contains(masterName)) return false;
+            if (IsDroneSupported(masterName)) return false;
             DronesList.Add(masterName);
+            return true;
+        }
+
+        /// <summary>
+        /// Allows a drone to be banned from teleporting near the player.
+        /// </summary>
+        /// <param name="masterName">The CharacterMaster name of the custom drone.</param>
+        /// <returns>True if the custom drone is now banned. False if the custom drone is not supported or if the drone is already banned.</returns>
+        public bool BanTeleportDrone(string masterName)
+        {
+            if (!IsDroneSupported(masterName) || IsDroneTeleportBanned(masterName)) return false;
+            BannedTeleportDrones.Add(masterName);
             return true;
         }
 
@@ -525,7 +559,7 @@ namespace Aetherium.Items
 
             private void TeleportNearOwner()
             {
-                if (!NetworkServer.active || !BotOwnerBody || !BotBody) return;
+                if (!NetworkServer.active || instance.IsDroneTeleportBanned(BotMaster) || !BotOwnerBody || !BotBody) return;
                 if (!Util.HasEffectiveAuthority(BotBody.gameObject) || instance.GetCount(BotOwnerMaster) <= 0) return;
                 if (TeleportTimer > 0)
                 {
