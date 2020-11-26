@@ -213,7 +213,11 @@ namespace Aetherium.Items
                     int ItemCount = GetCount(attackerBody);
                     if (ItemCount > 0) //Does the attacker have any of our item?
                     {
-                        var mass = self.body.characterMotor?.mass ?? (self.body.rigidbody?.mass ?? 1f);
+                        //float mass = self.body.characterMotor?.mass ?? (self.body.rigidbody?.mass ?? 1f);
+                        float mass;
+                        if (self.body.characterMotor) mass = self.body.characterMotor.mass;
+                        else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
+                        else mass = 1f;
                         var forceCalc = Mathf.Clamp(startingForceMultiplier + (additionalForceMultiplier * (ItemCount - 1)), minimumForceMultiplier, maximumForceMultiplier);
                         damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
                     }
