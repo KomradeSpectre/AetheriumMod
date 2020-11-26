@@ -394,7 +394,9 @@ namespace Aetherium.Items
 
             public static LunarChimeraComponent GetOrCreateComponent(GameObject masterObject)
             {
-                return masterObject.GetComponent<LunarChimeraComponent>() ?? masterObject.AddComponent<LunarChimeraComponent>();
+                LunarChimeraComponent thisComponent = masterObject.GetComponent<LunarChimeraComponent>();
+                if (!thisComponent) thisComponent = masterObject.AddComponent<LunarChimeraComponent>();
+                return thisComponent;
             }
         }
 
