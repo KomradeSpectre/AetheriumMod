@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Name of Item**
+**Name of Equipment**
 What is the name of this equipment?
 
 **Tier of Equipment**
