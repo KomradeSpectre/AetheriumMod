@@ -2,7 +2,7 @@
 name: Equipment Idea
 about: Template for suggesting an Equipment Idea
 title: "[Equipment Idea]"
-labels: enhancement
+labels: Equipment Idea
 assignees: ''
 
 ---

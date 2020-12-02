@@ -2,7 +2,7 @@
 name: Item Idea
 about: Template for suggesting an Item Idea.
 title: "[Item Idea]"
-labels: enhancement
+labels: Item Idea
 assignees: ''
 
 ---
