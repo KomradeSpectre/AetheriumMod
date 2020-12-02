@@ -7,6 +7,7 @@ assignees: ''
 
 ---
 
+<!--- Edit the line underneath fields marked with the stars/asterisks. --->
 **Feature Name**
 What is the name of this feature?
 
