@@ -1,6 +1,6 @@
 ---
 name: Equipment Idea
-about: Template for suggesting an Equipment Idea
+about: Here's my idea of an equipment that should be added to Aetherium.
 title: "[Equipment Idea]"
 labels: Equipment Idea
 assignees: ''

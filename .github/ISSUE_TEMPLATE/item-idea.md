@@ -1,6 +1,6 @@
 ---
 name: Item Idea
-about: Template for suggesting an Item Idea.
+about: Here's my idea of an item that should be added to Aetherium.
 title: "[Item Idea]"
 labels: Item Idea
 assignees: ''
