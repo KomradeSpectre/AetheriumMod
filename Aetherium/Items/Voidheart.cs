@@ -69,13 +69,13 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            VoidImplosionDamageMultiplier = config.Bind<float>(ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))");
-            VoidImplosionBaseRadius = config.Bind<float>(ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))");
-            VoidImplosionAdditionalRadius = config.Bind<float>(ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))");
-            VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>(ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))");
-            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>(ItemName, "Pecentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
-            VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>(ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
-            VoidHeartCooldownDebuffDuration = config.Bind<float>(ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
+            VoidImplosionDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))");
+            VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))");
+            VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))");
+            VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))");
+            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Pecentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
+            VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
+            VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
         }
 
         private void CreateBuff()

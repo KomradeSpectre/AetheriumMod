@@ -48,7 +48,8 @@ and as such the ones that were I will list the person that came up with the idea
 	- **Equipment** - On activation, absorb projectiles in a 20m radius for 3 second(s).  
 	Upon success, fire all of the projectiles out of the jar upon next activation.  
 	The damage traits of each projectiles fired from the jar depends on the bullets you absorbed.  
-	After all the projectiles have been fired from the jar, it will need to cool down.  
+	After all the projectiles have been fired from the jar, it will need to cool down.
+  
 ----
 
 ## Upcoming
@@ -79,6 +80,7 @@ and as such the ones that were I will list the person that came up with the idea
 + Added an animation to Alien Magnet.
 + Made Alien Magnet use the ItemFollower system.
 + Retouched Icons, still working on these as development goes on.
++ Made the non-impale Blaster Sword projectile speeeeeeeeeeeeeeeeeeeen.
 - Removed TILER2 dependency, migrated to my own ItemBase now.
 
 [0.4.2]
@@ -115,7 +117,8 @@ and as such the ones that were I will list the person that came up with the idea
 + Buffed Shielding Core's base values to 15 armor for first pickup, and 10 for each additional pickup after that.
 + More icon art by WaltzingPhantom, and the other new ones retouched to look better ingame, this time Shielding Core and Shark Teeth. 
 
----
+----
+
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod. Thanks to them for authorizing me to use TILER2's stathooks in my itembase, it was integral in getting it off the ground.  
 **Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  

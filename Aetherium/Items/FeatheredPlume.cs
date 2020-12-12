@@ -48,11 +48,11 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>(ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseDurationOfBuffInSeconds = config.Bind<float>(ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?");
-            AdditionalDurationOfBuffInSeconds = config.Bind<float>(ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?");
-            BuffStacksPerFeatheredPlume = config.Bind<int>(ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?");
-            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>(ItemName, "Movespeed per Feathered Plume Buff Stack", 0.07f, "How much movespeed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            BaseDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?");
+            AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?");
+            BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?");
+            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movespeed per Feathered Plume Buff Stack", 0.07f, "How much movespeed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
         }
 
         private void CreateBuff()

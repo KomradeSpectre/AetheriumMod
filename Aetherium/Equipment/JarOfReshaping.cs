@@ -83,10 +83,10 @@ namespace Aetherium.Equipment
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseRadiusGranted = config.Bind<float>(EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)");
-            ProjectileAbsorptionTime = config.Bind<float>(EquipmentName, "Projectile Absorbtion Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
-            JarCooldown = config.Bind<float>(EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
-            IWantToLoseFriendsInChaosMode = config.Bind<bool>(EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
+            BaseRadiusGranted = config.Bind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)");
+            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorbtion Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
+            JarCooldown = config.Bind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
+            IWantToLoseFriendsInChaosMode = config.Bind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
         }
 
         private void CreateNetworking()

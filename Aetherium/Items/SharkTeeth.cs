@@ -51,12 +51,12 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>(ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseDamageSpreadPercentage = config.Bind<float>(ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
-            AdditionalDamageSpreadPercentage = config.Bind<float>(ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
-            MaxDamageSpreadPercentage = config.Bind<float>(ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
-            DurationOfDamageSpread = config.Bind<float>(ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
-            TicksOfDamageDuringDuration = config.Bind<int>(ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            BaseDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
+            AdditionalDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
+            MaxDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
+            DurationOfDamageSpread = config.Bind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
+            TicksOfDamageDuringDuration = config.Bind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

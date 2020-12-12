@@ -48,10 +48,10 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>(ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseShieldingCoreArmorGrant = config.Bind<float>(ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?");
-            AdditionalShieldingCoreArmorGrant = config.Bind<float>(ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?");
-            BaseGrantShieldMultiplier = config.Bind<float>(ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            BaseShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?");
+            AdditionalShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?");
+            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

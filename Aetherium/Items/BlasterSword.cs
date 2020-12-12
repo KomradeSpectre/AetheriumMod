@@ -69,9 +69,9 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseImpaleProjectile = config.Bind<bool>(ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?");
-            BaseSwordDamageMultiplier = config.Bind<float>(ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
-            AdditionalSwordDamageMultiplier = config.Bind<float>(ItemName, "Damage Multiplier Gained per Additional Stacks", 6f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
+            UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?");
+            BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
+            AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
         }
 
         private void CreateBuff()
@@ -90,7 +90,7 @@ namespace Aetherium.Items
 
         private void CreateProjectile()
         {
-            SwordProjectile = UseImpaleProjectile.Value ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/MageIceBolt"), "SwordProjectile", true);
+            SwordProjectile = UseImpaleProjectile.Value ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
 
             var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
@@ -106,17 +106,27 @@ namespace Aetherium.Items
             damage.damageType = DamageType.CrippleOnHit;
             damage.damage = 0;
 
-            var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
-            impactExplosion.blastRadius = 2;
-            impactExplosion.blastProcCoefficient = 0.2f;
+            var impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
 
             if (UseImpaleProjectile.Value)
             {
+                var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
+                impactExplosion.impactEffect = impactEffect;
+                impactExplosion.blastRadius = 2;
+                impactExplosion.blastProcCoefficient = 0.2f;
+
                 var stickOnImpact = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileStickOnImpact>();
                 stickOnImpact.alignNormals = false;
                 impactExplosion.lifetimeAfterImpact = 1.5f;
                 impactExplosion.timerAfterImpact = true;
+            }
+            else
+            {
+                var overlapAttack = SwordProjectile.GetComponent<ProjectileOverlapAttack>();
+                overlapAttack.impactEffect = impactEffect;
+
+                var applyTorqueOnStart = SwordProjectile.AddComponent<ApplyTorqueOnStart>();
+                applyTorqueOnStart.localTorque = new Vector3(0, 1500, 0);
             }
 
             // register it for networking

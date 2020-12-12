@@ -107,19 +107,19 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            SetAllStatValuesAtOnce = config.Bind<bool>(ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.");
-            AllStatValueGrantedPercentage = config.Bind<float>(ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%");
-            DamageGrantedPercentage = config.Bind<float>(ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?");
-            AttackSpeedGrantedPercentage = config.Bind<float>(ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?");
-            CritChanceGrantedPercentage = config.Bind<float>(ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?");
-            HealthGrantedPercentage = config.Bind<float>(ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?");
-            RegenGrantedPercentage = config.Bind<float>(ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?");
-            ArmorGrantedPercentage = config.Bind<float>(ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?");
-            MovementSpeedGrantedPercentage = config.Bind<float>(ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?");
-            TurretTeleportationCooldownDuration = config.Bind<float>(ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)");
-            DroneTeleportationCooldownDuration = config.Bind<float>(ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)");
-            TurretTeleportationDistanceAroundOwner = config.Bind<float>(ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)");
-            DroneTeleportationDistanceAroundOwner = config.Bind<float>(ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)");
+            SetAllStatValuesAtOnce = config.Bind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.");
+            AllStatValueGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%");
+            DamageGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?");
+            AttackSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?");
+            CritChanceGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?");
+            HealthGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?");
+            RegenGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?");
+            ArmorGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?");
+            MovementSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?");
+            TurretTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)");
+            DroneTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)");
+            TurretTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)");
+            DroneTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

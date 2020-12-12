@@ -49,16 +49,17 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateBuff();
             CreateItem();
             Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
-            WitchesRingTriggerThreshold = config.Bind<float>(ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?");
-            BaseCooldownDuration = config.Bind<float>(ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?");
-            AdditionalCooldownReduction = config.Bind<float>(ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?");
-            GlobalCooldownOnUse = config.Bind<bool>(ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?");
+            WitchesRingTriggerThreshold = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?");
+            BaseCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?");
+            AdditionalCooldownReduction = config.Bind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?");
+            GlobalCooldownOnUse = config.Bind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?");
         }
 
         private void CreateBuff()

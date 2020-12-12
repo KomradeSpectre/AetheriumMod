@@ -47,9 +47,9 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseKnockbackReductionPercentage = config.Bind<float>(ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
-            BaseMovementSpeedReductionPercentage = config.Bind<float>(ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
-            MovementSpeedReductionPercentageCap = config.Bind<float>(ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.6f, "What should be the lowest percentage of movespeed reduction be?");
+            BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
+            BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
+            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.6f, "What should be the lowest percentage of movespeed reduction be?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

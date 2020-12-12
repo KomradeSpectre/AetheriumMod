@@ -67,11 +67,11 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseSipCooldownDuration = config.Bind<float>(ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
-            AdditionalStackSipCooldownReductionPercentage = config.Bind<float>(ItemName, "Pecentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
-            BaseRadiusGranted = config.Bind<float>(ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
-            AdditionalRadiusGranted = config.Bind<float>(ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
-            MaxEffectsAccrued = config.Bind<int>(ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
+            BaseSipCooldownDuration = config.Bind<float>("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
+            AdditionalStackSipCooldownReductionPercentage = config.Bind<float>("Item: " + ItemName, "Pecentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
+            BaseRadiusGranted = config.Bind<float>("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
+            AdditionalRadiusGranted = config.Bind<float>("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
+            MaxEffectsAccrued = config.Bind<int>("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
         }
 
         private void CreateBuff()

@@ -26,9 +26,6 @@
     <Reference Include="BepInEx">
       <HintPath>lib\BepInEx.dll</HintPath>
     </Reference>
-    <Reference Include="EliteSpawningOverhaul">
-      <HintPath>lib\EliteSpawningOverhaul.dll</HintPath>
-    </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>lib\MMHOOK_Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -74,6 +71,10 @@
     <Reference Include="Wwise">
       <HintPath>lib\Wwise.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
