@@ -13,7 +13,7 @@ using static RoR2.Navigation.MapNodeGroup;
 
 namespace Aetherium.Items
 {
-    class InspiringDrone : ItemBase<InspiringDrone>
+    public class InspiringDrone : ItemBase<InspiringDrone>
     {
         public static ConfigEntry<bool> SetAllStatValuesAtOnce;
         public static ConfigEntry<float> AllStatValueGrantedPercentage;
@@ -428,7 +428,7 @@ namespace Aetherium.Items
                     //AetheriumPlugin._logger.LogMessage("DOESNT EXIST");
                     return;
                 }
-                int inventoryCount = RunningInstance.GetCount(BotOwnerBody);
+                int inventoryCount = instance.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
                     if (OriginalName == "") OriginalName = BotBody.GetDisplayName();
@@ -527,8 +527,8 @@ namespace Aetherium.Items
 
             private void TeleportNearOwner()
             {
-                if (!NetworkServer.active || RunningInstance.IsDroneTeleportBanned(BotMaster) || !BotOwnerBody || !BotBody) return;
-                if (!Util.HasEffectiveAuthority(BotBody.gameObject) || RunningInstance.GetCount(BotOwnerMaster) <= 0) return;
+                if (!NetworkServer.active || instance.IsDroneTeleportBanned(BotMaster) || !BotOwnerBody || !BotBody) return;
+                if (!Util.HasEffectiveAuthority(BotBody.gameObject) || instance.GetCount(BotOwnerMaster) <= 0) return;
                 if (TeleportTimer > 0)
                 {
                     TeleportTimer -= Time.fixedDeltaTime;

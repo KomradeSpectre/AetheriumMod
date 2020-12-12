@@ -14,12 +14,12 @@ namespace Aetherium.Items
 
     public abstract class ItemBase<T> : ItemBase where T : ItemBase<T>
     {
-        public static T RunningInstance { get; private set; }
+        public static T instance { get; private set; }
 
         public ItemBase()
         {
-            if (RunningInstance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBoilerplate/Item was instantiated twice");
-            RunningInstance = this as T;
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBoilerplate/Item was instantiated twice");
+            instance = this as T;
         }
 
     }

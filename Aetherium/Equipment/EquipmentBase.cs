@@ -9,12 +9,12 @@ namespace Aetherium.Equipment
 {
     public abstract class EquipmentBase<T> : EquipmentBase where T : EquipmentBase<T>
     {
-        public static T RunningInstance { get; private set; }
+        public static T instance { get; private set; }
 
         public EquipmentBase()
         {
-            if (RunningInstance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
-            RunningInstance = this as T;
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
+            instance = this as T;
         }
 
     }

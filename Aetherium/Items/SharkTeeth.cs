@@ -203,7 +203,7 @@ namespace Aetherium.Items
                 if (!bleedComponent) { bleedComponent = self.gameObject.AddComponent<BleedTrackerComponent>(); }
                 var inventoryCount = GetCount(self.body);
                 //var healthBefore = self.health; //debug
-                if (damageInfo.inflictor != SharkTeeth.RunningInstance.BleedInflictor && inventoryCount > 0)
+                if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
                 {
                     //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
                     var percentage = BaseDamageSpreadPercentage.Value + (MaxDamageSpreadPercentage.Value - MaxDamageSpreadPercentage.Value / (1 + AdditionalDamageSpreadPercentage.Value * (inventoryCount - 1)));
@@ -277,7 +277,7 @@ namespace Aetherium.Items
                             crit = false,
                             damage = DamageDealt,
                             force = Vector3.zero,
-                            inflictor = SharkTeeth.RunningInstance.BleedInflictor,
+                            inflictor = SharkTeeth.instance.BleedInflictor,
                             position = characterBody.corePosition,
                             procCoefficient = 0f,
                             damageColorIndex = DamageColorIndex.Bleed,

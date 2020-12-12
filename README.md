@@ -70,6 +70,9 @@ and as such the ones that were I will list the person that came up with the idea
 
 ## Changelog
 ----
+[0.4.5]
++ Another hotfix. Forgot to set the correct access level on some classes. It's fixed now, this should be the last hotfix, next update should be more items.
+
 [0.4.4]
 + Quick hotfix to address R2API weirdness due to previously using the experimental build. Woopsies!
 
@@ -107,13 +110,6 @@ and as such the ones that were I will list the person that came up with the idea
 + Fixed Blaster Sword's internal class being non-public. Woops!
 + Fixed mod description stating that we only have 9 items. We're up to 11 now.
 + Nothing else to see here yet folks!
-
-[0.3.0]
-+ Added Accursed Potion
-+ Added Blaster Sword
-+ The first pickup of Blood Soaked Shield and Shielding Core will now grant a small portion of shield thanks to an ILHook provided by Harb.
-+ Tried to fix turrets being half in the ground, failed. Will try again soon.
-+ Fixed an issue related to me forgetting basic PEMDAS with the Shielding Core's calculation. E.
 
 ----
 
