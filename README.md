@@ -70,6 +70,9 @@ and as such the ones that were I will list the person that came up with the idea
 
 ## Changelog
 ----
+[0.4.4]
++ Quick hotfix to address R2API weirdness due to previously using the experimental build. Woopsies!
+
 [0.4.3]
 + AETHERIUM REWRITE. Lots of refactoring had to be done, but now my process of item creation should be the default R2API way to do it. This means others can probably learn from it easier now.
 + Nerfed Shark Teeth default # of ticks value from 10 to 5 (As a result, it has more damage per these ticks vs Before.) Suggestion by Breadguy.
@@ -111,11 +114,6 @@ and as such the ones that were I will list the person that came up with the idea
 + The first pickup of Blood Soaked Shield and Shielding Core will now grant a small portion of shield thanks to an ILHook provided by Harb.
 + Tried to fix turrets being half in the ground, failed. Will try again soon.
 + Fixed an issue related to me forgetting basic PEMDAS with the Shielding Core's calculation. E.
-
-[0.2.0]
-+ Added Configs to all items currently in Aetherium. All major values can be configured to your liking now.
-+ Buffed Shielding Core's base values to 15 armor for first pickup, and 10 for each additional pickup after that.
-+ More icon art by WaltzingPhantom, and the other new ones retouched to look better ingame, this time Shielding Core and Shark Teeth. 
 
 ----
 
