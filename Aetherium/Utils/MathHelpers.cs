@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Aetherium.Utils
+﻿namespace Aetherium.Utils
 {
     public class MathHelpers
     {

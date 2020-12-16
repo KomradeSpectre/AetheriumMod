@@ -2,23 +2,18 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
 using UnityEngine;
-using UnityEngine.Networking;
 using static Aetherium.Utils.ItemHelpers;
-using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
-        //Config
         public static ConfigEntry<float> StartingForceMultiplier;
         public static ConfigEntry<float> AdditionalForceMultiplier;
         public static ConfigEntry<float> MinimumForceMultiplier;
         public static ConfigEntry<float> MaximumForceMultiplier;
 
-        //Lang
         public override string ItemName => "Alien Magnet";
         public override string ItemLangTokenName => "ALIEN_MAGNET";
         public override string ItemPickupDesc => "Your attacks pull enemies towards you.";
@@ -53,7 +48,7 @@ namespace Aetherium.Items
             StartingForceMultiplier = config.Bind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?");
             AdditionalForceMultiplier = config.Bind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?");
             MinimumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?");
-            MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?");            
+            MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -190,7 +185,7 @@ namespace Aetherium.Items
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
-            }); 
+            });
             return rules;
         }
 

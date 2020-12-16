@@ -2,8 +2,6 @@
 using R2API;
 using RoR2;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Aetherium.Items
 {
@@ -21,7 +19,6 @@ namespace Aetherium.Items
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBoilerplate/Item was instantiated twice");
             instance = this as T;
         }
-
     }
 
     public abstract class ItemBase
@@ -33,7 +30,7 @@ namespace Aetherium.Items
         public abstract string ItemLore { get; }
 
         public abstract ItemTier Tier { get; }
-        public virtual ItemTag[] ItemTags { get;}
+        public virtual ItemTag[] ItemTags { get; }
 
         public abstract string ItemModelPath { get; }
         public abstract string ItemIconPath { get; }

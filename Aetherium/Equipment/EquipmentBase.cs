@@ -2,8 +2,6 @@
 using R2API;
 using RoR2;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Aetherium.Equipment
 {
@@ -16,7 +14,6 @@ namespace Aetherium.Equipment
             if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
             instance = this as T;
         }
-
     }
 
     public abstract class EquipmentBase
@@ -49,6 +46,7 @@ namespace Aetherium.Equipment
         public abstract void Init(ConfigFile config);
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+
         protected void CreateLang()
         {
             LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
@@ -83,7 +81,7 @@ namespace Aetherium.Equipment
 
         private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
         {
-            if(equipmentIndex == IndexOfEquipment)
+            if (equipmentIndex == IndexOfEquipment)
             {
                 return ActivateEquipment(self);
             }
@@ -96,6 +94,5 @@ namespace Aetherium.Equipment
         protected abstract bool ActivateEquipment(EquipmentSlot slot);
 
         public abstract void Hooks();
-
     }
 }

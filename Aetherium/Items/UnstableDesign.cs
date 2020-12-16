@@ -3,16 +3,12 @@ using BepInEx.Configuration;
 using R2API;
 using R2API.Networking;
 using R2API.Networking.Interfaces;
-using R2API.Utils;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Skills;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -121,7 +117,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0.5f, -0.2f),
                     localAngles = new Vector3(0, 45, 0),
                     localScale = new Vector3(1, 1, 1)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -386,6 +381,7 @@ namespace Aetherium.Items
         {
             // make public if you want it to be viewable in RuntimeInspector
             private float retargetTimer = 0f;
+
             private CharacterMaster master;
             private CharacterBody body;
 

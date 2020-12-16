@@ -8,14 +8,10 @@ using R2API.Networking.Interfaces;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
-using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Equipment
 {
@@ -44,10 +40,10 @@ namespace Aetherium.Equipment
             $"Phil: Yeah, just looks like something you'd find at a housewive's art deco yard sale.\n" +
             $"Terry: Yeah, I thought the same thing, but watch and learn.\n" +
             $"Terry: First, you just hit the bottom of the jar with your palm, and ---\n" +
-            $"Phil: Woah! It started glowing and what on Terra is that noise? Is that an alien vaccum cleaner?\n" +
+            $"Phil: Woah! It started glowing and what on Terra is that noise? Is that an alien vacuum cleaner?\n" +
             $"Terry: Far better. Now watch.\n" +
             $"[Terry is seen throwing random objects into the jar and Phil joins him with bewilderment on his face.]\n" +
-            $"Phil: That's amazing! Can it do anything else, or is it just a weird vaccum pot?\n" +
+            $"Phil: That's amazing! Can it do anything else, or is it just a weird vacuum pot?\n" +
             $"Terry: Yeah, if I just squeeze the handle here, it'll empty it all out.\n" +
             $"[Terry is seen squeezing the handles of the jar, but his expression turns to horror a moment later.]\n" +
             $"Terry: Oh hell, oh god. Phil, I just realized that I may have thrown in a few mining grenades earlier when we were having fun with it earlier.\n" +
@@ -83,7 +79,7 @@ namespace Aetherium.Equipment
         private void CreateConfig(ConfigFile config)
         {
             BaseRadiusGranted = config.Bind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)");
-            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorbtion Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
+            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
             JarCooldown = config.Bind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
             IWantToLoseFriendsInChaosMode = config.Bind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
         }
@@ -192,7 +188,6 @@ namespace Aetherium.Equipment
                     localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -399,7 +394,6 @@ namespace Aetherium.Equipment
                 DamageColorIndex = damageColorIndex;
                 DamageType = damageType;
             }
-
         }
 
         public class JarBulletTracker : MonoBehaviour
@@ -467,7 +461,6 @@ namespace Aetherium.Equipment
                                         {
                                             continue;
                                         }
-
                                     }
                                     var projectileDamage = controller.gameObject.GetComponent<ProjectileDamage>();
                                     if (projectileDamage)
@@ -481,7 +474,6 @@ namespace Aetherium.Equipment
                                             Index = -1
                                         };
                                         OrbManager.instance.AddOrb(orb); // Fire
-
 
                                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
 
@@ -666,11 +658,10 @@ namespace Aetherium.Equipment
                             }
                         }
                     }
-
                 }
                 else
                 {
-                    Debug.LogError("We don't have a jar or a playerbody. Can't do a sphere!");
+                    Debug.LogError("We don't have a jar or a player body. Can't do a sphere!");
                     return;
                 }
             }
@@ -726,11 +717,10 @@ namespace Aetherium.Equipment
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
                     }
-
                 }
                 else
                 {
-                    Debug.LogError("We don't have a jar or a playerbody. Can't do an orb!");
+                    Debug.LogError("We don't have a jar or a player body. Can't do an orb!");
                     return;
                 }
 
@@ -745,6 +735,7 @@ namespace Aetherium.Equipment
                     OrbManager.instance.AddOrb(orb);
                 }
             }
+
             public enum MessageType : byte
             {
                 Fired

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Aetherium.CoreModules
+﻿namespace Aetherium.CoreModules
 {
     /// <summary>
     /// Basic holder class to allow easy initialization of core modules for Aetherium

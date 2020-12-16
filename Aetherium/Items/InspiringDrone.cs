@@ -91,6 +91,7 @@ namespace Aetherium.Items
             "DroneMissile",
             "Turret1"
         };
+
         private static readonly List<string> BannedTeleportDrones = new List<string>();
 
         public InspiringDrone()
