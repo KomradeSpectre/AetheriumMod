@@ -76,7 +76,6 @@ namespace Aetherium.Equipment
             CreateNetworking();
             CreateEffect();
             CreateProjectile();
-            CreateItemDisplayRules();
             CreateEquipment();
             Hooks();
         }
