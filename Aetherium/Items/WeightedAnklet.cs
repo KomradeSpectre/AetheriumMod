@@ -2,12 +2,8 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -34,7 +30,6 @@ namespace Aetherium.Items
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab";
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/WeightedAnkletIcon.png";
 
-
         public static GameObject ItemBodyModelPrefab;
 
         public override void Init(ConfigFile config)
@@ -49,7 +44,7 @@ namespace Aetherium.Items
         {
             BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
             BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
-            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.6f, "What should be the lowest percentage of movespeed reduction be?");
+            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.6f, "What should be the lowest percentage of movement speed reduction be?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -68,7 +63,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0f, 0.32f, 0f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.2f, 0.2f, 0.2f)
-
                 }
             });
             rules.Add("mdlHuntress", new ItemDisplayRule[]
@@ -180,7 +174,6 @@ namespace Aetherium.Items
                 }
             });
             return rules;
-
         }
 
         public override void Hooks()

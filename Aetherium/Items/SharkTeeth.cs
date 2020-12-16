@@ -1,12 +1,8 @@
-﻿using Aetherium.Utils;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 

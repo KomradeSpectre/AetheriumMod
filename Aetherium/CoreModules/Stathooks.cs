@@ -2,7 +2,6 @@
 using MonoMod.Cil;
 using RoR2;
 using System;
-using UnityEngine;
 
 namespace Aetherium.CoreModules
 {
@@ -16,7 +15,6 @@ namespace Aetherium.CoreModules
     /// </summary>
     public class StatHooks : CoreModule
     {
-
         public override void Init()
         {
             IL.RoR2.CharacterBody.RecalculateStats += IL_CBRecalcStats;
@@ -29,30 +27,43 @@ namespace Aetherium.CoreModules
         {
             /// <summary>Added to the direct multiplier to base health. MAX_HEALTH ~ (BASE_HEALTH + baseHealthAdd) * (HEALTH_MULT + healthMultAdd).</summary>
             public float healthMultAdd = 0f;
+
             /// <summary>Added to base health. MAX_HEALTH ~ (BASE_HEALTH + baseHealthAdd) * (HEALTH_MULT + healthMultAdd).</summary>
             public float baseHealthAdd = 0f;
+
             /// <summary>Added to base shield. MAX_SHIELD ~ BASE_SHIELD + baseShieldAdd.</summary>
             public float baseShieldAdd = 0f;
+
             /// <summary>Added to the direct multiplier to base health regen. HEALTH_REGEN ~ (BASE_REGEN + baseRegenAdd) * (REGEN_MULT + regenMultAdd).</summary>
             public float regenMultAdd = 0f;
+
             /// <summary>Added to base health regen. HEALTH_REGEN ~ (BASE_REGEN + baseRegenAdd) * (REGEN_MULT + regenMultAdd).</summary>
             public float baseRegenAdd = 0f;
+
             /// <summary>Added to base move speed. MOVE_SPEED ~ (BASE_MOVE_SPEED + baseMoveSpeedAdd) * (MOVE_SPEED_MULT + moveSpeedMultAdd)</summary>
             public float baseMoveSpeedAdd = 0f;
+
             /// <summary>Added to the direct multiplier to move speed. MOVE_SPEED ~ (BASE_MOVE_SPEED + baseMoveSpeedAdd) * (MOVE_SPEED_MULT + moveSpeedMultAdd)</summary>
             public float moveSpeedMultAdd = 0f;
+
             /// <summary>Added to the direct multiplier to jump power. JUMP_POWER ~ BASE_JUMP_POWER * (JUMP_POWER_MULT + jumpPowerMultAdd)</summary>
             public float jumpPowerMultAdd = 0f;
+
             /// <summary>Added to the direct multiplier to base damage. DAMAGE ~ (BASE_DAMAGE + baseDamageAdd) * (DAMAGE_MULT + damageMultAdd).</summary>
             public float damageMultAdd = 0f;
+
             /// <summary>Added to base damage. DAMAGE ~ (BASE_DAMAGE + baseDamageAdd) * (DAMAGE_MULT + damageMultAdd).</summary>
             public float baseDamageAdd = 0f;
+
             /// <summary>Added to attack speed. ATTACK_SPEED ~ (BASE_ATTACK_SPEED + baseAttackSpeedAdd) * (ATTACK_SPEED_MULT + attackSpeedMultAdd).</summary>
             public float baseAttackSpeedAdd = 0f;
+
             /// <summary>Added to the direct multiplier to attack speed. ATTACK_SPEED ~ (BASE_ATTACK_SPEED + baseAttackSpeedAdd) * (ATTACK_SPEED_MULT + attackSpeedMultAdd).</summary>
             public float attackSpeedMultAdd = 0f;
+
             /// <summary>Added to crit chance. CRIT_CHANCE ~ BASE_CRIT_CHANCE + critAdd.</summary>
             public float critAdd = 0f;
+
             /// <summary>Added to armor. ARMOR ~ BASE_ARMOR + armorAdd.</summary>
             public float armorAdd = 0f;
         }
@@ -76,7 +87,8 @@ namespace Aetherium.CoreModules
 
             StatHookEventArgs statMods = null;
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Action<CharacterBody>>((cb) => {
+            c.EmitDelegate<Action<CharacterBody>>((cb) =>
+            {
                 statMods = new StatHookEventArgs();
                 GetStatCoefficients?.Invoke(cb, statMods);
             });
@@ -99,11 +111,13 @@ namespace Aetherium.CoreModules
             {
                 c.GotoPrev(x => x.MatchLdfld<CharacterBody>("baseMaxHealth"));
                 c.GotoNext(x => x.MatchStloc(locBaseHealthIndex));
-                c.EmitDelegate<Func<float, float>>((origMaxHealth) => {
+                c.EmitDelegate<Func<float, float>>((origMaxHealth) =>
+                {
                     return origMaxHealth + statMods.baseHealthAdd;
                 });
                 c.GotoNext(x => x.MatchStloc(locHealthMultIndex));
-                c.EmitDelegate<Func<float, float>>((origHealthMult) => {
+                c.EmitDelegate<Func<float, float>>((origHealthMult) =>
+                {
                     return origHealthMult + statMods.healthMultAdd;
                 });
             }
@@ -123,7 +137,8 @@ namespace Aetherium.CoreModules
 
             if (ILFound)
             {
-                c.EmitDelegate<Func<float, float>>((origBaseShield) => {
+                c.EmitDelegate<Func<float, float>>((origBaseShield) =>
+                {
                     return origBaseShield + statMods.baseShieldAdd;
                 });
             }
@@ -147,12 +162,14 @@ namespace Aetherium.CoreModules
             if (ILFound)
             {
                 c.GotoNext(x => x.MatchLdloc(out locRegenMultIndex));
-                c.EmitDelegate<Func<float>>(() => {
+                c.EmitDelegate<Func<float>>(() =>
+                {
                     return statMods.baseRegenAdd;
                 });
                 c.Emit(OpCodes.Add);
                 c.GotoNext(x => x.MatchMul());
-                c.EmitDelegate<Func<float, float>>((origRegenMult) => {
+                c.EmitDelegate<Func<float, float>>((origRegenMult) =>
+                {
                     return origRegenMult + statMods.regenMultAdd;
                 });
             }
@@ -183,11 +200,13 @@ namespace Aetherium.CoreModules
             {
                 c.GotoPrev(x => x.MatchLdfld<CharacterBody>("levelMoveSpeed"));
                 c.GotoNext(x => x.MatchStloc(locBaseSpeedIndex));
-                c.EmitDelegate<Func<float, float>>((origBaseMoveSpeed) => {
+                c.EmitDelegate<Func<float, float>>((origBaseMoveSpeed) =>
+                {
                     return origBaseMoveSpeed + statMods.baseMoveSpeedAdd;
                 });
                 c.GotoNext(x => x.MatchStloc(locSpeedMultIndex));
-                c.EmitDelegate<Func<float, float>>((origMoveSpeedMult) => {
+                c.EmitDelegate<Func<float, float>>((origMoveSpeedMult) =>
+                {
                     return origMoveSpeedMult + statMods.moveSpeedMultAdd;
                 });
             }
@@ -207,7 +226,8 @@ namespace Aetherium.CoreModules
 
             if (ILFound)
             {
-                c.EmitDelegate<Func<float, float>>((origJumpPower) => {
+                c.EmitDelegate<Func<float, float>>((origJumpPower) =>
+                {
                     return origJumpPower * (1 + statMods.jumpPowerMultAdd);
                 });
             }
@@ -235,11 +255,13 @@ namespace Aetherium.CoreModules
             {
                 c.GotoPrev(x => x.MatchLdfld<CharacterBody>("baseDamage"));
                 c.GotoNext(x => x.MatchStloc(locBaseDamageIndex));
-                c.EmitDelegate<Func<float, float>>((origDamage) => {
+                c.EmitDelegate<Func<float, float>>((origDamage) =>
+                {
                     return origDamage + statMods.baseDamageAdd;
                 });
                 c.GotoNext(x => x.MatchStloc(locDamageMultIndex));
-                c.EmitDelegate<Func<float, float>>((origDamageMult) => {
+                c.EmitDelegate<Func<float, float>>((origDamageMult) =>
+                {
                     return origDamageMult + statMods.damageMultAdd;
                 });
             }
@@ -267,11 +289,13 @@ namespace Aetherium.CoreModules
             {
                 c.GotoPrev(x => x.MatchLdfld<CharacterBody>("baseAttackSpeed"));
                 c.GotoNext(x => x.MatchStloc(locBaseAttackSpeedIndex));
-                c.EmitDelegate<Func<float, float>>((origSpeed) => {
+                c.EmitDelegate<Func<float, float>>((origSpeed) =>
+                {
                     return origSpeed + statMods.baseAttackSpeedAdd;
                 });
                 c.GotoNext(x => x.MatchStloc(locAttackSpeedMultIndex));
-                c.EmitDelegate<Func<float, float>>((origSpeedMult) => {
+                c.EmitDelegate<Func<float, float>>((origSpeedMult) =>
+                {
                     return origSpeedMult + statMods.attackSpeedMultAdd;
                 });
             }
@@ -290,7 +314,8 @@ namespace Aetherium.CoreModules
             if (ILFound)
             {
                 c.Emit(OpCodes.Ldloc, locOrigCrit);
-                c.EmitDelegate<Func<float, float>>((origCrit) => {
+                c.EmitDelegate<Func<float, float>>((origCrit) =>
+                {
                     return origCrit + statMods.critAdd;
                 });
                 c.Emit(OpCodes.Stloc, locOrigCrit);
@@ -309,13 +334,13 @@ namespace Aetherium.CoreModules
                 x => x.MatchCallOrCallvirt<CharacterBody>("get_armor"));
             if (ILFound)
             {
-                c.EmitDelegate<Func<float, float>>((oldArmor) => {
+                c.EmitDelegate<Func<float, float>>((oldArmor) =>
+                {
                     return oldArmor + statMods.armorAdd;
                 });
             }
             else
             {
-
             }
         }
     }

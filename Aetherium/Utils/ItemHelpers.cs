@@ -1,12 +1,9 @@
 ﻿using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Aetherium.Utils
 {
-    class ItemHelpers
+    internal class ItemHelpers
     {
         public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj)
         {
@@ -25,7 +22,6 @@ namespace Aetherium.Utils
             }
 
             return renderInfos;
-
         }
     }
 }

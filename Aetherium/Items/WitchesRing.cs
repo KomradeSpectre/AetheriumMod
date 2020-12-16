@@ -2,12 +2,8 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -330,10 +326,9 @@ namespace Aetherium.Items
                         {
                             if (NetworkServer.active)
                             {
-
-                                if (!GlobalCooldownOnUse.Value) 
-                                { 
-                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration.Value / (1 + AdditionalCooldownReduction.Value * (InventoryCount - 1))); 
+                                if (!GlobalCooldownOnUse.Value)
+                                {
+                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration.Value / (1 + AdditionalCooldownReduction.Value * (InventoryCount - 1)));
                                 }
                                 else
                                 {

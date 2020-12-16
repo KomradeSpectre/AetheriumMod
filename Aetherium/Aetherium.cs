@@ -16,7 +16,9 @@ namespace Aetherium
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI), nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI), nameof(NetworkingAPI), nameof(EffectAPI), nameof(EliteAPI))]
+    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
+                              nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(EliteAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModVer = "0.4.5";
@@ -29,7 +31,6 @@ namespace Aetherium
 
         private void Awake()
         {
-
 #if DEBUG
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
@@ -42,10 +43,10 @@ namespace Aetherium
                 ResourcesAPI.AddProvider(provider);
             }
 
-            //Core Initilizations
+            //Core Initializations
             CoreModules.Add(new StatHooks());
 
-            foreach(CoreModule coreModule in CoreModules)
+            foreach (CoreModule coreModule in CoreModules)
             {
                 coreModule.Init();
             }
@@ -64,7 +65,7 @@ namespace Aetherium
             Items.Add(new WeightedAnklet());
             Items.Add(new WitchesRing());
 
-            foreach(ItemBase item in Items)
+            foreach (ItemBase item in Items)
             {
                 item.Init(base.Config);
             }
@@ -72,7 +73,7 @@ namespace Aetherium
             //Equipment Initialization
             Equipments.Add(new JarOfReshaping());
 
-            foreach(EquipmentBase equipments in Equipments)
+            foreach (EquipmentBase equipments in Equipments)
             {
                 equipments.Init(base.Config);
             }
