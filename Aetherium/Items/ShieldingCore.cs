@@ -2,12 +2,8 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -232,7 +228,7 @@ namespace Aetherium.Items
             if (!shieldComponent) { shieldComponent = self.gameObject.AddComponent<ShieldedCoreComponent>(); }
 
             var newInventoryCount = GetCount(self);
-            var IsShielded = self.healthComponent.shield > 0 ? true : false;
+            var IsShielded = self.healthComponent.shield > 0;
 
             bool IsDifferent = false;
             if (shieldComponent.cachedInventoryCount != newInventoryCount)
@@ -258,7 +254,6 @@ namespace Aetherium.Items
             {
                 args.armorAdd += BaseShieldingCoreArmorGrant.Value + (AdditionalShieldingCoreArmorGrant.Value * (ShieldedCoreComponent.cachedInventoryCount - 1));
             }
-
         }
 
         public class ShieldedCoreComponent : MonoBehaviour

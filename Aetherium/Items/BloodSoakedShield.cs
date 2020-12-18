@@ -1,9 +1,7 @@
 ﻿using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
 using UnityEngine;
-using UnityEngine.Networking;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -12,17 +10,16 @@ namespace Aetherium.Items
 {
     public class BloodSoakedShield : ItemBase<BloodSoakedShield>
     {
-        //Config
         public static ConfigEntry<bool> UseNewIcons;
         public static ConfigEntry<float> ShieldPercentageRestoredPerKill;
         public static ConfigEntry<float> AdditionalShieldPercentageRestoredPerKillDiminishing;
         public static ConfigEntry<float> MaximumPercentageShieldRestoredPerKill;
         public static ConfigEntry<float> BaseGrantShieldMultiplier;
 
-        //Lang
         public override string ItemName => "Blood Soaked Shield";
         public override string ItemLangTokenName => "BLOOD_SOAKED_SHIELD";
         public override string ItemPickupDesc => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
+
         public override string ItemFullDescription => $"Killing an enemy restores <style=cIsUtility>{FloatToPercentageString(ShieldPercentageRestoredPerKill.Value)} max shield</style> " +
             $"<style=cStack>(+{FloatToPercentageString(AdditionalShieldPercentageRestoredPerKillDiminishing.Value)} per stack hyperbolically.)</style> " +
             $"This item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier.Value)}</style> of your max health as shield on pickup once.";
@@ -52,7 +49,7 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            ShieldPercentageRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Pecentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%");
+            ShieldPercentageRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%");
             AdditionalShieldPercentageRestoredPerKillDiminishing = config.Bind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%");
             MaximumPercentageShieldRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%");
             BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%");
@@ -202,30 +199,6 @@ namespace Aetherium.Items
                 args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier.Value;
             }
         }
-
-        //private void GrantBaseShield(ILContext il)
-        //{
-        //    //Provided by Harb from their HarbCrate mod. Thanks Harb!
-        //    ILCursor c = new ILCursor(il);
-        //    int shieldsLoc = 33;
-        //    c.GotoNext(
-        //        MoveType.Before,
-        //        x => x.MatchLdloc(out shieldsLoc),
-        //        x => x.MatchCallvirt<CharacterBody>("set_maxShield")
-        //    );
-        //    c.Emit(OpCodes.Ldloc, shieldsLoc);
-        //    c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
-        //    {
-        //        var InventoryCount = GetCount(self);
-        //        if (InventoryCount > 0)
-        //        {
-        //            shields += self.maxHealth * 0.08f;
-        //        }
-        //        return shields;
-        //    });
-        //    c.Emit(OpCodes.Stloc, shieldsLoc);
-        //    c.Emit(OpCodes.Ldarg_0);
-        //}
 
         private void GrantShieldReward(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
         {

@@ -16,17 +16,17 @@ namespace Aetherium.Items
 {
     public class BlasterSword : ItemBase<BlasterSword>
     {
-        //Config
         public static ConfigEntry<bool> UseImpaleProjectile;
         public static ConfigEntry<float> BaseSwordDamageMultiplier;
         public static ConfigEntry<float> AdditionalSwordDamageMultiplier;
 
-        //Lang
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
         public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile.Value ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
+
         public override string ItemFullDescription => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier.Value)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier.Value)} per stack)</style> " +
             $"when it <style=cIsDamage>{(UseImpaleProjectile.Value ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
+
         public override string ItemLore => "<style=cMono>. . . . . . . . . .</style>\n" +
             "\n<style=cMono>THEY</style> have chosen to <style=cMono>LISTEN</style> to our words.\n" +
             "\n<style=cMono>WE</style> have chosen to <style=cMono>GRANT</style> upon you an exceptional <style=cMono>WEAPON</style> to <style=cMono>UTILIZE</style> your <style=cMono>SOULS TRUE STRENGTH</style>.\n" +
@@ -45,6 +45,7 @@ namespace Aetherium.Items
 
         public static bool RecursionPrevention;
         public static Xoroshiro128Plus swordRandom = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
+
         public static HashSet<String> BlacklistedProjectiles = new HashSet<string>()
         {
             "LightningStake",
@@ -155,7 +156,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0, 0.4f),
                     localAngles = new Vector3(-90, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
-
                 },
 
                 new RoR2.ItemDisplayRule
@@ -166,7 +166,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0, 0.4f),
                     localAngles = new Vector3(-90, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -281,7 +280,6 @@ namespace Aetherium.Items
                     localAngles = new Vector3(0f, -90f, -190f),
                     localScale = new Vector3(0.07f, 0.025f, 0.07f)
                 }
-
             });
             rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
             {
@@ -363,7 +361,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0, 0f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0f, 0f, 0f)
-
                 },
 
                 new RoR2.ItemDisplayRule
@@ -374,7 +371,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0, 0f),
                     localAngles = new Vector3(0, 0, 0),
                     localScale = new Vector3(0f, 0f, 0f)
-
                 },
 
                 new RoR2.ItemDisplayRule
@@ -385,7 +381,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0, 0.15f, -0.1f),
                     localAngles = new Vector3(90, 0, 0),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
-
                 }
             });
             return rules;
@@ -458,7 +453,6 @@ namespace Aetherium.Items
                     }
                 }
             });
-
         }
 
         private void Anime(ILContext il)
@@ -593,7 +587,6 @@ namespace Aetherium.Items
                             Vector3 HitPositionSums = Vector3.zero;
                             if (self.overlapList.Count > 0)
                             {
-
                                 for (int i = 0; i < self.overlapList.Count; i++)
                                 {
                                     HitPositionSums += self.overlapList[i].hitPosition;
@@ -683,7 +676,6 @@ namespace Aetherium.Items
                                         }
                                     }
                                 }
-
                             }
                             newProjectileInfo.position = MuzzleTransform;
                             newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(self.aimVector);
@@ -748,6 +740,7 @@ namespace Aetherium.Items
         public class SwordCooldownHandlerIDunno : MonoBehaviour
         {
             public Dictionary<RoR2.OverlapAttack, float> MeleeTracker = new Dictionary<RoR2.OverlapAttack, float>();
+
             public void FixedUpdate()
             {
                 foreach (RoR2.OverlapAttack attack in MeleeTracker.Keys.ToList())

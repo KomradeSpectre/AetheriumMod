@@ -2,12 +2,7 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-using static Aetherium.CoreModules.StatHooks;
-using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -73,7 +68,7 @@ namespace Aetherium.Items
             VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))");
             VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))");
             VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))");
-            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Pecentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
+            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
             VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
             VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
         }
@@ -90,7 +85,6 @@ namespace Aetherium.Items
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png"
             });
             VoidInstabilityDebuff = R2API.BuffAPI.Add(voidInstability);
-
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -109,7 +103,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0f, 0.15f, 0f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -237,7 +230,6 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(body);
             if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
             {
-
                 GameObject explosion = new GameObject();
                 explosion.transform.position = body.transform.position;
 
@@ -320,11 +312,12 @@ namespace Aetherium.Items
                 }
             }
         }
-        //If I want to update the size of the metaballs in the shader
+
+        //If I want to update the size of the meta-balls in the shader
         /*private void UpdateVoidheartVisual(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             orig(self);
-            if (GetCount(self) > 0) 
+            if (GetCount(self) > 0)
             {
                 var scale = ruleLookup[self.modelLocator.modelTransform.name];
                 ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobScale", 3.16f / scale);

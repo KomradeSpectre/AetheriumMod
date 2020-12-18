@@ -12,6 +12,7 @@ namespace Aetherium.Items
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
         //Config
+
         public static ConfigEntry<float> BaseSipCooldownDuration;
         public static ConfigEntry<float> AdditionalStackSipCooldownReductionPercentage;
         public static ConfigEntry<float> BaseRadiusGranted;
@@ -19,9 +20,11 @@ namespace Aetherium.Items
         public static ConfigEntry<int> MaxEffectsAccrued;
 
         //Lang
+
         public override string ItemName => "Accursed Potion";
         public override string ItemLangTokenName => "ACCURSED_POTION";
         public override string ItemPickupDesc => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
+
         public override string ItemFullDescription => $"Every <style=cIsUtility>{BaseSipCooldownDuration.Value}</style> seconds <style=cStack>(reduced by {FloatToPercentageString(1 - AdditionalStackSipCooldownReductionPercentage.Value)} per stack)</style> you are forced " +
                 $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{BaseRadiusGranted.Value}m radius</style> <style=cStack>(+{AdditionalRadiusGranted.Value}m per stack)</style> around you.</style>" +
                 $" Max: {MaxEffectsAccrued.Value} buffs or debuffs can be applied at any time.";
@@ -37,13 +40,12 @@ namespace Aetherium.Items
                 "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated.";
 
         public override ItemTier Tier => ItemTier.Lunar;
-        public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable};
+        public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/AccursedPotion/AccursedPotion.prefab";
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/AccursedPotionIcon.png";
 
         public override bool CanRemove => false;
-
 
         public static BuffIndex AccursedPotionSipCooldownDebuff;
 
@@ -53,7 +55,6 @@ namespace Aetherium.Items
 
         public AccursedPotion()
         {
-            
         }
 
         public override void Init(ConfigFile config)
@@ -68,7 +69,7 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             BaseSipCooldownDuration = config.Bind<float>("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
-            AdditionalStackSipCooldownReductionPercentage = config.Bind<float>("Item: " + ItemName, "Pecentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
+            AdditionalStackSipCooldownReductionPercentage = config.Bind<float>("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
             BaseRadiusGranted = config.Bind<float>("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
             AdditionalRadiusGranted = config.Bind<float>("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
             MaxEffectsAccrued = config.Bind<int>("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
@@ -104,7 +105,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0.16f, 0.1f, 0.05f),
                     localAngles = new Vector3(180f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
-
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]

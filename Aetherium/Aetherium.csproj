@@ -75,10 +75,10 @@
 
   <ItemGroup>
     <Folder Include="lib\" />
+    <Folder Include="obj\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Risk of Rain 2\r2modman\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y" />
   </Target>
-
 </Project>

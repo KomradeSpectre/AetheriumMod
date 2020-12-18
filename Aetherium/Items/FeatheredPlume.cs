@@ -1,9 +1,7 @@
 ﻿using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using System;
 using UnityEngine;
-using UnityEngine.Networking;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -37,6 +35,7 @@ namespace Aetherium.Items
         public FeatheredPlume()
         {
         }
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -52,7 +51,7 @@ namespace Aetherium.Items
             BaseDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?");
             AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?");
             BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?");
-            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movespeed per Feathered Plume Buff Stack", 0.07f, "How much movespeed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
+            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
         }
 
         private void CreateBuff()
@@ -75,7 +74,6 @@ namespace Aetherium.Items
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
-
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
             {
@@ -87,7 +85,6 @@ namespace Aetherium.Items
                     localPos = new Vector3(0f, 0.35f, -0.05f),
                     localAngles = new Vector3(-25f, 0f, 0f),
                     localScale = generalScale
-
                 }
             });
             rules.Add("mdlHuntress", new ItemDisplayRule[]

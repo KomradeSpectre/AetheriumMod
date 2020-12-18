@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 namespace Aetherium.Items
 {
-    class VoidheartDeath : NetworkBehaviour
+    internal class VoidheartDeath : NetworkBehaviour
     {
         public Transform muzzleTransform;
         public Vector3? portalPosition;
@@ -77,7 +77,7 @@ namespace Aetherium.Items
                 }
                 if (NetworkServer.active && this.fixedAge >= DeathState.duration + 4f)
                 {
-                    if (voidPortalKilledSomething) 
+                    if (voidPortalKilledSomething)
                     {
                         var bodyRevived = toReviveMaster.GetBody();
                         bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff, voidHeartCooldownDuration);
@@ -107,7 +107,7 @@ namespace Aetherium.Items
                     if (characterBody2 && characterBody2.healthComponent)
                     {
                         DamageInfo damageInfo = new DamageInfo();
-                        if (toReviveBody) { damageInfo.attacker = toReviveBody.gameObject;}
+                        if (toReviveBody) { damageInfo.attacker = toReviveBody.gameObject; }
                         damageInfo.crit = false;
                         damageInfo.damage = toReviveBody.damage * voidHeartImplosionDamageMultiplier;
                         damageInfo.force = Vector3.zero;
@@ -118,7 +118,7 @@ namespace Aetherium.Items
                         damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection;
                         //var healthBefore = characterBody.healthComponent.health; //debug
                         characterBody2.healthComponent.TakeDamage(damageInfo);
-                        if (!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath)){voidPortalKilledSomething = true;}
+                        if (!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }
 
                         //characterBody2.healthComponent.Suicide(base.gameObject, base.gameObject, DamageType.VoidDeath);
                     }
