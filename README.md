@@ -3,53 +3,29 @@ Aetherium is a mod for Risk of Rain 2 that adds in a few items of varying tiers.
 Most of the item ideas listed were sourced from the ideas channel on the official discord,
 and as such the ones that were I will list the person that came up with the idea next to them.
 
-## The mod so far has the following items implemented:
 ----
-- **Feathered Plume** (Original idea by Ajarl, altered a tiny bit)
-	- **White Rarity** - Gain a temporary 7% speed boost upon taking damage that stacks 3 times for 5 seconds. (+3 stacks and +0.5 second duration per additional Feathered Plume.)
+## Items (so far):
 ----
- - **Shielding Core** (Original idea by NepNep)
-	- **Green Rarity** - You gain 10  (+5 per stack) armor while BLUE shields are active. The first stack of this item will grant 4% of your max health as shield on pickup.
-----
-- **Shark Teeth** (Original idea by FancyFrenc)
-	- **Green Rarity** - 25% of damage taken (+25% per stack, hyperbolically) is distributed to you over 5 seconds as bleed damage.
-----
-- **Blood Soaked Shield** (Original Idea by Kaboose, altered quite a fair bit)
-	- **Green Rarity** - Killing an enemy restores 10% max shield (+10% per stack hyperbolically.) The first of the stack of this item will grant 8% of your max health as shield on pickup.
-----
-- **Blaster Sword** (Original idea by Bord, altered a bit by me.)  
-	- **Red Rarity** - At full health, most attacks will fire out a sword beam that has 200% of your damage (+50% per stack) when it explodes after having impaled an enemy for a short duration.  
-	- **Known Issues?** - MUL-T's nailgun fires an absurd amount of swords. They aren't super powerful (as they're based on MUL-T's base damage), but they are a bit spammy on him.)
-----
-- **Inspiring Drone** (Original Idea by Kaboose "Aftermarket Spare Parts", altered a ton from that.)  
-	- **Red Rarity** - When a bot is purchased, it gains a 50% boost to each of its stats based on yours (+50% per stack, linearly).  
-	Some bots gain more ammo for their attacks based on the bonus to their attack speed, and have their ammo replenished twice as fast per additional Inspiring Drone.  
-    Finally, if an inspired bot is too far away from you, it is teleported to you after a delay (40 seconds for Turrets, 30 seconds for Drones).  
-	- **Big Credits To** - Chen of the Chen's Classic Items and Chen's Gradius mods for putting a ton of work in to improve the Inspiring Drone's code as of 0.3.2.
-----
-- **Accursed Potion** (Original idea by Shadokuro, slightly modified by me.)
-	- **Lunar Rarity** - Every 30 seconds (reduced by 25% per stack) you are forced to drink a strange potion, sharing its effects with enemies in a  
-	20m radius (+5m per stack) around you. Max: 8 buffs or debuffs can be applied at any time.  
-----
-- **Alien Magnet** (Original Idea, if you call a vacuum original)
-	- **Lunar Rarity** - Enemies hit by your attacks will be pulled towards you, starting at 6x force (+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies.)
-----
-- **Weighted Anklet** (Original Idea)
-	- **Lunar Rarity** - Gain a 25% reduction to knockback from attacks (+25% per stack (up to 100%) linearly). Lose 10% move speed (+10% per stack (up to 40%) linearly).
-----
-- **Unstable Design** (Original idea by Spooky Boogie, altered a bit to improve)
-	- **Lunar Rarity** - "Every 30 seconds you are compelled to create a very 'FRIENDLY' Lunar Chimera, if one of your creations does not already exist. It has a 400% base damage boost (+100% per stack), a 10% base HP boost (+10% per stack), a 300% base attack speed boost, and finally a 24% base movement speed boost (+24% per stack). This monstrosity can level up from kills."
-----
-- **Heart of the Void** (Original idea by Hyperion_21, altered a bit to improve)
-	- **Lunar Rarity** - "On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage.
-	- **Known Issues** - With PlayableVoidcrab mod, all runs (including the current) after the Voidcrab has died will cause every Voidcrab explosion to occur instantly when triggered, including this. This is fixed by restarting.
-----
-- **Jar of Reshaping** (Original idea)
-	- **Equipment** - On activation, absorb projectiles in a 20m radius for 3 second(s).  
-	Upon success, fire all of the projectiles out of the jar upon next activation.  
-	The damage traits of each projectiles fired from the jar depends on the bullets you absorbed.  
-	After all the projectiles have been fired from the jar, it will need to cool down.
-  
+
+| Icon | Item | Description | Rarity | Original Idea by |
+|:-|-|------|-|-|
+|![](https://i.imgur.com/0utgQzB.png) | **Feathered Plume** | Gain a temporary `7%` speed boost upon taking damage that stacks `3` times for `5 seconds`. (`+3` stacks and `+0.5` second duration per additional Feathered Plume.) | White | Ajarl |
+|![](https://i.imgur.com/Q6gtbBS.png) | **Blood Soaked Shield** |  Killing an enemy restores `10%` max shield (`+10%` per stack hyperbolically.) The first of the stack of this item will grant `8%` of your max health as shield on pickup. | Green | Kaboose |
+|![](https://i.imgur.com/b5QsaP1.png) | **Shark Teeth** | `25%` of damage taken (`+25%` per stack hyperbolically) is distributed to you over `5` seconds as `bleed damage.` | Green | FancyFrenc |
+|![](https://i.imgur.com/dIRNo04.png) | **Shielding Core** | You gain `10`  (`+5` per stack) armor while `BLUE shields` are active. The first stack of this item will grant `4%` of your max health as shield on pickup. |  Green | NepNep |
+|![](https://i.imgur.com/5aCDrfv.png)|  **Blaster Sword** |  At `full health`, most attacks will `fire out a sword beam` that has `200%` of your damage (`+50%` per stack) when it explodes after having impaled an enemy for a short duration. | Red | Bord |
+|![](https://i.imgur.com/6zG0MC9.png)| **Inspiring Drone** | Any bots you own gain a `50%` boost to each of its stats based on yours (`+50%` per stack). Some bots `gain more ammo` for their attacks based on the bonus to their attack speed, and have their `ammo replenished twice as fast` per additional Inspiring Drone. Finally, if an inspired bot is too far away from you, it is `teleported to you` after a delay (`40` seconds for Turrets, `30` seconds for Drones). | Red | Kaboose |
+|![](https://i.imgur.com/tmXCtML.png)| **Accursed Potion** | Every `30` seconds (reduced by `25%` per stack) you are `forced` to drink a strange potion, sharing its effects with enemies in a `20m` radius (`+5m` per stack) around you. Max: `8` buffs or debuffs can be applied at any time. |  Lunar |  Shadokuro |
+|![](https://i.imgur.com/QQY1j4w.png)| **Alien Magnet** | Enemies hit by your attacks will be pulled towards you, starting at 6x force (+1 force multiplier, up to 10x total force. The effect is more noticeable on higher health enemies. | Lunar | Me |
+|![](https://i.imgur.com/dJQiW0Y.png)|  **Heart of the Void** | On death, cause a void implosion with a radius of 15m (+7.5m per stack) that revives you if an enemy is killed by it BUT at 30% health (+5% per stack, max 99%) or lower, all kinds of healing are converted to damage. | Lunar | Hyperion_21 |
+|![](https://i.imgur.com/MxqLea7.png)| **Unstable Design** | Every 30 seconds you are compelled to create a very 'FRIENDLY' Lunar Chimera, if one of your creations does not already exist. It has a 400% base damage boost (+100% per stack), a 10% base HP boost (+10% per stack), a 300% base attack speed boost, and finally a 24% base movement speed boost (+24% per stack). This monstrosity can level up from kills. | Lunar | SpookyBoogie |
+|![](https://i.imgur.com/o78EHhU.png)| **Weighted Anklet** | Gain a 25% reduction to knockback from attacks (+25% per stack (up to 100%) linearly). Lose 10% move speed (+10% per stack (up to 40%) linearly) | Lunar | Me |
+-----
+## Equipment (so far):
+---
+| Icon | Equipment | Description | Type | Original Idea by |
+|:-|-|------|-|-|
+|![](https://i.imgur.com/RUky7N5.png)| **Jar of Reshaping** | On activation, absorb projectiles in a 20m radius for 3 second(s). Upon success, fire all of the projectiles out of the jar upon next activation. The damage traits of each projectiles fired from the jar depends on the bullets you absorbed.	After all the projectiles have been fired from the jar, it will need to cool down. | Normal | Me |
 ----
 
 ## Upcoming
