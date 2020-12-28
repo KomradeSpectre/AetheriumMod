@@ -14,20 +14,23 @@ and as such the ones that were I will list the person that came up with the idea
 |![](https://i.imgur.com/b5QsaP1.png) | **Shark Teeth** | `25%` of damage taken (`+25%` per stack hyperbolically) is distributed to you over `5` seconds as `bleed damage.` | Green | FancyFrenc |
 |![](https://i.imgur.com/dIRNo04.png) | **Shielding Core** | You gain `10`  (`+5` per stack) armor while `BLUE shields` are active. The first stack of this item will grant `4%` of your max health as shield on pickup. |  Green | NepNep |
 |![](https://i.imgur.com/5aCDrfv.png)|  **Blaster Sword** |  At `full health`, most attacks will `fire out a sword beam` that has `200%` of your damage (`+50%` per stack) when it explodes after having impaled an enemy for a short duration. | Red | Bord |
-|![](https://i.imgur.com/6zG0MC9.png)| **Inspiring Drone** | Any bots you own gain a `50%` boost to each of its stats based on yours (`+50%` per stack). Some bots `gain more ammo` for their attacks based on the bonus to their attack speed, and have their `ammo replenished twice as fast` per additional Inspiring Drone. Finally, if an inspired bot is too far away from you, it is `teleported to you` after a delay (`40` seconds for Turrets, `30` seconds for Drones). | Red | Kaboose |
+|![](https://i.imgur.com/6zG0MC9.png)| **Inspiring Drone** | Any bots you own gain a `50%` boost to each of its stats based on yours (`+50%` per stack). Some bots `gain more ammo` for their attacks based on the bonus to their attack speed, and have their `ammo replenished twice as fast` per additional Inspiring Drone. Finally, if an inspired bot is too far away from you, it is `teleported to you` after a delay (`40` seconds for Turrets, `30` seconds for Drones). | Red | Kaboose (original) Me (modification) |
+|![](https://i.imgur.com/Z6gbypJ.png)| **Witches Ring** | Hits that deal `500%` damage or more will trigger `On Kill` effects. Upon success, the target hit is `granted immunity to this effect` for `5` seconds (`-10%` duration per stack, hyperbolically.)| Red | Me |
 |![](https://i.imgur.com/tmXCtML.png)| **Accursed Potion** | Every `30` seconds (reduced by `25%` per stack) you are `forced` to drink a strange potion, sharing its effects with enemies in a `20m` radius (`+5m` per stack) around you. Max: `8` buffs or debuffs can be applied at any time. |  Lunar |  Shadokuro |
 |![](https://i.imgur.com/QQY1j4w.png)| **Alien Magnet** | Enemies hit by your attacks will be `pulled towards you`, starting at `6x` force (`+1` force multiplier, up to `10x` total force. The effect is more noticeable on higher health enemies. | Lunar | Me |
 |![](https://i.imgur.com/Pex4nKP.png)|  **Heart of the Void** | `On death`, cause a void implosion with a radius of `15m` (+`7.5m` per stack) that `revives you` if an enemy is killed by it **BUT** at `30%` health (`+5%` per stack, max `99%`) or lower, all kinds of healing are `converted to damage`. | Lunar | Hyperion_21 |
 |![](https://i.imgur.com/MxqLea7.png)| **Unstable Design** | Every `30` seconds you are compelled to create a very '**FRIENDLY**' Lunar Chimera, if one of your creations does not already exist. It has a `400%` base damage boost (`+100%` per stack), a `10%` base HP boost (`+10%` per stack), a `300%` base attack speed boost, and finally a `24%` base movement speed boost (`+24%` per stack). This monstrosity can level up from kills. | Lunar | SpookyBoogie |
 |![](https://i.imgur.com/o78EHhU.png)| **Weighted Anklet** | Gain a `25%` reduction to knockback from attacks (`+25%` per stack (up to `100%`) linearly). Lose `10%` move speed (`+10%` per stack (up to `40%`) linearly) | Lunar | Me |
------
+
+----
 ## Equipment (so far):
----
+----
+
 | Icon | Equipment | Description | Type | Original Idea by |
 |:-|-|------|-|-|
 |![](https://i.imgur.com/RUky7N5.png)| **Jar of Reshaping** | On activation, `absorb projectiles` in a `20m` radius for `3` second(s). Upon success, `fire all of the projectiles` out of the jar upon next activation. The damage traits of each projectiles fired from the jar `depends on the bullets you absorbed`. After all the projectiles have been fired from the jar, it will need to cool down. | Normal | Me |
-----
 
+----
 ## Upcoming
 ----
 - Version 1.0.0 will include a new survivor, we're building up to that.  
@@ -46,6 +49,17 @@ and as such the ones that were I will list the person that came up with the idea
 
 ## Changelog
 ----
+[0.4.7]
++ GRRRR, thunderstore markdown.
+
+[0.4.6]
++ Added configs to enable/disable items and equipment.
++ Added configs to allow blacklisting items so AI may never use/acquire them.
++ Retouched icons for buffs.
++ Made this readme more legible.
++ Made preparations for Pheromone Sac (0.5.0), will be releasing with another item.
+- Removed obscure feature.
+
 [0.4.5]
 + Another hotfix. Forgot to set the correct access level on some classes. It's fixed now, this should be the last hotfix, next update should be more items.
 
@@ -72,20 +86,6 @@ and as such the ones that were I will list the person that came up with the idea
 
 [0.4.1]
 + Quick hotfix by Chen. Bots that had stocks able to be modified by Inspiring Drone couldn't fire if their owner didn't have an Inspiring Drone, woops, fixed now.
-
-[0.4.0]
-+ BIG Inspiring Drone update. Code quality has improved greatly thanks to Chen. The drone by default is active now (config in a later update to make it able to be on purchase again if you want that), and a fair handful of bugfixes in my default logic by Chen to make this item fantastic.
-+ Added Integration for Eviscerate (Mercenary's first R attack) into the Blaster Sword. Enjoy!
-+ Added Integration for Rex's Root R move, it's a bit janky as it works at full health only and will not work on things already entangled if your health didn't meet the threshold prior to them being tangled up. Will make better soon.
-+ Added Jar of Reshaping, my first equipment!
-+ Migration to TILER2 3.0.4, everything should be stable, but if it's not, let me know.
-+ Fixed Inspiring Drone being upside down on MUL-T, he was vibin' now he isn't.
-
-[0.3.1]
-+ Turrets teleporting into the ground with inspiring drone has been fixed by Chen (Chen's Classic Items/Chen's Gradius Mod). Thanks!
-+ Fixed Blaster Sword's internal class being non-public. Woops!
-+ Fixed mod description stating that we only have 9 items. We're up to 11 now.
-+ Nothing else to see here yet folks!
 
 ----
 

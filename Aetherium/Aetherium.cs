@@ -4,6 +4,7 @@ using Aetherium.CoreModules;
 using Aetherium.Equipment;
 using Aetherium.Items;
 using BepInEx;
+using BepInEx.Configuration;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
@@ -21,7 +22,7 @@ namespace Aetherium
                               nameof(NetworkingAPI), nameof(EffectAPI), nameof(EliteAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.4.5";
+        public const string ModVer = "0.4.7";
         public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
 
@@ -52,18 +53,18 @@ namespace Aetherium
             }
 
             //Item Initialization
-            Items.Add(new AccursedPotion());
-            Items.Add(new AlienMagnet());
-            Items.Add(new BlasterSword());
-            Items.Add(new BloodSoakedShield());
-            Items.Add(new FeatheredPlume());
-            Items.Add(new InspiringDrone());
-            Items.Add(new SharkTeeth());
-            Items.Add(new ShieldingCore());
-            Items.Add(new UnstableDesign());
-            Items.Add(new Voidheart());
-            Items.Add(new WeightedAnklet());
-            Items.Add(new WitchesRing());
+            ValidateItem(new AccursedPotion(), Items);
+            ValidateItem(new AlienMagnet(), Items);
+            ValidateItem(new BlasterSword(), Items);
+            ValidateItem(new BloodSoakedShield(), Items);
+            ValidateItem(new FeatheredPlume(), Items);
+            ValidateItem(new InspiringDrone(), Items);
+            ValidateItem(new SharkTeeth(), Items);
+            ValidateItem(new ShieldingCore(), Items);
+            ValidateItem(new UnstableDesign(), Items);
+            ValidateItem(new Voidheart(), Items);
+            ValidateItem(new WeightedAnklet(), Items);
+            ValidateItem(new WitchesRing(), Items);
 
             foreach (ItemBase item in Items)
             {
@@ -71,12 +72,31 @@ namespace Aetherium
             }
 
             //Equipment Initialization
-            Equipments.Add(new JarOfReshaping());
+            EquipmentEnabledCheck(new JarOfReshaping(), Equipments);
 
             foreach (EquipmentBase equipments in Equipments)
             {
                 equipments.Init(base.Config);
             }
+        }
+
+        public void ValidateItem(ItemBase item, List<ItemBase> itemList)
+        {
+            var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
+            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Is the AI allowed to use this item?").Value;
+            if (enabled) 
+            {
+                itemList.Add(item);
+                if(aiBlacklist) 
+                {
+                    item.AIBlacklisted = true;
+                }
+            }
+        }
+
+        public void EquipmentEnabledCheck(EquipmentBase equipment, List<EquipmentBase> equipmentList)
+        {
+            if (Config.Bind<bool>("Equipment: " + equipment.EquipmentName, "Enable Equipment?", true, "Should this equipment appear in runs?").Value) { equipmentList.Add(equipment); }
         }
     }
 }

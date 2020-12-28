@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1475123511
+CRC: 4023095063
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 89c2d6af3a7449c9f57c254321996012
+    Hash: 5b17accc2e0f8f22c50abcd9d8259f38
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -54,7 +54,6 @@ Assets:
 - Assets/Textures/Icons/Buff/BlasterSwordBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Hologram.mat
 - Assets/Models/Raw Models/JarOfReshapingProjectile.blend
-- Assets/Textures/Icons/Buff/ApollosBrillianceBuffIcon.png
 - Assets/Textures/Material Textures/UnstableDesignFrontTexture.png
 - Assets/Textures/Material Textures/index.png
 - Assets/Textures/Material Textures/EliteRingSoulIcon.png
@@ -213,7 +212,6 @@ Assets:
 - Assets/Textures/Materials/Miscellaneous/FractureInner.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartVeins.mat
 - Assets/Models/Prefabs/Item/SharkTeeth/SharkTeeth.prefab
-- Assets/Textures/Icons/Buff/TheirReminderBuffIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingVase.mat
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionFill.mat
 - Assets/Shaders/3D Shaders/StandardToonLit.shader
@@ -295,7 +293,6 @@ Assets:
 - Assets/Textures/Material Textures/11375-bump.jpg
 - Assets/Textures/Material Textures/WitchesRingHolderEmissionMap.png
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
-- Assets/Textures/Icons/Buff/HisVengeanceBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeQuill.mat
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab

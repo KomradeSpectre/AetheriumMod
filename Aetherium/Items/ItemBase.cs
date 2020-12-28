@@ -2,6 +2,7 @@
 using R2API;
 using RoR2;
 using System;
+using System.Collections.Generic;
 
 namespace Aetherium.Items
 {
@@ -30,7 +31,7 @@ namespace Aetherium.Items
         public abstract string ItemLore { get; }
 
         public abstract ItemTier Tier { get; }
-        public virtual ItemTag[] ItemTags { get; }
+        public virtual ItemTag[] ItemTags { get; set; }
 
         public abstract string ItemModelPath { get; }
         public abstract string ItemIconPath { get; }
@@ -38,6 +39,8 @@ namespace Aetherium.Items
         public ItemIndex IndexOfItem;
 
         public virtual bool CanRemove { get; } = true;
+
+        public virtual bool AIBlacklisted { get; set; } = false;
 
         public abstract void Init(ConfigFile config);
 
@@ -53,6 +56,10 @@ namespace Aetherium.Items
 
         protected void CreateItem()
         {
+            if (AIBlacklisted)
+            {
+                ItemTags = new List<ItemTag>(ItemTags) { ItemTag.AIBlacklist }.ToArray();
+            }
             ItemDef itemDef = new RoR2.ItemDef()
             {
                 name = "ITEM_" + ItemLangTokenName,
