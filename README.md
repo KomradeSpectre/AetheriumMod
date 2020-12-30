@@ -3,6 +3,8 @@ Aetherium is a mod for Risk of Rain 2 that adds in a few items of varying tiers.
 Most of the item ideas listed were sourced from the ideas channel on the official discord,
 and as such the ones that were I will list the person that came up with the idea next to them.
 
+Discord: https://www.discord.gg/WNap5qcPf6
+
 ----
 ## Items (so far):
 ----
