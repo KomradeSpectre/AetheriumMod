@@ -5,6 +5,7 @@ using RoR2;
 using UnityEngine;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.ItemHelpers;
 
 namespace Aetherium.Items
 {
@@ -18,13 +19,20 @@ namespace Aetherium.Items
 
         public override string ItemLangTokenName => "WEIGHTED_ANKLET";
 
-        public override string ItemPickupDesc => "Gain resistance to <style=cIsDamage>knockback</style>, BUT <style=cIsUtility>lose speed</style>.";
+        public override string ItemPickupDesc => "A collection of weights slow you down, but finding a way to remove them could greatly benefit you.";
 
         public override string ItemFullDescription => $"Gain a {FloatToPercentageString(BaseKnockbackReductionPercentage.Value)} reduction to knockback from attacks <style=cStack>(+{FloatToPercentageString(BaseKnockbackReductionPercentage.Value)} per stack (up to 100%) linearly)</style>. Lose {FloatToPercentageString(BaseMovementSpeedReductionPercentage.Value)} move speed <style=cStack>(+{FloatToPercentageString(BaseMovementSpeedReductionPercentage.Value)} per stack (up to {FloatToPercentageString(1 - MovementSpeedReductionPercentageCap.Value)}) linearly)</style>.";
 
-        public override string ItemLore => "An old anklet lined with strangely superdense crystals. FOREWARNING: Please take care of how many you put on if you find these. One of our field testers put 10 of these on during testing, and attempts to move him since have failed.";
+        public override string ItemLore => OrderManifestLoreFormatter(
+            ItemName, 
+            "7/17/2056",
+            "Neptune's Gym and Grill\nEurytrades\nNeptune", 
+            "405********", 
+            ItemPickupDesc, 
+            "Heavy  / Support Equipment Needed", 
+            "A strange anklet lined with superdense crystals. It's hard to move around in these, but scanners show that the muscle mass of people wearing them increases exponentially.");
 
-        public override ItemTier Tier => ItemTier.Lunar;
+        public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab";
@@ -44,7 +52,7 @@ namespace Aetherium.Items
         {
             BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
             BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
-            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.6f, "What should be the lowest percentage of movement speed reduction be?");
+            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.1f, "What should be the lowest percentage of movement speed reduction be?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
