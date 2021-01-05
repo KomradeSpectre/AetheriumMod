@@ -1,3 +1,16 @@
+### Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Unity Project](#unity-project)
+    2.1. [Project Setup](#project-setup)
+    2.2. [Creating your first Prefab](#creating-your-first-prefab)
+    2.3. [Icon Creation](#icon-creation)
+    2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)
+3. [Visual Studio Project](#visual-studio-project)
+    3.1. [Preparing the Base Class](#preparing-the-base-class)
+    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#abstraction-and-you-(creating-item-base-and-equipment-base-classes))
+
+----
 # Prerequisites
 ----------
 - Read through this tutorial to set up your first project, and get a feel for the environment. Link: https://github.com/risk-of-thunder/R2Wiki/wiki/%5BIn-depth%5D-First-mod
@@ -113,6 +126,9 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 10. Congrats, you've just built your first asset bundle.
 
 -----
+# Visual Studio Project
+---
+
 
 ## Preparing the Base Class
 1. Name your base class anything like `Main.cs` or `MyModName.cs` to keep track of it. 
@@ -239,7 +255,7 @@ namespace MyModCSProjDirectoryName
 
 -----------
 
-## Abstraction and You (Creating your Item Base and Equipment Base)
+## Abstraction and You (Creating Item Base and Equipment Base classes) 
 If you're not too experienced with formal programming you're probably wondering, what *is* abstraction? In the context of this tutorial, we'll be creating abstract "ItemBase" and "EquipmentBase" classes. Imagine them to be a skeleton that all our items and all our equipment share. One that we add the muscle and skin to in our individual items and equipment. Let's get started.
 
 1. In the solution explorer, right click on the CSProj file (the green rectangle with a C# in it) and `Add -> New Folder`, you'll be doing this twice. Name one `Items` and one `Equipment`.
