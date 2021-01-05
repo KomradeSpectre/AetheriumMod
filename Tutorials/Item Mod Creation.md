@@ -345,8 +345,9 @@ namespace MyModsNameSpace.Items
     }
 }
 ```
-10. Now we'll need to create our abstract methods, these are slightly different to define than the properties above. For `Initialization`, we'll do something special. We'll add a parameter to pass in a `ConfigFile`. *Why you ask?* It is so we can use the BepinEx configuration that our main plugin class inherits to provide easy config options to our items, we do this by forwarding it to a Config method on our item classes, more on that later. So to define this method, we do:
+10. Now we'll need to create our abstract methods, these are slightly different to define than the properties above. For `Initialization`, we'll do something special. We'll add a parameter to pass in a `ConfigFile`. *Why you ask?* It is so we can use the BepinEx configuration that our main plugin class inherits to provide easy config options to our items, we do this by forwarding it to a Config method on our item classes, more on that later. We'll also need to add a using for BepinEx.Configuration. So to define this method, we do:
 ```csharp
+using BepInEx.Configuration;
 using ROR2;
 using R2API;
 using System;
@@ -374,6 +375,7 @@ namespace MyModsNameSpace.Items
 ```
 11. Adding in our final need on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
 ```csharp
+using BepInEx.Configuration;
 using ROR2;
 using R2API;
 using System;
@@ -405,6 +407,7 @@ namespace MyModsNameSpace.Items
 
 13. To create the method we will use to set up our language tokens, we will be creating a method with the `protected` access modifier and a `void` return type. `Protected` means only itself and subtypes of itself can use the method.  To do so we do the following:
 ```csharp
+using BepInEx.Configuration;
 using ROR2;
 using R2API;
 using System;
