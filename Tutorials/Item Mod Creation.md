@@ -251,5 +251,33 @@ If you're not too experienced with formal programming you're probably wondering,
 using ROR2;
 using R2API;
 using System;
+using System.Collections.Generic;
+using System.Text;
 ```
-5. 
+5. Add a `public` access modifier to the front of your class definition, and an `abstract` after it. For example:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+    }
+}
+```
+6. The `abstract` keyword lets us create a class in which all things that inherit from it must implement its fields/methods/etc that are abstract. Best part of this is that when we make an item inherit from it, we can use a quick action to quickly generate in those fields for us to fill out! First things first, we should think of what all our items need and what things they will all have in common. To this end we'll need:
+    - A `Name` field - This is the name you give to your item. Like `"Omnipotent Egg"` for example.
+
+    - A `Name Language Token` field - This is what the code will identify this item by. Like `"OMNIPOTENT_EGG"` for example.
+    - A `Pickup Description` field - This is the short description of our item.
+    - A `Full Item Description` field - This is the long description of our item. It should be detailed.
+    - A `Lore Entry` field - This is our lore snippet for the item, they're optional but users like to read them sometimes.
+    - An `Item Tier` field - This is what tier our item will appear in. `ItemTier.Lunar` for example.
+    - An `Item Model Path` field  - This is the path to our item model in our asset bundle. Like `"@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab"`
+    - An `Item Icon Path` field - This is the path to our item icon in our asset bundle. Like `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png"`
+    - An `Initialization` method - Necessary in ordering your code execution flow in your items/item base (or what executes in what order). Also in the context of this tutorial, it will allow you to easily pass through the config file provided to you automatically by BepinEx to allow easy config entries. More on this later.
+    - An `Item Display Rule Setup` method - Necessary for an easy time setting up the actual ingame display for your item models. The `ItemDisplayRuleDict` we return from this method will allow us to attach our item display rules to our item definition.
