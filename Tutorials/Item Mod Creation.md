@@ -43,7 +43,7 @@ Assets
 1. In the above structure, meshes are your raw models that you made in your 3D program of choice. Prefabs are the GameObject/Model we'll be making out of them. Go ahead and make a model or find one and place it in the Meshes folder.
 
 2. Drag and drop that model to the scene hierarchy at the top left of the Unity window.
-3. You'll notice it is in the scene, but it might be untextured (if you did not bake textures into the model). If this is the case, proceed. If it is not the case, click the model in the scene hierarchy at the top left and drag it to your Models -> Prefabs -> Item -> First Item  folder and skip to Step 16.
+3. You'll notice it is in the scene, but it might be untextured (if you did not bake textures into the model). If this is the case, proceed. If it is not the case, click the model in the scene hierarchy at the top left and drag it to your Models -> Prefabs -> Item -> First Item  folder and skip to Step 9.
 4. Click into Materials -> Item -> First Item.
 5. Right Click anywhere in this folder and Create -> Material. 
 6. A new material will be created and ask you for a name. The general practice for naming materials is to name them after what you're applying it to. So, if you're making a material for a handle of a mesh then ItemNameHandle.
