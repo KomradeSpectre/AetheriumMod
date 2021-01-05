@@ -1,14 +1,14 @@
 ### Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Unity Project](#unity-project)
-    2.1. [Project Setup](#project-setup)
-    2.2. [Creating your first Prefab](#creating-your-first-prefab)
-    2.3. [Icon Creation](#icon-creation)
-    2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)
-3. [Visual Studio Project](#visual-studio-project)
-    3.1. [Preparing the Base Class](#preparing-the-base-class)
-    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#abstraction-and-you-(creating-item-base-and-equipment-base-classes))
+1. [Prerequisites](#prerequisites)  
+2. [Unity Project](#unity-project)  
+    2.1. [Project Setup](#project-setup)  
+    2.2. [Creating your first Prefab](#creating-your-first-prefab)  
+    2.3. [Icon Creation](#icon-creation)  
+    2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)  
+3. [Visual Studio Project](#visual-studio-project)  
+    3.1. [Preparing the Base Class](#preparing-the-base-class)  
+    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#abstraction-and-you)  
 
 ----
 # Prerequisites
