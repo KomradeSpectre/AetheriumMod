@@ -220,7 +220,7 @@ namespace MyModCSProjDirectoryName
     
     	public void Awake()
     	{
-    			using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
+    		using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
     		{
     			var bundle = AssetBundle.LoadFromStream(stream);
     			var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
