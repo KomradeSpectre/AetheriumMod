@@ -1,14 +1,14 @@
 ### Table of Contents
 
-1. [Prerequisites](#prerequisites)  
-2. [Unity Project](#unity-project)  
-    2.1. [Project Setup](#project-setup)  
-    2.2. [Creating your first Prefab](#creating-your-first-prefab)  
-    2.3. [Icon Creation](#icon-creation)  
-    2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)  
-3. [Visual Studio Project](#visual-studio-project)  
-    3.1. [Preparing the Base Class](#preparing-the-base-class)  
-    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#abstraction-and-you)  
+1. [Prerequisites](#prerequisites)
+2. [Unity Project](#unity-project)
+    2.1. [Project Setup](#project-setup)
+    2.2. [Creating your first Prefab](#creating-your-first-prefab)
+    2.3. [Icon Creation](#icon-creation)
+    2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)
+3. [Visual Studio Project](#visual-studio-project)
+    3.1. [Preparing the Base Class](#preparing-the-base-class)
+    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#creating-item-base-and-equipment-base-classes)
 
 ----
 # Prerequisites
@@ -255,7 +255,7 @@ namespace MyModCSProjDirectoryName
 
 -----------
 
-## Abstraction and You (Creating Item Base and Equipment Base classes) 
+## Creating Item Base and Equipment Base classes
 If you're not too experienced with formal programming you're probably wondering, what *is* abstraction? In the context of this tutorial, we'll be creating abstract "ItemBase" and "EquipmentBase" classes. Imagine them to be a skeleton that all our items and all our equipment share. One that we add the muscle and skin to in our individual items and equipment. Let's get started.
 
 1. In the solution explorer, right click on the CSProj file (the green rectangle with a C# in it) and `Add -> New Folder`, you'll be doing this twice. Name one `Items` and one `Equipment`.
@@ -297,3 +297,143 @@ namespace MyModsNameSpace.Items
     - An `Item Icon Path` field - This is the path to our item icon in our asset bundle. Like `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png"`
     - An `Initialization` method - Necessary in ordering your code execution flow in your items/item base (or what executes in what order). Also in the context of this tutorial, it will allow you to easily pass through the config file provided to you automatically by BepinEx to allow easy config entries. More on this later.
     - An `Item Display Rule Setup` method - Necessary for an easy time setting up the actual ingame display for your item models. The `ItemDisplayRuleDict` we return from this method will allow us to attach our item display rules to our item definition.
+    - Well add more fields later as we need them, but for now we have our required abstract properties/fields/methods here.
+    
+7. Let's start adding these fields/properties in to the abstract class. We'll use the same access and keyword before our type so things inheriting the Item Base must implement them to use the interface. We'll do so for `Name`, `Name Language Token`, `Pickup Description`, `Full Item Description`, and `Lore Entry` firstly.
+8. Fill out your item base to look like the following:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+    }
+}
+```
+9. Let's add in the rest of the properties on our needs list. Like so:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+    }
+}
+```
+10. Now we'll need to create our abstract methods, these are slightly different to define than the properties above. For `Initialization`, we'll do something special. We'll add a parameter to pass in a `ConfigFile`. *Why you ask?* It is so we can use the BepinEx configuration that our main plugin class inherits to provide easy config options to our items, we do this by forwarding it to a Config method on our item classes, more on that later. So to define this method, we do:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+    }
+}
+```
+11. Adding in our final need on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+    }
+}
+```
+12. If you've been following along, we're actually almost to the point we can use our ItemBase now. Amazing, right? For the next step, we can create a method to set up the language tokens inside of our ItemBase. This will give this functionality with no requirement to implement it on the inheritors, it simply relies on being initialized and the assumption we've implemented our strings (the first 5 properties of our itembase).
+
+13. To create the method we will use to set up our language tokens, we will be creating a method with the `protected` access modifier and a `void` return type. `Protected` means only itself and subtypes of itself can use the method.  To do so we do the following:
+```csharp
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateLang()
+        {
+            
+        }
+    }
+}
+```
