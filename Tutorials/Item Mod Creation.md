@@ -37,6 +37,7 @@ Assets
                 First Item
             Equipment
 ```
+-----
 
 ## Creating your first Prefab
 1. In the above structure, meshes are your raw models that you made in your 3D program of choice. Prefabs are the GameObject/Model we'll be making out of them. Go ahead and make a model or find one and place it in the Meshes folder.
@@ -50,6 +51,7 @@ Assets
 8. Once done, to apply it you simply drag and drop it either on the part of the model, or the part in the scene hierarchy you want to apply it to.
 9. Once done setting up materials and applying them, drag the Prefab (in the scene hierarchy it has a box next to it) to your Models -> Prefabs -> Item -> First Item folder.
 10. When asked if you want to make an Original Prefab or a Variant Prefab, choose Original. To get the base for an icon, proceed with the following section, otherwise skip over it.
+---------
 
 ## Icon Creation
 1. Assuming the model is still in the scene from the previous steps, continue. Otherwise drag the prefab into the scene hierarchy, and continue.
@@ -75,10 +77,8 @@ Assets
 20. In your icon image, select all and copy.
 21. In the Item Icon Template, click the appropriate layer group for the Tier of your item.
 22. CRTL+V to paste it in.
-23. If everything looks alright, select all and CRTL+SHIFT+C.
-24. Create a new image, hit OK. Paste the image in.
-25. Image -> Resize Image, and set dimensions to 128x128.
-26. Quick Export as PNG again, or save as PNG.
+23. If everything looks alright, with the layer selected go to File -> Export -> Export As.
+24. Change the Export Dimensions to 128x128 and save.
 27. Drag the resultant file to your Unity Instance's Textures -> Icons -> Item folder.
 28. Click it, and on the top right you'll see Alpha is Transparency. Click it.
 29. Increase Anisotropy Level to max, or just leave it alone.
@@ -88,17 +88,43 @@ Assets
 33. Hit Apply, and you're done with the icon. Congrats!
 ---------
 
-Preparing the Base Class
---------
+## Creating an Asset Bundle  
+
+For asset bundles, think of them as if they're a central zip/pak/etc that stores all your assets in a project (usually excluding sound assets in ROR2). To get started, do the following: 
+
+1. On the top of the unity editor, click Window -> Package Manager, find "Asset Bundle Browser", and click install.
+
+2. Click any of the materials/prefabs/icons we made thus far and on the bottom right where it previews it, you'll see AssetBundle with a dropdown menu next to it. Click the dropdown menu.
+
+3. In that menu, hit New.. and name your asset bundle. For example, "mycoolmod_assets".
+
+4. In that same dropdown menu, if it is not already assigned, assign it to your new assetbundle by clicking the name.
+
+5. Mixed results here, but you can either click through all your assets in the project and assign them to the asset bundle and skip over the next step, or continue.
+
+6. On the top of the unity editor, Click Window -> AssetBundle Browser. It will pull up a window that should show your assetbundle name in the first tab. Click that, and then one of the assets on the list to the right. If a ton show up that you're sure you haven't assigned but want to, click one and do CRTL+A. Generally you'll know this if the list contains folders. Finally, on the bottom right of the unity editor, assign it to the assetbundle and continue to the next step.
+
+7. With this same window up, click the tab at the top of it that says "Build".
+
+8. Assuming you went through the tutorial to set up a Visual Studio project, in the assetbundle browser window under "Output Path" click browse and navigate to your visual studio project folder. You can find these by default in "YourUserFolder/repos/". You want to select the directory that contains your CSProj file.
+
+9. Don't click any of the checkboxes in the Build tab, just hit "Build".
+ 
+10. Congrats, you've just built your first asset bundle.
+
+-----
+
+## Preparing the Base Class
 1. Name your base class anything like "Main.cs" or "MyModName.cs" to keep track of it. 
 
 2. Fill it out with the following:
 ```csharp
 using BepInEx;
+using R2API;
 
-namespace MyUserName
+namespace MyModCsProjDirectoryName
 {
-    [BepInDependency("com.bepis.r2api")]
+    [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [BepInPlugin("com.MyUsername.MyModName", "My Mod's Title and if we see this exact name on Thunderstore we will deprecate your mod", "1.0.0")]
     public class MyModName : BaseUnityPlugin
@@ -112,13 +138,13 @@ namespace MyUserName
 
 3. Change the namespace to the name of the folder you store the csproj in, for example:
 ```csharp
-namespace IfMyModNameRemainsThisItMeansIDidn'tRead
+namespace IfMyNamespaceRemainsThisItMeansIDidn'tRead
 {
 ```
 
-4. Change the relevant fields in the BepinPlugin attribute to suit your mod. For example:
+4. Change the relevant fields in the BepinPlugin attribute to suit your mod. For this tutorial we're going to extract these out into fields we'll define in our main class. For example:
 ```csharp
-[BepinPlugin("com.MyUserName.IfMyModNameRemainsThisItMeansIDidn'tRead", "IfMyModNameRemainsThisItMeansIDidn'tRead", "0.0.1")]
+[BepinPlugin(ModGuid, ModName, ModVer)]
 ```  
 
 5. Change the class name to match the class name file's name. For example, if you named your class Main.cs, then:
@@ -127,17 +153,89 @@ public class Main : BaseUnityPlugin
 {
 ```
 
-6. Create container lists for initializing your items and equipment easily (Don't worry too much about the types listed here yet, we'll cover them later). For example: 
+6. We'll create the fields for our plugin attribute, the thing I mentioned in step 4. You should generally update the ModVer field any time you plan to make an update to your mod. 
 ```csharp
-    public class Main : BaseUnityPlugin
-    {
-        public List<ItemBase> Items = new List<ItemBase>();
-        public List<EquipmentBase> Equipments = new List<EquipmentBase>();
+public class Main : BaseUnityPlugin
+{
+    public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
+    public const string ModName = "MyModName";
+    public const string ModVer = "0.0.1";
 
-        public void Awake()
-        {
-        }
-    }
+	public void Awake()
+	{
+	}
+}
 ```
 
+7. *How do I know what number to change on my mod version?* Simple really, the format for this is called the Major.Minor.Patch Versioning Standard and they generally follow this guideline:
+```
+MAJOR version when you either complete your development milestones, or make extreme changes to your mod.
+MINOR version when you are adding minor features (like another item for instance)
+PATCH version increment when you're patching bugs, doing small tweaks, polishing assets, etc.
+```
+
+8. Assuming you followed the Asset Bundle creation portion of this tutorial, the asset bundle should be showing up in your Solution Explorer to the right as well as its Manifest file. Click the asset bundle file.
+
+9. On the bottom right of Visual Studio's window, you'll see the properties for the Asset Bundle file. Set "Build Action" to "Embedded Resource".
+
+10. Set "Copy to Output Directory" to "Do Not Copy"
+
+11. In your Main.cs, add the following into your `Awake()` method
+```csharp
+public class Main : BaseUnityPlugin
+{
+    public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
+    public const string ModName = "MyModName";
+    public const string ModVer = "0.0.1";
+
+	public void Awake()
+	{
+			using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
+		{
+			var bundle = AssetBundle.LoadFromStream(stream);
+			var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
+			ResourcesAPI.AddProvider(provider);
+		}
+	}
+}
+```
+
+12. We'll need to add a submodule dependency for ResourcesAPI so it loads in upon startup. We can do so via adding the `R2APISubmoduleDependency` attribute and setting its parameters. To do so, we do the following:
+```csharp
+using BepInEx;
+using R2API;
+
+namespace MyModCSProjDirectoryName
+{
+    [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
+    [BepinPlugin(ModGuid, ModName, ModVer)]
+    [R2APISubmoduleDependency(nameof(ResourcesAPI))]
+    
+    public class Main : BaseUnityPlugin
+    {
+        public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
+        public const string ModName = "MyModName";
+        public const string ModVer = "0.0.1";
+    
+    	public void Awake()
+    	{
+    			using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
+    		{
+    			var bundle = AssetBundle.LoadFromStream(stream);
+    			var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
+    			ResourcesAPI.AddProvider(provider);
+    		}
+    	}
+    }
+}
+```
+
+13. As we utilize more of R2API, we'll need to add more onto the `R2APISubmoduleDependency` attribute. Doing so just requires you to alter it like so with whatever API you need to load in. In this example we'll load in ItemAPI alongside the ResourcesAPI:
+```csharp
+[R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(ItemAPI))]
+```
+14. Easy right? Let's move on to the harder bits now.
+
 -----------
+

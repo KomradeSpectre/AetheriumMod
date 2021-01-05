@@ -66,7 +66,7 @@ namespace Aetherium.Items
                 buffColor = new Color(0, 80, 0),
                 canStack = false,
                 isDebuff = false,
-                name = "ATHRM Witches Ring Immunity",
+                name = "Aetherium: Witches Ring Immunity",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png"
             });
             WitchesRingImmunityBuff = R2API.BuffAPI.Add(witchesRingImmunityBuff);

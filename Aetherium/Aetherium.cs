@@ -10,6 +10,7 @@ using R2API.Networking;
 using R2API.Utils;
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 
 namespace Aetherium
@@ -19,12 +20,14 @@ namespace Aetherium
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(EliteAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
-        public const string ModVer = "0.4.7";
-        public const string ModName = "Aetherium";
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
+        public const string ModName = "Aetherium";
+        public const string ModVer = "0.4.7";
+
+        public static AssetBundle MainAssets;
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
@@ -39,9 +42,21 @@ namespace Aetherium
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
-                var bundle = AssetBundle.LoadFromStream(stream);
-                var provider = new AssetBundleResourcesProvider("@Aetherium", bundle);
+                MainAssets = AssetBundle.LoadFromStream(stream);
+                var provider = new AssetBundleResourcesProvider("@Aetherium", MainAssets);
                 ResourcesAPI.AddProvider(provider);
+            }
+
+            if (MainAssets)
+            {
+                var materials = MainAssets.LoadAllAssets<Material>();
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i].shader.name == "Standard")
+                    {
+                        materials[i].shader = Resources.Load<Shader>("shaders/deferred/hgstandard");
+                    }
+                }
             }
 
             //Core Initializations

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4023095063
+CRC: 1831155415
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 5b17accc2e0f8f22c50abcd9d8259f38
+    Hash: e3a0c7665647028fcf46fe4e46d45f8c
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -94,6 +94,7 @@ Assets:
 - Assets/Textures/Material Textures/414-normal.jpg
 - Assets/Models/Prefabs/Item/Voidheart/Voidheart.prefab
 - Assets/Shaders/3D Shaders/PulseShader.shader
+- Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat
 - Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat

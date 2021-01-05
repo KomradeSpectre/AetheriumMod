@@ -81,7 +81,7 @@ namespace Aetherium.Items
                 buffColor = Color.magenta,
                 canStack = false,
                 isDebuff = true,
-                name = "ATHRMVoidInstabilityDebuff",
+                name = "Aetherium: Void Instability Debuff",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png"
             });
             VoidInstabilityDebuff = R2API.BuffAPI.Add(voidInstability);

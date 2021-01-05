@@ -62,7 +62,7 @@ namespace Aetherium.Items
                 buffColor = Color.green,
                 canStack = true,
                 isDebuff = false,
-                name = "ATHRMFeatheredPlumeSpeed",
+                name = "Aetherium: Feathered Plume Speed",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/FeatheredPlumeBuffIcon.png"
             });
             SpeedBuff = R2API.BuffAPI.Add(speedBuff);

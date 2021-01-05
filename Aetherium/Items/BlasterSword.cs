@@ -83,7 +83,7 @@ namespace Aetherium.Items
                 buffColor = Color.white,
                 canStack = false,
                 isDebuff = false,
-                name = "ATHRMBlaster Sword Active",
+                name = "Aetherium: Blaster Sword Active",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/BlasterSwordBuffIcon.png"
             });
             BlasterSwordActiveBuff = R2API.BuffAPI.Add(blasterSwordActiveBuff);

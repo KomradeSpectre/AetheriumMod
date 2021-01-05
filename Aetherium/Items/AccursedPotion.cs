@@ -29,7 +29,20 @@ namespace Aetherium.Items
                 $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{BaseRadiusGranted.Value}m radius</style> <style=cStack>(+{AdditionalRadiusGranted.Value}m per stack)</style> around you.</style>" +
                 $" Max: {MaxEffectsAccrued.Value} buffs or debuffs can be applied at any time.";
 
-        public override string ItemLore => "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
+        public override string ItemLore => OrderManifestLoreFormatter(
+                ItemName,
+
+                "9/29/3065",
+
+                "Bepsi Coler Corp\nNeo California, Rex Federation\nTerra",
+
+                "8011*******",
+
+                ItemPickupDesc,
+
+                "Fragile / Hypnohazard / Quasi-Liquid Containment Procedures",
+
+                "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
                 "---------------------------------\n" +
                 "\n<indent=5%>1 Eye of Darkness, medium well.</indent>\n" +
                 "<indent=5%>15 Scalangs, preferably non-endangered.</indent>\n" +
@@ -37,7 +50,8 @@ namespace Aetherium.Items
                 "<indent=5%>7 Essence of Luck, filter through a coffee press to remove bad luck from it before adding.</indent>\n" +
                 "<indent=5%>1/4th teaspoon of salt, for taste.</indent>\n" +
                 "\n---------------------------------\n" +
-                "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated.";
+                "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated." +
+                "\nRemote extraction of contents recommended due to hypnohazard.");
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
@@ -45,7 +59,7 @@ namespace Aetherium.Items
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/AccursedPotion/AccursedPotion.prefab";
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/AccursedPotionIcon.png";
 
-        public override bool CanRemove => false;
+        //public override bool CanRemove => false;
 
         public static BuffIndex AccursedPotionSipCooldownDebuff;
 
@@ -83,7 +97,7 @@ namespace Aetherium.Items
                 buffColor = new Color(50, 0, 50),
                 canStack = false,
                 isDebuff = false,
-                name = "ATHRMAccursed Potion Sip Cooldown",
+                name = "Aetherium: Accursed Potion Sip Cooldown",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png"
             });
             AccursedPotionSipCooldownDebuff = R2API.BuffAPI.Add(sipCooldownDebuff);
