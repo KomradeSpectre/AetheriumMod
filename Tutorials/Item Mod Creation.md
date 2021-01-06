@@ -15,7 +15,7 @@
 ----------
 - Read through this tutorial to set up your first project, and get a feel for the environment. Link: https://github.com/risk-of-thunder/R2Wiki/wiki/%5BIn-depth%5D-First-mod
 
-- Download and install Unity. Current version is: https://download.unity3d.com/download_unity/e6e9ca02b32a/Windows64EditorInstaller/UnitySetup64-2018.4.16f1.exe
+- Download and install Unity. Current version for RoR2 is: https://download.unity3d.com/download_unity/e6e9ca02b32a/Windows64EditorInstaller/UnitySetup64-2018.4.16f1.exe
 
 ----------
 # Unity Project
@@ -103,7 +103,7 @@ Assets
 
 ## Creating an Asset Bundle  
 
-For asset bundles, think of them as if they're a central zip/pak/etc that stores all your assets in a project (usually excluding sound assets in ROR2). To get started, do the following: 
+For asset bundles, think of them as if they're a central zip/pak/etc that stores all your assets in a project (usually excluding sound assets in RoR2). To get started, do the following: 
 
 1. On the top of the unity editor, click `Window -> Package Manager`, find `Asset Bundle Browser`, and click `install`.
 
@@ -264,7 +264,7 @@ If you're not too experienced with formal programming you're probably wondering,
 3. Name the class `ItemBase`.
 4. At the top of the class, with the other using, we need to add the `R2API` and `RoR2` name space usings. It should look similar to the following:
 ```csharp
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -272,7 +272,7 @@ using System.Text;
 ```
 5. Add a `public` access modifier to the front of your class definition, and an `abstract` after it. For example:
 ```csharp
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -303,7 +303,7 @@ namespace MyModsNameSpace.Items
 7. Let's start adding these fields/properties in to the abstract class. We'll use the same access and keyword before our type so things inheriting the Item Base must implement them to use the interface. We'll do so for `Name`, `Name Language Token`, `Pickup Description`, `Full Item Description`, and `Lore Entry` firstly.
 8. Fill out your item base to look like the following:
 ```csharp
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -323,7 +323,7 @@ namespace MyModsNameSpace.Items
 ```
 9. Let's add in the rest of the properties on our needs list. Like so:
 ```csharp
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -349,7 +349,7 @@ namespace MyModsNameSpace.Items
 10. Now we'll need to create our abstract methods, these are slightly different to define than the properties above. For `Initialization`, we'll do something special. We'll add a parameter to pass in a `ConfigFile`. *Why you ask?* It is so we can use the BepinEx configuration that our main plugin class inherits to provide easy config options to our items, we do this by forwarding it to a Config method on our item classes, more on that later. We'll also need to add a using for BepinEx.Configuration. So to define this method, we do:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -377,7 +377,7 @@ namespace MyModsNameSpace.Items
 11. Adding in our final needs on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -411,7 +411,7 @@ namespace MyModsNameSpace.Items
 13. To create the method we will use to set up our language tokens, we will be creating a method with the `protected` access modifier and a `void` return type. `Protected` means only itself and subtypes of itself can use the method.  To do so we do the following:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -448,7 +448,7 @@ namespace MyModsNameSpace.Items
 14. Now we need to fill this method out so we register our language tokens on each item that inherits this abstract class. To do this, we'll need to use LanguageAPI to add our language tokens. For this step we'll use the overload of their addition method that requires `key` and `value`. Our `key` is our name identifier for the token (or the ID for it) like in the case of our item base, it'd be like `"ITEM_OMNIPOTENT_EGG_NAME"`. The `value` is the actual values of our fields, like `"Omnipotent Egg"`. To fill this out almost automatically, we'll be using the properties we defined earlier.
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -518,7 +518,7 @@ namespace MyModCSProjDirectoryName
 16. Next, we'll make another method in our ItemBase to create our item definition out of our properties and language tokens, `CreateItem()` similar to the `CreateLang()` method we did above.
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -578,7 +578,7 @@ namespace MyModsNameSpace.Items
 19. Let's implement these properties now. The way to do this is similar in method to how we did our `abstract` properties, but with one key difference, we'll give one them a default value as well. Like so:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -627,7 +627,7 @@ namespace MyModsNameSpace.Items
 20. Now we create our ItemDef. It is made up of all the properties we've defined thus far in a manner of speaking.
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -689,7 +689,7 @@ namespace MyModsNameSpace.Items
 21. To register the item, we'll need to use `ItemAPI`. `ItemAPI.Add()` requires one argument, a new `CustomItem`. `CustomItem` requires the `ItemDef` we just created, and an `ItemDisplayRuleDict` which we have created a method for earlier and will return an Index of our newly registered item. First things first, let's create a variable to store our `ItemDisplayRuleDict` and we'll do it by calling that method. Like so:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -752,7 +752,7 @@ namespace MyModsNameSpace.Items
 22. Now that we have the `ItemDisplayRuleDict`, we can register the item with R2API's `ItemAPI`. Firstly, let's add a field `Index` to our `ItemBase` that will store the index of our item when we register it. This index can be used later in a multitude of ways, one of which allows us to easily create an Inventory Count method to track how many of our item we have. To create the field, we just do:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -817,7 +817,7 @@ namespace MyModsNameSpace.Items
 23. Now the moment you've been waiting for, where we register our item. We just need to feed in our `itemDef` and our `itemDisplayRuleDict` to `ItemAPI.Add()` and set our `Index` too.
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -913,7 +913,7 @@ namespace MyModCSProjDirectoryName
 25. Before we wrap this section up, let's add a few helper method to our `ItemBase` class that will allow us to easily get the count of items that inherit our `ItemBase`. We'll call these methods `GetCount`. A key thing to note about inventory is that it's not just stored on the `CharacterBody` component, but also the `CharacterMaster` component. So we'll define a `GetCount` method for both.
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -987,7 +987,7 @@ namespace MyModsNameSpace.Items
 26. The process of populating these two methods is going to be extremely similar between the two of them. First, we'll do a condition with an early return to null check the parameter and passing that the parameter's inventory. If our parameter or its inventory is null, we will early return a value of `0`, as in `0` items. If our parameter or its inventory is not null, we'll get the count of our items in that inventory using `parameter.inventory.GetItemCount` which takes our field we defined earlier, `Index`. Let's go ahead and populate those methods like so:
 ```csharp
 using BepInEx.Configuration;
-using ROR2;
+using RoR2;
 using R2API;
 using System;
 using System.Collections.Generic;
