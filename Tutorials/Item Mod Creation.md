@@ -297,6 +297,7 @@ namespace MyModsNameSpace.Items
     - An `Item Icon Path` field - This is the path to our item icon in our asset bundle. Like `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png"`
     - An `Initialization` method - Necessary in ordering your code execution flow in your items/item base (or what executes in what order). Also in the context of this tutorial, it will allow you to easily pass through the config file provided to you automatically by BepinEx to allow easy config entries. More on this later.
     - An `Item Display Rule Setup` method - Necessary for an easy time setting up the actual ingame display for your item models. The `ItemDisplayRuleDict` we return from this method will allow us to attach our item display rules to our item definition.
+    - A `Hooks` method - Necessary to keep track of what events/methods we subscribe to that we use to give our item its functionality.
     - Well add more fields later as we need them, but for now we have our required abstract properties/fields/methods here.
     
 7. Let's start adding these fields/properties in to the abstract class. We'll use the same access and keyword before our type so things inheriting the Item Base must implement them to use the interface. We'll do so for `Name`, `Name Language Token`, `Pickup Description`, `Full Item Description`, and `Lore Entry` firstly.
@@ -373,7 +374,7 @@ namespace MyModsNameSpace.Items
     }
 }
 ```
-11. Adding in our final need on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
+11. Adding in our final needs on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
 ```csharp
 using BepInEx.Configuration;
 using ROR2;
@@ -400,6 +401,8 @@ namespace MyModsNameSpace.Items
         public abstract void Init(ConfigFile config);
         
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        public abstract void Hooks();
     }
 }
 ```
@@ -436,7 +439,9 @@ namespace MyModsNameSpace.Items
             
         }
 
-        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        public abstract void Hooks();        
     }
 }
 ```
@@ -474,7 +479,9 @@ namespace MyModsNameSpace.Items
             LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
         }
 
-        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        public abstract void Hooks();        
     }
 }
 ```
@@ -547,7 +554,9 @@ namespace MyModsNameSpace.Items
         protected void CreateItem()
         {
             
-        }        
+        }
+        
+        public abstract void Hooks();        
     }
 }
 ```
@@ -565,4 +574,494 @@ namespace MyModsNameSpace.Items
     - `canRemove` - A boolean that determines whether or not we can drop the item, or remove it from our inventory with things like the Bazaar cauldrons. **That said, not every item requires this.**
     - `tier` - An enum that determines what Tier the item will appear. Not only does this contain `ItemTier.Tier1`, `ItemTier.Tier2`, and `ItemTier.Tier3` but also contains unique tiers like `ItemTier.Boss`, `ItemTier.Lunar`, and `ItemTier.None`
     
-18. In the above, we identified all the needed major components of the `ItemDef` we'll be writing, but we also identified a few *optional* parts. For these, we don't want to force inheritors of the `ItemBase` to implement them, but we want to provide the option to do so. For this, we'll utilize the `virtual` keyword to do so on a few properties and give it a default value for those who don't want to implement it.
+18. In the above, we identified all the needed major components of the `ItemDef` we'll be writing, but we also identified a few *optional* parts. For these, we don't want to force inheritors of the `ItemBase` to implement them, but we want to provide the option to do so *and* still have a value we can use if they don't. For this, we'll utilize the `virtual` keyword to do so on a few properties and give it a default value for those who don't want to implement it.
+19. Let's implement these properties now. The way to do this is similar in method to how we did our `abstract` properties, but with one key difference, we'll give one them a default value as well. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;        
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            
+        }
+
+        public abstract void Hooks();        
+    }
+}
+```
+20. Now we create our ItemDef. It is made up of all the properties we've defined thus far in a manner of speaking.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;        
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };            
+        }
+        
+        public abstract void Hooks();        
+    }
+}
+```
+21. To register the item, we'll need to use `ItemAPI`. `ItemAPI.Add()` requires one argument, a new `CustomItem`. `CustomItem` requires the `ItemDef` we just created, and an `ItemDisplayRuleDict` which we have created a method for earlier and will return an Index of our newly registered item. First things first, let's create a variable to store our `ItemDisplayRuleDict` and we'll do it by calling that method. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;        
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };       
+            var itemDisplayRuleDict = CreateItemDisplayRules();
+        }
+        
+        public abstract void Hooks();        
+    }
+}
+```
+22. Now that we have the `ItemDisplayRuleDict`, we can register the item with R2API's `ItemAPI`. Firstly, let's add a field `Index` to our `ItemBase` that will store the index of our item when we register it. This index can be used later in a multitude of ways, one of which allows us to easily create an Inventory Count method to track how many of our item we have. To create the field, we just do:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;
+        
+        public ItemIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };       
+            var itemDisplayRuleDict = CreateItemDisplayRules();
+        }
+        
+        public abstract void Hooks();        
+    }
+}
+```
+23. Now the moment you've been waiting for, where we register our item. We just need to feed in our `itemDef` and our `itemDisplayRuleDict` to `ItemAPI.Add()` and set our `Index` too.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;
+        
+        public ItemIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };       
+            var itemDisplayRuleDict = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+        }
+        
+        public abstract void Hooks();        
+    }
+}
+```
+24. Once again, we'll need to return to our main class and add another `R2APISubmoduleDependency`. This time, it's `ItemAPI`. We'll add it with our usual process:
+```csharp
+using BepInEx;
+using R2API;
+
+namespace MyModCSProjDirectoryName
+{
+    [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
+    [BepinPlugin(ModGuid, ModName, ModVer)]
+    [R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(LanguageAPI), nameof(ItemAPI))]
+    
+    public class Main : BaseUnityPlugin
+    {
+        public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
+        public const string ModName = "MyModName";
+        public const string ModVer = "0.0.1";
+    
+    	public void Awake()
+    	{
+    		using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
+    		{
+    			var bundle = AssetBundle.LoadFromStream(stream);
+    			var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
+    			ResourcesAPI.AddProvider(provider);
+    		}
+    	}
+    }
+}
+```
+25. Before we wrap this section up, let's add a few helper method to our `ItemBase` class that will allow us to easily get the count of items that inherit our `ItemBase`. We'll call these methods `GetCount`. A key thing to note about inventory is that it's not just stored on the `CharacterBody` component, but also the `CharacterMaster` component. So we'll define a `GetCount` method for both.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;
+        
+        public ItemIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };       
+            var itemDisplayRuleDict = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+        }
+        
+        public abstract void Hooks();
+        
+        public int GetCount(CharacterBody body)
+        {
+        }
+        
+        public int GetCount(CharacterMaster master)
+        {
+        }        
+    }
+}
+```
+26. The process of populating these two methods is going to be extremely similar between the two of them. First, we'll do a condition with an early return to null check the parameter and passing that the parameter's inventory. If our parameter or its inventory is null, we will early return a value of `0`, as in `0` items. If our parameter or its inventory is not null, we'll get the count of our items in that inventory using `parameter.inventory.GetItemCount` which takes our field we defined earlier, `Index`. Let's go ahead and populate those methods like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        public virtual ItemTag[] ItemTags { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public virtual bool CanRemove { get; } = true;
+        public virtual bool Hidden { get; } = false;
+        
+        public ItemIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            ItemDef itemDef = new RoR2.ItemDef()
+            {
+                name = "ITEM_" + ItemLangTokenName,
+                nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
+                pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
+                descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
+                loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
+                pickupModelPath = ItemModelPath,
+                pickupIconPath = ItemIconPath,
+                hidden = Hidden,
+                tags = ItemTags,
+                canRemove = CanRemove,                
+                tier = Tier
+            };       
+            var itemDisplayRuleDict = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+        }
+        
+        public abstract void Hooks();
+        
+        public int GetCount(CharacterBody body)
+        {
+            if (!body || !body.inventory) { return 0; }
+
+            return body.inventory.GetItemCount(IndexOfItem);
+        }
+
+        public int GetCount(CharacterMaster master)
+        {
+            if (!master || !master.inventory) { return 0; }
+
+            return master.inventory.GetItemCount(IndexOfItem);
+        }
+    }
+}
+```
+With that, we've defined an `ItemBase` that we can use for our items. We'll improve it later when we get around to adding configuration options to our items.
