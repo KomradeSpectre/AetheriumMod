@@ -8,7 +8,7 @@
     2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)  
 3. [Visual Studio Project](#visual-studio-project)  
     3.1. [Preparing the Base Class](#preparing-the-base-class)  
-    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#creating-item-base-and-equipment-base-classes)  
+    3.2. [Abstraction and You (Creating the Item Base Class)](#creating-the-item-base-class)  
 
 ----
 # Prerequisites
@@ -255,7 +255,7 @@ namespace MyModCSProjDirectoryName
 
 -----------
 
-## Creating Item Base and Equipment Base classes
+## Creating the Item Base Class
 If you're not too experienced with formal programming you're probably wondering, what *is* abstraction? In the context of this tutorial, we'll be creating abstract "ItemBase" and "EquipmentBase" classes. Imagine them to be a skeleton that all our items and all our equipment share. One that we add the muscle and skin to in our individual items and equipment. Let's get started.
 
 1. In the solution explorer, right click on the CSProj file (the green rectangle with a C# in it) and `Add -> New Folder`, you'll be doing this twice. Name one `Items` and one `Equipment`.
