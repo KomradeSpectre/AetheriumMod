@@ -670,7 +670,7 @@ namespace Aetherium.Items
                                     ChildLocator childLocator = weaponModelLocator.modelTransform.GetComponent<ChildLocator>();
                                     if (childLocator)
                                     {
-                                        if (self.muzzleName != null)
+                                        if (self.muzzleName != "")
                                         {
                                             MuzzleTransform = childLocator.FindChild(self.muzzleName).position;
                                         }

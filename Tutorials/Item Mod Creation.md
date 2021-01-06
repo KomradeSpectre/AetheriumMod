@@ -431,12 +431,138 @@ namespace MyModsNameSpace.Items
         
         public abstract void Init(ConfigFile config);
         
-        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
-        
         protected void CreateLang()
         {
             
         }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
     }
 }
 ```
+14. Now we need to fill this method out so we register our language tokens on each item that inherits this abstract class. To do this, we'll need to use LanguageAPI to add our language tokens. For this step we'll use the overload of their addition method that requires `key` and `value`. Our `key` is our name identifier for the token (or the ID for it) like in the case of our item base, it'd be like `"ITEM_OMNIPOTENT_EGG_NAME"`. The `value` is the actual values of our fields, like `"Omnipotent Egg"`. To fill this out almost automatically, we'll be using the properties we defined earlier.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+    }
+}
+```
+15. Now back in our main class, we'll need to add the LanguageAPI submodule dependency. Like so:
+```csharp
+using BepInEx;
+using R2API;
+
+namespace MyModCSProjDirectoryName
+{
+    [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
+    [BepinPlugin(ModGuid, ModName, ModVer)]
+    [R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(LanguageAPI))]
+    
+    public class Main : BaseUnityPlugin
+    {
+        public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
+        public const string ModName = "MyModName";
+        public const string ModVer = "0.0.1";
+    
+    	public void Awake()
+    	{
+    		using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
+    		{
+    			var bundle = AssetBundle.LoadFromStream(stream);
+    			var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
+    			ResourcesAPI.AddProvider(provider);
+    		}
+    	}
+    }
+}
+```
+16. Next, we'll make another method in our ItemBase to create our item definition out of our properties and language tokens, `CreateItem()` similar to the `CreateLang()` method we did above.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public abstract class ItemBase
+    {
+        public abstract string ItemName { get; }
+        public abstract string ItemLangTokenName { get; }
+        public abstract string ItemPickupDesc { get; }
+        public abstract string ItemFullDescription { get; }
+        public abstract string ItemLore { get; }
+        
+        public abstract ItemTier Tier { get; }
+        
+        public abstract string ItemModelPath { get; }
+        public abstract string ItemIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);            
+        }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
+        
+        protected void CreateItem()
+        {
+            
+        }        
+    }
+}
+```
+17. What we'll want to populate this method with is a way to create an item definition. To do this, we will be creating a new `ItemDef`. To do so, let us think about all the things an `ItemDef` shares, and what they do so we can plan out how to lay it out. An `ItemDef` contains the following major things:
+    - `name`- The identifier of the item. For example `ITEM_OMNIPOTENT_EGG`.
+
+    - `nameToken` - The string corresponding to the language token for the name of the item. We defined this above. For example `ITEM_OMNIPOTENT_EGG_NAME`.
+    - `pickupToken` - The string corresponding to the language token for the pickup description of the item. For example, `ITEM_OMNIPOTENT_EGG_PICKUP`.
+    - `descriptionToken` - The string corresponding to the language token for the detailed description of the item. For example, `ITEM_OMNIPOTENT_EGG_DESCRIPTION`.
+    - `loreToken` - The string corresponding to the language token for the lorebook entry of the item. For example, `ITEM_OMNIPOTENT_EGG_LORE`.
+    - `pickupModelPath` - The string path that leads to the model for the item in our asset bundle. Since we have defined a provider (`@MyModName`) in our main class while setting up the asset bundle, we can use it in our string. For example, `"@MyModName:Assets/Models/Prefab/Item/OmnipotentEgg/OmnipotentEgg.prefab"`.
+    - `pickupIconPath` - The string path that leads to the icon for the item in our asset bundle. For example, `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEggIcon.png"`.
+    - `hidden` - A boolean that determines whether or not the item in question will be displayed upon the others in the lore screen, and item selections. **That said, not every item requires this.**
+    - `tags` - An enum array that represents the category of your item, and gives your item unique features from the base game. An example is `ItemTag.AIBlacklist` which will prevent the AI from obtaining or using your item. Another is `ItemTag.Utility` which will make the item appear in `Utility` chests. **That said, not every item requires this.**
+    - `canRemove` - A boolean that determines whether or not we can drop the item, or remove it from our inventory with things like the Bazaar cauldrons. **That said, not every item requires this.**
+    - `tier` - An enum that determines what Tier the item will appear. Not only does this contain `ItemTier.Tier1`, `ItemTier.Tier2`, and `ItemTier.Tier3` but also contains unique tiers like `ItemTier.Boss`, `ItemTier.Lunar`, and `ItemTier.None`
+    
+18. In the above, we identified all the needed major components of the `ItemDef` we'll be writing, but we also identified a few *optional* parts. For these, we don't want to force inheritors of the `ItemBase` to implement them, but we want to provide the option to do so. For this, we'll utilize the `virtual` keyword to do so on a few properties and give it a default value for those who don't want to implement it.
