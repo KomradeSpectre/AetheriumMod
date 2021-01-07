@@ -10,7 +10,7 @@
     3.1. [Preparing the Base Class](#preparing-the-base-class)  
     3.2. [Abstraction and You (Creating the Item Base Class)](#creating-the-item-base-class)  
 	3.3. [Creating the Equipment Base Class](#creating-the-equipment-base-class)  
-    3.4. [Implementing Our First Item] (#implementing-our-first-item)
+    3.4. [Implementing Our First Item](#implementing-our-first-item)
 
 ----
 # Prerequisites
