@@ -10,6 +10,7 @@
     3.1. [Preparing the Base Class](#preparing-the-base-class)  
     3.2. [Abstraction and You (Creating the Item Base Class)](#creating-the-item-base-class)  
 	3.3. [Creating the Equipment Base Class](#creating-the-equipment-base-class)  
+    3.4. [Implementing Our First Item] (#implementing-our-first-item)
 
 ----
 # Prerequisites
@@ -1818,3 +1819,85 @@ namespace MyModsNameSpace.Equipment
 }
 ```
 With that, we now have our `ItemBase` and `EquipmentBase` classes all set up! It's time to get down to creating our first item and equipment!
+
+------
+## Implementing our First Item
+------
+Now that we've defined both of our abstract classes that will serve as the template for our items/equipment, we can begin to use them. In the solution explorer, right click our `Items` folder, `Add -> Class`, and name it `OmnipotentEgg` for example. Now let's get started.
+
+1. In our newly generated class, add a `public` access modifier before the class name. It should look like:
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg
+    {
+    }
+}
+```
+
+2. Now, let's inherit from our ItemBase. In this example, we'll do this by adding a colon after the class name, followed by the abstract class name.
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+    }
+}
+```
+3. At this point you'll notice the console outputting a ton of errors about us not implementing the abstract class' fields/properties. `Right click the class name OmnipotentEgg -> Quick Actions -> Implement Abstract Class`.
+
+4. Woah! Our class just filled up with a bunch of properties and fields! It also created usings at the top of our class! This is the result of our work in the last two sections. We can easily generate these just by inheriting the `ItemBase` and `EquipmentBase`. First order of business, let's put these in order since it likely jumbled these around when we implemented it in the last step. It should look like this:
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => throw new NotImplementedException();
+        public override string ItemLangTokenName => throw new NotImplementedException();
+        public override string ItemPickupDesc => throw new NotImplementedException();
+        public override string ItemFullDescription => throw new NotImplementedException();
+        public override string ItemLore => throw new NotImplementedException();
+        
+        public override ItemTier Tier => throw new NotImplementedException();        
+
+        public override string ItemModelPath => throw new NotImplementedException();
+        public override string ItemIconPath => throw new NotImplementedException();
+        
+        public override void Init(ConfigFile config)
+        {
+            throw new NotImplementedException();
+        }        
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+5. Now let us think of what we want this item to do. For this tutorial, we'll make the egg fire out a projectile when we're damaged, but we need to think more in depth about that. 
+    - How much damage should our projectile deal?  
+    - Does it scale with our damage?  
+    - Does it have a set amount of damage it does per stack of the item?  
+
+6. Once we've got these considerations and more all planned out, let's create some config entries for these. These will by default provide our own balance considerations for an item, but allow a user to configure it to their liking as well. Above all of our properties, we'll define these ConfigEntries.

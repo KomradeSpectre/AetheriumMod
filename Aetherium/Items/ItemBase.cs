@@ -44,8 +44,6 @@ namespace Aetherium.Items
 
         public abstract void Init(ConfigFile config);
 
-        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
-
         protected void CreateLang()
         {
             LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
@@ -53,6 +51,8 @@ namespace Aetherium.Items
             LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
             LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);
         }
+
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();
 
         protected void CreateItem()
         {
@@ -71,7 +71,7 @@ namespace Aetherium.Items
                 pickupIconPath = ItemIconPath,
                 hidden = false,
                 tags = ItemTags,
-                canRemove = CanRemove,
+                canRemove = CanRemove,                
                 tier = Tier
             };
             var itemDisplayRules = CreateItemDisplayRules();
