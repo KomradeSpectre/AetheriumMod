@@ -8,14 +8,14 @@
     2.4. [Creating an Asset Bundle](#creating-an-asset-bundle)  
 3. [Visual Studio Project](#visual-studio-project)  
     3.1. [Preparing the Base Class](#preparing-the-base-class)  
-    3.2. [Abstraction and You (Creating the Item Base Class)](#creating-the-item-base-class)  
+    3.2. [Abstraction and You (Creating Item Base and Equipment Base Classes)](#creating-item-base-and-equipment-base-classes)  
 
 ----
 # Prerequisites
 ----------
 - Read through this tutorial to set up your first project, and get a feel for the environment. Link: https://github.com/risk-of-thunder/R2Wiki/wiki/%5BIn-depth%5D-First-mod
 
-- Download and install Unity. Current version for RoR2 is: https://download.unity3d.com/download_unity/e6e9ca02b32a/Windows64EditorInstaller/UnitySetup64-2018.4.16f1.exe
+- Download and install Unity. Current version is: https://download.unity3d.com/download_unity/e6e9ca02b32a/Windows64EditorInstaller/UnitySetup64-2018.4.16f1.exe
 
 ----------
 # Unity Project
@@ -103,7 +103,7 @@ Assets
 
 ## Creating an Asset Bundle  
 
-For asset bundles, think of them as if they're a central zip/pak/etc that stores all your assets in a project (usually excluding sound assets in RoR2). To get started, do the following: 
+For asset bundles, think of them as if they're a central zip/pak/etc that stores all your assets in a project (usually excluding sound assets in ROR2). To get started, do the following: 
 
 1. On the top of the unity editor, click `Window -> Package Manager`, find `Asset Bundle Browser`, and click `install`.
 
@@ -255,7 +255,7 @@ namespace MyModCSProjDirectoryName
 
 -----------
 
-## Creating the Item Base Class
+## Creating Item Base and Equipment Base classes
 If you're not too experienced with formal programming you're probably wondering, what *is* abstraction? In the context of this tutorial, we'll be creating abstract "ItemBase" and "EquipmentBase" classes. Imagine them to be a skeleton that all our items and all our equipment share. One that we add the muscle and skin to in our individual items and equipment. Let's get started.
 
 1. In the solution explorer, right click on the CSProj file (the green rectangle with a C# in it) and `Add -> New Folder`, you'll be doing this twice. Name one `Items` and one `Equipment`.
@@ -264,7 +264,7 @@ If you're not too experienced with formal programming you're probably wondering,
 3. Name the class `ItemBase`.
 4. At the top of the class, with the other using, we need to add the `R2API` and `RoR2` name space usings. It should look similar to the following:
 ```csharp
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -272,7 +272,7 @@ using System.Text;
 ```
 5. Add a `public` access modifier to the front of your class definition, and an `abstract` after it. For example:
 ```csharp
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -303,7 +303,7 @@ namespace MyModsNameSpace.Items
 7. Let's start adding these fields/properties in to the abstract class. We'll use the same access and keyword before our type so things inheriting the Item Base must implement them to use the interface. We'll do so for `Name`, `Name Language Token`, `Pickup Description`, `Full Item Description`, and `Lore Entry` firstly.
 8. Fill out your item base to look like the following:
 ```csharp
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -323,7 +323,7 @@ namespace MyModsNameSpace.Items
 ```
 9. Let's add in the rest of the properties on our needs list. Like so:
 ```csharp
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -349,7 +349,7 @@ namespace MyModsNameSpace.Items
 10. Now we'll need to create our abstract methods, these are slightly different to define than the properties above. For `Initialization`, we'll do something special. We'll add a parameter to pass in a `ConfigFile`. *Why you ask?* It is so we can use the BepinEx configuration that our main plugin class inherits to provide easy config options to our items, we do this by forwarding it to a Config method on our item classes, more on that later. We'll also need to add a using for BepinEx.Configuration. So to define this method, we do:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -377,7 +377,7 @@ namespace MyModsNameSpace.Items
 11. Adding in our final needs on the checklist we made should be simple at this point. It's similar in definition to the above, but with no parameters and a different return type. We'll add it like so:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -411,7 +411,7 @@ namespace MyModsNameSpace.Items
 13. To create the method we will use to set up our language tokens, we will be creating a method with the `protected` access modifier and a `void` return type. `Protected` means only itself and subtypes of itself can use the method.  To do so we do the following:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -448,7 +448,7 @@ namespace MyModsNameSpace.Items
 14. Now we need to fill this method out so we register our language tokens on each item that inherits this abstract class. To do this, we'll need to use LanguageAPI to add our language tokens. For this step we'll use the overload of their addition method that requires `key` and `value`. Our `key` is our name identifier for the token (or the ID for it) like in the case of our item base, it'd be like `"ITEM_OMNIPOTENT_EGG_NAME"`. The `value` is the actual values of our fields, like `"Omnipotent Egg"`. To fill this out almost automatically, we'll be using the properties we defined earlier.
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -518,7 +518,7 @@ namespace MyModCSProjDirectoryName
 16. Next, we'll make another method in our ItemBase to create our item definition out of our properties and language tokens, `CreateItem()` similar to the `CreateLang()` method we did above.
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -578,7 +578,7 @@ namespace MyModsNameSpace.Items
 19. Let's implement these properties now. The way to do this is similar in method to how we did our `abstract` properties, but with one key difference, we'll give one them a default value as well. Like so:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -627,7 +627,7 @@ namespace MyModsNameSpace.Items
 20. Now we create our ItemDef. It is made up of all the properties we've defined thus far in a manner of speaking.
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -689,7 +689,7 @@ namespace MyModsNameSpace.Items
 21. To register the item, we'll need to use `ItemAPI`. `ItemAPI.Add()` requires one argument, a new `CustomItem`. `CustomItem` requires the `ItemDef` we just created, and an `ItemDisplayRuleDict` which we have created a method for earlier and will return an Index of our newly registered item. First things first, let's create a variable to store our `ItemDisplayRuleDict` and we'll do it by calling that method. Like so:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -752,7 +752,7 @@ namespace MyModsNameSpace.Items
 22. Now that we have the `ItemDisplayRuleDict`, we can register the item with R2API's `ItemAPI`. Firstly, let's add a field `Index` to our `ItemBase` that will store the index of our item when we register it. This index can be used later in a multitude of ways, one of which allows us to easily create an Inventory Count method to track how many of our item we have. To create the field, we just do:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -817,7 +817,7 @@ namespace MyModsNameSpace.Items
 23. Now the moment you've been waiting for, where we register our item. We just need to feed in our `itemDef` and our `itemDisplayRuleDict` to `ItemAPI.Add()` and set our `Index` too.
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -913,7 +913,7 @@ namespace MyModCSProjDirectoryName
 25. Before we wrap this section up, let's add a few helper method to our `ItemBase` class that will allow us to easily get the count of items that inherit our `ItemBase`. We'll call these methods `GetCount`. A key thing to note about inventory is that it's not just stored on the `CharacterBody` component, but also the `CharacterMaster` component. So we'll define a `GetCount` method for both.
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -987,7 +987,7 @@ namespace MyModsNameSpace.Items
 26. The process of populating these two methods is going to be extremely similar between the two of them. First, we'll do a condition with an early return to null check the parameter and passing that the parameter's inventory. If our parameter or its inventory is null, we will early return a value of `0`, as in `0` items. If our parameter or its inventory is not null, we'll get the count of our items in that inventory using `parameter.inventory.GetItemCount` which takes our field we defined earlier, `Index`. Let's go ahead and populate those methods like so:
 ```csharp
 using BepInEx.Configuration;
-using RoR2;
+using ROR2;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -1065,3 +1065,755 @@ namespace MyModsNameSpace.Items
 }
 ```
 With that, we've defined an `ItemBase` that we can use for our items. We'll improve it later when we get around to adding configuration options to our items.
+
+--------------------
+## Creating the Equipment Base
+-----
+1. With the creation of the `ItemBase` class, the creation of the `EquipmentBase` class will be a much quicker task. First off, right click your CSPROJ and create a new folder `Equipment`. Then, right click that folder `Add -> New Class` and name it `EquipmentBase`. `EquipmentBase` will share all of our language token properties and path properties, so let's just implement those. This time we'll call them `EquipmentName`, `EquipmentLangTokenName`, and etc. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+    }
+}
+```
+2. We will use the same `Initialization` method that we do in our `ItemBase`, as well as the `CreateLang` method, `CreateItemDisplayRules` method, and the `Hooks` method. Let's go ahead and add those in.
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+        }        
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+3. Populate the `CreateLang` method similar to how you did in `ItemBase` using our properties. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+4. We'll need a `CreateEquipment` method similar to how we have a `CreateItem` method in our `ItemBase`. Let's add that in:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+5. Just like before, we need a definition for our equipment. This isn't `ItemDef` this time though it's `EquipmentDef` and they have a slightly different setup. To that end, let's brainstorm what major components an `EquipmentDef` has so we can plan out our class. An EquipmentDef has:
+    - `name` - Just like before, this is the identifier. `EQUIPMENT_BOLT_LAUNCHER` for instance.
+
+    - `nameToken` - Just like before, this corresponds to our Language Token. `EQUIPMENT_BOLT_LAUNCHER_NAME`.
+    - `pickupToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_PICKUP`.
+    - `descriptionToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_DESCRIPTION`.
+    - `loreToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_LORE`.
+    - `pickupModelPath` - Just like before, this corresponds to the path to our equipment model.
+    - `pickupIconPath` - Just like before, this corresponds to the path to our equipment icon.
+    - `appearsInSinglePlayer` - A boolean that determines whether or not you want this equipment to appear in Singleplayer. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `appearsInMultiplayer` - A boolean that determines whether or not you want this equipment to appear in Multiplayer. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `canDrop` - A boolean that determines whether or not we can remove this equipment from our inventory. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `cooldown` - A float that determines how long we want our equipment's cooldown duration to be after use. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `enigmaCompatible` - A boolean that determines whether or not our equipment can be randomly selected by the Artifact of Enigma. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `isBoss` - A boolean that determines if this equipment drops from bosses. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    - `isLunar` - A boolean that determines if this is a normal equipment that can be found in equipment barrels, or can be found in lunar pods. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
+    
+6. You'll notice that in the above we have a ton of optional things, and we've already added properties for our required parts of the `EquipmentDef`. Just like in the previous section, we'll create `virtual` properties for these and default values so our inheritors don't have to implement them if they are not needed on an equipment. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+7. Now let's create our `EquipmentDef` with our properties just like we did in `ItemBase`, the `itemDisplayRules`, and then register it all in one go. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));            
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+8. Don't forget to create an `Index` field of type `EquipmentIndex`, and then assign it when registering the equipment like we did before. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));            
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+9. This next part is important. We're going to subscribe to an event for the first time. Think of the process as if we had a conveyor belt that leads to two (or more) paths. On one path, we allow the items on the belt to pass as they are. On the others, we modify the items to do specific things if they match certain conditions. At the end (or sometimes in the beginning) we return these modified items back into the belt same as the others. Following me? The point of this in context to this section of the tutorial is that we're going to subscribe to an event and we're going to call a method if the data in that event matches our equipment's `Index`. We'll be using the event `On.RoR2.EquipmentSlot.PerformEquipmentAction`. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction +=
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+10. Next to the `+=` we're going to input the name we'd like to call our method/delegate. In this case, we'll just use the name `PerformEquipmentAction`. Fill that out with that name, then `Right Click the Name -> Quick Actions -> Generate Method EquipmentBase.PerformEquipmentAction`. Make sure you select `Generate Method EquipmentBase.PerformEquipmentAction` and not `Generate Abstract Method EquipmentBase.PerformEquipmentAction`. Your code should look like this now:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
+        }        
+        
+        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
+        {
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+11. The general rule with these kinds of methods is that if we're not planning to disrupt the original input of the method, we return the original input. What we want to do in this method is check if the input data of the method `equipmentIndex` is our equipment's `Index`. If it is, we will call a method we'll create in a second to allow us an easier time creating equipment use actions. If it isn't, we'll return the original input by passing it back into the parameter `orig`. Let's set up the logic for that:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
+        }        
+        
+        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
+        {
+            if(equipmentIndex == Index)
+            {
+            }
+            else
+            {
+                return orig(self, equipmentIndex);
+            }
+        }        
+        
+        public abstract void Hooks();        
+    }
+}
+```
+12. In our condition `equipmentIndex == Index` we're going to be returning the result of a method that will check if we've activated our equipment and whatever behaviors we've defined on it. We'll be doing something similar to a proxy method of type `bool` here, by having our method have an `EquipmentSlot` parameter. We'll call it `ActivateEquipment`. It's easier done than said, so let's start by creating the method:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
+        }        
+        
+        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
+        {
+            if(equipmentIndex == Index)
+            {
+            }
+            else
+            {
+                return orig(self, equipmentIndex);
+            }
+        }        
+        
+        protected abstract bool ActivateEquipment(EquipmentSlot slot);
+        
+        public abstract void Hooks();        
+    }
+}
+```
+13. All that is left to do now is return our method inside of our condition we defined just a few moments back, and pass in the `self` parameter to it which is the `EquipmentSlot` we need. Like so:
+```csharp
+using BepInEx.Configuration;
+using ROR2;
+using R2API;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Equipment
+{
+    public abstract class EquipmentBase
+    {
+        public abstract string EquipmentName { get; }
+        public abstract string EquipmentLangTokenName { get; }
+        public abstract string EquipmentPickupDesc { get; }
+        public abstract string EquipmentFullDescription { get; }
+        public abstract string EquipmentLore { get; }
+        
+        public abstract string EquipmentModelPath { get; }
+        public abstract string EquipmentIconPath { get; }
+        
+        public virtual bool AppearsInSinglePlayer { get; } = true;
+        public virtual bool AppearsInMultiPlayer { get; } = true;
+        public virtual bool CanDrop { get; } = true;
+        public virtual float Cooldown { get; } = 60f;
+        public virtual bool EnigmaCompatible { get; } = true;
+        public virtual bool IsBoss { get; } = false;
+        public virtual bool IsLunar { get; } = false;
+        
+        public EquipmentIndex Index;
+        
+        public abstract void Init(ConfigFile config);
+        
+        protected void CreateLang()
+        {
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+        }       
+        
+        public abstract ItemDisplayRuleDict CreateItemDisplayRules();        
+        
+        protected void CreateEquipment()
+        {
+            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
+            {
+                name = "EQUIPMENT_" + EquipmentLangTokenName,
+                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
+                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
+                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
+                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
+                pickupModelPath = EquipmentModelPath,
+                pickupIconPath = EquipmentIconPath,
+                appearsInSinglePlayer = AppearsInSinglePlayer,
+                appearsInMultiPlayer = AppearsInMultiPlayer,
+                canDrop = CanDrop,
+                cooldown = Cooldown,
+                enigmaCompatible = EnigmaCompatible,
+                isBoss = IsBoss,
+                isLunar = IsLunar
+            };        
+            var itemDisplayRules = CreateItemDisplayRules();
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
+        }        
+        
+        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
+        {
+            if(equipmentIndex == Index)
+            {
+                return ActivateEquipment(self);
+            }
+            else
+            {
+                return orig(self, equipmentIndex);
+            }
+        }        
+        
+        protected abstract bool ActivateEquipment(EquipmentSlot slot);
+        
+        public abstract void Hooks();        
+    }
+}
+```
+With that, we now have our `ItemBase` and `EquipmentBase` classes all set up! It's time to get down to creating our first item and equipment!
