@@ -1068,7 +1068,7 @@ namespace MyModsNameSpace.Items
 With that, we've defined an `ItemBase` that we can use for our items. We'll improve it later when we get around to adding configuration options to our items.
 
 --------------------
-## Creating the Equipment Base
+## Creating the Equipment Base Class
 -----
 1. With the creation of the `ItemBase` class, the creation of the `EquipmentBase` class will be a much quicker task. First off, right click your CSPROJ and create a new folder `Equipment`. Then, right click that folder `Add -> New Class` and name it `EquipmentBase`. `EquipmentBase` will share all of our language token properties and path properties, so let's just implement those. This time we'll call them `EquipmentName`, `EquipmentLangTokenName`, and etc. Like so:
 ```csharp
