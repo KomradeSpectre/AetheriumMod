@@ -36,7 +36,7 @@ namespace Aetherium.Items
         public abstract string ItemModelPath { get; }
         public abstract string ItemIconPath { get; }
 
-        public ItemIndex IndexOfItem;
+        public ItemIndex Index;
 
         public virtual bool CanRemove { get; } = true;
 
@@ -75,7 +75,7 @@ namespace Aetherium.Items
                 tier = Tier
             };
             var itemDisplayRules = CreateItemDisplayRules();
-            IndexOfItem = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRules));
+            Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRules));
         }
 
         public abstract void Hooks();
@@ -89,14 +89,14 @@ namespace Aetherium.Items
         {
             if (!body || !body.inventory) { return 0; }
 
-            return body.inventory.GetItemCount(IndexOfItem);
+            return body.inventory.GetItemCount(Index);
         }
 
         public int GetCount(CharacterMaster master)
         {
             if (!master || !master.inventory) { return 0; }
 
-            return master.inventory.GetItemCount(IndexOfItem);
+            return master.inventory.GetItemCount(Index);
         }
     }
 }

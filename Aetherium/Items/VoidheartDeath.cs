@@ -89,9 +89,9 @@ namespace Aetherium.Items
 
         private void FireVoidPortal()
         {
-            if (NetworkServer.active && this.portalPosition != null)
+            if (NetworkServer.active && portalPosition != null)
             {
-                Collider[] array = Physics.OverlapSphere(this.portalPosition.Value, voidExplosionRadius, LayerIndex.entityPrecise.mask);
+                Collider[] array = Physics.OverlapSphere(portalPosition.Value, voidExplosionRadius, LayerIndex.entityPrecise.mask);
                 CharacterBody[] array2 = new CharacterBody[array.Length];
                 int count = 0;
                 for (int i = 0; i < array.Length; i++)

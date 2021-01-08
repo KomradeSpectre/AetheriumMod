@@ -15,19 +15,19 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : ItemBase<InspiringDrone>
     {
-        public static ConfigEntry<bool> SetAllStatValuesAtOnce;
-        public static ConfigEntry<float> AllStatValueGrantedPercentage;
-        public static ConfigEntry<float> DamageGrantedPercentage;
-        public static ConfigEntry<float> AttackSpeedGrantedPercentage;
-        public static ConfigEntry<float> CritChanceGrantedPercentage;
-        public static ConfigEntry<float> HealthGrantedPercentage;
-        public static ConfigEntry<float> RegenGrantedPercentage;
-        public static ConfigEntry<float> ArmorGrantedPercentage;
-        public static ConfigEntry<float> MovementSpeedGrantedPercentage;
-        public static ConfigEntry<float> TurretTeleportationCooldownDuration;
-        public static ConfigEntry<float> DroneTeleportationCooldownDuration;
-        public static ConfigEntry<float> TurretTeleportationDistanceAroundOwner;
-        public static ConfigEntry<float> DroneTeleportationDistanceAroundOwner;
+        public static bool SetAllStatValuesAtOnce;
+        public static float AllStatValueGrantedPercentage;
+        public static float DamageGrantedPercentage;
+        public static float AttackSpeedGrantedPercentage;
+        public static float CritChanceGrantedPercentage;
+        public static float HealthGrantedPercentage;
+        public static float RegenGrantedPercentage;
+        public static float ArmorGrantedPercentage;
+        public static float MovementSpeedGrantedPercentage;
+        public static float TurretTeleportationCooldownDuration;
+        public static float DroneTeleportationCooldownDuration;
+        public static float TurretTeleportationDistanceAroundOwner;
+        public static float DroneTeleportationDistanceAroundOwner;
 
         public override string ItemName => "Inspiring Drone";
 
@@ -35,26 +35,26 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "Your bots are granted a portion of all your stats, and will be brought to you after a delay if they are too far from you.";
 
-        public override string ItemFullDescription => SetAllStatValuesAtOnce.Value ?
+        public override string ItemFullDescription => SetAllStatValuesAtOnce ?
 
             //Set All Values At Once
 
-            $"Bots that you own gain a <style=cIsUtility>{FloatToPercentageString(AllStatValueGrantedPercentage.Value)} boost to each of their stats based on yours</style> <style=cStack>(+{FloatToPercentageString(AllStatValueGrantedPercentage.Value)} per stack, linearly)</style>.\n" +
+            $"Bots that you own gain a <style=cIsUtility>{FloatToPercentageString(AllStatValueGrantedPercentage)} boost to each of their stats based on yours</style> <style=cStack>(+{FloatToPercentageString(AllStatValueGrantedPercentage)} per stack, linearly)</style>.\n" +
             "Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
-            $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({TurretTeleportationCooldownDuration.Value} seconds for Turrets, {DroneTeleportationCooldownDuration.Value} seconds for Drones)</style>." :
+            $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({TurretTeleportationCooldownDuration} seconds for Turrets, {DroneTeleportationCooldownDuration} seconds for Drones)</style>." :
 
             //Set Values Individually
 
             $"Bots that you own gain the following stat boosts per stack.\n" +
-            $"A <style=cIsDamage>{FloatToPercentageString(DamageGrantedPercentage.Value)} damage boost based on yours</style>.\n" +
-            $"A <style=cIsDamage>{FloatToPercentageString(AttackSpeedGrantedPercentage.Value)} attack speed boost based on yours</style>.\n" +
-            $"A <style=cIsDamage>{FloatToPercentageString(CritChanceGrantedPercentage.Value)} crit chance boost based on yours</style>.\n" +
-            $"A <style=cIsHealing>{FloatToPercentageString(HealthGrantedPercentage.Value)} health boost based on yours</style>.\n" +
-            $"A <style=cIsHealing>{FloatToPercentageString(RegenGrantedPercentage.Value)} regen boost based on yours</style>.\n" +
-            $"A <style=cIsUtility>{FloatToPercentageString(ArmorGrantedPercentage.Value)} armor boost based on yours</style>.\n" +
-            $"A <style=cIsUtility>{FloatToPercentageString(MovementSpeedGrantedPercentage.Value)} damage boost based on yours</style>.\n" +
+            $"A <style=cIsDamage>{FloatToPercentageString(DamageGrantedPercentage)} damage boost based on yours</style>.\n" +
+            $"A <style=cIsDamage>{FloatToPercentageString(AttackSpeedGrantedPercentage)} attack speed boost based on yours</style>.\n" +
+            $"A <style=cIsDamage>{FloatToPercentageString(CritChanceGrantedPercentage)} crit chance boost based on yours</style>.\n" +
+            $"A <style=cIsHealing>{FloatToPercentageString(HealthGrantedPercentage)} health boost based on yours</style>.\n" +
+            $"A <style=cIsHealing>{FloatToPercentageString(RegenGrantedPercentage)} regen boost based on yours</style>.\n" +
+            $"A <style=cIsUtility>{FloatToPercentageString(ArmorGrantedPercentage)} armor boost based on yours</style>.\n" +
+            $"A <style=cIsUtility>{FloatToPercentageString(MovementSpeedGrantedPercentage)} damage boost based on yours</style>.\n" +
             $"Some bots <style=cIsUtility>gain more ammo</style> for their <style=cIsDamage>attacks</style> based on the <style=cIsUtility>bonus to their attack speed</style>, and have their <style=cIsUtility>ammo replenished twice as fast</style> per additional Inspiring Drone.\n" +
-            $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({TurretTeleportationCooldownDuration.Value} seconds for Turrets, {DroneTeleportationCooldownDuration.Value} seconds for Drones)</style>.";
+            $"Finally, if one of your bots are too far away from you, it is <style=cIsUtility>teleported</style> to you after a delay <style=cStack>({TurretTeleportationCooldownDuration} seconds for Turrets, {DroneTeleportationCooldownDuration} seconds for Drones)</style>.";
 
         public override string ItemLore => "Log File seems to be a transcript comprised entirely of binary. Decode?\n" +
             ">Yes\n" +
@@ -108,19 +108,19 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            SetAllStatValuesAtOnce = config.Bind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.");
-            AllStatValueGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%");
-            DamageGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?");
-            AttackSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?");
-            CritChanceGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?");
-            HealthGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?");
-            RegenGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?");
-            ArmorGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?");
-            MovementSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?");
-            TurretTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)");
-            DroneTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)");
-            TurretTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)");
-            DroneTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)");
+            SetAllStatValuesAtOnce = config.Bind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.").Value;
+            AllStatValueGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%").Value;
+            DamageGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            AttackSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            CritChanceGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            HealthGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            RegenGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            ArmorGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            MovementSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?").Value;
+            TurretTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)").Value;
+            DroneTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)").Value;
+            TurretTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)").Value;
+            DroneTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)").Value;
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -313,7 +313,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //YEAH, YEAH, TAKE THAT YOU DANG DEPLOYABLES. NO CUTE DRONE FOR YOU!
-                    self.inventory.RemoveItem(IndexOfItem, inventoryCount);
+                    self.inventory.RemoveItem(Index, inventoryCount);
                 }
             }
         }
@@ -434,13 +434,13 @@ namespace Aetherium.Items
                 {
                     if (OriginalName == "") OriginalName = BotBody.GetDisplayName();
                     BoostCount = inventoryCount;
-                    DamageBoost = CalculateStat(BotOwnerBody.damage, DamageGrantedPercentage.Value);
-                    AttackSpeedBoost = CalculateStat(BotOwnerBody.attackSpeed, AttackSpeedGrantedPercentage.Value);
-                    CritChanceBoost = CalculateStat(BotOwnerBody.crit, CritChanceGrantedPercentage.Value);
-                    HealthBoost = CalculateStat(BotOwnerBody.maxHealth, HealthGrantedPercentage.Value);
-                    RegenBoost = CalculateStat(BotOwnerBody.regen, RegenGrantedPercentage.Value);
-                    ArmorBoost = CalculateStat(BotOwnerBody.armor, ArmorGrantedPercentage.Value);
-                    MoveSpeedBoost = CalculateStat(BotOwnerBody.moveSpeed, MovementSpeedGrantedPercentage.Value);
+                    DamageBoost = CalculateStat(BotOwnerBody.damage, DamageGrantedPercentage);
+                    AttackSpeedBoost = CalculateStat(BotOwnerBody.attackSpeed, AttackSpeedGrantedPercentage);
+                    CritChanceBoost = CalculateStat(BotOwnerBody.crit, CritChanceGrantedPercentage);
+                    HealthBoost = CalculateStat(BotOwnerBody.maxHealth, HealthGrantedPercentage);
+                    RegenBoost = CalculateStat(BotOwnerBody.regen, RegenGrantedPercentage);
+                    ArmorBoost = CalculateStat(BotOwnerBody.armor, ArmorGrantedPercentage);
+                    MoveSpeedBoost = CalculateStat(BotOwnerBody.moveSpeed, MovementSpeedGrantedPercentage);
                     BotName = "";
                     if (BoostCount > 0) BotName += "Inspired ";
                     BotName += OriginalName;
@@ -517,7 +517,7 @@ namespace Aetherium.Items
 
             private float CalculateStat(float baseStat, float bonus)
             {
-                return baseStat * (SetAllStatValuesAtOnce.Value ? AllStatValueGrantedPercentage.Value : bonus) * BoostCount;
+                return baseStat * (SetAllStatValuesAtOnce ? AllStatValueGrantedPercentage : bonus) * BoostCount;
             }
 
             private bool IsBlacklisted()
@@ -542,15 +542,15 @@ namespace Aetherium.Items
                     GraphType graphType;
                     if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
                     {
-                        maxDistance = TurretTeleportationDistanceAroundOwner.Value;
+                        maxDistance = TurretTeleportationDistanceAroundOwner;
                         graphType = GraphType.Ground;
-                        duration = TurretTeleportationCooldownDuration.Value;
+                        duration = TurretTeleportationCooldownDuration;
                     }
                     else
                     {
-                        maxDistance = DroneTeleportationDistanceAroundOwner.Value;
+                        maxDistance = DroneTeleportationDistanceAroundOwner;
                         graphType = GraphType.Air;
-                        duration = DroneTeleportationCooldownDuration.Value;
+                        duration = DroneTeleportationCooldownDuration;
                     }
                     TeleportLogic(distance, maxDistance, graphType, duration);
                 }

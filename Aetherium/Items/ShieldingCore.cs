@@ -10,10 +10,10 @@ namespace Aetherium.Items
 {
     public class ShieldingCore : ItemBase<ShieldingCore>
     {
-        public static ConfigEntry<bool> UseNewIcons;
-        public static ConfigEntry<float> BaseShieldingCoreArmorGrant;
-        public static ConfigEntry<float> AdditionalShieldingCoreArmorGrant;
-        public static ConfigEntry<float> BaseGrantShieldMultiplier;
+        public static bool UseNewIcons;
+        public static float BaseShieldingCoreArmorGrant;
+        public static float AdditionalShieldingCoreArmorGrant;
+        public static float BaseGrantShieldMultiplier;
 
         public override string ItemName => "Shielding Core";
 
@@ -21,8 +21,8 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "While shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant.Value}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant.Value} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
-            $" The first stack of this item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier.Value)}</style> of your max health as shield on pickup.";
+        public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
+            $" The first stack of this item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier)}</style> of your max health as shield on pickup.";
 
         public override string ItemLore => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
 
@@ -30,7 +30,7 @@ namespace Aetherium.Items
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCore.prefab";
-        public override string ItemIconPath => UseNewIcons.Value ? "@Aetherium:Assets/Textures/Icons/Item/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/shieldingCoreIcon.png";
+        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/shieldingCoreIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -44,10 +44,10 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?");
-            AdditionalShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?");
-            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
+            BaseShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?").Value;
+            AdditionalShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?").Value;
+            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?").Value;
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -192,7 +192,7 @@ namespace Aetherium.Items
             if (GetCount(sender) > 0)
             {
                 HealthComponent healthC = sender.GetComponent<HealthComponent>();
-                args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier.Value;
+                args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
             }
         }
 
@@ -252,7 +252,7 @@ namespace Aetherium.Items
             var ShieldedCoreComponent = sender.GetComponent<ShieldedCoreComponent>();
             if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
             {
-                args.armorAdd += BaseShieldingCoreArmorGrant.Value + (AdditionalShieldingCoreArmorGrant.Value * (ShieldedCoreComponent.cachedInventoryCount - 1));
+                args.armorAdd += BaseShieldingCoreArmorGrant + (AdditionalShieldingCoreArmorGrant * (ShieldedCoreComponent.cachedInventoryCount - 1));
             }
         }
 

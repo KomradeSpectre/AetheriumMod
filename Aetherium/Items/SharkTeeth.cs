@@ -10,12 +10,13 @@ namespace Aetherium.Items
 {
     public class SharkTeeth : ItemBase<SharkTeeth>
     {
-        public static ConfigEntry<bool> UseNewIcons;
-        public static ConfigEntry<float> BaseDamageSpreadPercentage;
-        public static ConfigEntry<float> AdditionalDamageSpreadPercentage;
-        public static ConfigEntry<float> MaxDamageSpreadPercentage;
-        public static ConfigEntry<float> DurationOfDamageSpread;
-        public static ConfigEntry<int> TicksOfDamageDuringDuration;
+        public bool UseNewIcons;
+        //public static bool UseNewIcons;
+        public static float BaseDamageSpreadPercentage;
+        public static float AdditionalDamageSpreadPercentage;
+        public static float MaxDamageSpreadPercentage;
+        public static float DurationOfDamageSpread;
+        public static int TicksOfDamageDuringDuration;
 
         public override string ItemName => "Shark Teeth";
 
@@ -23,7 +24,7 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
 
-        public override string ItemFullDescription => $"<style=cIsDamage>{FloatToPercentageString(BaseDamageSpreadPercentage.Value)}</style> of damage taken <style=cStack>(+{FloatToPercentageString(AdditionalDamageSpreadPercentage.Value)} per stack, hyperbolically)</style> is distributed to you over {DurationOfDamageSpread.Value} second(s) as <style=cIsDamage>bleed damage</style>";
+        public override string ItemFullDescription => $"<style=cIsDamage>{FloatToPercentageString(BaseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{FloatToPercentageString(AdditionalDamageSpreadPercentage)} per stack, hyperbolically)</style> is distributed to you over {DurationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>";
 
         public override string ItemLore => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be minor flesh wounds on their wielder.";
 
@@ -31,7 +32,7 @@ namespace Aetherium.Items
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.AIBlacklist };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/SharkTeeth/SharkTeeth.prefab";
-        public override string ItemIconPath => UseNewIcons.Value ? "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIcon.png";
+        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -47,12 +48,12 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
-            AdditionalDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
-            MaxDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
-            DurationOfDamageSpread = config.Bind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
-            TicksOfDamageDuringDuration = config.Bind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
+            BaseDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?").Value;
+            AdditionalDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?").Value;
+            MaxDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?").Value;
+            DurationOfDamageSpread = config.Bind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?").Value;
+            TicksOfDamageDuringDuration = config.Bind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?").Value;
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -202,10 +203,10 @@ namespace Aetherium.Items
                 if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
                 {
                     //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
-                    var percentage = BaseDamageSpreadPercentage.Value + (MaxDamageSpreadPercentage.Value - MaxDamageSpreadPercentage.Value / (1 + AdditionalDamageSpreadPercentage.Value * (inventoryCount - 1)));
+                    var percentage = BaseDamageSpreadPercentage + (MaxDamageSpreadPercentage - MaxDamageSpreadPercentage / (1 + AdditionalDamageSpreadPercentage * (inventoryCount - 1)));
                     var damage = damageInfo.damage * percentage;
-                    var time = DurationOfDamageSpread.Value;
-                    var segments = TicksOfDamageDuringDuration.Value;
+                    var time = DurationOfDamageSpread;
+                    var segments = TicksOfDamageDuringDuration;
                     damageInfo.damage -= damage;
                     bleedComponent.BleedStacks.Add(new BleedStack(time / segments, damage / segments, segments, damageInfo.attacker, damageInfo.damageType));
                 }

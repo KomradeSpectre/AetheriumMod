@@ -9,13 +9,13 @@ namespace Aetherium.Items
 {
     public class Voidheart : ItemBase<Voidheart>
     {
-        public static ConfigEntry<float> VoidImplosionDamageMultiplier;
-        public static ConfigEntry<float> VoidImplosionBaseRadius;
-        public static ConfigEntry<float> VoidImplosionAdditionalRadius;
-        public static ConfigEntry<float> VoidHeartBaseTickingTimeBombHealthThreshold;
-        public static ConfigEntry<float> VoidHeartAdditionalTickingTimeBombHealthThreshold;
-        public static ConfigEntry<float> VoidHeartMaxTickingTimeBombHealthThreshold;
-        public static ConfigEntry<float> VoidHeartCooldownDebuffDuration;
+        public static float VoidImplosionDamageMultiplier;
+        public static float VoidImplosionBaseRadius;
+        public static float VoidImplosionAdditionalRadius;
+        public static float VoidHeartBaseTickingTimeBombHealthThreshold;
+        public static float VoidHeartAdditionalTickingTimeBombHealthThreshold;
+        public static float VoidHeartMaxTickingTimeBombHealthThreshold;
+        public static float VoidHeartCooldownDebuffDuration;
 
         public override string ItemName => "Heart of the Void";
 
@@ -23,7 +23,7 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "On <style=cDeath>death</style>, cause a highly damaging void implosion that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at low health <style=cIsDamage>all healing is converted to damage</style>.";
 
-        public override string ItemFullDescription => $"On <style=cDeath>death</style>, cause a highly damaging void implosion that is {VoidImplosionDamageMultiplier.Value}x your damage with a radius of <style=cIsDamage>{VoidImplosionBaseRadius.Value}m</style> <style=cStack>(+{VoidImplosionAdditionalRadius.Value}m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>{FloatToPercentageString(VoidHeartBaseTickingTimeBombHealthThreshold.Value)} health</style> <style=cStack>(+{FloatToPercentageString(VoidHeartAdditionalTickingTimeBombHealthThreshold.Value)} per stack, max {FloatToPercentageString(VoidHeartMaxTickingTimeBombHealthThreshold.Value)})</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
+        public override string ItemFullDescription => $"On <style=cDeath>death</style>, cause a highly damaging void implosion that is {VoidImplosionDamageMultiplier}x your damage with a radius of <style=cIsDamage>{VoidImplosionBaseRadius}m</style> <style=cStack>(+{VoidImplosionAdditionalRadius}m per stack)</style> that <style=cIsHealing>revives you if an enemy is killed by it</style> BUT at <style=cIsHealth>{FloatToPercentageString(VoidHeartBaseTickingTimeBombHealthThreshold)} health</style> <style=cStack>(+{FloatToPercentageString(VoidHeartAdditionalTickingTimeBombHealthThreshold)} per stack, max {FloatToPercentageString(VoidHeartMaxTickingTimeBombHealthThreshold)})</style> or lower, <style=cIsDamage>all kinds of healing are converted to damage</style>.";
 
         public override string ItemLore => "\n[INCIDENT NUMBER 511051]" +
             "\n[TRANSCRIPT TO FOLLOW]" +
@@ -64,13 +64,13 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            VoidImplosionDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))");
-            VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))");
-            VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))");
-            VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))");
-            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
-            VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
-            VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
+            VoidImplosionDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))").Value;
+            VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))").Value;
+            VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))").Value;
+            VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))").Value;
+            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))").Value;
+            VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))").Value;
+            VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))").Value;
         }
 
         private void CreateBuff()
@@ -236,10 +236,10 @@ namespace Aetherium.Items
                 var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
                 componentVoidheartDeath.toReviveMaster = self;
                 componentVoidheartDeath.toReviveBody = body;
-                componentVoidheartDeath.voidExplosionRadius = VoidImplosionBaseRadius.Value + (VoidImplosionAdditionalRadius.Value * (InventoryCount - 1));
-                componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier.Value;
+                componentVoidheartDeath.voidExplosionRadius = VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (InventoryCount - 1));
+                componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier;
                 componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
-                componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration.Value;
+                componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration;
                 componentVoidheartDeath.Init();
 
                 var tempDestroyOnDeath = self.destroyOnBodyDeath;
@@ -257,7 +257,7 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if (self.body && InventoryCount > 0)
             {
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold.Value + (VoidHeartAdditionalTickingTimeBombHealthThreshold.Value * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold.Value, VoidHeartMaxTickingTimeBombHealthThreshold.Value) &&
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) &&
                     //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
                     self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
                 {
@@ -285,7 +285,7 @@ namespace Aetherium.Items
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
-                overlay.duration = VoidHeartCooldownDebuffDuration.Value;
+                overlay.duration = VoidHeartCooldownDebuffDuration;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;
@@ -336,7 +336,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //Unga bunga, voidheart not like deployables. POP!
-                    self.inventory.RemoveItem(IndexOfItem, InventoryCount);
+                    self.inventory.RemoveItem(Index, InventoryCount);
                 }
             }
         }

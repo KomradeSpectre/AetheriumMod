@@ -16,16 +16,16 @@ namespace Aetherium.Items
 {
     public class BlasterSword : ItemBase<BlasterSword>
     {
-        public static ConfigEntry<bool> UseImpaleProjectile;
-        public static ConfigEntry<float> BaseSwordDamageMultiplier;
-        public static ConfigEntry<float> AdditionalSwordDamageMultiplier;
+        public bool UseImpaleProjectile;
+        public float BaseSwordDamageMultiplier;
+        public float AdditionalSwordDamageMultiplier;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
-        public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile.Value ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
+        public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
 
-        public override string ItemFullDescription => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier.Value)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier.Value)} per stack)</style> " +
-            $"when it <style=cIsDamage>{(UseImpaleProjectile.Value ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
+        public override string ItemFullDescription => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier)} per stack)</style> " +
+            $"when it <style=cIsDamage>{(UseImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
 
         public override string ItemLore => "<style=cMono>. . . . . . . . . .</style>\n" +
             "\n<style=cMono>THEY</style> have chosen to <style=cMono>LISTEN</style> to our words.\n" +
@@ -70,9 +70,9 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?");
-            BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
-            AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
+            UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?").Value;
+            BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)").Value;
+            AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
         }
 
         private void CreateBuff()
@@ -91,7 +91,7 @@ namespace Aetherium.Items
 
         private void CreateProjectile()
         {
-            SwordProjectile = UseImpaleProjectile.Value ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
+            SwordProjectile = UseImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
 
             var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
@@ -109,7 +109,7 @@ namespace Aetherium.Items
 
             var impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
 
-            if (UseImpaleProjectile.Value)
+            if (UseImpaleProjectile)
             {
                 var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
                 impactExplosion.impactEffect = impactEffect;
@@ -426,7 +426,7 @@ namespace Aetherium.Items
                                         owner = body.gameObject,
                                         projectilePrefab = SwordProjectile,
                                         speedOverride = 150.0f,
-                                        damage = body.damage * BaseSwordDamageMultiplier.Value + (body.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1)),
+                                        damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
                                         damageTypeOverride = null,
                                         damageColorIndex = DamageColorIndex.Default,
                                         procChainMask = default
@@ -480,7 +480,7 @@ namespace Aetherium.Items
                                     owner = body.gameObject,
                                     projectilePrefab = SwordProjectile,
                                     speedOverride = 100.0f,
-                                    damage = body.damage * BaseSwordDamageMultiplier.Value + (body.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1)),
+                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
                                     damageTypeOverride = null,
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default
@@ -547,7 +547,7 @@ namespace Aetherium.Items
                                 owner = owner,
                                 projectilePrefab = SwordProjectile,
                                 speedOverride = 100.0f,
-                                damage = ownerBody.damage * BaseSwordDamageMultiplier.Value + (ownerBody.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1)),
+                                damage = ownerBody.damage * BaseSwordDamageMultiplier + (ownerBody.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default,
@@ -611,7 +611,7 @@ namespace Aetherium.Items
                                     owner = self.inflictor,
                                     projectilePrefab = SwordProjectile,
                                     speedOverride = 100.0f,
-                                    damage = body.damage * BaseSwordDamageMultiplier.Value + (body.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1)),
+                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
                                     damageTypeOverride = null,
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default,
@@ -654,7 +654,7 @@ namespace Aetherium.Items
                                 owner = projectileOwner,
                                 projectilePrefab = SwordProjectile,
                                 speedOverride = 100.0f,
-                                damage = projectileBody.damage * BaseSwordDamageMultiplier.Value + (projectileBody.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1)),
+                                damage = projectileBody.damage * BaseSwordDamageMultiplier + (projectileBody.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default
@@ -715,7 +715,7 @@ namespace Aetherium.Items
                                 newProjectileInfo.owner = projectileOwner;
                                 newProjectileInfo.projectilePrefab = SwordProjectile;
                                 newProjectileInfo.speedOverride = 100.0f;
-                                newProjectileInfo.damage = body.damage * BaseSwordDamageMultiplier.Value + (body.damage * AdditionalSwordDamageMultiplier.Value * (InventoryCount - 1));
+                                newProjectileInfo.damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1));
                                 newProjectileInfo.damageTypeOverride = null;
                                 newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                                 newProjectileInfo.procChainMask = default;

@@ -41,7 +41,7 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
-        public EquipmentIndex IndexOfEquipment;
+        public static EquipmentIndex Index;
 
         public abstract void Init(ConfigFile config);
 
@@ -75,13 +75,13 @@ namespace Aetherium.Equipment
                 isLunar = IsLunar
             };
             var itemDisplayRules = CreateItemDisplayRules();
-            IndexOfEquipment = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
         }
 
         private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
         {
-            if (equipmentIndex == IndexOfEquipment)
+            if (equipmentIndex == Index)
             {
                 return ActivateEquipment(self);
             }

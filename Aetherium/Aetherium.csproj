@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Remove="Equipment\PheromoneSac.cs" />
+    <Compile Remove="Items\WeightedAnklet.cs" />
   </ItemGroup>
 
   <ItemGroup>

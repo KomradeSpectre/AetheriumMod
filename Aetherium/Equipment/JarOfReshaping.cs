@@ -17,10 +17,10 @@ namespace Aetherium.Equipment
 {
     public class JarOfReshaping : EquipmentBase<JarOfReshaping>
     {
-        public static ConfigEntry<float> BaseRadiusGranted;
-        public static ConfigEntry<float> ProjectileAbsorptionTime;
-        public static ConfigEntry<float> JarCooldown;
-        public static ConfigEntry<bool> IWantToLoseFriendsInChaosMode;
+        public static float BaseRadiusGranted;
+        public static float ProjectileAbsorptionTime;
+        public static float JarCooldown;
+        public static bool IWantToLoseFriendsInChaosMode;
 
         public override string EquipmentName => "Jar Of Reshaping";
 
@@ -28,7 +28,7 @@ namespace Aetherium.Equipment
 
         public override string EquipmentPickupDesc => "On activation, <style=cIsUtility>suck nearby projectiles into the jar</style>. Upon success, the next activation will <style=cIsDamage>fire out all projectiles stored in the jar</style>.";
 
-        public override string EquipmentFullDescription => $"On activation, <style=cIsUtility>absorb projectiles</style> in a <style=cIsUtility>{BaseRadiusGranted.Value}m</style> radius for <style=cIsUtility>{ProjectileAbsorptionTime.Value}</style> second(s). " +
+        public override string EquipmentFullDescription => $"On activation, <style=cIsUtility>absorb projectiles</style> in a <style=cIsUtility>{BaseRadiusGranted}m</style> radius for <style=cIsUtility>{ProjectileAbsorptionTime}</style> second(s). " +
             $"Upon success, <style=cIsDamage>fire all of the projectiles out of the jar</style> upon next activation. " +
             $"The damage traits of each projectiles fired from the jar depends on the <style=cIsDamage>bullets you absorbed</style>. " +
             $"After all the projectiles have been fired from the jar, it will need to cool down.";
@@ -55,7 +55,7 @@ namespace Aetherium.Equipment
 
         public override string EquipmentIconPath => "@Aetherium:Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png";
 
-        public override float Cooldown => JarCooldown.Value;
+        public override float Cooldown => JarCooldown;
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -78,10 +78,10 @@ namespace Aetherium.Equipment
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseRadiusGranted = config.Bind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)");
-            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
-            JarCooldown = config.Bind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
-            IWantToLoseFriendsInChaosMode = config.Bind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
+            BaseRadiusGranted = config.Bind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)").Value;
+            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)").Value;
+            JarCooldown = config.Bind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)").Value;
+            IWantToLoseFriendsInChaosMode = config.Bind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?").Value;
         }
 
         private void CreateNetworking()
@@ -100,7 +100,7 @@ namespace Aetherium.Equipment
             chargeSphereEffectComponent.positionAtReferencedTransform = true;
 
             var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
-            chargeSphereTimer.duration = ProjectileAbsorptionTime.Value;
+            chargeSphereTimer.duration = ProjectileAbsorptionTime;
 
             var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
             chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
@@ -312,7 +312,7 @@ namespace Aetherium.Equipment
             var slot = self.equipmentSlot;
             if (slot)
             {
-                if (slot.equipmentIndex == IndexOfEquipment)
+                if (slot.equipmentIndex == Index)
                 {
                     var bulletTracker = self.GetComponent<JarBulletTracker>();
                     if (!bulletTracker)
@@ -327,7 +327,7 @@ namespace Aetherium.Equipment
 
         private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_Update orig, RoR2.EquipmentSlot self)
         {
-            if (self.equipmentIndex == IndexOfEquipment)
+            if (self.equipmentIndex == Index)
             {
                 var selfDisplay = self.FindActiveEquipmentDisplay();
                 var body = self.characterBody;
@@ -377,7 +377,7 @@ namespace Aetherium.Equipment
             else if (bulletTracker.jarBullets.Count <= 0 && bulletTracker.SuckTime <= 0)
             {
                 bulletTracker.IsSuckingProjectiles = false;
-                bulletTracker.SuckTime = ProjectileAbsorptionTime.Value;
+                bulletTracker.SuckTime = ProjectileAbsorptionTime;
             }
             return false;
         }
@@ -426,7 +426,7 @@ namespace Aetherium.Equipment
                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
                         if (bodyIdentity && NetworkServer.active)
                         {
-                            new SyncJarSucking(SyncJarSucking.MessageType.Charging, true, ProjectileAbsorptionTime.Value, bodyIdentity.netId).Send(NetworkDestination.Clients);
+                            new SyncJarSucking(SyncJarSucking.MessageType.Charging, true, ProjectileAbsorptionTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
                         }
                         IsSuckingProjectiles = true;
                     }
@@ -434,7 +434,7 @@ namespace Aetherium.Equipment
                     List<ProjectileController> bullets = new List<ProjectileController>();
                     new RoR2.SphereSearch
                     {
-                        radius = BaseRadiusGranted.Value,
+                        radius = BaseRadiusGranted,
                         mask = RoR2.LayerIndex.projectile.mask,
                         origin = body.corePosition
                     }.RefreshCandidates().FilterCandidatesByProjectileControllers().GetProjectileControllers(bullets);
@@ -450,7 +450,7 @@ namespace Aetherium.Equipment
                                 {
                                     if (ownerBody.teamComponent.teamIndex == body.teamComponent.teamIndex)
                                     {
-                                        if (FriendlyFireManager.friendlyFireMode != FriendlyFireManager.FriendlyFireMode.Off && IWantToLoseFriendsInChaosMode.Value)
+                                        if (FriendlyFireManager.friendlyFireMode != FriendlyFireManager.FriendlyFireMode.Off && IWantToLoseFriendsInChaosMode)
                                         {
                                             if (ownerBody == body)
                                             {

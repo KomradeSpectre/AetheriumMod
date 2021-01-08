@@ -1375,7 +1375,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1446,7 +1446,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1518,7 +1518,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1594,7 +1594,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1677,7 +1677,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1762,7 +1762,7 @@ namespace MyModsNameSpace.Equipment
         public virtual bool IsBoss { get; } = false;
         public virtual bool IsLunar { get; } = false;
         
-        public EquipmentIndex Index;
+        public static EquipmentIndex Index;
         
         public abstract void Init(ConfigFile config);
         
@@ -1900,4 +1900,309 @@ namespace MyModsNameSpace.Items
     - Does it scale with our damage?  
     - Does it have a set amount of damage it does per stack of the item?  
 
-6. Once we've got these considerations and more all planned out, let's create some config entries for these. These will by default provide our own balance considerations for an item, but allow a user to configure it to their liking as well. Above all of our properties, we'll define these ConfigEntries.
+6. Once we've got these considerations and more all planned out, let's create some config entries for these. These will by default provide our own balance considerations for an item, but allow a user to configure it to their liking as well. After  all of our properties, we'll define the fields that will store the values from our config entries. We'll do one for the damage of the projectile, and one for additional damage per stack. Both of these will be of type `Float`. Like so:
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => throw new NotImplementedException();
+        public override string ItemLangTokenName => throw new NotImplementedException();
+        public override string ItemPickupDesc => throw new NotImplementedException();
+        public override string ItemFullDescription => throw new NotImplementedException();
+        public override string ItemLore => throw new NotImplementedException();
+        
+        public override ItemTier Tier => throw new NotImplementedException();        
+
+        public override string ItemModelPath => throw new NotImplementedException();
+        public override string ItemIconPath => throw new NotImplementedException();
+        
+        public float DamageOfMainProjectile;
+        public float AdditionalDamageOfMainProjectilePerStack;
+        
+        public override void Init(ConfigFile config)
+        {
+            throw new NotImplementedException();
+        }        
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+7. With these in place, we'll want a method to not only keep these organized, but also allow us to control when we bind the values from our config file to the fields we just made. For this, create a method `CreateConfig` and have one parameter `ConfigFile config`, then in `Init` call that method with the parameter `config`. The `Init` method itself will be getting a `ConfigFile` input into it later when we begin to modify the main class to initialize our items. Back on topic, our code should now look like:
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => throw new NotImplementedException();
+        public override string ItemLangTokenName => throw new NotImplementedException();
+        public override string ItemPickupDesc => throw new NotImplementedException();
+        public override string ItemFullDescription => throw new NotImplementedException();
+        public override string ItemLore => throw new NotImplementedException();
+        
+        public override ItemTier Tier => throw new NotImplementedException();        
+
+        public override string ItemModelPath => throw new NotImplementedException();
+        public override string ItemIconPath => throw new NotImplementedException();
+        
+        public float DamageOfMainProjectile;
+        public float AdditionalDamageOfMainProjectilePerStack;        
+        
+        public override void Init(ConfigFile config)
+        {
+            CreateConfig(config);
+        }        
+
+        public void CreateConfig(ConfigFile config)
+        {
+        
+        }
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+8. Next we'll be creating a `Config` binding using `config.Bind<Type>` and then grab its field `Value` in one go. `config.Bind<Type>` acts as both the writer and reader of a config file, and will update itself when new values are input into its generated config field, or if the default has changed. The overload we're going to use will consist of the following parts:
+    - `section` - The category that this config option will appear under. I generally use either `"Item: " + ItemName` or `"Equipment:"  + EquipmentName` which will place all of our config options for this in the same category and allow jumping to that category when using mod managers like `R2ModMan`.
+
+    - `key` - This is the name of this individual config option. It can be a short description too, like `"Damage of the Main Projectile"`.
+    - `defaultValue` - This should be self-explanatory, but this is the value you want this option to have by default. For a config option of type `float` this could be `100.58f`.
+    - `description` - This is the long description of what this config entry does. Generally, you ask a question in detail here. For example, `"What should the base damage of the main projectile be?"`.
+    
+9. Having all this in mind, let's create the config bindings for our item, and assign them to our fields we just created.
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => throw new NotImplementedException();
+        public override string ItemLangTokenName => throw new NotImplementedException();
+        public override string ItemPickupDesc => throw new NotImplementedException();
+        public override string ItemFullDescription => throw new NotImplementedException();
+        public override string ItemLore => throw new NotImplementedException();
+        
+        public override ItemTier Tier => throw new NotImplementedException();        
+
+        public override string ItemModelPath => throw new NotImplementedException();
+        public override string ItemIconPath => throw new NotImplementedException();
+        
+        public float DamageOfMainProjectile;
+        public float AdditionalDamageOfMainProjectilePerStack;        
+        
+        public override void Init(ConfigFile config)
+        {
+            CreateConfig(config);
+        }        
+
+        public void CreateConfig(ConfigFile config)
+        {
+        	DamageOfMainProjectile = config.Bind<float>("Item: " + ItemName, "Damage of the Main Projectile", 150f, "How much base damage should the projectile deal?").Value;
+        	AdditionalDamageOfMainProjectilePerStack = config.Bind<float>("Item: " + ItemName, "Additional Damage of Projectile per Stack", 100f, "How much more damage should the projectile deal per additional stack?").Value;
+        }
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+10. The main reason we're doing the config entries first is so that we can use them in our description. By doing so, we can automatically update the description string should we or the user change the values around. Now let's fill out the language string fields. We'll do these one at a time, and focus specifically on the fields in question due to a little bit of text shenaniganery we're about to do. First things first, let's set the name of our Item. Do this by replacing the `throw new NotImplementedException();` with a string containing the name of the item, in this example `"Omnipotent Egg"`.
+```csharp
+        public override string ItemName => "Omnipotent Egg";
+```
+11. Next up, fill out the `ItemLangTokenName` similar to how you did the one above.
+```csharp
+        public override string ItemLangTokenName => "OMNIPOTENT_EGG";
+```
+12. Next, `ItemPickupDesc` will be a short description of what the item does.
+```csharp
+        public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
+```
+13. `ItemFullDescription` which will be where we make our first use of the `TextMeshPro` rich text style tags. Before that however, visit either link below to familiarize yourself with these:
+    - https://github.com/risk-of-thunder/R2Wiki/wiki/Style-Reference-Sheet
+    - http://digitalnativestudios.com/textmeshpro/docs/rich-text/
+
+14. With that out of the way, let's proceed to fill out the full description. This is where we will go in detail with what the item does. Ours will list the condition in which our item activates, how much damage it does, and how much additional damage per stack it does. For this, we will make use of two of the style tags in the game. `<style=cIsDamage></style>` and `<style=cStack></style>`. Stack information generally will be put into parenthesis after main info. Secondly, we'll be using the shorthand for String.Format before our description string `$` which will allow us to use variables in the string via {field/variable/etc} (like the config fields we did earlier). Let's fill out that description now like so:
+```csharp
+        public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
+```
+15. Finally, lore is completely optional for an item, but people tend to like the extra polish that goes into creations. We'll just fill it out like so:
+```csharp
+        public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
+```
+16. Now we decide what tier we want this item to appear in. The effect is pretty good (identical to razorwire even), so green. That is to say, `ItemTier.Tier2`.
+```csharp
+        public override ItemTier Tier => ItemTier.Tier2;
+```
+17. Fill out the model and icon paths as we discussed before by using the provider and a string path to the asset (including the filetype).
+```csharp
+        public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
+        public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+```
+18. Now in our `Init` method, simply add a `CreateLang();` under `CreateConfig(config);`. This will initialize our Language Token registry after we bind the config values to the fields, resulting in a description that changes if the user changes their values.
+
+19. At this point your code should look similar to the following:
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => "Omnipotent Egg";
+        
+        public override string ItemLangTokenName => "OMNIPOTENT_EGG";
+        
+        public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
+        
+        public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
+        
+        public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
+        
+        public override ItemTier Tier => ItemTier.Tier2;        
+
+        public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
+        public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+        
+        public float DamageOfMainProjectile;
+        public float AdditionalDamageOfMainProjectilePerStack;        
+        
+        public override void Init(ConfigFile config)
+        {
+            CreateConfig(config);
+            CreateLang();
+        }        
+
+        public void CreateConfig(ConfigFile config)
+        {
+        	DamageOfMainProjectile = config.Bind<float>("Item: " + ItemName, "Damage of the Main Projectile", 150f, "How much base damage should the projectile deal?").Value;
+        	AdditionalDamageOfMainProjectilePerStack = config.Bind<float>("Item: " + ItemName, "Additional Damage of Projectile per Stack", 100f, "How much more damage should the projectile deal per additional stack?").Value;
+        }
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+20. We'll need to create a projectile for our item to fire, so let's create a method `CreateProjectile` with no return type. It will serve to keep our initilizations nice and tidy. Place this method underneath `CreateConfig`.
+```csharp
+using BepInEx.Configuration;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace MyModsNameSpace.Items
+{
+    public class OmnipotentEgg : ItemBase
+    {
+        public override string ItemName => "Omnipotent Egg";
+        
+        public override string ItemLangTokenName => "OMNIPOTENT_EGG";
+        
+        public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
+        
+        public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
+        
+        public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
+        
+        public override ItemTier Tier => ItemTier.Tier2;        
+
+        public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
+        public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+        
+        public float DamageOfMainProjectile;
+        public float AdditionalDamageOfMainProjectilePerStack;        
+        
+        public override void Init(ConfigFile config)
+        {
+            CreateConfig(config);
+            CreateLang();
+        }        
+
+        public void CreateConfig(ConfigFile config)
+        {
+        	DamageOfMainProjectile = config.Bind<float>("Item: " + ItemName, "Damage of the Main Projectile", 150f, "How much base damage should the projectile deal?").Value;
+        	AdditionalDamageOfMainProjectilePerStack = config.Bind<float>("Item: " + ItemName, "Additional Damage of Projectile per Stack", 100f, "How much more damage should the projectile deal per additional stack?").Value;
+        }
+        
+        public void CreateProjectile()
+        {
+            
+        }
+
+        public override ItemDisplayRuleDict CreateItemDisplayRules()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Hooks()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+21. When creating a projectile, there are a few paths you can go:
+     - You can create your own projectile from scratch, which takes considerable effort and experience. 
+ 
+     - You can use a base game projectile, such as Commando's `FMJ`.  
+     - You can clone a base game projectile, and edit the properties of it safely. **This is what we're going to do.**
+22. In the `CreateProjectile` method, 

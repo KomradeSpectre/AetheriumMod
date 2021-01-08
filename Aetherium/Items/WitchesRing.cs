@@ -10,10 +10,10 @@ namespace Aetherium.Items
 {
     public class WitchesRing : ItemBase<WitchesRing>
     {
-        public static ConfigEntry<float> WitchesRingTriggerThreshold;
-        public static ConfigEntry<float> BaseCooldownDuration;
-        public static ConfigEntry<float> AdditionalCooldownReduction;
-        public static ConfigEntry<bool> GlobalCooldownOnUse;
+        public static float WitchesRingTriggerThreshold;
+        public static float BaseCooldownDuration;
+        public static float AdditionalCooldownReduction;
+        public static bool GlobalCooldownOnUse;
 
         public override string ItemName => "Witches Ring";
 
@@ -21,8 +21,8 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => $"Hits that deal <style=cIsDamage>high damage</style> will also trigger <style=cDeath>On Kill</style> effects. Enemies hit by this effect gain <style=cIsUtility>temporary immunity to it</style>.";
 
-        public override string ItemFullDescription => $"Hits that deal <style=cIsDamage>{FloatToPercentageString(WitchesRingTriggerThreshold.Value)} damage</style> or more will trigger <style=cDeath>On Kill</style> effects." +
-            $" Upon success, {(GlobalCooldownOnUse.Value ? "the target hit is <style=cIsUtility>granted immunity to this effect</style>" : "<style=cIsUtility>the ring must recharge</style>")} for <style=cIsUtility>{BaseCooldownDuration.Value} second(s)</style> <style=cStack>(-{FloatToPercentageString(AdditionalCooldownReduction.Value)} duration per stack, hyperbolically)</style>.";
+        public override string ItemFullDescription => $"Hits that deal <style=cIsDamage>{FloatToPercentageString(WitchesRingTriggerThreshold)} damage</style> or more will trigger <style=cDeath>On Kill</style> effects." +
+            $" Upon success, {(GlobalCooldownOnUse ? "the target hit is <style=cIsUtility>granted immunity to this effect</style>" : "<style=cIsUtility>the ring must recharge</style>")} for <style=cIsUtility>{BaseCooldownDuration} second(s)</style> <style=cStack>(-{FloatToPercentageString(AdditionalCooldownReduction)} duration per stack, hyperbolically)</style>.";
 
         public override string ItemLore => "A strange ring found next to a skeleton wearing a dark green robe with light green trim.\n" +
             "The markings on it roughly translate to the following: \n" +
@@ -52,10 +52,10 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            WitchesRingTriggerThreshold = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?");
-            BaseCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?");
-            AdditionalCooldownReduction = config.Bind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?");
-            GlobalCooldownOnUse = config.Bind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?");
+            WitchesRingTriggerThreshold = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?").Value;
+            BaseCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?").Value;
+            AdditionalCooldownReduction = config.Bind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?").Value;
+            GlobalCooldownOnUse = config.Bind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?").Value;
         }
 
         private void CreateBuff()
@@ -322,17 +322,17 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(body);
                     if (InventoryCount > 0)
                     {
-                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold.Value && !victimBody.HasBuff(WitchesRingImmunityBuff))
+                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold && !victimBody.HasBuff(WitchesRingImmunityBuff))
                         {
                             if (NetworkServer.active)
                             {
-                                if (!GlobalCooldownOnUse.Value)
+                                if (!GlobalCooldownOnUse)
                                 {
-                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration.Value / (1 + AdditionalCooldownReduction.Value * (InventoryCount - 1)));
+                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
                                 }
                                 else
                                 {
-                                    body.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration.Value / (1 + AdditionalCooldownReduction.Value * (InventoryCount - 1)));
+                                    body.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
                                 }
                                 DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
                                 GlobalEventManager.instance.OnCharacterDeath(damageReport);

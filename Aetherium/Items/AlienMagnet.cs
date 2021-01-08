@@ -9,15 +9,15 @@ namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
-        public static ConfigEntry<float> StartingForceMultiplier;
-        public static ConfigEntry<float> AdditionalForceMultiplier;
-        public static ConfigEntry<float> MinimumForceMultiplier;
-        public static ConfigEntry<float> MaximumForceMultiplier;
+        public float StartingForceMultiplier;
+        public float AdditionalForceMultiplier;
+        public float MinimumForceMultiplier;
+        public float MaximumForceMultiplier;
 
         public override string ItemName => "Alien Magnet";
         public override string ItemLangTokenName => "ALIEN_MAGNET";
         public override string ItemPickupDesc => "Your attacks pull enemies towards you.";
-        public override string ItemFullDescription => $"Enemies hit by your attacks will be pulled towards you, starting at {StartingForceMultiplier.Value}x force <style=cStack>(+{AdditionalForceMultiplier.Value}x force multiplier, up to {MaximumForceMultiplier.Value}x total force. The effect is more noticeable on higher health enemies.)</style>";
+        public override string ItemFullDescription => $"Enemies hit by your attacks will be pulled towards you, starting at {StartingForceMultiplier}x force <style=cStack>(+{AdditionalForceMultiplier}x force multiplier, up to {MaximumForceMultiplier}x total force. The effect is more noticeable on higher health enemies.)</style>";
         public override string ItemLore => "A strange pylon that seems to bring enemies towards the wielder when their attacks hit. Only the truly brave or insane bring the fight to themselves.";
 
         public override ItemTier Tier => ItemTier.Lunar;
@@ -45,10 +45,10 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            StartingForceMultiplier = config.Bind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?");
-            AdditionalForceMultiplier = config.Bind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?");
-            MinimumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?");
-            MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?");
+            StartingForceMultiplier = config.Bind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?").Value;
+            AdditionalForceMultiplier = config.Bind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?").Value;
+            MinimumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?").Value;
+            MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?").Value;
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -210,7 +210,7 @@ namespace Aetherium.Items
                         else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
                         else mass = 1f;
 
-                        var forceCalc = Mathf.Clamp(StartingForceMultiplier.Value + (AdditionalForceMultiplier.Value * (ItemCount - 1)), MinimumForceMultiplier.Value, MaximumForceMultiplier.Value);
+                        var forceCalc = Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier);
                         damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
                     }
                 }

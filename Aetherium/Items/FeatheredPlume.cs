@@ -10,23 +10,23 @@ namespace Aetherium.Items
 {
     public class FeatheredPlume : ItemBase<FeatheredPlume>
     {
-        public static ConfigEntry<bool> UseNewIcons;
-        public static ConfigEntry<float> BaseDurationOfBuffInSeconds;
-        public static ConfigEntry<float> AdditionalDurationOfBuffInSeconds;
-        public static ConfigEntry<int> BuffStacksPerFeatheredPlume;
-        public static ConfigEntry<float> MoveSpeedPercentageBonusPerBuffStack;
+        public static bool UseNewIcons;
+        public static float BaseDurationOfBuffInSeconds;
+        public static float AdditionalDurationOfBuffInSeconds;
+        public static int BuffStacksPerFeatheredPlume;
+        public static float MoveSpeedPercentageBonusPerBuffStack;
 
         public override string ItemName => "Feathered Plume";
         public override string ItemLangTokenName => "FEATHERED_PLUME";
         public override string ItemPickupDesc => "After taking damage, gain a boost in speed.";
-        public override string ItemFullDescription => $"Gain a temporary <style=cIsUtility>{FloatToPercentageString(MoveSpeedPercentageBonusPerBuffStack.Value)} speed boost</style> upon taking damage that stacks {BuffStacksPerFeatheredPlume.Value} times for {BaseDurationOfBuffInSeconds.Value} seconds. <style=cStack>(+{BuffStacksPerFeatheredPlume.Value} stacks and +{AdditionalDurationOfBuffInSeconds.Value} second duration per additional Feathered Plume.)</style>";
+        public override string ItemFullDescription => $"Gain a temporary <style=cIsUtility>{FloatToPercentageString(MoveSpeedPercentageBonusPerBuffStack)} speed boost</style> upon taking damage that stacks {BuffStacksPerFeatheredPlume} times for {BaseDurationOfBuffInSeconds} seconds. <style=cStack>(+{BuffStacksPerFeatheredPlume} stacks and +{AdditionalDurationOfBuffInSeconds} second duration per additional Feathered Plume.)</style>";
         public override string ItemLore => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
 
         public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/FeatheredPlume/FeatheredPlume.prefab";
-        public override string ItemIconPath => UseNewIcons.Value ? "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIcon.png";
+        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -47,11 +47,11 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            BaseDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?");
-            AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?");
-            BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?");
-            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
+            BaseDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?").Value;
+            AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?").Value;
+            BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?").Value;
+            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)").Value;
         }
 
         private void CreateBuff()
@@ -207,16 +207,16 @@ namespace Aetherium.Items
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
             var InventoryCount = GetCount(self.body);
-            if (InventoryCount > 0 && self.body.GetBuffCount(SpeedBuff) < BuffStacksPerFeatheredPlume.Value * InventoryCount)
+            if (InventoryCount > 0 && self.body.GetBuffCount(SpeedBuff) < BuffStacksPerFeatheredPlume * InventoryCount)
             {
-                self.body.AddTimedBuffAuthority(SpeedBuff, (BaseDurationOfBuffInSeconds.Value + (AdditionalDurationOfBuffInSeconds.Value * InventoryCount - 1)));
+                self.body.AddTimedBuffAuthority(SpeedBuff, (BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * InventoryCount - 1)));
             }
             orig(self, damageInfo);
         }
 
         private void AddSpeedReward(CharacterBody sender, StatHookEventArgs args)
         {
-            if (sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += MoveSpeedPercentageBonusPerBuffStack.Value * sender.GetBuffCount(SpeedBuff); }
+            if (sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += MoveSpeedPercentageBonusPerBuffStack * sender.GetBuffCount(SpeedBuff); }
         }
     }
 }

@@ -10,19 +10,19 @@ namespace Aetherium.Items
 {
     public class BloodSoakedShield : ItemBase<BloodSoakedShield>
     {
-        public static ConfigEntry<bool> UseNewIcons;
-        public static ConfigEntry<float> ShieldPercentageRestoredPerKill;
-        public static ConfigEntry<float> AdditionalShieldPercentageRestoredPerKillDiminishing;
-        public static ConfigEntry<float> MaximumPercentageShieldRestoredPerKill;
-        public static ConfigEntry<float> BaseGrantShieldMultiplier;
+        public static bool UseNewIcons;
+        public static float ShieldPercentageRestoredPerKill;
+        public static float AdditionalShieldPercentageRestoredPerKillDiminishing;
+        public static float MaximumPercentageShieldRestoredPerKill;
+        public static float BaseGrantShieldMultiplier;
 
         public override string ItemName => "Blood Soaked Shield";
         public override string ItemLangTokenName => "BLOOD_SOAKED_SHIELD";
         public override string ItemPickupDesc => "Killing an enemy <style=cIsHealing>restores</style> a small portion of <style=cIsHealing>shield</style>.";
 
-        public override string ItemFullDescription => $"Killing an enemy restores <style=cIsUtility>{FloatToPercentageString(ShieldPercentageRestoredPerKill.Value)} max shield</style> " +
-            $"<style=cStack>(+{FloatToPercentageString(AdditionalShieldPercentageRestoredPerKillDiminishing.Value)} per stack hyperbolically.)</style> " +
-            $"This item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier.Value)}</style> of your max health as shield on pickup once.";
+        public override string ItemFullDescription => $"Killing an enemy restores <style=cIsUtility>{FloatToPercentageString(ShieldPercentageRestoredPerKill)} max shield</style> " +
+            $"<style=cStack>(+{FloatToPercentageString(AdditionalShieldPercentageRestoredPerKillDiminishing)} per stack hyperbolically.)</style> " +
+            $"This item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier)}</style> of your max health as shield on pickup once.";
 
         public override string ItemLore => "An old gladiatorial round shield. The bloody spikes and Greek lettering give you an accurate picture of what it was used to do. Somehow, holding it makes you feel empowered.";
 
@@ -30,7 +30,7 @@ namespace Aetherium.Items
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Healing };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/BloodSoakedShield/BloodSoakedShield.prefab";
-        public override string ItemIconPath => UseNewIcons.Value ? "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png";
+        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -48,11 +48,11 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
-            ShieldPercentageRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%");
-            AdditionalShieldPercentageRestoredPerKillDiminishing = config.Bind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%");
-            MaximumPercentageShieldRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%");
-            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%");
+            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
+            ShieldPercentageRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%").Value;
+            AdditionalShieldPercentageRestoredPerKillDiminishing = config.Bind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%").Value;
+            MaximumPercentageShieldRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%").Value;
+            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%").Value;
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -196,7 +196,7 @@ namespace Aetherium.Items
             if (GetCount(sender) > 0)
             {
                 HealthComponent healthC = sender.GetComponent<HealthComponent>();
-                args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier.Value;
+                args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
             }
         }
 
@@ -207,7 +207,7 @@ namespace Aetherium.Items
                 int inventoryCount = GetCount(damageReport.attackerBody);
                 if (inventoryCount > 0)
                 {
-                    var percentage = ShieldPercentageRestoredPerKill.Value + (MaximumPercentageShieldRestoredPerKill.Value - MaximumPercentageShieldRestoredPerKill.Value / (1 + AdditionalShieldPercentageRestoredPerKillDiminishing.Value * (inventoryCount - 1)));
+                    var percentage = ShieldPercentageRestoredPerKill + (MaximumPercentageShieldRestoredPerKill - MaximumPercentageShieldRestoredPerKill / (1 + AdditionalShieldPercentageRestoredPerKillDiminishing * (inventoryCount - 1)));
                     damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);
                 }
             }
