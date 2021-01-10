@@ -2530,4 +2530,39 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```
     Make sense? It's as simple as that for the specific rules. On a closing note here, you can add more than one `ItemDisplayRule` to the `ItemDisplayRule` array on each of these by simply adding a comma after the rule and making another `ItemDisplayRule` like the two above.
     
-45. For the last part of the `CreateItemDisplayRules` method, we simply need to `return rules;`
+45. For the last part of the `CreateItemDisplayRules` method, we simply need to `return rules;` Like so:
+    ```csharp
+            public override ItemDisplayRuleDict CreateItemDisplayRules()
+            {
+                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
+                itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
+
+                ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+                {
+                    new RoR2.ItemDisplayRule
+                   {
+                        ruleType = ItemDisplayRuleType.ParentedPrefab,
+                        followerPrefab = ItemBodyModelPrefab,
+                        childName = "Chest",
+                        localPos = new Vector3(0, 0, 0),
+                        localAngles = new Vector3(0, 0, 0),
+                        localScale = new Vector3(1, 1, 1)
+                    }
+                });
+                rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
+                {
+                    new RoR2.ItemDisplayRule
+                    {
+                        ruleType = ItemDisplayRuleType.ParentedPrefab,
+                        followerPrefab = ItemBodyModelPrefab,
+                        childName = "Chest",
+                        localPos = new Vector3(0, 0, 0),
+                        localAngles = new Vector3(0, 0, 0),
+                        localScale = new Vector3(1, 1, 1)
+                    }
+                });
+                
+                return rules;
+            }
+    ```
