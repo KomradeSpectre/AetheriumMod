@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1831155415
+CRC: 3071625736
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e3a0c7665647028fcf46fe4e46d45f8c
+    Hash: 9df25ecd01f9e2c86e28147790af171e
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -97,6 +97,7 @@ Assets:
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat
 - Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png
 - Assets/Models/Raw Models/SharkTeeth.blend
+- Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat
 - Assets/Textures/Material Textures/WitchesRingEmissionMap.png
 - Assets/Models/Raw Models/WitchesRingCircle.blend
@@ -112,6 +113,7 @@ Assets:
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat
 - Assets/Animations/InspiringDroneChest.controller
 - Assets/Shaders/3D Shaders/Rim + Texture.shader
+- Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingEffectInnerRim.mat
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusion.png
 - Assets/Textures/Materials/Item/HexPendulum/HexPendulumArc.mat
@@ -220,6 +222,7 @@ Assets:
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionStopper.mat
 - Assets/Textures/Material Textures/BlueToTransparentRampBlinds.png
 - Assets/Textures/Materials/Miscellaneous/BlackHole.mat
+- Assets/Textures/Material Textures/1378-normal.jpg
 - Assets/Textures/Material Textures/BlueToTransparentRampCircular.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingGlass.mat
 - Assets/Shaders/3D Shaders/UVDistortion.shader
@@ -294,6 +297,7 @@ Assets:
 - Assets/Textures/Material Textures/11375-bump.jpg
 - Assets/Textures/Material Textures/WitchesRingHolderEmissionMap.png
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
+- Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeQuill.mat
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab

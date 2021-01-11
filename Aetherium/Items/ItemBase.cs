@@ -98,5 +98,12 @@ namespace Aetherium.Items
 
             return master.inventory.GetItemCount(Index);
         }
+
+        public int GetCountSpecific(CharacterBody body, ItemIndex itemIndex)
+        {
+            if (!body || !body.inventory) { return 0; }
+
+            return body.inventory.GetItemCount(itemIndex);
+        }
     }
 }

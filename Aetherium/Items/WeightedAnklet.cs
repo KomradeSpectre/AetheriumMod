@@ -7,6 +7,8 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.ItemHelpers;
 using System;
+using System.Collections.Generic;
+using static RoR2.Navigation.MapNodeGroup;
 
 namespace Aetherium.Items
 {
@@ -39,8 +41,8 @@ namespace Aetherium.Items
 
             "A strange anklet lined with superdense crystals. It's hard to move around in these, but scanners show that the muscle mass of people wearing them increases exponentially.");
 
-        public override ItemTier Tier => ItemTier.Lunar;
-        public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable };
+        public override ItemTier Tier => ItemTier.Tier1;
+        public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable | ItemTag.AIBlacklist};
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab";
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/WeightedAnkletIcon.png";
@@ -74,31 +76,31 @@ namespace Aetherium.Items
         {
             var limiterReleaseBuffDef = new RoR2.BuffDef()
             {
-                buffColor = new Color(255, 255, 255),
+                buffColor = new Color(48, 255, 48),
                 canStack = true,
                 isDebuff = false,
                 name = "Aetherium: Limiter Release",
-                iconPath = ""
+                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png"
             };
             LimiterReleaseBuffIndex = BuffAPI.Add(new CustomBuff(limiterReleaseBuffDef));
 
             var limiterReleaseDodgeBuffDef = new RoR2.BuffDef()
             {
-                buffColor = new Color(255, 255, 255),
+                buffColor = new Color(48, 255, 48),
                 canStack = true,
                 isDebuff = false,
                 name = "Aetherium: Limiter Release Dodges",
-                iconPath = ""
+                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png"
             };
             LimiterReleaseDodgeBuffIndex = BuffAPI.Add(new CustomBuff(limiterReleaseDodgeBuffDef));
 
             var limiterReleaseDodgeCooldownDebuffDef = new RoR2.BuffDef()
             {
-                buffColor = new Color(255, 255, 255),
+                buffColor = new Color(48, 255, 48),
                 canStack = false,
                 isDebuff = true,
                 name = "Aetherium: Limiter Release Dodge Cooldown",
-                iconPath = ""
+                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png"
             };
             LimiterReleaseDodgeCooldownDebuffIndex = BuffAPI.Add(new CustomBuff(limiterReleaseDodgeCooldownDebuffDef));
 
@@ -258,34 +260,151 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            GetStatCoefficients += MoveSpeedReduction;
+            GetStatCoefficients += ManageBonusesAndPenalties;
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
-            On.RoR2.BlastAttack.PerformDamageServer += ManageBlastDodge;
-            //On.RoR2.BlastAttack.HandleHits += ManageBlastDodge;
-            On.RoR2.OverlapAttack.PerformDamage += ManageOverlapDodge;
+            On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;
+            //On.RoR2.OverlapAttack.PerformDamage += ManageOverlapDodge;
+
+            var methodBlast = typeof(RoR2.BlastAttack).GetMethod("HandleHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            new MonoMod.RuntimeDetour.Hook(methodBlast, new Action<Action<RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>, RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>((orig, self, hitPoints) =>
+            {
+                List<RoR2.CharacterBody> DodgedBodies = new List<RoR2.CharacterBody>();
+                List<RoR2.BlastAttack.HitPoint> HitPointList = new List<RoR2.BlastAttack.HitPoint>();
+                foreach(RoR2.BlastAttack.HitPoint hitpoint in hitPoints)
+                {
+                    var hurtbox = hitpoint.hurtBox;
+                    if (hurtbox && hurtbox.healthComponent && hurtbox.healthComponent.body)
+                    {
+                        var body = hurtbox.healthComponent.body;
+                        if (body.HasBuff(LimiterReleaseDodgeBuffIndex))
+                        {
+                            if (!DodgedBodies.Contains(body)) { DodgedBodies.Add(body); }
+                            continue;
+                        }
+
+                    }
+                    HitPointList.Add(hitpoint);
+                }
+                if(DodgedBodies.Count > 0)
+                {
+                    foreach(RoR2.CharacterBody dodgeBody in DodgedBodies)
+                    {
+                        if (self.attacker) 
+                        {
+                            var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
+                            if (attackerBody)
+                            {
+                                var teleportBool = TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
+                                if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController && teleportBool)
+                                {
+                                    var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
+                                    Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
+                                }
+
+
+                            }
+
+                        }
+
+                        dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffIndex);
+                        if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffIndex) <= 0)
+                        {
+                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, 10);
+                        }
+
+                    }
+                }
+                orig(self, HitPointList.ToArray());
+                
+            }));
+
+            var methodOverlap = typeof(RoR2.OverlapAttack).GetMethod("ProcessHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            new MonoMod.RuntimeDetour.Hook(methodOverlap, new Action<Action<RoR2.OverlapAttack, List<RoR2.OverlapAttack.OverlapInfo>>, RoR2.OverlapAttack, List<RoR2.OverlapAttack.OverlapInfo>>((orig, self, hitList) =>
+            {
+                List<RoR2.CharacterBody> DodgedBodies = new List<RoR2.CharacterBody>();
+                List<RoR2.OverlapAttack.OverlapInfo> HitPointList = new List<RoR2.OverlapAttack.OverlapInfo>();
+                foreach (RoR2.OverlapAttack.OverlapInfo hitpoint in hitList)
+                {
+                    var hurtbox = hitpoint.hurtBox;
+                    if (hurtbox && hurtbox.healthComponent && hurtbox.healthComponent.body)
+                    {
+                        var body = hurtbox.healthComponent.body;
+                        if (body.HasBuff(LimiterReleaseDodgeBuffIndex))
+                        {
+                            if (!DodgedBodies.Contains(body)) { DodgedBodies.Add(body); }
+                            continue;
+                        }
+
+                    }
+                    HitPointList.Add(hitpoint);
+                }
+                if (DodgedBodies.Count > 0)
+                {
+                    foreach (RoR2.CharacterBody dodgeBody in DodgedBodies)
+                    {
+                        if (self.attacker)
+                        {
+                            var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
+                            if (attackerBody)
+                            {
+                                var teleportBool = TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
+                                if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController && teleportBool)
+                                {
+                                    var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
+                                    Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
+                                }
+
+
+                            }
+                        }
+
+                        dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffIndex);
+                        if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffIndex) <= 0)
+                        {
+                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, 10);
+                        }
+
+                    }
+                }
+                orig(self, HitPointList);
+
+            }));
+
         }
 
-        private void ManageBlastDodge(On.RoR2.BlastAttack.orig_PerformDamageServer orig, ValueType blastAttackDamageInfo)
+        private void ManageLimiterBuffCooldown(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, RoR2.CharacterBody self, RoR2.BuffDef buffDef)
         {
-            Debug.Log(blastAttackDamageInfo.GetType());
-            orig(blastAttackDamageInfo);
+            if(buffDef == BuffCatalog.GetBuffDef(LimiterReleaseDodgeCooldownDebuffIndex))
+            {
+                var ankletTracker = self.master.GetComponent<AnkletTracker>();
+                if (ankletTracker)
+                {
+                    for(int i = 1; i <= self.GetBuffCount(LimiterReleaseBuffIndex); i++)
+                    {
+                        self.AddBuff(LimiterReleaseDodgeBuffIndex);
+                    }
+                }
+            }
+
+            orig(self, buffDef);
         }
 
-
-
-        /*private void ManageBlastDodge(On.RoR2.BlastAttack.orig_HandleHits orig, RoR2.BlastAttack self, ValueType hitPoints)
-        {
-            Debug.Log(hitPoints);
-            orig(self, hitPoints);
-        }*/
-
-        private void MoveSpeedReduction(RoR2.CharacterBody sender, StatHookEventArgs args)
+        private void ManageBonusesAndPenalties(RoR2.CharacterBody sender, StatHookEventArgs args)
         {
             var InventoryCount = GetCount(sender);
             if (InventoryCount > 0)
             {
                 args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage.Value, MovementSpeedReductionPercentageCap.Value);
+                args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * 0.1f, MovementSpeedReductionPercentageCap.Value);
+            }
+
+            var LimiterReleaseCount = GetCountSpecific(sender, LimiterReleaseItemIndex);
+            if(LimiterReleaseCount > 0)
+            {
+                args.attackSpeedMultAdd += LimiterReleaseCount * 0.1f;
+                args.moveSpeedMultAdd += LimiterReleaseCount * 0.1f;
+                args.damageMultAdd += LimiterReleaseCount * 0.1f;
             }
 
         }
@@ -303,8 +422,9 @@ namespace Aetherium.Items
             }
             else if(inventoryCount < ankletTracker.AnkletStacks)
             {
-                self.inventory.GiveItem(LimiterReleaseItemIndex, ankletTracker.AnkletStacks - inventoryCount);
+                var calculatedStacks = ankletTracker.AnkletStacks - inventoryCount;
                 ankletTracker.AnkletStacks = inventoryCount;
+                self.inventory.GiveItem(LimiterReleaseItemIndex, calculatedStacks);                
             }
         }
 
@@ -328,9 +448,36 @@ namespace Aetherium.Items
             }
         }
 
-        private void ManageOverlapDodge(On.RoR2.OverlapAttack.orig_PerformDamage orig, GameObject attacker, GameObject inflictor, float damage, bool isCrit, RoR2.ProcChainMask procChainMask, float procCoefficient, DamageColorIndex damageColorIndex, DamageType damageType, Vector3 forceVector, float pushAwayForce, object hitList)
+        private bool TeleportBody(RoR2.CharacterBody body, Vector3 desiredPosition, GraphType nodeGraphType)
         {
-            var hitlist = (RoR2.OverlapAttack.OverlapInfo)hitList;
+            RoR2.SpawnCard spawnCard = ScriptableObject.CreateInstance<RoR2.SpawnCard>();
+            spawnCard.hullSize = body.hullClassification;
+            spawnCard.nodeGraphType = nodeGraphType;
+            spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
+            GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(new RoR2.DirectorSpawnRequest(spawnCard, new RoR2.DirectorPlacementRule
+            {
+                placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
+                position = desiredPosition,
+                minDistance = 10,
+                maxDistance = 20
+            }, RoR2.RoR2Application.rng));
+            if (gameObject)
+            {
+                RoR2.TeleportHelper.TeleportBody(body, gameObject.transform.position);
+                GameObject teleportEffectPrefab = RoR2.Run.instance.GetTeleportEffectPrefab(body.gameObject);
+                if (teleportEffectPrefab)
+                {
+                    RoR2.EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
+                }
+                UnityEngine.Object.Destroy(gameObject);
+                UnityEngine.Object.Destroy(spawnCard);
+                return true;
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(spawnCard);
+                return false;
+            }
         }
 
         public class AnkletTracker : MonoBehaviour

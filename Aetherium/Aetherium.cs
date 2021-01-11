@@ -78,7 +78,7 @@ namespace Aetherium
             ValidateItem(new ShieldingCore(), Items);
             ValidateItem(new UnstableDesign(), Items);
             ValidateItem(new Voidheart(), Items);
-            //ValidateItem(new WeightedAnklet(), Items);
+            ValidateItem(new WeightedAnklet(), Items);
             ValidateItem(new WitchesRing(), Items);
 
             foreach (ItemBase item in Items)
