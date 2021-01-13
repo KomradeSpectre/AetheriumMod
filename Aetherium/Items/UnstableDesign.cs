@@ -6,6 +6,7 @@ using R2API.Networking.Interfaces;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Skills;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -49,7 +50,7 @@ namespace Aetherium.Items
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/UnstableDesignIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
-        public static SpawnCard LunarChimeraSpawnCard;
+        public static RoR2.SpawnCard LunarChimeraSpawnCard;
         public static GameObject LunarChimeraMasterPrefab;
         public static GameObject LunarChimeraBodyPrefab;
 
@@ -87,17 +88,17 @@ namespace Aetherium.Items
 
         private void CreateSpawncard()
         {
-            LunarChimeraSpawnCard = Resources.Load<SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
+            LunarChimeraSpawnCard = Resources.Load<RoR2.SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
             LunarChimeraSpawnCard = UnityEngine.Object.Instantiate(LunarChimeraSpawnCard);
             LunarChimeraMasterPrefab = LunarChimeraSpawnCard.prefab;
             LunarChimeraMasterPrefab = LunarChimeraMasterPrefab.InstantiateClone($"{LunarChimeraMasterPrefab.name}{nameSuffix}");
-            CharacterMaster masterPrefab = LunarChimeraMasterPrefab.GetComponent<CharacterMaster>();
+            RoR2.CharacterMaster masterPrefab = LunarChimeraMasterPrefab.GetComponent<RoR2.CharacterMaster>();
             LunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
             LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}");
             masterPrefab.bodyPrefab = LunarChimeraBodyPrefab;
             LunarChimeraSpawnCard.prefab = LunarChimeraMasterPrefab;
-            MasterCatalog.getAdditionalEntries += list => list.Add(LunarChimeraMasterPrefab);
-            BodyCatalog.getAdditionalEntries += list => list.Add(LunarChimeraBodyPrefab);
+            RoR2.MasterCatalog.getAdditionalEntries += list => list.Add(LunarChimeraMasterPrefab);
+            RoR2.BodyCatalog.getAdditionalEntries += list => list.Add(LunarChimeraBodyPrefab);
             NetworkingAPI.RegisterMessageType<AssignOwner>();
         }
 
@@ -234,12 +235,12 @@ namespace Aetherium.Items
         {
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
             On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
+            On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
         }
-
-        private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             int inventoryCount = GetCount(self);
-            CharacterMaster master = self.master;
+            RoR2.CharacterMaster master = self.master;
             if (NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master)) //Check if we're a minion or not. If we are, we don't summon a chimera.
             {
                 LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(master);
@@ -247,24 +248,24 @@ namespace Aetherium.Items
                 {
                     lcComponent.LastChimeraSpawned = null;
                     lcComponent.ResummonCooldown -= Time.fixedDeltaTime;
-                    if (lcComponent.ResummonCooldown <= 0f && SceneCatalog.mostRecentSceneDef != SceneCatalog.GetSceneDefFromSceneName("bazaar"))
+                    if (lcComponent.ResummonCooldown <= 0f && RoR2.SceneCatalog.mostRecentSceneDef != RoR2.SceneCatalog.GetSceneDefFromSceneName("bazaar"))
                     {
-                        DirectorPlacementRule placeRule = new DirectorPlacementRule
+                        RoR2.DirectorPlacementRule placeRule = new RoR2.DirectorPlacementRule
                         {
-                            placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                            placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
                             minDistance = 10f,
                             maxDistance = 40f,
                             spawnOnTarget = self.transform
                         };
-                        DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(LunarChimeraSpawnCard, placeRule, RoR2Application.rng)
+                        RoR2.DirectorSpawnRequest directorSpawnRequest = new RoR2.DirectorSpawnRequest(LunarChimeraSpawnCard, placeRule, RoR2.RoR2Application.rng)
                         {
                             teamIndexOverride = TeamIndex.Player
                             //summonerBodyObject = self.gameObject
                         };
-                        GameObject gameObject = DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                        GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
                         if (gameObject)
                         {
-                            CharacterMaster cMaster = gameObject.GetComponent<CharacterMaster>();
+                            RoR2.CharacterMaster cMaster = gameObject.GetComponent<RoR2.CharacterMaster>();
                             if (cMaster)
                             {
                                 //RoR2.Chat.AddMessage($"Character Master Found: {component}");
@@ -275,14 +276,14 @@ namespace Aetherium.Items
                                 cMaster.inventory.GiveItem(ItemIndex.Hoof, LunarChimeraBaseMovementSpeedBoost * inventoryCount);
                                 cMaster.minionOwnership.SetOwner(master);
 
-                                CharacterBody cBody = cMaster.GetBody();
+                                RoR2.CharacterBody cBody = cMaster.GetBody();
                                 if (cBody)
                                 {
                                     //RoR2.Chat.AddMessage($"CharacterBody Found: {component4}");
                                     cBody.teamComponent.teamIndex = TeamIndex.Neutral;
                                     cBody.gameObject.AddComponent<LunarChimeraRetargetComponent>();
                                     lcComponent.LastChimeraSpawned = cBody;
-                                    DeathRewards deathRewards = cBody.GetComponent<DeathRewards>();
+                                    RoR2.DeathRewards deathRewards = cBody.GetComponent<RoR2.DeathRewards>();
                                     if (deathRewards)
                                     {
                                         //RoR2.Chat.AddMessage($"DeathRewards Found: {component5}");
@@ -304,11 +305,11 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, MapZone self, Collider other)
+        private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, RoR2.MapZone self, Collider other)
         {
             if (IsUnstableDesignChimera(other.gameObject))
             {
-                CharacterBody body = other.GetComponent<CharacterBody>();
+                RoR2.CharacterBody body = other.GetComponent<RoR2.CharacterBody>();
                 if (body)
                 {
                     var teamComponent = body.teamComponent;
@@ -321,7 +322,37 @@ namespace Aetherium.Items
             orig(self, other);
         }
 
-        private bool IsMinion(CharacterMaster master)
+        private void RewardPlayerHalf(On.RoR2.DeathRewards.orig_OnKilledServer orig, RoR2.DeathRewards self, RoR2.DamageReport damageReport)
+        {
+            if (damageReport.attackerBody && damageReport.attackerBody.name.Contains(nameSuffix))
+            {
+                var ownerMaster = damageReport.attackerOwnerMaster;
+
+                if (ownerMaster)
+                {
+                    var ownerBody = ownerMaster.GetBody();
+
+                    if (ownerBody)
+                    {
+                        var inventoryCount = GetCount(ownerBody);
+                        if (inventoryCount > 0)
+                        {
+                            ownerMaster.GiveExperience(self.expReward / 2);
+                            ownerMaster.GiveMoney(self.goldReward / 2);
+                        }
+                    }
+                }
+
+                damageReport.attackerMaster.GiveExperience(self.expReward);
+                damageReport.attackerMaster.GiveMoney(self.goldReward);
+
+                self.goldReward = 0;
+                self.expReward = 0;
+            }
+            orig(self, damageReport);
+        }
+
+        private bool IsMinion(RoR2.CharacterMaster master)
         {
             // Replace the old minion checker so that it can support enemies that get lunar items too
             return master.minionOwnership &&
@@ -332,15 +363,15 @@ namespace Aetherium.Items
 
         public class LunarChimeraComponent : MonoBehaviour
         {
-            public CharacterBody LastChimeraSpawned;
+            public RoR2.CharacterBody LastChimeraSpawned;
             public float ResummonCooldown = 0f;
             public Queue<NetworkInstanceId> syncIds = new Queue<NetworkInstanceId>();
             public NetworkInstanceId netId;
-            public CharacterMaster master;
+            public RoR2.CharacterMaster master;
 
             private void Awake()
             {
-                master = gameObject.GetComponent<CharacterMaster>();
+                master = gameObject.GetComponent<RoR2.CharacterMaster>();
                 netId = gameObject.GetComponent<NetworkIdentity>().netId;
             }
 
@@ -349,13 +380,13 @@ namespace Aetherium.Items
                 if (syncIds.Count > 0)
                 {
                     NetworkInstanceId syncId = syncIds.Dequeue();
-                    GameObject supposedChimera = Util.FindNetworkObject(syncId);
+                    GameObject supposedChimera = RoR2.Util.FindNetworkObject(syncId);
                     if (supposedChimera)
                     {
-                        LastChimeraSpawned = supposedChimera.GetComponent<CharacterBody>();
-                        CharacterMaster cMaster = LastChimeraSpawned.master;
+                        LastChimeraSpawned = supposedChimera.GetComponent<RoR2.CharacterBody>();
+                        RoR2.CharacterMaster cMaster = LastChimeraSpawned.master;
                         cMaster.minionOwnership.ownerMasterId = netId;
-                        MinionOwnership.MinionGroup.SetMinionOwner(cMaster.minionOwnership, netId);
+                        RoR2.MinionOwnership.MinionGroup.SetMinionOwner(cMaster.minionOwnership, netId);
                     }
                     else
                     {
@@ -364,7 +395,7 @@ namespace Aetherium.Items
                 }
             }
 
-            public static LunarChimeraComponent GetOrCreateComponent(CharacterMaster master)
+            public static LunarChimeraComponent GetOrCreateComponent(RoR2.CharacterMaster master)
             {
                 return GetOrCreateComponent(master.gameObject);
             }
@@ -382,12 +413,12 @@ namespace Aetherium.Items
             // make public if you want it to be viewable in RuntimeInspector
             private float retargetTimer = 0f;
 
-            private CharacterMaster master;
-            private CharacterBody body;
+            private RoR2.CharacterMaster master;
+            private RoR2.CharacterBody body;
 
             private void Awake()
             {
-                body = gameObject.GetComponent<CharacterBody>();
+                body = gameObject.GetComponent<RoR2.CharacterBody>();
                 if (body)
                 {
                     master = body.master;
@@ -402,17 +433,17 @@ namespace Aetherium.Items
                     BaseAI baseAIComponent = master.GetComponent<BaseAI>();
                     if (baseAIComponent)
                     {
-                        SkillLocator skillComponent = gameObject.GetComponent<SkillLocator>();
+                        RoR2.SkillLocator skillComponent = gameObject.GetComponent<RoR2.SkillLocator>();
                         if (skillComponent)
                         {
-                            CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
+                            RoR2.CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
                             if (targetBody && (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded))
                             {
-                                skillComponent.primary.SetSkillOverride(body, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                                skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
                             }
                             else
                             {
-                                skillComponent.primary.UnsetSkillOverride(body, airSkill, GenericSkill.SkillOverridePriority.Replacement);
+                                skillComponent.primary.UnsetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
                             }
                         }
                         retargetTimer -= Time.fixedDeltaTime;
@@ -460,7 +491,7 @@ namespace Aetherium.Items
             public void OnReceived()
             {
                 if (NetworkServer.active) return;
-                GameObject owner = Util.FindNetworkObject(ownerNetId);
+                GameObject owner = RoR2.Util.FindNetworkObject(ownerNetId);
                 if (!owner) return;
 
                 LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(owner);

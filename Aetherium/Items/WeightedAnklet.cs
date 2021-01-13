@@ -59,6 +59,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateBuff();
             CreateItem();
             CreatePowerupItem();
@@ -70,6 +71,30 @@ namespace Aetherium.Items
             BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
             BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
             MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.1f, "What should be the lowest percentage of movement speed reduction be?");
+        }
+
+        private void CreateMaterials()
+        {
+            var hopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
+            var crystalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png");
+
+            var weightMain = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletWeight.mat");
+            weightMain.shader = hopooShader;
+            weightMain.SetTexture("_NormalTex", crystalNormal);
+            weightMain.SetFloat("_NormalStrength", 5);
+            weightMain.SetFloat("_RampInfo", 4);
+            weightMain.SetFloat("_Smoothness", 0.591f);
+            weightMain.SetFloat("_SpecularStrength", 1);
+            weightMain.SetFloat("_SpecularExponent", 10);
+            weightMain.SetFloat("_ForceSpecOn", 1);
+
+            var weightRing = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat");
+            weightRing.shader = hopooShader;
+            weightRing.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTexture.png"));
+            weightRing.SetFloat("_NormalStrength", 5f);
+            weightRing.SetFloat("_Smoothness", 0.5F);
+            weightRing.SetFloat("_ForceSpecOn", 1);
+
         }
 
         private void CreateBuff()
@@ -264,7 +289,6 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;
-            //On.RoR2.OverlapAttack.PerformDamage += ManageOverlapDodge;
 
             var methodBlast = typeof(RoR2.BlastAttack).GetMethod("HandleHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             new MonoMod.RuntimeDetour.Hook(methodBlast, new Action<Action<RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>, RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>((orig, self, hitPoints) =>
@@ -295,14 +319,14 @@ namespace Aetherium.Items
                             var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
                             if (attackerBody)
                             {
-                                var teleportBool = TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
-                                if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController && teleportBool)
-                                {
-                                    var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
-                                    Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
-                                }
+                                TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
 
+                                var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
+                                if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
 
+                                teleportCameraComponent.dodgeBody = dodgeBody;
+                                teleportCameraComponent.attackerBody = attackerBody;
+                                teleportCameraComponent.Timer = 0.1f;
                             }
 
                         }
@@ -349,13 +373,13 @@ namespace Aetherium.Items
                             if (attackerBody)
                             {
                                 var teleportBool = TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
-                                if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController && teleportBool)
-                                {
-                                    var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
-                                    Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
-                                }
 
+                                var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
+                                if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
 
+                                teleportCameraComponent.dodgeBody = dodgeBody;
+                                teleportCameraComponent.attackerBody = attackerBody;
+                                teleportCameraComponent.Timer = 0.1f;
                             }
                         }
 
@@ -373,6 +397,64 @@ namespace Aetherium.Items
 
         }
 
+        private void ManageBonusesAndPenalties(RoR2.CharacterBody sender, StatHookEventArgs args)
+        {
+            var InventoryCount = GetCount(sender);
+            if (InventoryCount > 0)
+            {
+                args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage.Value, MovementSpeedReductionPercentageCap.Value);
+                args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * 0.1f, MovementSpeedReductionPercentageCap.Value);
+            }
+
+            var LimiterReleaseCount = GetCountSpecific(sender, LimiterReleaseItemIndex);
+            if (LimiterReleaseCount > 0)
+            {
+                args.baseAttackSpeedAdd += LimiterReleaseCount * 0.25f;
+                args.baseMoveSpeedAdd += LimiterReleaseCount;
+                args.damageMultAdd += LimiterReleaseCount * 0.05f;
+            }
+
+        }
+
+        private void ManageLimiter(On.RoR2.CharacterMaster.orig_OnInventoryChanged orig, RoR2.CharacterMaster self)
+        {
+            orig(self);
+            var ankletTracker = self.GetComponent<AnkletTracker>();
+            if (!ankletTracker) { ankletTracker = self.gameObject.AddComponent<AnkletTracker>(); }
+
+            var inventoryCount = GetCount(self);
+            if (inventoryCount > ankletTracker.AnkletStacks)
+            {
+                ankletTracker.AnkletStacks = inventoryCount;
+            }
+            else if (inventoryCount < ankletTracker.AnkletStacks)
+            {
+                var calculatedStacks = ankletTracker.AnkletStacks - inventoryCount;
+                ankletTracker.AnkletStacks = inventoryCount;
+                self.inventory.GiveItem(LimiterReleaseItemIndex, calculatedStacks);
+            }
+        }
+
+        private void ManageLimiterBuff(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        {
+
+            orig(self);
+            if (self.inventory)
+            {
+                var inventoryCount = self.inventory.GetItemCount(LimiterReleaseItemIndex);
+                var buffCount = self.GetBuffCount(LimiterReleaseBuffIndex);
+                if (buffCount < inventoryCount)
+                {
+                    var iterations = inventoryCount - buffCount;
+                    for (int i = 1; i <= iterations; i++)
+                    {
+                        self.AddBuff(LimiterReleaseBuffIndex);
+                        self.AddBuff(LimiterReleaseDodgeBuffIndex);
+                    }
+                }
+            }
+        }
+
         private void ManageLimiterBuffCooldown(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, RoR2.CharacterBody self, RoR2.BuffDef buffDef)
         {
             if(buffDef == BuffCatalog.GetBuffDef(LimiterReleaseDodgeCooldownDebuffIndex))
@@ -388,64 +470,6 @@ namespace Aetherium.Items
             }
 
             orig(self, buffDef);
-        }
-
-        private void ManageBonusesAndPenalties(RoR2.CharacterBody sender, StatHookEventArgs args)
-        {
-            var InventoryCount = GetCount(sender);
-            if (InventoryCount > 0)
-            {
-                args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage.Value, MovementSpeedReductionPercentageCap.Value);
-                args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * 0.1f, MovementSpeedReductionPercentageCap.Value);
-            }
-
-            var LimiterReleaseCount = GetCountSpecific(sender, LimiterReleaseItemIndex);
-            if(LimiterReleaseCount > 0)
-            {
-                args.attackSpeedMultAdd += LimiterReleaseCount * 0.1f;
-                args.moveSpeedMultAdd += LimiterReleaseCount * 0.1f;
-                args.damageMultAdd += LimiterReleaseCount * 0.1f;
-            }
-
-        }
-
-        private void ManageLimiter(On.RoR2.CharacterMaster.orig_OnInventoryChanged orig, RoR2.CharacterMaster self)
-        {
-            orig(self);
-            var ankletTracker = self.GetComponent<AnkletTracker>();
-            if (!ankletTracker) { ankletTracker = self.gameObject.AddComponent<AnkletTracker>();}
-
-            var inventoryCount = GetCount(self);
-            if(inventoryCount > ankletTracker.AnkletStacks)
-            {
-                ankletTracker.AnkletStacks = inventoryCount;
-            }
-            else if(inventoryCount < ankletTracker.AnkletStacks)
-            {
-                var calculatedStacks = ankletTracker.AnkletStacks - inventoryCount;
-                ankletTracker.AnkletStacks = inventoryCount;
-                self.inventory.GiveItem(LimiterReleaseItemIndex, calculatedStacks);                
-            }
-        }
-
-        private void ManageLimiterBuff(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
-        {
-            
-            orig(self);
-            if (self.inventory)
-            {
-                var inventoryCount = self.inventory.GetItemCount(LimiterReleaseItemIndex);
-                var buffCount = self.GetBuffCount(LimiterReleaseBuffIndex);
-                if (buffCount < inventoryCount)
-                {
-                    var iterations = inventoryCount - buffCount;
-                    for(int i = 1; i <= iterations; i++)
-                    {
-                        self.AddBuff(LimiterReleaseBuffIndex);
-                        self.AddBuff(LimiterReleaseDodgeBuffIndex);
-                    }
-                }
-            }
         }
 
         private bool TeleportBody(RoR2.CharacterBody body, Vector3 desiredPosition, GraphType nodeGraphType)
@@ -483,6 +507,32 @@ namespace Aetherium.Items
         public class AnkletTracker : MonoBehaviour
         {
             public int AnkletStacks;
+        }
+
+        public class LimiterDodgeCameraTrackPostTeleport : MonoBehaviour
+        {
+            public CharacterBody dodgeBody;
+            public CharacterBody attackerBody;
+            public float Timer = 1;
+
+            public void FixedUpdate()
+            {
+                if(!dodgeBody || !attackerBody)
+                {
+                    UnityEngine.Object.Destroy(this);
+                }
+
+                Timer -= Time.fixedDeltaTime;
+                if(Timer <= 0)
+                {
+                    if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController)
+                    {
+                        var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
+                        Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
+                    }
+                    UnityEngine.Object.Destroy(this);
+                }
+            }
         }
     }
 }

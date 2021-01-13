@@ -47,18 +47,6 @@ namespace Aetherium
                 ResourcesAPI.AddProvider(provider);
             }
 
-            if (MainAssets)
-            {
-                var materials = MainAssets.LoadAllAssets<Material>();
-                for (int i = 0; i < materials.Length; i++)
-                {
-                    if (materials[i].shader.name == "Standard")
-                    {
-                        materials[i].shader = Resources.Load<Shader>("shaders/deferred/hgstandard");
-                    }
-                }
-            }
-
             //Core Initializations
             CoreModules.Add(new StatHooks());
 

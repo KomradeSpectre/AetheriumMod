@@ -143,8 +143,10 @@ namespace Aetherium.Items
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
-            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
+
+            itemDisplay.gameObject.AddComponent<SwordGlowHandler>();
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -757,6 +759,65 @@ namespace Aetherium.Items
                         MeleeTracker[attack] = time;
                     }
                 }
+            }
+        }
+
+        public class SwordGlowHandler : MonoBehaviour
+        {
+            public ItemDisplay ItemDisplay;
+            public ParticleSystem ParticleSystem;
+            public CharacterMaster OwnerMaster;
+            public CharacterBody OwnerBody;
+            public void FixedUpdate()
+            {
+
+                if (!OwnerMaster || !ItemDisplay || !ParticleSystem)
+                {
+                    ItemDisplay = this.GetComponentInParent<ItemDisplay>();
+                    if (ItemDisplay)
+                    {
+                        ParticleSystem = ItemDisplay.GetComponent<ParticleSystem>();
+                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
+                        var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
+
+                        if (characterModel)
+                        {
+                            var body = characterModel.body;
+                            if (body)
+                            {
+                                OwnerMaster = body.master;
+                            }
+                        }
+                    }
+                }
+
+                if (OwnerMaster && !OwnerBody)
+                {
+                    var body = OwnerMaster.GetBody();
+                    if (body)
+                    {
+                        OwnerBody = body;
+                    }
+                }
+
+                if (OwnerBody && ParticleSystem)
+                {
+                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    {
+                        if (!ParticleSystem.isPlaying)
+                        {
+                            ParticleSystem.Play();
+                        }
+                    }
+                    else
+                    {
+                        if (ParticleSystem.isPlaying)
+                        {
+                            ParticleSystem.Stop();
+                        }
+                    }
+                }
+
             }
         }
     }
