@@ -804,9 +804,17 @@ namespace Aetherium.Items
                 {
                     if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
                     {
-                        if (!ParticleSystem.isPlaying)
+                        if (!ParticleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
                         {
                             ParticleSystem.Play();
+                        }
+                        else
+                        {
+                            if(ParticleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                            {
+                                ParticleSystem.Stop();
+                                ParticleSystem.Clear();
+                            }
                         }
                     }
                     else
