@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2130406994
+CRC: 2492607703
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 3bdbb7238b3ba08ea6060ed5894e8687
+    Hash: 3891a1fc18bbcd8ca2cbaf01037cadb2
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -161,6 +161,7 @@ Assets:
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulumTracker.prefab
 - Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png
+- Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveParticleMateiral.mat
 - Assets/Textures/Material Textures/LightningRamp.png
 - Assets/Shaders/3D Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Material Textures/WitchesRingSkull.png
@@ -193,6 +194,7 @@ Assets:
 - Assets/Textures/Material Textures/WeirdNormalLine.png
 - Assets/Textures/Material Textures/PearlescentPurpleRamp.png
 - Assets/Shaders/3D Shaders/Ghost.shader
+- Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAdditiveParticle.mat
 - Assets/Textures/Material Textures/WhiteToBlackToWhiteRamp.png
 - Assets/Textures/Material Textures/414-bump.jpg
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png
