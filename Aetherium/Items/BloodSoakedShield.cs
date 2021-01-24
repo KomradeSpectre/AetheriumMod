@@ -42,6 +42,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateItem();
             Hooks();
         }
@@ -53,6 +54,38 @@ namespace Aetherium.Items
             AdditionalShieldPercentageRestoredPerKillDiminishing = config.Bind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%").Value;
             MaximumPercentageShieldRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%").Value;
             BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%").Value;
+        }
+
+        private void CreateMaterials()
+        {
+            
+            var metalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png");
+
+            var handleMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldHandle.mat");
+            handleMaterial.shader = AetheriumPlugin.HopooShader;
+
+            var shieldMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldMain.mat");
+            shieldMainMaterial.shader = AetheriumPlugin.HopooShader;
+            shieldMainMaterial.SetTexture("_MainTex", null);
+            shieldMainMaterial.SetFloat("_Smoothness", 1f);
+            shieldMainMaterial.SetTexture("_NormalTex", metalNormal);
+            shieldMainMaterial.SetFloat("_NormalStrength", 2);
+
+            var shieldOmegaMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldOmega.mat");
+            shieldOmegaMaterial.shader = AetheriumPlugin.HopooShader;
+            shieldOmegaMaterial.SetFloat("_Smoothness", 0.5f);
+            shieldOmegaMaterial.SetColor("_EmColor", new Color(140, 87, 2));
+            shieldOmegaMaterial.SetFloat("_EmPower", 0.00001f);
+
+            var spikesMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldSpikes.mat");
+            spikesMaterial.shader = AetheriumPlugin.HopooShader;
+            spikesMaterial.SetTexture("_NormalTex", metalNormal);
+            spikesMaterial.SetFloat("_NormalStrength", 5);
+            spikesMaterial.SetFloat("_Smoothness", 0.5f);
+            spikesMaterial.SetTexture("_EmTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/13836-diffuse.jpg"));
+            spikesMaterial.SetColor("_EmColor", new Color(255, 0, 0));
+            spikesMaterial.SetFloat("_EmPower", 0.0001f);
+
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

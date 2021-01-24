@@ -16,13 +16,14 @@ namespace Aetherium.Items
 {
     public class BlasterSword : ItemBase<BlasterSword>
     {
+        public static bool UseAlternateModel;
         public bool UseImpaleProjectile;
         public float BaseSwordDamageMultiplier;
         public float AdditionalSwordDamageMultiplier;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
-        public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile ? "impales an enemy, crippling them and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
+        public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile ? "impales an enemy, crippling them, and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
 
         public override string ItemFullDescription => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier)} per stack)</style> " +
             $"when it <style=cIsDamage>{(UseImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
@@ -37,8 +38,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Damage };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/BlasterSwordIcon.png";
+        public override string ItemModelPath => UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab";
+        public override string ItemIconPath => UseAlternateModel ? "@Aetherium:Assets/Textures/Icons/Item/BlasterKatanaIcon.png" : "@Aetherium:Assets/Textures/Icons/Item/BlasterSwordIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject SwordProjectile;
@@ -49,7 +50,8 @@ namespace Aetherium.Items
         public static HashSet<String> BlacklistedProjectiles = new HashSet<string>()
         {
             "LightningStake",
-            "StickyBomb"
+            "StickyBomb",
+            "FireworkProjectile"
         };
 
         public static BuffIndex BlasterSwordActiveBuff;
@@ -62,6 +64,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateBuff();
             CreateProjectile();
             CreateItem();
@@ -70,9 +73,50 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            UseAlternateModel = config.Bind<bool>("Item: " + ItemName, "Use Alternate Blaster Sword Model", false, "Do you wish to start feeling motivated now?").Value;
             UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?").Value;
             BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)").Value;
             AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
+        }
+
+        private void CreateMaterials()
+        {
+            
+
+            var bindingMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat");
+            bindingMaterial.shader = AetheriumPlugin.HopooShader;
+            bindingMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/14200-normal.jpg"));
+            bindingMaterial.SetFloat("_NormalStrength", 5f);
+            bindingMaterial.SetFloat("_Smoothness", 0.5f);
+            bindingMaterial.SetFloat("_ForceSpecOn", 1);
+
+            var bladeMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat");
+            bladeMainMaterial.shader = AetheriumPlugin.HopooShader;
+            bladeMainMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
+            bladeMainMaterial.SetFloat("_NormalStrength", 5f);
+            bladeMainMaterial.SetFloat("_Smoothness", 1f);
+            bladeMainMaterial.SetFloat("_ForceSpecOn", 1);
+
+
+            var bladeUnderMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltBladeSharp.mat");
+            bladeUnderMaterial.shader = AetheriumPlugin.HopooShader;
+            bladeUnderMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/3989-bump - Copy.jpg"));
+            bladeUnderMaterial.SetFloat("_NormalStrength", 0.4f);
+            bladeUnderMaterial.SetFloat("_Smoothness", 1f);
+            bladeUnderMaterial.SetFloat("_ForceSpecOn", 1);
+
+            var goldMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat");
+            goldMaterial.shader = AetheriumPlugin.HopooShader;
+            goldMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
+            goldMaterial.SetFloat("_NormalStrength", 5f);
+            goldMaterial.SetFloat("_Smoothness", 1f);
+            goldMaterial.SetFloat("_ForceSpecOn", 1);
+
+            var projectileMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordProjectile.mat");
+            projectileMaterial.shader = AetheriumPlugin.HopooShader;
+            projectileMaterial.SetFloat("_EmPower", 0.0001f);
+            projectileMaterial.SetColor("_EmColor", new Color(0, 136, 255, 255));
+
         }
 
         private void CreateBuff()
@@ -93,7 +137,7 @@ namespace Aetherium.Items
         {
             SwordProjectile = UseImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
 
-            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab");
+            var model = UseAlternateModel ? Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab") : Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
             model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
 
@@ -148,7 +192,7 @@ namespace Aetherium.Items
 
             itemDisplay.gameObject.AddComponent<SwordGlowHandler>();
 
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {
@@ -170,7 +214,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
-            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -182,7 +226,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.08f, 0.045f, 0.1f)
                 }
             });
-            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -239,7 +283,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(2f, 1f, 1.5f)
                 }
             });
-            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlEngi", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -261,7 +305,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
-            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlMage", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -283,7 +327,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.07f, 0.025f, 0.07f)
                 }
             });
-            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlMerc", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -295,7 +339,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.11f, 0.11f, 0.11f)
                 }
             });
-            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -307,7 +351,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.3f, 0.3f, 0.3f)
                 }
             });
-            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlLoader", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -329,7 +373,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.15f, 0.1f, 0.15f)
                 }
             });
-            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlCroco", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -341,7 +385,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(1.5f, 1.5f, 1.5f)
                 }
             });
-            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
+            rulesNormal.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {
@@ -353,7 +397,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.12f, 0.12f, 0.12f)
                 }
             });
-            rules.Add("mdlBrother", new ItemDisplayRule[]
+            rulesNormal.Add("mdlBrother", new ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {
@@ -385,7 +429,246 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
-            return rules;
+
+            ItemDisplayRuleDict rulesAlt = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            {
+               new RoR2.ItemDisplayRule
+               {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleLeft",
+                    localPos = new Vector3(0, 0, 0.4f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleRight",
+                    localPos = new Vector3(0, 0, 0.4f),
+                    localAngles = new Vector3(-90, 0, 0),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                }
+            });
+            rulesAlt.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Arrow",
+                    localPos = new Vector3(0.3f, 0f, 0f),
+                    localAngles = new Vector3(90f, 270f, 0f),
+                    localScale = new Vector3(0.08f, 0.045f, 0.1f)
+                }
+            });
+            rulesAlt.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, 0.8f, 1.3f),
+                    localAngles = new Vector3(60f, 0.8f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, 0.8f, -1.3f),
+                    localAngles = new Vector3(-60f, 0f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleNailgun",
+                    localPos = new Vector3(-2.6f, -1.5f, 0f),
+                    localAngles = new Vector3(0f, 0f, -90f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleSpear",
+                    localPos = new Vector3(0f, 5.9f, 0f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleBuzzsaw",
+                    localPos = new Vector3(0f, 1f, 1f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(2f, 1f, 1.5f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleBuzzsaw",
+                    localPos = new Vector3(0f, 1f, -1f),
+                    localAngles = new Vector3(0f, 0f, 180f),
+                    localScale = new Vector3(2f, 1f, 1.5f)
+                }
+            });
+            rulesAlt.Add("mdlEngi", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CannonHeadL",
+                    localPos = new Vector3(0f, 1.2f, 0f),
+                    localAngles = new Vector3(-180f, 45f, 0f),
+                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CannonHeadR",
+                    localPos = new Vector3(0f, 1.2f, 0f),
+                    localAngles = new Vector3(-180f, -45f, 0f),
+                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                }
+            });
+            rulesAlt.Add("mdlMage", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "UpperArmL",
+                    localPos = new Vector3(0.1f, 0.2f, 0),
+                    localAngles = new Vector3(0f, 90f, 190f),
+                    localScale = new Vector3(0.07f, 0.025f, 0.07f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "UpperArmR",
+                    localPos = new Vector3(-0.1f, 0.2f, 0),
+                    localAngles = new Vector3(0f, -90f, -190f),
+                    localScale = new Vector3(0.07f, 0.025f, 0.07f)
+                }
+            });
+            rulesAlt.Add("mdlMerc", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "HandR",
+                    localPos = new Vector3(-0.7f, -0.45f, 0.01f),
+                    localAngles = new Vector3(0f, 0f, 310f),
+                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                }
+            });
+            rulesAlt.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "FlowerBase",
+                    localPos = new Vector3(-0.3f, 1.6f, 0f),
+                    localAngles = new Vector3(0f, 0f, 15f),
+                    localScale = new Vector3(0.3f, 0.3f, 0.3f)
+                }
+            });
+            rulesAlt.Add("mdlLoader", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MechHandL",
+                    localPos = new Vector3(0.6f, 0.25f, 0.02f),
+                    localAngles = new Vector3(20f, -4f, 90f),
+                    localScale = new Vector3(0.15f, 0.1f, 0.15f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MechHandR",
+                    localPos = new Vector3(-0.6f, 0.25f, 0.02f),
+                    localAngles = new Vector3(20f, 4f, -90f),
+                    localScale = new Vector3(0.15f, 0.1f, 0.15f)
+                }
+            });
+            rulesAlt.Add("mdlCroco", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MouthMuzzle",
+                    localPos = new Vector3(-9.2f, 2f, 3f),
+                    localAngles = new Vector3(90f, 90f, 0f),
+                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
+                }
+            });
+            rulesAlt.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleGun",
+                    localPos = new Vector3(0f, 0f, 0.65f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
+                    localScale = new Vector3(0.12f, 0.12f, 0.12f)
+                }
+            });
+            rulesAlt.Add("mdlBrother", new ItemDisplayRule[]
+            {
+               new RoR2.ItemDisplayRule
+               {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleLeft",
+                    localPos = new Vector3(0, 0, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0f, 0f, 0f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MuzzleRight",
+                    localPos = new Vector3(0, 0, 0f),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(0f, 0f, 0f)
+                },
+
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "chest",
+                    localPos = new Vector3(0, 0.15f, -0.1f),
+                    localAngles = new Vector3(90, 0, 0),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                }
+            });
+
+            return UseAlternateModel ? rulesAlt : rulesNormal;
         }
 
         public override void Hooks()

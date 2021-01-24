@@ -38,6 +38,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateItem();
             Hooks();
         }
@@ -50,11 +51,33 @@ namespace Aetherium.Items
             BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?").Value;
         }
 
+        private void CreateMaterials()
+        {
+            var coreFlapsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreFlap.mat");
+            coreFlapsMaterial.shader = AetheriumPlugin.HopooShader;
+            coreFlapsMaterial.SetFloat("_Smoothness", 0.5f);
+
+            var coreGemMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreGem.mat");
+            coreGemMaterial.shader = AetheriumPlugin.HopooShader;
+            coreGemMaterial.SetColor("_EmColor", new Color(59, 0, 79));
+            coreGemMaterial.SetFloat("_EmPower", 0.00001f);
+            coreGemMaterial.SetFloat("_Smoothness", 0.83f);
+
+            var coreRivetsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat");
+            coreRivetsMaterial.shader = AetheriumPlugin.HopooShader;
+            coreRivetsMaterial.SetFloat("_Smoothness", 1f);
+
+            var coreContainerMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat");
+            coreContainerMaterial.shader = AetheriumPlugin.HopooShader;
+            coreContainerMaterial.SetFloat("_Smoothness", 1f);
+        }
+
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>();
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
@@ -260,6 +283,76 @@ namespace Aetherium.Items
         {
             public int cachedInventoryCount = 0;
             public bool cachedIsShielded = false;
+        }
+
+        public class ShieldingCoreVisualCueController : MonoBehaviour
+        {
+            public ItemDisplay ItemDisplay;
+            public ParticleSystem[] ParticleSystem;
+            public CharacterMaster OwnerMaster;
+            public CharacterBody OwnerBody;
+            public void FixedUpdate()
+            {
+
+                if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 2)
+                {
+                    ItemDisplay = this.GetComponentInParent<ItemDisplay>();
+                    if (ItemDisplay)
+                    {
+                        ParticleSystem = ItemDisplay.GetComponentsInChildren<ParticleSystem>();
+                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
+                        var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
+
+                        if (characterModel)
+                        {
+                            var body = characterModel.body;
+                            if (body)
+                            {
+                                OwnerMaster = body.master;
+                            }
+                        }
+                    }
+                }
+
+                if (OwnerMaster && !OwnerBody)
+                {
+                    var body = OwnerMaster.GetBody();
+                    if (body)
+                    {
+                        OwnerBody = body;
+                    }
+                }
+
+                if (OwnerBody && ParticleSystem.Length == 2)
+                {
+                    foreach (ParticleSystem particleSystem in ParticleSystem)
+                    {
+                        if (OwnerBody.healthComponent.shield > 0)
+                        {
+                            if (!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                            {
+                                particleSystem.Play();
+                            }
+                            else
+                            {
+                                if (particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                                {
+                                    particleSystem.Stop();
+                                    particleSystem.Clear();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (particleSystem.isPlaying)
+                            {
+                                particleSystem.Stop();
+                            }
+                        }
+                    }
+                }
+
+            }
         }
     }
 }

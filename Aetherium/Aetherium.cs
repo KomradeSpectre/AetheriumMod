@@ -28,6 +28,7 @@ namespace Aetherium
         public const string ModVer = "0.4.7";
 
         public static AssetBundle MainAssets;
+        public static Shader HopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
@@ -86,7 +87,7 @@ namespace Aetherium
         public void ValidateItem(ItemBase item, List<ItemBase> itemList)
         {
             var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
-            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Is the AI allowed to use this item?").Value;
+            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
             if (enabled) 
             {
                 itemList.Add(item);

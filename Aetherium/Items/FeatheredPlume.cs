@@ -40,6 +40,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateBuff();
             CreateItem();
             Hooks();
@@ -52,6 +53,24 @@ namespace Aetherium.Items
             AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?").Value;
             BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?").Value;
             MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)").Value;
+        }
+
+        private void CreateMaterials()
+        {
+            
+
+            var featherMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeFeather.mat");
+            featherMainMaterial.shader = AetheriumPlugin.HopooShader;
+            featherMainMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/FeatheredPlumeNormal.png"));
+            featherMainMaterial.SetFloat("_NormalStrength", 5);
+            featherMainMaterial.SetFloat("_Smoothness", 0.5f);
+
+            var quillSubMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeQuill.mat");
+            quillSubMaterial.shader = AetheriumPlugin.HopooShader;
+            quillSubMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/10538-normal.jpg"));
+            quillSubMaterial.SetFloat("_NormalStrength", 5);
+            quillSubMaterial.SetFloat("_Smoothness", 0.5f);
+
         }
 
         private void CreateBuff()

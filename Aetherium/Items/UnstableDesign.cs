@@ -70,6 +70,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterials();
             CreateSpawncard();
             CreateItem();
             Hooks();
@@ -84,6 +85,22 @@ namespace Aetherium.Items
             LunarChimeraBaseHPBoost = config.Bind<int>("Item: " + ItemName, "HP Boosting Item Amount", 10, "What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)").Value;
             LunarChimeraBaseAttackSpeedBoost = config.Bind<int>("Item: " + ItemName, "Attack Speed Item Amount", 30, "What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)").Value;
             LunarChimeraBaseMovementSpeedBoost = config.Bind<int>("Item: " + ItemName, "Movement Speed Item Amount", 2, "What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)").Value;
+        }
+
+        private void CreateMaterials()
+        {
+            
+
+            var unstableDesignFrontMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignFrontTexture.mat");
+            unstableDesignFrontMaterial.shader = AetheriumPlugin.HopooShader;
+
+            var unstableDesignBackMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat");
+            unstableDesignBackMaterial.shader = AetheriumPlugin.HopooShader;
+
+            var unstableDesignWoodMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat");
+            unstableDesignWoodMaterial.shader = AetheriumPlugin.HopooShader;
+            unstableDesignWoodMaterial.SetFloat("_Smoothness", 0.3f);
+
         }
 
         private void CreateSpawncard()
