@@ -662,8 +662,6 @@ namespace Aetherium.Items
                 ankletTracker.AnkletStacks = inventoryCount;
                 self.inventory.GiveItem(LimiterReleaseItemIndex, calculatedStacks);
             }
-
-            if()
         }
 
         private void ManageLimiterBuff(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
