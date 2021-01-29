@@ -15,6 +15,7 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : ItemBase<InspiringDrone>
     {
+        public static bool IsGreenRarity;
         public static bool SetAllStatValuesAtOnce;
         public static float AllStatValueGrantedPercentage;
         public static float DamageGrantedPercentage;
@@ -70,12 +71,12 @@ namespace Aetherium.Items
             "\n[A cacophony of beeps, boops, and bips can be heard.]\n" +
             "<style=cMono>[END OF FILE]</style> ";
 
-        public override ItemTier Tier => ItemTier.Tier3;
+        public override ItemTier Tier => IsGreenRarity ? ItemTier.Tier2 : ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.AIBlacklist, ItemTag.Utility };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/InspiringDrone/InspiringDrone.prefab";
 
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/InspiringDroneIcon.png";
+        public override string ItemIconPath => IsGreenRarity ? "@Aetherium:Assets/Textures/Icons/Item/InspiringDroneIconTier2.png" : "@Aetherium:Assets/Textures/Icons/Item/InspiringDroneIconTier3.png";
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
@@ -109,6 +110,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            IsGreenRarity = config.Bind<bool>("Item: " + ItemName, "Should the Inspiring Drone be Green Rarity instead of Red Rarity?", false, "Should the Inspiring Drone show up in the Tier2 (Green Rarity) item pool instead of the Tier3 (Red Rarity) item pool?").Value;
             SetAllStatValuesAtOnce = config.Bind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.").Value;
             AllStatValueGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%").Value;
             DamageGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?").Value;

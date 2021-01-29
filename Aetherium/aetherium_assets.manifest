@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3859875291
+CRC: 1454602680
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d09c7c890d37369b05ef6b1725f30b5c
+    Hash: 560b555afda7bb076e754da5d4aef1a9
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -66,6 +66,7 @@ Assets:
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/Item/FeatheredPlume/FeatheredPlume.prefab
 - Assets/Animations/JarOfReshapingAbsorbEffect.controller
+- Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseTrail.mat
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingEye.mat
 - Assets/Animations/InspiringDroneHead.controller
 - Assets/Textures/Material Textures/teststringtexture.png
@@ -103,6 +104,7 @@ Assets:
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat
+- Assets/Textures/Material Textures/starparticle.png
 - Assets/Textures/Material Textures/WitchesRingEmissionMap.png
 - Assets/Models/Raw Models/WitchesRingCircle.blend
 - Assets/Shaders/3D Shaders/WaterShader.shader
@@ -137,6 +139,7 @@ Assets:
 - Assets/Textures/Material Textures/7w6XK.png
 - Assets/Shaders/3D Shaders/Glass.shader
 - Assets/Shaders/3D Shaders/FireDistortion.shader
+- Assets/Animations/ContainerCentrifuge.controller
 - Assets/Textures/Material Textures/1.png
 - Assets/Textures/Material Textures/PearlescentPinkRamp.png
 - Assets/Textures/Material Textures/6147-bump.jpg
@@ -186,7 +189,7 @@ Assets:
 - Assets/Textures/Material Textures/11375-bump1.jpg
 - Assets/Animations/Torus.003.controller
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneJointMetal.mat
-- Assets/Textures/Icons/Item/InspiringDroneIcon.png
+- Assets/Textures/Icons/Item/InspiringDroneIconTier3.png
 - Assets/Models/Raw Models/JarOfReshapingAbsorbEffect.blend
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat
 - Assets/Textures/Material Textures/Powergem.png
@@ -206,6 +209,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Ghost.shader
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAdditiveParticle.mat
 - Assets/Textures/Material Textures/WhiteToBlackToWhiteRamp.png
+- Assets/Animations/ShieldingCoreCentrifuge.anim
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab
 - Assets/Textures/Material Textures/414-bump.jpg
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png
@@ -242,6 +246,7 @@ Assets:
 - Assets/Textures/Material Textures/FeatheredPlumeNormal.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingGlass.mat
 - Assets/Shaders/3D Shaders/UVDistortion.shader
+- Assets/Models/Prefabs/Item/WeightedAnklet/LimiterReleaseEyeTrail.prefab
 - Assets/Textures/Material Textures/CircularNormal.png
 - Assets/Models/Raw Models/BlasterSword.blend
 - Assets/Textures/Material Textures/UnstableDesignBackTexture.png
@@ -249,11 +254,13 @@ Assets:
 - Assets/Textures/Material Textures/MagicCircleEmission.png
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Icons/Item/VoidheartIcon.png
+- Assets/Textures/Material Textures/4793.jpg
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignRolledUp.prefab
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureEmission.png
 - Assets/Textures/Icons/Item/ShieldingCoreIcon.png
 - Assets/Textures/Material Textures/BlueToWhiteRamp.png
 - Assets/Models/Raw Models/UnstableDesign.blend
+- Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveStar.mat
 - Assets/Animations/InspiringDroneUpperArmR.anim
 - Assets/Animations/InspiringDroneHead.anim
 - Assets/Textures/Material Textures/3398-diffuse.jpg
@@ -344,6 +351,7 @@ Assets:
 - Assets/Animations/InspiringDroneThrusterPlume.anim
 - Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png
 - Assets/Textures/Material Textures/LabelTexture.png
+- Assets/Textures/Icons/Item/InspiringDroneIconTier2.png
 - Assets/Models/Raw Models/InspiringDroneTracker.blend
 - Assets/Shaders/3D Shaders/IridescencePealescent.shader
 - Assets/Shaders/3D Shaders/StylizedLavaShader.shader

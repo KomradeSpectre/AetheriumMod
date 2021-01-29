@@ -9,6 +9,9 @@ using static Aetherium.Utils.ItemHelpers;
 using System;
 using System.Collections.Generic;
 using static RoR2.Navigation.MapNodeGroup;
+using UnityEngine.Networking;
+using R2API.Networking.Interfaces;
+using R2API.Networking;
 
 namespace Aetherium.Items
 {
@@ -48,6 +51,7 @@ namespace Aetherium.Items
         public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/WeightedAnkletIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
+        public static GameObject LimiterReleaseEyePrefab;
 
         public static ItemIndex LimiterReleaseItemIndex;
 
@@ -59,6 +63,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateNetworkMessages();
             CreateMaterials();
             CreateBuff();
             CreateItem();
@@ -71,6 +76,11 @@ namespace Aetherium.Items
             BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
             BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
             MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.1f, "What should be the lowest percentage of movement speed reduction be?");
+        }
+
+        private void CreateNetworkMessages()
+        {
+            NetworkingAPI.RegisterMessageType<SyncTeleportDodge>();
         }
 
         private void CreateMaterials()
@@ -269,6 +279,217 @@ namespace Aetherium.Items
             return rules;
         }
 
+        private ItemDisplayRuleDict CreateLimiterItemDisplayRules()
+        {
+            LimiterReleaseEyePrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/WeightedAnklet/LimiterReleaseEyeTrail.prefab");
+            var itemDisplay = LimiterReleaseEyePrefab.AddComponent<ItemDisplay>();
+            itemDisplay.rendererInfos = ItemDisplaySetup(LimiterReleaseEyePrefab);
+            itemDisplay.gameObject.AddComponent<LimiterTrailSizeHandler>();
+
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.1f, 0.25f, 0.15f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.1f, 0.25f, 0.15f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0.16f, 0.14f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0.26f, 0.1f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.425f, 2.9f, -1f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                }
+            });
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "HeadCenter",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "HeadCenter",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.05f, 0.06f, 0.11f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.05f, 0.06f, 0.11f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                }
+            });
+            return rules;
+        }
+
         private void CreatePowerupItem()
         {
             LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_NAME", "Weighted Anklet Limiter Release");
@@ -288,7 +509,7 @@ namespace Aetherium.Items
                 canRemove = false,
                 tier = ItemTier.NoTier
             };
-            LimiterReleaseItemIndex = ItemAPI.Add(new CustomItem(limiterReleaseItemDef, new RoR2.ItemDisplayRule[] { }));
+            LimiterReleaseItemIndex = ItemAPI.Add(new CustomItem(limiterReleaseItemDef, CreateLimiterItemDisplayRules()));
         }
 
         public override void Hooks()
@@ -327,7 +548,7 @@ namespace Aetherium.Items
                             var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
                             if (attackerBody)
                             {
-                                TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
+                                TeleportBody(dodgeBody, attackerBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
 
                                 var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
                                 if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
@@ -380,7 +601,7 @@ namespace Aetherium.Items
                             var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
                             if (attackerBody)
                             {
-                                var teleportBool = TeleportBody(dodgeBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
+                                var teleportBool = TeleportBody(dodgeBody, attackerBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
 
                                 var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
                                 if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
@@ -441,6 +662,8 @@ namespace Aetherium.Items
                 ankletTracker.AnkletStacks = inventoryCount;
                 self.inventory.GiveItem(LimiterReleaseItemIndex, calculatedStacks);
             }
+
+            if()
         }
 
         private void ManageLimiterBuff(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -480,7 +703,7 @@ namespace Aetherium.Items
             orig(self, buffDef);
         }
 
-        private bool TeleportBody(RoR2.CharacterBody body, Vector3 desiredPosition, GraphType nodeGraphType)
+        private bool TeleportBody(RoR2.CharacterBody body, CharacterBody attackerbody, Vector3 desiredPosition, GraphType nodeGraphType)
         {
             RoR2.SpawnCard spawnCard = ScriptableObject.CreateInstance<RoR2.SpawnCard>();
             spawnCard.hullSize = body.hullClassification;
@@ -495,6 +718,15 @@ namespace Aetherium.Items
             }, RoR2.RoR2Application.rng));
             if (gameObject)
             {
+                if (NetworkServer.active)
+                {
+                    var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
+                    var attackerBodyIdentity = attackerbody.gameObject.GetComponent<NetworkIdentity>();
+                    if (bodyIdentity && attackerBodyIdentity)
+                    {
+                        new SyncTeleportDodge(gameObject.transform.position, bodyIdentity.netId, attackerBodyIdentity.netId).Send(R2API.Networking.NetworkDestination.Clients);
+                    }
+                }
                 RoR2.TeleportHelper.TeleportBody(body, gameObject.transform.position);
                 GameObject teleportEffectPrefab = RoR2.Run.instance.GetTeleportEffectPrefab(body.gameObject);
                 if (teleportEffectPrefab)
@@ -539,6 +771,118 @@ namespace Aetherium.Items
                         Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
                     }
                     UnityEngine.Object.Destroy(this);
+                }
+            }
+        }
+
+        public class LimiterTrailSizeHandler : MonoBehaviour
+        {
+            public ItemDisplay ItemDisplay;
+            public TrailRenderer TrailRenderer;
+            public CharacterMaster OwnerMaster;
+            public void FixedUpdate()
+            {
+
+                if (!OwnerMaster || !ItemDisplay || !TrailRenderer)
+                {
+                    ItemDisplay = this.GetComponentInParent<ItemDisplay>();
+                    if (ItemDisplay)
+                    {
+
+                        TrailRenderer = ItemDisplay.GetComponent<TrailRenderer>();
+
+                        if (TrailRenderer)
+                        {
+                            TrailRenderer.transform.localScale = ItemDisplay.transform.localScale;
+                        }
+                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
+                        var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
+
+                        if (characterModel)
+                        {
+                            var body = characterModel.body;
+                            if (body)
+                            {
+                                OwnerMaster = body.master;
+                            }
+                        }
+                    }
+                }
+
+                if(ItemDisplay && TrailRenderer)
+                {
+                    if(TrailRenderer.widthMultiplier != ItemDisplay.transform.localScale.x)
+                    {
+                        TrailRenderer.widthMultiplier = ItemDisplay.transform.localScale.x;
+                    }
+
+                    if(ItemDisplay.GetVisibilityLevel() != VisibilityLevel.Invisible && !TrailRenderer.enabled)
+                    {
+                        TrailRenderer.enabled = true;
+                    }
+                    else if (ItemDisplay.GetVisibilityLevel() == VisibilityLevel.Invisible && TrailRenderer.enabled)
+                    {
+                        TrailRenderer.enabled = false;
+                    }
+                }
+            }
+        }
+
+        public class SyncTeleportDodge : INetMessage
+        {
+            private Vector3 Position;
+            private NetworkInstanceId BodyID;
+            private NetworkInstanceId AttackerBodyID;
+
+            public SyncTeleportDodge()
+            {
+            }
+
+            public SyncTeleportDodge(Vector3 position, NetworkInstanceId bodyID, NetworkInstanceId attackerBodyID)
+            {
+                Position = position;
+                BodyID = bodyID;
+                AttackerBodyID = attackerBodyID;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(Position);
+                writer.Write(BodyID);
+                writer.Write(AttackerBodyID);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                Position = reader.ReadVector3();
+                BodyID = reader.ReadNetworkId();
+                AttackerBodyID = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+
+                var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
+                var attackerGameObject = RoR2.Util.FindNetworkObject(AttackerBodyID);
+
+                if (playerGameObject && attackerGameObject)
+                {
+                    var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
+                    var attackerBody = attackerGameObject.GetComponent<CharacterBody>();
+
+                    if (body && attackerBody)
+                    {
+                        RoR2.TeleportHelper.TeleportBody(body, Position);
+
+                        var teleportCameraComponent = body.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
+                        if (!teleportCameraComponent) { teleportCameraComponent = body.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
+
+                        teleportCameraComponent.dodgeBody = body;
+                        teleportCameraComponent.attackerBody = attackerBody;
+                        teleportCameraComponent.Timer = 0.1f;
+
+                    }
                 }
             }
         }

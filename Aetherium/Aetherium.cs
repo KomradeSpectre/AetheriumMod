@@ -8,7 +8,9 @@ using BepInEx.Configuration;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
@@ -34,6 +36,10 @@ namespace Aetherium
         public List<ItemBase> Items = new List<ItemBase>();
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
 
+        // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
+        public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
+        public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
+
         private void Awake()
         {
 #if DEBUG
@@ -49,58 +55,69 @@ namespace Aetherium
             }
 
             //Core Initializations
-            CoreModules.Add(new StatHooks());
 
-            foreach (CoreModule coreModule in CoreModules)
+            var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
+
+            foreach(var coreModuleType in CoreModuleTypes)
             {
+                CoreModule coreModule = (CoreModule)Activator.CreateInstance(coreModuleType);
+
                 coreModule.Init();
             }
 
-            //Item Initialization
-            ValidateItem(new AccursedPotion(), Items);
-            ValidateItem(new AlienMagnet(), Items);
-            ValidateItem(new BlasterSword(), Items);
-            ValidateItem(new BloodSoakedShield(), Items);
-            ValidateItem(new FeatheredPlume(), Items);
-            ValidateItem(new InspiringDrone(), Items);
-            ValidateItem(new SharkTeeth(), Items);
-            ValidateItem(new ShieldingCore(), Items);
-            ValidateItem(new UnstableDesign(), Items);
-            ValidateItem(new Voidheart(), Items);
-            ValidateItem(new WeightedAnklet(), Items);
-            ValidateItem(new WitchesRing(), Items);
+            var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
 
-            foreach (ItemBase item in Items)
+            foreach (var itemType in ItemTypes)
             {
-                item.Init(base.Config);
-            }
-
-            //Equipment Initialization
-            EquipmentEnabledCheck(new JarOfReshaping(), Equipments);
-
-            foreach (EquipmentBase equipments in Equipments)
-            {
-                equipments.Init(base.Config);
-            }
-        }
-
-        public void ValidateItem(ItemBase item, List<ItemBase> itemList)
-        {
-            var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
-            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
-            if (enabled) 
-            {
-                itemList.Add(item);
-                if(aiBlacklist) 
+                ItemBase item = (ItemBase)System.Activator.CreateInstance(itemType);
+                if (ValidateItem(item, Items))
                 {
-                    item.AIBlacklisted = true;
+                    item.Init(Config);
+                }
+            }
+
+            var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
+
+            foreach (var equipmentType in EquipmentTypes)
+            {
+                EquipmentBase equipment = (EquipmentBase)System.Activator.CreateInstance(equipmentType);
+                if (ValidateEquipment(equipment, Equipments))
+                {
+                    equipment.Init(Config);
                 }
             }
         }
 
-        public void EquipmentEnabledCheck(EquipmentBase equipment, List<EquipmentBase> equipmentList)
+        public bool ValidateItem(ItemBase item, List<ItemBase> itemList)
         {
-            if (Config.Bind<bool>("Equipment: " + equipment.EquipmentName, "Enable Equipment?", true, "Should this equipment appear in runs?").Value) { equipmentList.Add(equipment); }
+            var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
+            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
+
+            ItemStatusDictionary.Add(item, enabled);
+
+            if (enabled)
+            {
+                itemList.Add(item);
+                if (aiBlacklist)
+                {
+                    item.AIBlacklisted = true;
+                }
+            }
+            return enabled;
+        }
+
+        public bool ValidateEquipment(EquipmentBase equipment, List<EquipmentBase> equipmentList)
+        {
+            var enabled = Config.Bind<bool>("Equipment: " + equipment.EquipmentName, "Enable Equipment?", true, "Should this equipment appear in runs?").Value;
+
+            EquipmentStatusDictionary.Add(equipment, enabled);
+
+            if (enabled)
+            {
+                equipmentList.Add(equipment);
+                return true;
+            }
+            return false;
         }
     }
 }

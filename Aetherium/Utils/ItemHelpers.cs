@@ -6,6 +6,12 @@ namespace Aetherium.Utils
 {
     internal class ItemHelpers
     {
+        /// <summary>
+        /// A helper that will set up the RendererInfos of a GameObject that you pass in.
+        /// <para>This allows it to go invisible when your character is not visible, as well as letting overlays affect it.</para>
+        /// </summary>
+        /// <param name="obj">The GameObject/Prefab that you wish to set up RendererInfos for.</param>
+        /// <returns>Returns an array full of RendererInfos for GameObject.</returns>
         public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj)
         {
             MeshRenderer[] meshes = obj.GetComponentsInChildren<MeshRenderer>();
@@ -25,6 +31,17 @@ namespace Aetherium.Utils
             return renderInfos;
         }
 
+        /// <summary>
+        /// A complicated helper method that sets up strings entered into it to be formatted similar to Risk of Rain 1's manifest style.
+        /// </summary>
+        /// <param name="deviceName">Name of the Item or Equipment</param>
+        /// <param name="estimatedDelivery">MM/DD/YYYY</param>
+        /// <param name="sentTo">Specific Location, Specific Area, General Area. E.g. Neptune's Diner, Albatross City, Neptune.</param>
+        /// <param name="trackingNumber">An order number. E.g. 667********</param>
+        /// <param name="devicePickupDesc">The short description of the item or equipment.</param>
+        /// <param name="shippingMethod">Specific instructions on how to handle it, delimited by /. E.g. Light / Fragile</param>
+        /// <param name="orderDetails">The actual lore snippet for the item or equipment.</param>
+        /// <returns>A string formatted with all of the above in the style of Risk of Rain 1's manifests.</returns>
         public static string OrderManifestLoreFormatter(string deviceName, string estimatedDelivery, string sentTo, string trackingNumber, string devicePickupDesc, string shippingMethod, string orderDetails)
         {
             string[] Manifest =

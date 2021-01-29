@@ -23,9 +23,9 @@ namespace Aetherium.Items
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
-        public override string ItemPickupDesc => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile ? "impales an enemy, crippling them, and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
+        public override string ItemPickupDesc => $"When your health bar is full <style=cStack>(from health, shields, barrier, or a combination of any)</style>, most attacks will <style=cIsDamage>fire out a sword beam that {(UseImpaleProjectile ? "impales an enemy, crippling them, and exploding shortly after." : "explodes and cripples an enemy on impact.")}</style>";
 
-        public override string ItemFullDescription => $"At <style=cIsHealth>full health</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier)} per stack)</style> " +
+        public override string ItemFullDescription => $"When your health bar is greater than or equal to 100% full <style=cStack>(from health, shields, barrier, or a combination of any)</style>, most attacks will <style=cIsDamage>fire out a sword beam</style> that has <style=cIsDamage>{FloatToPercentageString(BaseSwordDamageMultiplier)} of your damage</style> <style=cStack>(+{FloatToPercentageString(AdditionalSwordDamageMultiplier)} per stack)</style> " +
             $"when it <style=cIsDamage>{(UseImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
 
         public override string ItemLore => "<style=cMono>. . . . . . . . . .</style>\n" +
@@ -151,6 +151,9 @@ namespace Aetherium.Items
             damage.damageType = DamageType.CrippleOnHit;
             damage.damage = 0;
 
+            var intervalController = SwordProjectile.GetComponent<ProjectileIntervalOverlapAttack>();
+            UnityEngine.Object.Destroy(intervalController);
+
             var impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
 
             if (UseImpaleProjectile)
@@ -159,11 +162,12 @@ namespace Aetherium.Items
                 impactExplosion.impactEffect = impactEffect;
                 impactExplosion.blastRadius = 2;
                 impactExplosion.blastProcCoefficient = 0.2f;
+                impactExplosion.lifetimeAfterImpact = 1.5f;
+                impactExplosion.timerAfterImpact = true;
+                impactExplosion.blastDamageCoefficient = 1;
 
                 var stickOnImpact = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileStickOnImpact>();
                 stickOnImpact.alignNormals = false;
-                impactExplosion.lifetimeAfterImpact = 1.5f;
-                impactExplosion.timerAfterImpact = true;
             }
             else
             {
@@ -1076,11 +1080,7 @@ namespace Aetherium.Items
 
                 if (OwnerMaster && !OwnerBody)
                 {
-                    var body = OwnerMaster.GetBody();
-                    if (body)
-                    {
-                        OwnerBody = body;
-                    }
+                    UnityEngine.Object.Destroy(this);
                 }
 
                 if (OwnerBody && ParticleSystem)

@@ -4,6 +4,7 @@ using R2API;
 using RoR2;
 using UnityEngine;
 using static Aetherium.CoreModules.StatHooks;
+using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
@@ -24,7 +25,27 @@ namespace Aetherium.Items
         public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
             $" The first stack of this item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier)}</style> of your max health as shield on pickup.";
 
-        public override string ItemLore => "A salvaged shield amplifier. These were used to harden shields, but were known to cause harmful mutations with prolonged exposure to the crossover field.";
+        public override string ItemLore => OrderManifestLoreFormatter(
+
+            ItemName,
+
+            "7/4/2091",
+
+            "UES Backlight/Sector 667/Outer Rim",
+
+            "667********",
+
+            ItemPickupDesc,
+
+            "Light / Liquid-Seal / DO NOT DRINK FROM EXHAUST",
+
+            "Engineer's report:\n\n" +
+            "Let me preface this with a bit of honesty. When they celebrated my achievement in creating a working shield hardening system, they may have celebrated a fraud.\n" +
+            "Sure, I created the external chassis for this device, but I don't have a clue where the goo inside came from. It just appeared the moment I inserted that crystal into the center.\n" +
+            "We got it from an enthusiastic researcher that said it can generate torque without external energy required, but nothing about the weird goo that forms.\n\n" +
+            "Speaking of that goo, as it turns out when it comes into contact with an ion field from one of our Portable Shield Generators, it hardens it to absorb more damage.\n" +
+            "Naturally, this has given me an idea of how to make this into a working prototype, but the side effects of exposure with the goo particulates have yet to be seen.\n\n" +
+            "Oh well, not my problem!");
 
         public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
@@ -53,9 +74,14 @@ namespace Aetherium.Items
 
         private void CreateMaterials()
         {
+            var metalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png");
+
             var coreFlapsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreFlap.mat");
             coreFlapsMaterial.shader = AetheriumPlugin.HopooShader;
             coreFlapsMaterial.SetFloat("_Smoothness", 0.5f);
+            coreFlapsMaterial.SetFloat("_SpecularStrength", 1);
+            coreFlapsMaterial.SetFloat("_SpecularExponent", 10);
+            coreFlapsMaterial.SetFloat("_ForceSpecOn", 1);
 
             var coreGemMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreGem.mat");
             coreGemMaterial.shader = AetheriumPlugin.HopooShader;
@@ -66,6 +92,11 @@ namespace Aetherium.Items
             var coreRivetsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat");
             coreRivetsMaterial.shader = AetheriumPlugin.HopooShader;
             coreRivetsMaterial.SetFloat("_Smoothness", 1f);
+            coreRivetsMaterial.SetTexture("_NormalTex", metalNormal);
+            coreRivetsMaterial.SetFloat("_NormalStrength", 5f);
+            coreRivetsMaterial.SetFloat("_SpecularStrength", 1);
+            coreRivetsMaterial.SetFloat("_SpecularExponent", 10);
+            coreRivetsMaterial.SetFloat("_ForceSpecOn", 1);
 
             var coreContainerMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat");
             coreContainerMaterial.shader = AetheriumPlugin.HopooShader;
@@ -88,7 +119,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
                     localPos = new Vector3(0f, 0.2f, -0.22f),
-                    localAngles = new Vector3(0f, -90f, 0f),
+                    localAngles = new Vector3(180f, 0f, 0f),
                     localScale = new Vector3(0.17f, 0.17f, 0.17f)
                 }
             });
@@ -294,7 +325,7 @@ namespace Aetherium.Items
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 2)
+                if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 3)
                 {
                     ItemDisplay = this.GetComponentInParent<ItemDisplay>();
                     if (ItemDisplay)
@@ -323,7 +354,7 @@ namespace Aetherium.Items
                     }
                 }
 
-                if (OwnerBody && ParticleSystem.Length == 2)
+                if (OwnerBody && ParticleSystem.Length == 3)
                 {
                     foreach (ParticleSystem particleSystem in ParticleSystem)
                     {
