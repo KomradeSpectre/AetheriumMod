@@ -1,6 +1,7 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
+using R2API.Utils;
 using RoR2;
 using UnityEngine;
 using static Aetherium.CoreModules.StatHooks;
@@ -12,6 +13,7 @@ namespace Aetherium.Items
     public class ShieldingCore : ItemBase<ShieldingCore>
     {
         public static bool UseNewIcons;
+        public static bool EnableParticleEffects;
         public static float BaseShieldingCoreArmorGrant;
         public static float AdditionalShieldingCoreArmorGrant;
         public static float BaseGrantShieldMultiplier;
@@ -39,15 +41,17 @@ namespace Aetherium.Items
 
             "Light / Liquid-Seal / DO NOT DRINK FROM EXHAUST",
 
-            "Engineer's report:\n\n" +
-            "Let me preface this with a bit of honesty. When they celebrated my achievement in creating a working shield hardening system, they may have celebrated a fraud.\n" +
-            "Sure, I created the external chassis for this device, but I don't have a clue where the goo inside came from. It just appeared the moment I inserted that crystal into the center.\n" +
-            "We got it from an enthusiastic researcher that said it can generate torque without external energy required, but nothing about the weird goo that forms.\n\n" +
-            "Speaking of that goo, as it turns out when it comes into contact with an ion field from one of our Portable Shield Generators, it hardens it to absorb more damage.\n" +
-            "Naturally, this has given me an idea of how to make this into a working prototype, but the side effects of exposure with the goo particulates have yet to be seen.\n\n" +
-            "Oh well, not my problem!");
+            "\nEngineer's report:\n\n" +
+            "   Let me preface this with a bit of honesty, I do not know what the green goo inside my little turbine is. " +
+            "I bought an aftermarket resonator from one of the junk dealers our ship passed, because I was running low on parts to repair our shield generators. " +
+            "As soon as I slotted this thing in, I'm covered in this gross liquid that seems to dissipate into these sparkly crystals when exposed to air. " +
+            "Normally this wouldn't be much of an issue since I'm in a suit, but the stuff was constantly attempting to fill the container it occupied so I had to create a seal for it. " +
+            "That's when my suit diagnostics alarmed me that my shield's efficacy hit the roof.\n\n" +
+            "Eureka moment, and a few design drafts later.\n" +
+            "Now I'm selling these things like hotcakes and making a profit. So here's one for you.\n\n" +
+            "P.S. Don't expose your skin to this stuff, it may cause over 200 known forms of cancer. That's our secret though, right?");
 
-        public override ItemTier Tier => ItemTier.Tier1;
+        public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCore.prefab";
@@ -67,9 +71,10 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
+            EnableParticleEffects = config.Bind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?").Value;
             BaseShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?").Value;
             AdditionalShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?").Value;
-            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.04f, "How much should the starting shield be upon receiving the item?").Value;
+            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.08f, "How much should the starting shield be upon receiving the item?").Value;
         }
 
         private void CreateMaterials()
@@ -108,7 +113,7 @@ namespace Aetherium.Items
             ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
             ItemBodyModelPrefab.AddComponent<ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
-            ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>();
+            if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
@@ -130,8 +135,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0.05f, 0.15f, -0.12f),
-                    localAngles = new Vector3(0f, -90f, 0f),
+                    localPos = new Vector3(0.05f, 0.14f, -0.12f),
+                    localAngles = new Vector3(0f, 160f, -20f),
                     localScale = new Vector3(0.14f, 0.14f, 0.14f)
                 }
             });
@@ -141,10 +146,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "LowerArmR",
-                    localPos = new Vector3(-2f, 6f, 0f),
-                    localAngles = new Vector3(45f, -90f, 0f),
-                    localScale = generalScale * 10
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 2.5f, -2.5f),
+                    localAngles = new Vector3(0f, -180f, 0f),
+                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
                 }
             });
             rules.Add("mdlEngi", new ItemDisplayRule[]
@@ -154,8 +159,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.22f, -0.28f),
-                    localAngles = new Vector3(0f, -90, 0f),
+                    localPos = new Vector3(0f, 0.22f, -0.3f),
+                    localAngles = new Vector3(0f, 180, 180f),
                     localScale = generalScale
                 }
             });
@@ -166,8 +171,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.15f, -0.12f),
-                    localAngles = new Vector3(0f, -90f, 0f),
+                    localPos = new Vector3(0f, 0.1f, -0.35f),
+                    localAngles = new Vector3(-10f, 180f, 180f),
                     localScale = new Vector3(0.14f, 0.14f, 0.14f)
                 }
             });
@@ -178,8 +183,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.19f, -0.22f),
-                    localAngles = new Vector3(0f, -90f, 0f),
+                    localPos = new Vector3(0f, 0.19f, -0.32f),
+                    localAngles = new Vector3(-15f, -180f, 180f),
                     localScale = new Vector3(0.17f, 0.17f, 0.17f)
                 }
             });
@@ -189,10 +194,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "WeaponPlatform",
-                    localPos = new Vector3(0.2f, 0.05f, 0.2f),
-                    localAngles = new Vector3(0f, -180f, 0f),
-                    localScale = generalScale * 2
+                    childName = "FlowerBase",
+                    localPos = new Vector3(0f, 0.9f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
+                    localScale = new Vector3(0.7f, 0.7f, 0.7f)
                 }
             });
             rules.Add("mdlLoader", new ItemDisplayRule[]
@@ -202,8 +207,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.22f, -0.26f),
-                    localAngles = new Vector3(0f, -90, 0f),
+                    localPos = new Vector3(0f, 0.25f, -0.4f),
+                    localAngles = new Vector3(-10f, 180, 0f),
                     localScale = generalScale
                 }
             });
@@ -214,9 +219,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 4.4f),
-                    localAngles = new Vector3(0f, 90f, 0f),
-                    localScale = generalScale * 4
+                    localPos = new Vector3(0f, 3.5f, 3.5f),
+                    localAngles = new Vector3(-45f, 0f, 0f),
+                    localScale = new Vector3(2, 2, 2)
                 }
             });
             rules.Add("mdlCaptain", new ItemDisplayRule[]
@@ -226,8 +231,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.2f, -0.22f),
-                    localAngles = new Vector3(0f, -90f, 0f),
+                    localPos = new Vector3(0f, 0.2f, -0.25f),
+                    localAngles = new Vector3(0f, -180f, 0f),
                     localScale = generalScale
                 }
             });
@@ -352,6 +357,17 @@ namespace Aetherium.Items
                     {
                         OwnerBody = body;
                     }
+                    if (!body)
+                    {
+                        if (ParticleSystem.Length == 3)
+                        {
+                            for(int i = 0; i < ParticleSystem.Length; i++)
+                            {
+                                UnityEngine.Object.Destroy(ParticleSystem[i]);
+                            }
+                        }
+                        UnityEngine.Object.Destroy(this);
+                    }
                 }
 
                 if (OwnerBody && ParticleSystem.Length == 3)
@@ -382,7 +398,6 @@ namespace Aetherium.Items
                         }
                     }
                 }
-
             }
         }
     }

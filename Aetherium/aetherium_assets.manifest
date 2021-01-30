@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1454602680
+CRC: 589441489
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 560b555afda7bb076e754da5d4aef1a9
+    Hash: 79ccd887bb595e6e13d9336f86ebfa6e
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -75,6 +75,7 @@ Assets:
 - Assets/Shaders/3D Shaders/CelShader.shader
 - Assets/Textures/Material Textures/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
+- Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab
 - Assets/Textures/Icons/Buff/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Material Textures/WitchesRingSkullEmission.png
 - Assets/Textures/Material Textures/BlueToTransparentRampSphere.png
@@ -82,6 +83,7 @@ Assets:
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeFeather.mat
 - Assets/Textures/Material Textures/EliteRingSunIcon.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat
+- Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab
 - Assets/Shaders/3D Shaders/StylizedGlass.shader
 - Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBone.mat
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDrone.prefab
@@ -317,6 +319,7 @@ Assets:
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeQuill.mat
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulum.prefab
 - Assets/Textures/Material Textures/EliteRingCrystalIcon.png
+- Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseEyeParticleSystem.mat
 - Assets/Shaders/3D Shaders/FireBallEffect.shader
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletCrystal.mat
 - Assets/Shaders/3D Shaders/DoubleTexGlobalPosition.shader

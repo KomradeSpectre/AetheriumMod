@@ -17,9 +17,16 @@ namespace Aetherium.Items
 {
     public class WeightedAnklet : ItemBase<WeightedAnklet>
     {
-        public static ConfigEntry<float> BaseKnockbackReductionPercentage;
-        public static ConfigEntry<float> BaseMovementSpeedReductionPercentage;
-        public static ConfigEntry<float> MovementSpeedReductionPercentageCap;
+        public static float BaseAttackSpeedReductionPercentage;
+        public static float AttackSpeedReductionPercentageCap;
+        public static float BaseMovementSpeedReductionPercentage;
+        public static float MovementSpeedReductionPercentageCap;
+        public static float AttackSpeedGainedPerLimiterRelease;
+        public static float MovementSpeedGainedPerLimiterRelease;
+        public static float DamagePercentageGainedPerLimiterRelease;
+        public static float BaseCooldownOfLimiterReleaseDodge;
+        public static float AdditionalCooldownOfLimiterReleaseDodge;
+
 
         public override string ItemName => "Weighted Anklet";
 
@@ -27,7 +34,11 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "A collection of weights slow you down, but finding a way to remove them could greatly benefit you.";
 
-        public override string ItemFullDescription => $"Gain a {FloatToPercentageString(BaseKnockbackReductionPercentage.Value)} reduction to knockback from attacks <style=cStack>(+{FloatToPercentageString(BaseKnockbackReductionPercentage.Value)} per stack (up to 100%) linearly)</style>. Lose {FloatToPercentageString(BaseMovementSpeedReductionPercentage.Value)} move speed <style=cStack>(+{FloatToPercentageString(BaseMovementSpeedReductionPercentage.Value)} per stack (up to {FloatToPercentageString(1 - MovementSpeedReductionPercentageCap.Value)}) linearly)</style>.";
+        public override string ItemFullDescription => $"A collection of weights will slow your <style=cIsUtility>attack speed</style> by {FloatToPercentageString(BaseAttackSpeedReductionPercentage)} <style=cStack>(to a minimum of {FloatToPercentageString(AttackSpeedReductionPercentageCap)})</style>, \n" +
+            $"and your <style=cIsUtility>movement speed</style> by {FloatToPercentageString(BaseMovementSpeedReductionPercentage)} <style=cStack>(to a minimum of {FloatToPercentageString(MovementSpeedReductionPercentageCap)})</style>. \n" +
+            $"If you find a way to remove them, you are granted {AttackSpeedGainedPerLimiterRelease} <style=cIsUtility>attack speed</style>, {MovementSpeedGainedPerLimiterRelease} <style=cIsUtility>movement speed</style>, and {FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} <style=cIsDamage>damage</style> per removal. \n" +
+            $"Additionally, removing an anklet grants you a stack of <style=cIsUtility>Limiter Release Dodge</style>. <style=cIsUtility>Dodge</style> will allow you to dodge one overlap, or blast attack before depleting. \n" +
+            $"Once all stacks of dodge are depleted, they will need to recharge <style=cStack>({BaseCooldownOfLimiterReleaseDodge} seconds for the first stack, {AdditionalCooldownOfLimiterReleaseDodge} seconds per each additional stack)</style> before fully replenishing.";
 
         public override string ItemLore => OrderManifestLoreFormatter(
             ItemName, 
@@ -44,7 +55,7 @@ namespace Aetherium.Items
 
             "A strange anklet lined with superdense crystals. It's hard to move around in these, but scanners show that the muscle mass of people wearing them increases exponentially.");
 
-        public override ItemTier Tier => ItemTier.Tier1;
+        public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable | ItemTag.AIBlacklist};
 
         public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab";
@@ -73,9 +84,15 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseKnockbackReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
-            BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
-            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.1f, "What should be the lowest percentage of movement speed reduction be?");
+            BaseAttackSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Attack Speed Reduction Percentage", 0.1f, "How much attack speed in percentage should be reduced per Weighted Anklet?").Value;
+            AttackSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Attack Speed Reduction Percentage", 0.1f, "What should the lowest percentage that we should be able to reduce attack speed to be?").Value;
+            BaseMovementSpeedReductionPercentage = config.Bind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?").Value;
+            MovementSpeedReductionPercentageCap = config.Bind<float>("Item: " + ItemName, "Absolute Lowest Movement Speed Reduction Percentage", 0.1f, "What should the lowest percentage we should be able to reduce movement speed to be?").Value;
+            AttackSpeedGainedPerLimiterRelease = config.Bind<float>("Item: " + ItemName, "Attack Speed Gained per Limiter Release (Flat)", 0.25f, "How much attack speed should we gain per Limiter Release?").Value;
+            MovementSpeedGainedPerLimiterRelease = config.Bind<float>("Item: " + ItemName, "Movement Speed Gained per Limiter Release (Flat)", 1, "How much movement speed should we gain per Limiter Release?").Value;
+            DamagePercentageGainedPerLimiterRelease = config.Bind<float>("Item: " + ItemName, "Damage Percentage Gained per Limiter Release (Percentile)", 0.05f, "How much damage in percent should we gain per Limiter Release?").Value;
+            BaseCooldownOfLimiterReleaseDodge = config.Bind<float>("Item: " + ItemName, "Base Dodge Depletion Cooldown Duration", 10, "How long (in seconds) should we have to wait for the first stack to replenish?").Value;
+            AdditionalCooldownOfLimiterReleaseDodge = config.Bind<float>("Item: " + ItemName, "Additional Dodge Depletion Cooldown Duration for Additional Dodge Stacks", 5, "How long (in seconds) should we have to wait per each additional dodge stack to replenish?").Value;
         }
 
         private void CreateNetworkMessages()
@@ -141,7 +158,7 @@ namespace Aetherium.Items
             {
                 buffColor = new Color(48, 255, 48),
                 canStack = false,
-                isDebuff = true,
+                isDebuff = false,
                 name = "Aetherium: Limiter Release Dodge Cooldown",
                 iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png"
             };
@@ -347,7 +364,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "HeadCenter",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(0.05f, 0.03f, 0.15f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
@@ -356,7 +373,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "HeadCenter",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(-0.05f, 0.03f, 0.15f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
@@ -389,7 +406,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(0.06f, 0.15f, 0.15f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
@@ -398,7 +415,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(-0.06f, 0.15f, 0.15f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
@@ -409,10 +426,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
-                    childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    childName = "Eye",
+                    localPos = new Vector3(0f, 0.86f, 0f),
                     localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(0.05f, 0.05f, 0.05f)
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
@@ -422,7 +439,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(0.055f, 0.13f, 0.12f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
@@ -431,7 +448,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(-0.055f, 0.13f, 0.12f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
@@ -443,8 +460,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(-1.6f, 1.9f, 0.3f),
+                    localAngles = new Vector3(0f, 10f, -10f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
                 new RoR2.ItemDisplayRule
@@ -452,8 +469,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(1.6f, 1.9f, 0.3f),
+                    localAngles = new Vector3(0f, -10f, 10f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
                 new RoR2.ItemDisplayRule
@@ -461,8 +478,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(-1.3f, 2.65f, 0.46f),
+                    localAngles = new Vector3(0f, 10f, -10f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 },
                 new RoR2.ItemDisplayRule
@@ -470,8 +487,8 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(1.3f, 2.65f, 0.46f),
+                    localAngles = new Vector3(0f, -10f, 10f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
             });
@@ -482,7 +499,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
                     childName = "Head",
-                    localPos = new Vector3(0f, 0f, 0f),
+                    localPos = new Vector3(0f, 0.06f, 0.16f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
@@ -494,7 +511,7 @@ namespace Aetherium.Items
         {
             LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_NAME", "Weighted Anklet Limiter Release");
             LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_PICKUP", "You feel much lighter, and your senses keener.");
-            LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", "You gain [x] movement speed (+[x] per stack), [x] attack speed (+[x] per stack), and [x] damage bonus (+[x] per stack). Gain the ability to dodge [x] times out of the way of close ranged attacks and behind the attacker before entering a cooldown period.");
+            LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", $"You gain [x] movement speed (+[x] per stack), [x] attack speed (+[x] per stack), and [x] damage bonus (+[x] per stack). Gain the ability to dodge [x] times out of the way of close ranged attacks and behind the attacker before entering a cooldown period.");
 
             var limiterReleaseItemDef = new RoR2.ItemDef()
             {
@@ -563,7 +580,7 @@ namespace Aetherium.Items
                         dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffIndex);
                         if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffIndex) <= 0)
                         {
-                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, 10);
+                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (GetCountSpecific(dodgeBody, LimiterReleaseItemIndex) - 1)));
                         }
 
                     }
@@ -615,7 +632,7 @@ namespace Aetherium.Items
                         dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffIndex);
                         if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffIndex) <= 0)
                         {
-                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, 10);
+                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffIndex, BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (GetCountSpecific(dodgeBody, LimiterReleaseItemIndex) - 1)));
                         }
 
                     }
@@ -631,16 +648,16 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(sender);
             if (InventoryCount > 0)
             {
-                args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage.Value, MovementSpeedReductionPercentageCap.Value);
-                args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * 0.1f, MovementSpeedReductionPercentageCap.Value);
+                args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage, MovementSpeedReductionPercentageCap);
+                args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * BaseAttackSpeedReductionPercentage, AttackSpeedReductionPercentageCap);
             }
 
             var LimiterReleaseCount = GetCountSpecific(sender, LimiterReleaseItemIndex);
             if (LimiterReleaseCount > 0)
             {
-                args.baseAttackSpeedAdd += LimiterReleaseCount * 0.25f;
-                args.baseMoveSpeedAdd += LimiterReleaseCount;
-                args.damageMultAdd += LimiterReleaseCount * 0.05f;
+                args.baseAttackSpeedAdd += LimiterReleaseCount * AttackSpeedGainedPerLimiterRelease;
+                args.baseMoveSpeedAdd += LimiterReleaseCount * MovementSpeedGainedPerLimiterRelease;
+                args.damageMultAdd += LimiterReleaseCount * DamagePercentageGainedPerLimiterRelease;
             }
 
         }
@@ -668,10 +685,12 @@ namespace Aetherium.Items
         {
 
             orig(self);
+
             if (self.inventory)
             {
                 var inventoryCount = self.inventory.GetItemCount(LimiterReleaseItemIndex);
                 var buffCount = self.GetBuffCount(LimiterReleaseBuffIndex);
+
                 if (buffCount < inventoryCount)
                 {
                     var iterations = inventoryCount - buffCount;
@@ -679,6 +698,15 @@ namespace Aetherium.Items
                     {
                         self.AddBuff(LimiterReleaseBuffIndex);
                         self.AddBuff(LimiterReleaseDodgeBuffIndex);
+                    }
+                }
+                else if(buffCount > inventoryCount)
+                {
+                    var iterations = buffCount - inventoryCount;
+                    for(int i = 1; i <= iterations; i++)
+                    {
+                        self.RemoveBuff(LimiterReleaseBuffIndex);
+                        self.RemoveBuff(LimiterReleaseDodgeBuffIndex);
                     }
                 }
             }

@@ -22,7 +22,7 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |![](https://i.imgur.com/QQY1j4w.png)| **Alien Magnet** | Enemies hit by your attacks will be `pulled towards you`, starting at `6x` force (`+1` force multiplier, up to `10x` total force. The effect is more noticeable on higher health enemies. | Lunar | Me |
 |![](https://i.imgur.com/Pex4nKP.png)|  **Heart of the Void** | `On death`, cause a void implosion with a radius of `15m` (+`7.5m` per stack) that `revives you` if an enemy is killed by it **BUT** at `30%` health (`+5%` per stack, max `99%`) or lower, all kinds of healing are `converted to damage`. | Lunar | Hyperion_21 |
 |![](https://i.imgur.com/MxqLea7.png)| **Unstable Design** | Every `30` seconds you are compelled to create a very '**FRIENDLY**' Lunar Chimera, if one of your creations does not already exist. It has a `400%` base damage boost (`+100%` per stack), a `10%` base HP boost (`+10%` per stack), a `300%` base attack speed boost, and finally a `24%` base movement speed boost (`+24%` per stack). This monstrosity can level up from kills. | Lunar | SpookyBoogie |
-|![](https://i.imgur.com/o78EHhU.png)| **Weighted Anklet** | Gain a `25%` reduction to knockback from attacks (`+25%` per stack (up to `100%`) linearly). Lose `10%` move speed (`+10%` per stack (up to `40%`) linearly) | Lunar | Me |
+|![](https://i.imgur.com/o78EHhU.png)| **Weighted Anklet** | A collection of weights will slow your attack speed by `10%` (to a minimum of `10%` total) and your movement speed by `10%` (to a minimum of `10%` total). If you find a way to remove them, you are granted `0.25` attack speed `flat scaling`, `1` movement speed `flat scaling`, and `5%` damage per removal. Additionally, removing an anklet grants you a stack of `Limiter Release Dodge`. `Dodge` will allow you to dodge one `overlap`, or `blast` attack before depleting. Once all stacks of dodge are depleted, they will need to recharge (`10` seconds for the first stack, `5` seconds per each additional stack) before fully replenishing. | Lunar | Me |
 
 ----
 ## Equipment (so far):
@@ -35,15 +35,9 @@ Discord: https://www.discord.gg/WNap5qcPf6
 ----
 ## Upcoming
 ----
-- Version 1.0.0 will include a new survivor, we're building up to that.  
+- Version 0.6.0 or 0.7.0 will include a new survivor, we're building up to that.  
 
-- ItemStatsMod integration soon, possibly 0.4.3.  
-
-- The Key of Solomon idea is being brainstormed, but will still likely focus on stealing skills from enemies. However, those skills will likely be custom made by me, who knows.  
-
-- Weighted Anklet will be reworked soon to be more desirable. How I'll do that? I'll have to think on it.  
-
-- Make kills by the Lunar Chimera give half XP/Half Gold to the Unstable Design wielder. Make its spawn behavior configurable between individual per player or similar to halcyon seed.  
+- Make Unstable Design's spawn behavior configurable between individual per player or similar to halcyon seed.  
 
 - Will be adding more custom VFX/SFX to the Jar of Reshaping now that I'm more familiar with effect networking.  
 
@@ -51,6 +45,19 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 ## Changelog
 ----
+[0.5.0]
++ Massive visuals update for the mod. Can't list every change here, but I have converted a great deal of it to the Hopoo Games shader and redesigned the look of some items.
++ Added some nice particle effects for a few items.
++ Weighted Anklet Redux: The previously worthless Lunar is probably now one of my strongest items.
++ Added an alternate model for the Blaster Sword. I based it loosely off of Kusanagi-no-Tsurugi.
++ Added a config to turn Inspiring Drone into a Green instead of a Red. Icon and all.
++ Made Unstable Design give half of gold and xp from its kills to its user. It gains the full value of both, but directly this time instead of pumping it into the Neutral team.
++ Fixed Blaster Sword dealing 2x the damage it should.
++ Buffed Shielding Core's default first armor stack to be 15, with additional stacks giving 10.
++ Buffed Shielding Core's base shield grant to be 8 percent, as opposed to 4 percent.
+- Removed the DOT from Blaster Sword's projectile. It wasn't supposed to be there in the first place.
+- Removed the knockback reduction from Weighted Anklet for the redesign.
+
 [0.4.7]
 + GRRRR, thunderstore markdown.
 
@@ -86,15 +93,14 @@ Discord: https://www.discord.gg/WNap5qcPf6
 + Fixed DOT effects doing nothing on the Accursed Potion. Be wary of how many potions you have now.  
 + Fixed a weird bug involving loading due to TILER2.  
 
-[0.4.1]
-+ Quick hotfix by Chen. Bots that had stocks able to be modified by Inspiring Drone couldn't fire if their owner didn't have an Inspiring Drone, woops, fixed now.
 
 ----
 
 ## Special Thanks  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod. Thanks to them for authorizing me to use TILER2's stathooks in my itembase, it was integral in getting it off the ground.  
 **Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  
-**Harb** - For providing the ILHook from their HarbCrate mod, which allows Bloodsoaked Shield and Shielding Core to be able to provide some base shields.  
+**KingEnderBrine** - Helping out with some questions regarding Item Displays, and providing a useful helper mod to speed up my IDRS creation.  
+**Harb** - For providing the ILHook from their HarbCrate mod, which allows Bloodsoaked Shield and Shielding Core to be able to provide some base shields, and also providing a reflection autodiscovery feature for my items and equipment.  
 **RyanP** - We reference his void implosion (from his Flood Warning warden elites) as basis for our void implosion, albeit modified a bit to work for our item.  
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.  
@@ -105,4 +111,5 @@ Discord: https://www.discord.gg/WNap5qcPf6
 **WaltzingPhantom** - For providing alternative icon art for Feathered Plume, Blood Soaked Shield, Shark Teeth, and Shielding Core!  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **753** - Providing a crystallization shader for me to use in the future.  
-**Lorc (http://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
+**Lorc (Https://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
+**FilterForge (Https://www.filterforge.com/)** - For providing a good deal of the base for my normals. Awesome plugin library, I recommend it.

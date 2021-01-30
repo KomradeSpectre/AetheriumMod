@@ -17,6 +17,7 @@ namespace Aetherium.Items
     public class BlasterSword : ItemBase<BlasterSword>
     {
         public static bool UseAlternateModel;
+        public static bool EnableParticleEffects;
         public bool UseImpaleProjectile;
         public float BaseSwordDamageMultiplier;
         public float AdditionalSwordDamageMultiplier;
@@ -38,7 +39,7 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Damage };
 
-        public override string ItemModelPath => UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab";
+        public override string ItemModelPath => UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab";
         public override string ItemIconPath => UseAlternateModel ? "@Aetherium:Assets/Textures/Icons/Item/BlasterKatanaIcon.png" : "@Aetherium:Assets/Textures/Icons/Item/BlasterSwordIcon.png";
 
         public static GameObject ItemBodyModelPrefab;
@@ -74,9 +75,11 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             UseAlternateModel = config.Bind<bool>("Item: " + ItemName, "Use Alternate Blaster Sword Model", false, "Do you wish to start feeling motivated now?").Value;
+            EnableParticleEffects = config.Bind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?").Value;
             UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?").Value;
             BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)").Value;
             AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
+
         }
 
         private void CreateMaterials()
@@ -93,7 +96,7 @@ namespace Aetherium.Items
             var bladeMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat");
             bladeMainMaterial.shader = AetheriumPlugin.HopooShader;
             bladeMainMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
-            bladeMainMaterial.SetFloat("_NormalStrength", 5f);
+            bladeMainMaterial.SetFloat("_NormalStrength", 1f);
             bladeMainMaterial.SetFloat("_Smoothness", 1f);
             bladeMainMaterial.SetFloat("_ForceSpecOn", 1);
 
@@ -108,7 +111,7 @@ namespace Aetherium.Items
             var goldMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat");
             goldMaterial.shader = AetheriumPlugin.HopooShader;
             goldMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
-            goldMaterial.SetFloat("_NormalStrength", 5f);
+            goldMaterial.SetFloat("_NormalStrength", 1f);
             goldMaterial.SetFloat("_Smoothness", 1f);
             goldMaterial.SetFloat("_ForceSpecOn", 1);
 
@@ -190,11 +193,11 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = Resources.Load<GameObject>(UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab");
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
-            itemDisplay.gameObject.AddComponent<SwordGlowHandler>();
+            if (EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
 
             ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -494,7 +497,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleNailgun",
                     localPos = new Vector3(-2.6f, -1.5f, 0f),
-                    localAngles = new Vector3(0f, 0f, -90f),
+                    localAngles = new Vector3(180f, 0f, -90f),
                     localScale = new Vector3(1f, 1f, 1f)
                 },
                 new RoR2.ItemDisplayRule
@@ -532,9 +535,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "CannonHeadL",
-                    localPos = new Vector3(0f, 1.2f, 0f),
-                    localAngles = new Vector3(-180f, 45f, 0f),
-                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                    localPos = new Vector3(0F, 1.2F, 0F),
+                    localAngles = new Vector3(180F, 45F, 0F),
+                    localScale = new Vector3(0.15F, 0.15F, 0.15F)
                 },
 
                 new RoR2.ItemDisplayRule
@@ -564,9 +567,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "UpperArmR",
-                    localPos = new Vector3(-0.1f, 0.2f, 0),
-                    localAngles = new Vector3(0f, -90f, -190f),
-                    localScale = new Vector3(0.07f, 0.025f, 0.07f)
+                    localPos = new Vector3(-0.1F, 0.2F, 0F),
+                    localAngles = new Vector3(0F, 90F, 190F),
+                    localScale = new Vector3(0.07F, 0.025F, 0.07F)
                 }
             });
             rulesAlt.Add("mdlMerc", new RoR2.ItemDisplayRule[]
@@ -576,9 +579,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "HandR",
-                    localPos = new Vector3(-0.7f, -0.45f, 0.01f),
-                    localAngles = new Vector3(0f, 0f, 310f),
-                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                    localPos = new Vector3(-0.5643F, -0.5281F, 0.0101F),
+                    localAngles = new Vector3(346.9501F, 343.9273F, 321.9142F),
+                    localScale = new Vector3(0.1357F, 0.1357F, 0.1357F)
                 }
             });
             rulesAlt.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -600,9 +603,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MechHandL",
-                    localPos = new Vector3(0.6f, 0.25f, 0.02f),
-                    localAngles = new Vector3(20f, -4f, 90f),
-                    localScale = new Vector3(0.15f, 0.1f, 0.15f)
+                    localPos = new Vector3(0.5997F, 0.2481F, 0.0293F),
+                    localAngles = new Vector3(347.6521F, 176F, 271.5197F),
+                    localScale = new Vector3(0.15F, 0.1F, 0.15F)
                 },
 
                 new RoR2.ItemDisplayRule
@@ -610,9 +613,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MechHandR",
-                    localPos = new Vector3(-0.6f, 0.25f, 0.02f),
-                    localAngles = new Vector3(20f, 4f, -90f),
-                    localScale = new Vector3(0.15f, 0.1f, 0.15f)
+                    localPos = new Vector3(-0.5576F, 0.224F, 0.1835F),
+                    localAngles = new Vector3(19.4644F, 17.8299F, 274.6895F),
+                    localScale = new Vector3(0.15F, 0.1F, 0.15F)
                 }
             });
             rulesAlt.Add("mdlCroco", new RoR2.ItemDisplayRule[]
@@ -634,9 +637,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleGun",
-                    localPos = new Vector3(0f, 0f, 0.65f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
-                    localScale = new Vector3(0.12f, 0.12f, 0.12f)
+                    localPos = new Vector3(-0.0002F, -0.0003F, 0.5533F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.12F, 0.0916F, 0.12F)
                 }
             });
             rulesAlt.Add("mdlBrother", new ItemDisplayRule[]
@@ -1080,7 +1083,19 @@ namespace Aetherium.Items
 
                 if (OwnerMaster && !OwnerBody)
                 {
-                    UnityEngine.Object.Destroy(this);
+                    var body = OwnerMaster.GetBody();
+                    if (body)
+                    {
+                        OwnerBody = body;
+                    }
+                    if (!body)
+                    {
+                        if (ParticleSystem)
+                        {
+                            UnityEngine.Object.Destroy(ParticleSystem);
+                        }
+                        UnityEngine.Object.Destroy(this);
+                    }
                 }
 
                 if (OwnerBody && ParticleSystem)
