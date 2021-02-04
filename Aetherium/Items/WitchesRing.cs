@@ -44,7 +44,6 @@ namespace Aetherium.Items
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
-            CreateMaterials();
             CreateLang();
             CreateBuff();
             CreateItem();
@@ -57,29 +56,6 @@ namespace Aetherium.Items
             BaseCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?").Value;
             AdditionalCooldownReduction = config.Bind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?").Value;
             GlobalCooldownOnUse = config.Bind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-            var metalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png");
-
-            var witchesRingMain = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WitchesRing/WitchesRingMain.mat");
-            witchesRingMain.shader = AetheriumPlugin.HopooShader;
-            witchesRingMain.SetTexture("_NormalTex", metalNormal);
-            witchesRingMain.SetFloat("_NormalStrength", 5);
-            witchesRingMain.SetFloat("_Smoothness", 1f);
-            witchesRingMain.SetTexture("_EmTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/WitchesRingEmissionMap.png"));
-            witchesRingMain.SetColor("_EmColor", new Color(130, 117, 0));
-            witchesRingMain.SetFloat("_EmPower", 0.00001f);
-
-
-            var witchesRingSub = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WitchesRing/WitchesRingHolder.mat");
-            witchesRingSub.shader = AetheriumPlugin.HopooShader;
-            witchesRingSub.SetTexture("_NormalTex", metalNormal);
-            witchesRingSub.SetFloat("_NormalStrength", 5);
-            witchesRingSub.SetFloat("_Smoothness", 1f);
-
         }
 
         private void CreateBuff()

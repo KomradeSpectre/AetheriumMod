@@ -661,7 +661,7 @@ namespace Aetherium.Equipment
                 }
                 else
                 {
-                    Debug.LogError("We don't have a jar or a player body. Can't do a sphere!");
+                    AetheriumPlugin.ModLogger.LogError("We don't have a jar or a player body. Can't do a sphere!");
                     return;
                 }
             }
@@ -720,7 +720,7 @@ namespace Aetherium.Equipment
                 }
                 else
                 {
-                    Debug.LogError("We don't have a jar or a player body. Can't do an orb!");
+                    AetheriumPlugin.ModLogger.LogError("We don't have a jar or a player body. Can't do an orb!");
                     return;
                 }
 

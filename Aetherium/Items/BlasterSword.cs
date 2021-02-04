@@ -45,10 +45,10 @@ namespace Aetherium.Items
         public static GameObject ItemBodyModelPrefab;
         public static GameObject SwordProjectile;
 
-        public static bool RecursionPrevention;
+        public bool RecursionPrevention;
         public static Xoroshiro128Plus swordRandom = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
 
-        public static HashSet<String> BlacklistedProjectiles = new HashSet<string>()
+        public static HashSet<string> BlacklistedProjectiles = new HashSet<string>()
         {
             "LightningStake",
             "StickyBomb",
@@ -65,7 +65,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateBuff();
             CreateProjectile();
             CreateItem();
@@ -79,46 +78,6 @@ namespace Aetherium.Items
             UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?").Value;
             BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)").Value;
             AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
-
-        }
-
-        private void CreateMaterials()
-        {
-            
-
-            var bindingMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat");
-            bindingMaterial.shader = AetheriumPlugin.HopooShader;
-            bindingMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/14200-normal.jpg"));
-            bindingMaterial.SetFloat("_NormalStrength", 5f);
-            bindingMaterial.SetFloat("_Smoothness", 0.5f);
-            bindingMaterial.SetFloat("_ForceSpecOn", 1);
-
-            var bladeMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat");
-            bladeMainMaterial.shader = AetheriumPlugin.HopooShader;
-            bladeMainMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
-            bladeMainMaterial.SetFloat("_NormalStrength", 1f);
-            bladeMainMaterial.SetFloat("_Smoothness", 1f);
-            bladeMainMaterial.SetFloat("_ForceSpecOn", 1);
-
-
-            var bladeUnderMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltBladeSharp.mat");
-            bladeUnderMaterial.shader = AetheriumPlugin.HopooShader;
-            bladeUnderMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/3989-bump - Copy.jpg"));
-            bladeUnderMaterial.SetFloat("_NormalStrength", 0.4f);
-            bladeUnderMaterial.SetFloat("_Smoothness", 1f);
-            bladeUnderMaterial.SetFloat("_ForceSpecOn", 1);
-
-            var goldMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat");
-            goldMaterial.shader = AetheriumPlugin.HopooShader;
-            goldMaterial.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png"));
-            goldMaterial.SetFloat("_NormalStrength", 1f);
-            goldMaterial.SetFloat("_Smoothness", 1f);
-            goldMaterial.SetFloat("_ForceSpecOn", 1);
-
-            var projectileMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/BlasterSword/BlasterSwordProjectile.mat");
-            projectileMaterial.shader = AetheriumPlugin.HopooShader;
-            projectileMaterial.SetFloat("_EmPower", 0.0001f);
-            projectileMaterial.SetColor("_EmColor", new Color(0, 136, 255, 255));
 
         }
 

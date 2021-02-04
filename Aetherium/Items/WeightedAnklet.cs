@@ -75,7 +75,6 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateNetworkMessages();
-            CreateMaterials();
             CreateBuff();
             CreateItem();
             CreatePowerupItem();
@@ -98,38 +97,6 @@ namespace Aetherium.Items
         private void CreateNetworkMessages()
         {
             NetworkingAPI.RegisterMessageType<SyncTeleportDodge>();
-        }
-
-        private void CreateMaterials()
-        {
-            
-            var crystalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png");
-
-            var weightMain = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletWeight.mat");
-            weightMain.shader = AetheriumPlugin.HopooShader;
-            weightMain.SetTexture("_NormalTex", crystalNormal);
-            weightMain.SetFloat("_NormalStrength", 5);
-            weightMain.SetFloat("_RampInfo", 4);
-            weightMain.SetFloat("_Smoothness", 1);
-            weightMain.SetFloat("_SpecularStrength", 1);
-            weightMain.SetFloat("_SpecularExponent", 10);
-            weightMain.SetFloat("_ForceSpecOn", 1);
-
-            var weightRing = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat");
-            weightRing.shader = AetheriumPlugin.HopooShader;
-            weightRing.SetTexture("_NormalTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTexture.png"));
-            weightRing.SetFloat("_NormalStrength", 5f);
-            weightRing.SetFloat("_Smoothness", 1);
-            weightRing.SetFloat("_ForceSpecOn", 1);
-
-            var crystalMat = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletCrystal.mat");
-            crystalMat.shader = AetheriumPlugin.HopooShader;
-            crystalMat.SetTexture("_NormalTex", crystalNormal);
-            crystalMat.SetFloat("_NormalStrength", 5);
-            crystalMat.SetFloat("_Smoothness", 1);
-            crystalMat.SetColor("_EmColor", new Color(102, 255, 128));
-            crystalMat.SetFloat("_EmPower", 0.00001f);
-
         }
 
         private void CreateBuff()

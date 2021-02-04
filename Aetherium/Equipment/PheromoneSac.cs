@@ -24,9 +24,9 @@ namespace Aetherium.Equipment
 
         public override string EquipmentName => "Pheromone Sac";
 
-        public override string EquipmentLangTokenName => "JAR_OF_RESHAPING";
+        public override string EquipmentLangTokenName => "PHEROMONE_SAC";
 
-        public override string EquipmentPickupDesc => "On activation, <style=cIsUtility>suck nearby projectiles into the jar</style>. Upon success, the next activation will <style=cIsDamage>fire out all projectiles stored in the jar</style>.";
+        public override string EquipmentPickupDesc => "On activation, release a cloud of pheromones that frenzy enemies caught inside of it.";
 
         public override string EquipmentFullDescription => $"On activation, <style=cIsUtility>absorb projectiles</style> in a <style=cIsUtility>{BaseRadiusGranted.Value}m</style> radius for <style=cIsUtility>{ProjectileAbsorptionTime.Value}</style> second(s). " +
             $"Upon success, <style=cIsDamage>fire all of the projectiles out of the jar</style> upon next activation. " +

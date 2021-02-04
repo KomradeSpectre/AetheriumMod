@@ -1,8 +1,10 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
+using On.RoR2;
 using R2API;
 using R2API.Utils;
 using RoR2;
+using System;
 using UnityEngine;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
@@ -59,11 +61,12 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+        public Material OriginalShieldMaterial;
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateItem();
             Hooks();
         }
@@ -77,48 +80,17 @@ namespace Aetherium.Items
             BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.08f, "How much should the starting shield be upon receiving the item?").Value;
         }
 
-        private void CreateMaterials()
-        {
-            var metalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png");
-
-            var coreFlapsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreFlap.mat");
-            coreFlapsMaterial.shader = AetheriumPlugin.HopooShader;
-            coreFlapsMaterial.SetFloat("_Smoothness", 0.5f);
-            coreFlapsMaterial.SetFloat("_SpecularStrength", 1);
-            coreFlapsMaterial.SetFloat("_SpecularExponent", 10);
-            coreFlapsMaterial.SetFloat("_ForceSpecOn", 1);
-
-            var coreGemMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreGem.mat");
-            coreGemMaterial.shader = AetheriumPlugin.HopooShader;
-            coreGemMaterial.SetColor("_EmColor", new Color(59, 0, 79));
-            coreGemMaterial.SetFloat("_EmPower", 0.00001f);
-            coreGemMaterial.SetFloat("_Smoothness", 0.83f);
-
-            var coreRivetsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat");
-            coreRivetsMaterial.shader = AetheriumPlugin.HopooShader;
-            coreRivetsMaterial.SetFloat("_Smoothness", 1f);
-            coreRivetsMaterial.SetTexture("_NormalTex", metalNormal);
-            coreRivetsMaterial.SetFloat("_NormalStrength", 5f);
-            coreRivetsMaterial.SetFloat("_SpecularStrength", 1);
-            coreRivetsMaterial.SetFloat("_SpecularExponent", 10);
-            coreRivetsMaterial.SetFloat("_ForceSpecOn", 1);
-
-            var coreContainerMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat");
-            coreContainerMaterial.shader = AetheriumPlugin.HopooShader;
-            coreContainerMaterial.SetFloat("_Smoothness", 1f);
-        }
-
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
-            ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -128,9 +100,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.17f, 0.17f, 0.17f)
                 }
             });
-            rules.Add("mdlHuntress", new ItemDisplayRule[]
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -140,9 +112,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.14f, 0.14f, 0.14f)
                 }
             });
-            rules.Add("mdlToolbot", new ItemDisplayRule[]
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -152,9 +124,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(1.5f, 1.5f, 1.5f)
                 }
             });
-            rules.Add("mdlEngi", new ItemDisplayRule[]
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -164,9 +136,9 @@ namespace Aetherium.Items
                     localScale = generalScale
                 }
             });
-            rules.Add("mdlMage", new ItemDisplayRule[]
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -176,9 +148,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.14f, 0.14f, 0.14f)
                 }
             });
-            rules.Add("mdlMerc", new ItemDisplayRule[]
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -188,9 +160,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.17f, 0.17f, 0.17f)
                 }
             });
-            rules.Add("mdlTreebot", new ItemDisplayRule[]
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -200,9 +172,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.7f, 0.7f, 0.7f)
                 }
             });
-            rules.Add("mdlLoader", new ItemDisplayRule[]
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -212,9 +184,9 @@ namespace Aetherium.Items
                     localScale = generalScale
                 }
             });
-            rules.Add("mdlCroco", new ItemDisplayRule[]
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -224,9 +196,9 @@ namespace Aetherium.Items
                     localScale = new Vector3(2, 2, 2)
                 }
             });
-            rules.Add("mdlCaptain", new ItemDisplayRule[]
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
             {
-                new ItemDisplayRule
+                new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
@@ -246,11 +218,11 @@ namespace Aetherium.Items
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
 
-        private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)
+        private void GrantBaseShield(RoR2.CharacterBody sender, StatHookEventArgs args)
         {
             if (GetCount(sender) > 0)
             {
-                HealthComponent healthC = sender.GetComponent<HealthComponent>();
+                RoR2.HealthComponent healthC = sender.GetComponent<RoR2.HealthComponent>();
                 args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
             }
         }
@@ -279,7 +251,7 @@ namespace Aetherium.Items
         //    c.Emit(OpCodes.Ldarg_0);
         //}
 
-        private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             orig(self);
 
@@ -306,7 +278,7 @@ namespace Aetherium.Items
             self.statsDirty = true;
         }
 
-        private void ShieldedCoreArmorCalc(CharacterBody sender, StatHookEventArgs args)
+        private void ShieldedCoreArmorCalc(RoR2.CharacterBody sender, StatHookEventArgs args)
         {
             var ShieldedCoreComponent = sender.GetComponent<ShieldedCoreComponent>();
             if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
@@ -323,21 +295,21 @@ namespace Aetherium.Items
 
         public class ShieldingCoreVisualCueController : MonoBehaviour
         {
-            public ItemDisplay ItemDisplay;
+            public RoR2.ItemDisplay ItemDisplay;
             public ParticleSystem[] ParticleSystem;
-            public CharacterMaster OwnerMaster;
-            public CharacterBody OwnerBody;
+            public RoR2.CharacterMaster OwnerMaster;
+            public RoR2.CharacterBody OwnerBody;
             public void FixedUpdate()
             {
 
                 if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 3)
                 {
-                    ItemDisplay = this.GetComponentInParent<ItemDisplay>();
+                    ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
                     if (ItemDisplay)
                     {
                         ParticleSystem = ItemDisplay.GetComponentsInChildren<ParticleSystem>();
                         //Debug.Log("Found ItemDisplay: " + itemDisplay);
-                        var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
+                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
                         if (characterModel)
                         {

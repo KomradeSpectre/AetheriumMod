@@ -5,6 +5,7 @@ using Aetherium.Equipment;
 using Aetherium.Items;
 using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
@@ -21,13 +22,15 @@ namespace Aetherium
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
-                              nameof(PlayerAPI), nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
+                              nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
                               nameof(NetworkingAPI), nameof(EffectAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.5.0";
+        public const string ModVer = "0.5.1";
+
+        internal static BepInEx.Logging.ManualLogSource ModLogger;
 
         public static AssetBundle MainAssets;
         public static Shader HopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
@@ -47,6 +50,8 @@ namespace Aetherium
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
 #endif
 
+            ModLogger = this.Logger;
+
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
@@ -54,8 +59,25 @@ namespace Aetherium
                 ResourcesAPI.AddProvider(provider);
             }
 
-            //Core Initializations
+            //Material shader autoconversion
+            var materialAssets = MainAssets.LoadAllAssets<Material>();
 
+            foreach(Material material in materialAssets)
+            {
+                if (!material.shader.name.StartsWith("Fake")) { continue; }
+
+                switch (material.shader.name)
+                {
+                    case ("Fake RoR/Hopoo Games/Deferred/HGStandard"):
+
+                        material.shader = HopooShader;
+
+                        break;
+                }
+            }
+
+
+            //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
 
             foreach(var coreModuleType in CoreModuleTypes)
@@ -63,8 +85,11 @@ namespace Aetherium
                 CoreModule coreModule = (CoreModule)Activator.CreateInstance(coreModuleType);
 
                 coreModule.Init();
+
+                ModLogger.LogInfo("Core Module: " + coreModule + " Initialized!");
             }
 
+            //Item Initialization
             var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
 
             foreach (var itemType in ItemTypes)
@@ -73,9 +98,12 @@ namespace Aetherium
                 if (ValidateItem(item, Items))
                 {
                     item.Init(Config);
+
+                    ModLogger.LogInfo("Item: " + item.ItemName + " Initialized!");
                 }
             }
 
+            //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
 
             foreach (var equipmentType in EquipmentTypes)
@@ -84,6 +112,8 @@ namespace Aetherium
                 if (ValidateEquipment(equipment, Equipments))
                 {
                     equipment.Init(Config);
+
+                    ModLogger.LogInfo("Equipment: " + equipment.EquipmentName + " Initialized!");
                 }
             }
         }

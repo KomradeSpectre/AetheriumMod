@@ -41,7 +41,7 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
-        public static EquipmentIndex Index;
+        public EquipmentIndex Index;
 
         public abstract void Init(ConfigFile config);
 

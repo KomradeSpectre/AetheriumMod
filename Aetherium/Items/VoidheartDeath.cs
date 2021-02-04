@@ -115,7 +115,7 @@ namespace Aetherium.Items
                         damageInfo.position = characterBody2.corePosition;
                         damageInfo.procCoefficient = 1f;
                         damageInfo.damageColorIndex = DamageColorIndex.Default;
-                        damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection;
+                        damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection | DamageType.BypassArmor;
                         //var healthBefore = characterBody.healthComponent.health; //debug
                         characterBody2.healthComponent.TakeDamage(damageInfo);
                         if (!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }

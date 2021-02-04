@@ -103,7 +103,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateItem();
             Hooks();
         }
@@ -124,45 +123,6 @@ namespace Aetherium.Items
             DroneTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)").Value;
             TurretTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)").Value;
             DroneTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-            var metalNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTextureNormal.png");
-
-            var roboEarMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEarBase.mat");
-            roboEarMaterial.shader = AetheriumPlugin.HopooShader;
-            roboEarMaterial.SetFloat("_Smoothness", 0.5f);
-
-            var roboEyesMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEyes.mat");
-            roboEyesMaterial.shader = AetheriumPlugin.HopooShader;
-            roboEyesMaterial.SetColor("_EmColor", new Color(43, 178, 53));
-            roboEyesMaterial.SetFloat("_EmPower", 0.00001f);
-            roboEyesMaterial.SetFloat("_Smoothness", 0.5f);
-
-            var roboJointsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneJointMetal.mat");
-            roboJointsMaterial.shader = AetheriumPlugin.HopooShader;
-            roboJointsMaterial.SetTexture("_NormalTex", metalNormal);
-            roboJointsMaterial.SetFloat("_NormalStrength", 5);
-            roboJointsMaterial.SetFloat("_Smoothness", 0.5f);
-
-            var roboMetalMainMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain1.mat");
-            roboMetalMainMaterial.shader = AetheriumPlugin.HopooShader;
-            roboMetalMainMaterial.SetTexture("_MainTex", Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/BlasterSwordTexture.png"));
-            roboMetalMainMaterial.SetTexture("_NormalTex", metalNormal);
-            roboMetalMainMaterial.SetFloat("_NormalStrength", 5);
-            roboMetalMainMaterial.SetFloat("_Smoothness", 1f);
-
-            var roboMetalSubMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat");
-            roboMetalSubMaterial.shader = AetheriumPlugin.HopooShader;
-            roboMetalSubMaterial.SetTexture("_NormalTex", metalNormal);
-            roboMetalSubMaterial.SetFloat("_NormalStrength", 5);
-            roboMetalSubMaterial.SetFloat("_Smoothness", 1f);
-
-            var roboSnowPuff = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneSnowPuff.mat");
-            roboSnowPuff.shader = AetheriumPlugin.HopooShader;
-            roboSnowPuff.SetFloat("_Smoothness", 1f);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

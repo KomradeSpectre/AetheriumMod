@@ -18,6 +18,8 @@ namespace Aetherium.Items
     {
         public static float LunarChimeraResummonCooldownDuration;
         public static float LunarChimeraRetargetingCooldown;
+        public static float LunarChimeraMinimumSpawnDistanceFromUser;
+        public static float LunarChimeraMaximumSpawnDistanceFromUser;
         public static int LunarChimeraBaseDamageBoost;
         public static int LunarChimeraAdditionalDamageBoost;
         public static int LunarChimeraBaseHPBoost;
@@ -70,7 +72,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateSpawncard();
             CreateItem();
             Hooks();
@@ -80,27 +81,13 @@ namespace Aetherium.Items
         {
             LunarChimeraResummonCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?").Value;
             LunarChimeraRetargetingCooldown = config.Bind<float>("Item: " + ItemName, "Duration of Chimera Retargeting Cooldown", 10f, "If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets?").Value;
+            LunarChimeraMinimumSpawnDistanceFromUser = config.Bind<float>("Item: " + ItemName, "Minimum Spawn Distance Away From User", 80f, "What is the closest distance the Lunar Chimera should spawn to the user?").Value;
+            LunarChimeraMaximumSpawnDistanceFromUser = config.Bind<float>("Item: " + ItemName, "Maximum Spawn Distance Away From User", 170f, "What is the furthest distance away the Lunar Chimera should spawn away from the user?").Value;
             LunarChimeraBaseDamageBoost = config.Bind<int>("Item: " + ItemName, "Base Damage Boosting Item Amount", 40, "What should the Lunar Chimera's base damage boost be? (Default: 40 (400% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only. First stack.)").Value;
             LunarChimeraAdditionalDamageBoost = config.Bind<int>("Item: " + ItemName, "Additional Damage Boosting Item Amount", 10, "What should the Lunar Chimera's additional damage boost be per stack? (Default: 10 (100% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only.)").Value;
             LunarChimeraBaseHPBoost = config.Bind<int>("Item: " + ItemName, "HP Boosting Item Amount", 10, "What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)").Value;
             LunarChimeraBaseAttackSpeedBoost = config.Bind<int>("Item: " + ItemName, "Attack Speed Item Amount", 30, "What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)").Value;
             LunarChimeraBaseMovementSpeedBoost = config.Bind<int>("Item: " + ItemName, "Movement Speed Item Amount", 2, "What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-
-            var unstableDesignFrontMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignFrontTexture.mat");
-            unstableDesignFrontMaterial.shader = AetheriumPlugin.HopooShader;
-
-            var unstableDesignBackMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat");
-            unstableDesignBackMaterial.shader = AetheriumPlugin.HopooShader;
-
-            var unstableDesignWoodMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat");
-            unstableDesignWoodMaterial.shader = AetheriumPlugin.HopooShader;
-            unstableDesignWoodMaterial.SetFloat("_Smoothness", 0.3f);
-
         }
 
         private void CreateSpawncard()
@@ -270,8 +257,8 @@ namespace Aetherium.Items
                         RoR2.DirectorPlacementRule placeRule = new RoR2.DirectorPlacementRule
                         {
                             placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
-                            minDistance = 10f,
-                            maxDistance = 40f,
+                            minDistance = LunarChimeraMinimumSpawnDistanceFromUser,
+                            maxDistance = LunarChimeraMaximumSpawnDistanceFromUser,
                             spawnOnTarget = self.transform
                         };
                         RoR2.DirectorSpawnRequest directorSpawnRequest = new RoR2.DirectorSpawnRequest(LunarChimeraSpawnCard, placeRule, RoR2.RoR2Application.rng)

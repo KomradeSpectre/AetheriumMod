@@ -42,7 +42,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateItem();
             Hooks();
         }
@@ -55,22 +54,6 @@ namespace Aetherium.Items
             MaxDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?").Value;
             DurationOfDamageSpread = config.Bind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?").Value;
             TicksOfDamageDuringDuration = config.Bind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-            var boneNormal = Resources.Load<Texture2D>("@Aetherium:Assets/Textures/Material Textures/414-normal.jpg");
-
-            var boneMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBone.mat");
-            boneMaterial.shader = AetheriumPlugin.HopooShader;
-            boneMaterial.SetTexture("_NormalTex", boneNormal);
-            boneMaterial.SetFloat("_NormalStrength", 5);
-            boneMaterial.SetFloat("_Smoothness", 0.5f);
-            boneMaterial.SetFloat("_SpecularStrength", 1);
-            boneMaterial.SetFloat("_SpecularExponent", 10);
-            boneMaterial.SetFloat("_ForceSpecOn", 1);
-
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -75,7 +75,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateBuff();
             CreateItem();
             Hooks();
@@ -88,22 +87,6 @@ namespace Aetherium.Items
             BaseRadiusGranted = config.Bind<float>("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)").Value;
             AdditionalRadiusGranted = config.Bind<float>("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)").Value;
             MaxEffectsAccrued = config.Bind<int>("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-
-            var accursedPotionLabel = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat");
-            accursedPotionLabel.shader = AetheriumPlugin.HopooShader;
-            accursedPotionLabel.SetFloat("_Smoothness", 0.25f);
-
-            var accursedPotionStopper = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionStopper.mat");
-            accursedPotionStopper.shader = AetheriumPlugin.HopooShader;
-            accursedPotionStopper.SetFloat("_Smoothness", 0.6f);
-            accursedPotionStopper.SetColor("_EmColor", new Color(255, 112, 212));
-            accursedPotionStopper.SetFloat("_EmPower", 0.00001f);
-
         }
 
         private void CreateBuff()

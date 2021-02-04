@@ -57,7 +57,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterials();
             CreateBuff();
             CreateItem();
             Hooks();
@@ -72,24 +71,6 @@ namespace Aetherium.Items
             VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))").Value;
             VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))").Value;
             VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))").Value;
-        }
-
-        private void CreateMaterials()
-        {
-            
-
-            var heartVeinsMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/Voidheart/VoidheartVeins.mat");
-            heartVeinsMaterial.shader = AetheriumPlugin.HopooShader;
-            heartVeinsMaterial.SetFloat("_Smoothness", 1f);
-            heartVeinsMaterial.SetColor("_EmColor", new Color(70, 0, 72));
-            heartVeinsMaterial.SetFloat("_EmPower", 0.00001f);
-
-            var blackHeartMaterial = Resources.Load<Material>("@Aetherium:Assets/Textures/Materials/Item/Voidheart/VoidheartBlack.mat");
-            blackHeartMaterial.shader = AetheriumPlugin.HopooShader;
-            blackHeartMaterial.SetFloat("_Smoothness", 1);
-            blackHeartMaterial.SetColor("_EmColor", new Color(1, 1, 1));
-            blackHeartMaterial.SetFloat("_EmPower", 0.0001f);
-
         }
 
         private void CreateBuff()

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 589441489
+CRC: 1238487071
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 79ccd887bb595e6e13d9336f86ebfa6e
+    Hash: e066b1908e7d4403eab9cc0648160b80
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d0d1cac587d17b61a3f971370c7f3e1
@@ -52,12 +52,15 @@ Assets:
 - Assets/Animations/Torus.002.controller
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab
+- Assets/Animations/ThrusterLAfterburner.controller
 - Assets/Textures/Material Textures/FeatheredPlumeTestTexture.png
 - Assets/Textures/Icons/Buff/BlasterSwordBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Hologram.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgintersectioncloudremap.shader
 - Assets/Models/Raw Models/JarOfReshapingProjectile.blend
 - Assets/Textures/Material Textures/UnstableDesignFrontTexture.png
 - Assets/Textures/Material Textures/index.png
+- Assets/Animations/VoidHeartBeating.anim
 - Assets/Textures/Material Textures/EliteRingSoulIcon.png
 - Assets/Textures/Material Textures/testnoise.jpg
 - Assets/Shaders/3D Shaders/LayeredParallax.shader
@@ -78,6 +81,7 @@ Assets:
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab
 - Assets/Textures/Icons/Buff/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Material Textures/WitchesRingSkullEmission.png
+- Assets/Models/Prefabs/Item/InspiringDrone/InspiringDrone.prefab
 - Assets/Textures/Material Textures/BlueToTransparentRampSphere.png
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRingCircle.prefab
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeFeather.mat
@@ -86,12 +90,12 @@ Assets:
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab
 - Assets/Shaders/3D Shaders/StylizedGlass.shader
 - Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBone.mat
-- Assets/Models/Prefabs/Item/InspiringDrone/InspiringDrone.prefab
 - Assets/Shaders/3D Shaders/TransparentFresnel.shader
 - Assets/Textures/Material Textures/EliteRingLightningIcon.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGem.mat
 - Assets/Textures/Material Textures/HexTotemTextureEye.png
 - Assets/Textures/Material Textures/13836-diffuse.jpg
+- Assets/Textures/Materials/Miscellaneous/Distortion.mat
 - Assets/Textures/Material Textures/transparentToWhiteRamp.png
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureHeightMap.png
 - Assets/Textures/Material Textures/EmissionTextureRadialGradient.png
@@ -106,7 +110,9 @@ Assets:
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgstandard.shader
 - Assets/Textures/Material Textures/starparticle.png
+- Assets/Animations/Voidheart.controller
 - Assets/Textures/Material Textures/WitchesRingEmissionMap.png
 - Assets/Models/Raw Models/WitchesRingCircle.blend
 - Assets/Shaders/3D Shaders/WaterShader.shader
@@ -128,9 +134,12 @@ Assets:
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingEffectInnerRim.mat
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusion.png
+- Assets/Models/Raw Models/BlasterSwordPaladin.blend
 - Assets/Textures/Materials/Item/HexPendulum/HexPendulumArc.mat
 - Assets/Models/Raw Models/ShieldingCore.blend
 - Assets/Shaders/3D Shaders/ToonMetal.shader
+- Assets/Models/Raw Models/PheromoneSac.blend
+- Assets/Animations/ThrusterRAfterburner.controller
 - Assets/Models/Raw Models/FeatheredPlume1.blend
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusionTransparent.png
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldOmega.mat
@@ -148,10 +157,12 @@ Assets:
 - Assets/Animations/HexPendulum.controller
 - Assets/Models/Raw Models/WitchesBand.blend
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgsolidparallax.shader
 - Assets/Shaders/3D Shaders/NewUnlitShader.shader
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureWhiteEmission.png
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
 - Assets/Textures/Material Textures/12148-beams.png
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgcloudremap.shader
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
 - Assets/Textures/Icons/Item/SharkTeethIconAlt.png
@@ -168,6 +179,7 @@ Assets:
 - Assets/Textures/Material Textures/InspiringDroneHeadsetWireTexture.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingSkull.mat
 - Assets/Animations/AlienMagnetBlueTorus.anim
+- Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerParticle.mat
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldSpikes.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
@@ -206,6 +218,7 @@ Assets:
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Material Textures/HorizontalGradientBW.png
+- Assets/Textures/Material Textures/LabelTextureEmissionMap.png
 - Assets/Textures/Material Textures/WeirdNormalLine.png
 - Assets/Textures/Material Textures/PearlescentPurpleRamp.png
 - Assets/Shaders/3D Shaders/Ghost.shader
@@ -223,10 +236,13 @@ Assets:
 - Assets/Textures/Icons/Item/AccursedPotionIcon.png
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRing.prefab
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgsnowtopped.shader
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneHeadsetWireTexture.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgwavycloth.shader
 - Assets/Animations/InspiringDroneChest.anim
 - Assets/Animations/JarOfReshapingProjectileSecondary.anim
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgforwardplanet.shader
 - Assets/Textures/Material Textures/13021-diffuse.jpg
 - Assets/Shaders/3D Shaders/StencilShield.shader
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab
@@ -234,6 +250,7 @@ Assets:
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
 - Assets/Textures/Materials/Miscellaneous/FractureInner.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartVeins.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgtriplanarterrainblend.shader
 - Assets/Models/Prefabs/Item/SharkTeeth/SharkTeeth.prefab
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingVase.mat
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionFill.mat
@@ -268,6 +285,7 @@ Assets:
 - Assets/Textures/Material Textures/3398-diffuse.jpg
 - Assets/Shaders/3D Shaders/GhostRim.shader
 - Assets/Textures/Material Textures/1678-bump.jpg
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgvertexonly.shader
 - Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCore.prefab
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab
 - Assets/Textures/Material Textures/FlameNoiseTexture.png
@@ -275,6 +293,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileMain.mat
 - Assets/Shaders/3D Shaders/SonarFx.shader
 - Assets/Shaders/3D Shaders/Hologram.shader
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
 - Assets/Textures/Material Textures/414.jpg
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreFlap.mat
@@ -284,6 +303,8 @@ Assets:
 - Assets/Shaders/3D Shaders/SmoothOutline.shader
 - Assets/Animations/AlienMagnetRedTorus.anim
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingHolder.mat
+- Assets/Shaders/3D Shaders/Distortion.shader
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgopaquecloudremap.shader
 - Assets/Textures/Material Textures/BlueToTransparentRampInner.png
 - Assets/Shaders/3D Shaders/SpriteSheet.shader
 - Assets/Models/Raw Models/InspiringDrone.blend
@@ -299,6 +320,7 @@ Assets:
 - Assets/Textures/Material Textures/BlackToWhiteSlowGradient.png
 - Assets/Shaders/3D Shaders/LavaShader.shader
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
+- Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdamagenumber.shader
 - Assets/Textures/Materials/Item/Voidheart/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCoreBak.prefab
 - Assets/Textures/Material Textures/Purple Crystal.jpg
@@ -330,6 +352,7 @@ Assets:
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
+- Assets/Animations/ThrusterRAfterburner.anim
 - Assets/Textures/Materials/Miscellaneous/MiscBlack.mat
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab
 - Assets/Textures/Material Textures/Black.png
@@ -345,6 +368,7 @@ Assets:
 - Assets/Textures/Material Textures/14200-normal.jpg
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnetTracker.prefab
 - Assets/Animations/InspiringDroneUpperArmR.controller
+- Assets/Animations/ThrusterLAfterburner.anim
 - Assets/Textures/Materials/Item/HexPendulum/HexTotemTextureEye.mat
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldMain.mat
 - Assets/Textures/Material Textures/14601-normal.jpg

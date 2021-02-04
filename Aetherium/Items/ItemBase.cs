@@ -70,10 +70,11 @@ namespace Aetherium.Items
                 pickupModelPath = ItemModelPath,
                 pickupIconPath = ItemIconPath,
                 hidden = false,
-                tags = ItemTags,
                 canRemove = CanRemove,                
                 tier = Tier
             };
+            if(ItemTags.Length > 0) { itemDef.tags = ItemTags; }
+
             var itemDisplayRules = CreateItemDisplayRules();
             Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRules));
         }
