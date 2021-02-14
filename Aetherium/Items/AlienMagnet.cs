@@ -1,7 +1,10 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
+using KinematicCharacterController;
 using R2API;
 using RoR2;
+using System;
+using System.Net.Http.Headers;
 using UnityEngine;
 using static Aetherium.Utils.ItemHelpers;
 
@@ -9,6 +12,10 @@ namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
+        public float TimeToDecayLiftStacks;
+        public float BaseDurationOfLevitationDebuff;
+        public float AdditionalDurationOfLevitationDebuff;
+        public bool UseOldAlienMagnet;
         public float StartingForceMultiplier;
         public float AdditionalForceMultiplier;
         public float MinimumForceMultiplier;
@@ -28,6 +35,9 @@ namespace Aetherium.Items
 
         public override bool CanRemove => false;
 
+        public static BuffIndex LiftStackDebuff;
+        public static BuffIndex LevitationDebuff;
+
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
 
@@ -39,16 +49,44 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateBuff();
             CreateItem();
             Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
+            TimeToDecayLiftStacks = config.Bind<float>("Item: " + ItemName, "Time Until Lift Stack Debuff Decays", 4, "Time until a Lift stack removes itself from the victim.").Value;
+            BaseDurationOfLevitationDebuff = config.Bind<float>("Item: " + ItemName, "Base Duration of Levitation Debuff", 15, "How long should the duration of the Levitation debuff be?").Value;
+            AdditionalDurationOfLevitationDebuff = config.Bind<float>("Item: " + ItemName, "Additional Duration of Levitation Debuff per Alien Magnet Stack", 5, "How long should each additional Alien Magnet grant the levitation debuff duration?").Value;
+            UseOldAlienMagnet = config.Bind<bool>("Item: " + ItemName, "Use Old Alien Magnet Functionality", false, "Should we use the old functionality of wonky pulling?").Value;
             StartingForceMultiplier = config.Bind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?").Value;
             AdditionalForceMultiplier = config.Bind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?").Value;
             MinimumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?").Value;
             MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?").Value;
+        }
+
+        private void CreateBuff()
+        {
+            var liftStackDebuff = new RoR2.BuffDef
+            {
+                name = "Aetherium: Alien Magnet Lift Stacks Debuff",
+                buffColor = new Color(255, 255, 255),
+                isDebuff = true,
+                canStack = true,
+                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png"
+            };
+            LiftStackDebuff = BuffAPI.Add(new CustomBuff(liftStackDebuff));
+
+            var levitationDebuff = new RoR2.BuffDef
+            {
+                name = "Aetherium: Alien Magnet Levitation Debuff",
+                buffColor = new Color(255, 255, 255),
+                isDebuff = true,
+                canStack = false,
+                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AlienMagnetLevitationDebuffIcon.png"
+            };
+            LevitationDebuff = BuffAPI.Add(new CustomBuff(levitationDebuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -57,7 +95,7 @@ namespace Aetherium.Items
             ItemFollowerPrefab = Resources.Load<GameObject>(ItemModelPath);
 
             var ItemFollower = ItemBodyModelPrefab.AddComponent<ItemFollowerSmooth>();
-            ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
+            ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemFollower.itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
             ItemFollower.followerPrefab = ItemFollowerPrefab;
             ItemFollower.targetObject = ItemBodyModelPrefab;
@@ -192,30 +230,119 @@ namespace Aetherium.Items
         public override void Hooks()
         {
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
+            On.RoR2.CharacterBody.FixedUpdate += LevitationDebuffManager;
+        }
+
+        private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        {
+            if (self.HasBuff(LevitationDebuff))
+            {
+                var heightConstant = 10;
+                var rayHit = MiscUtils.RaycastToFloor(self.footPosition, heightConstant * 2);
+                if(rayHit != null)
+                {
+                    var magnitude = (self.footPosition - rayHit.Value).magnitude;
+                    var speed = ((1 - (magnitude / heightConstant)) * 3) - Physics.gravity.y;
+                    var characterMotor = self.GetComponent<CharacterMotor>();
+                    var rigidbody = self.rigidbody;
+
+                    if (characterMotor)
+                    {
+                        characterMotor.Motor.ForceUnground();
+                        characterMotor.velocity += Vector3.up * speed * Time.deltaTime;
+                    }
+                    else if (rigidbody)
+                    {
+                        rigidbody.velocity += Vector3.up * speed * Time.deltaTime;
+                    }
+                }
+            }
+            orig(self);
         }
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
-            if (damageInfo?.attacker)
+            if (UseOldAlienMagnet)
             {
-                var attackerBody = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
-                if (attackerBody)
+                if (damageInfo?.attacker)
                 {
-                    int ItemCount = GetCount(attackerBody);
-                    if (ItemCount > 0)
+                    var attackerBody = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
+                    if (attackerBody)
                     {
-                        //Thanks Chen for fixing this.
-                        float mass;
-                        if (self.body.characterMotor) mass = self.body.characterMotor.mass;
-                        else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
-                        else mass = 1f;
+                        int ItemCount = GetCount(attackerBody);
+                        if (ItemCount > 0)
+                        {
+                            //Thanks Chen for fixing this.
+                            float mass;
+                            if (self.body.characterMotor) mass = self.body.characterMotor.mass;
+                            else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
+                            else mass = 1f;
 
-                        var forceCalc = Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier);
-                        damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
+                            var forceCalc = Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier);
+                            damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (damageInfo?.attacker)
+                {
+                    var attackerBody = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
+                    var body = self.body;
+
+                    if (attackerBody && body)
+                    {
+                        var inventoryCount = GetCount(attackerBody);
+
+                        if(inventoryCount > 0)
+                        {
+                            var mass = body.rigidbody.mass;
+
+                            int AmountOfStacksToLift = (int) (mass * (0.05f));
+
+                            AmountOfStacksToLift = Mathf.Clamp(AmountOfStacksToLift - (inventoryCount - 1), 1, int.MaxValue);
+                            if (!body.HasBuff(LevitationDebuff))
+                            {
+                                if (body.GetBuffCount(LiftStackDebuff) < AmountOfStacksToLift)
+                                {
+                                    if (!body.HasBuff(LevitationDebuff))
+                                    {
+                                        var liftAmountCurrentlyOnBody = body.GetBuffCount(LiftStackDebuff);
+                                        if (liftAmountCurrentlyOnBody > 0)
+                                        {
+                                            foreach(var buff in body.timedBuffs)
+                                            {
+                                                if(buff.buffIndex == LiftStackDebuff)
+                                                {
+                                                    buff.timer = TimeToDecayLiftStacks;
+                                                }
+                                            }
+                                        }
+                                        body.AddTimedBuff(LiftStackDebuff, TimeToDecayLiftStacks);
+                                    }
+                                }
+                                else if (body.GetBuffCount(LiftStackDebuff) >= AmountOfStacksToLift)
+                                {
+                                    body.ClearTimedBuffs(LiftStackDebuff);
+                                    body.AddTimedBuff(LevitationDebuff, BaseDurationOfLevitationDebuff + (AdditionalDurationOfLevitationDebuff * (inventoryCount - 1)));
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
                     }
                 }
             }
             orig(self, damageInfo);
+        }
+
+        public class AlienMagnetGravityComponent : MonoBehaviour
+        {
+            public float OriginalMass;
+            public float OriginalDrag;
         }
     }
 }

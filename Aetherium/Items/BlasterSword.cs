@@ -65,6 +65,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            //CreateAchievement();
             CreateBuff();
             CreateProjectile();
             CreateItem();
@@ -80,6 +81,15 @@ namespace Aetherium.Items
             AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
 
         }
+
+        /*private void CreateAchievement()
+        {
+            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_NAME", "Sword from the Stone");
+            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_DESC", "High up in the Abyssal Depths, find the legendary sword stuck in the stone and prove you possess the knightly valor required to wield it.");
+            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_UNLOCKABLE_NAME", "Sword from the Stone");
+
+            UnlockablesAPI.AddUnlockable<BlasterSwordAchievement>(true);
+        }*/
 
         private void CreateBuff()
         {
@@ -667,7 +677,7 @@ namespace Aetherium.Items
                         var InventoryCount = GetCount(body);
                         if (InventoryCount > 0)
                         {
-                            if (body.healthComponent.combinedHealthFraction >= 1)
+                            if (body.HasBuff(BlasterSwordActiveBuff))
                             {
                                 var swordsPerFlower = (int)body.attackSpeed * 2;
                                 for (int i = 1; i <= swordsPerFlower; i++)
@@ -724,7 +734,7 @@ namespace Aetherium.Items
                         var InventoryCount = GetCount(body);
                         if (InventoryCount > 0)
                         {
-                            if (body.healthComponent.combinedHealthFraction >= 1)
+                            if (body.HasBuff(BlasterSwordActiveBuff))
                             {
                                 var newProjectileInfo = new FireProjectileInfo
                                 {
@@ -791,7 +801,7 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(ownerBody);
                     if (InventoryCount > 0)
                     {
-                        if (ownerBody.healthComponent.combinedHealthFraction >= 1)
+                        if (ownerBody.HasBuff(BlasterSwordActiveBuff))
                         {
                             var newProjectileInfo = new FireProjectileInfo
                             {
@@ -833,7 +843,7 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(body);
                     if (InventoryCount > 0)
                     {
-                        if (body.healthComponent.combinedHealthFraction >= 1)
+                        if (body.HasBuff(BlasterSwordActiveBuff))
                         {
                             Vector3 HitPositionSums = Vector3.zero;
                             if (self.overlapList.Count > 0)
@@ -898,7 +908,7 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(projectileBody);
                     if (InventoryCount > 0)
                     {
-                        if (projectileBody.healthComponent.combinedHealthFraction >= 1)
+                        if (projectileBody.HasBuff(BlasterSwordActiveBuff))
                         {
                             var newProjectileInfo = new FireProjectileInfo
                             {
@@ -960,7 +970,7 @@ namespace Aetherium.Items
                         var InventoryCount = GetCount(body);
                         if (InventoryCount > 0)
                         {
-                            if (body.healthComponent.combinedHealthFraction >= 1)
+                            if (body.HasBuff(BlasterSwordActiveBuff))
                             {
                                 var newProjectileInfo = fireProjectileInfo;
                                 newProjectileInfo.owner = projectileOwner;

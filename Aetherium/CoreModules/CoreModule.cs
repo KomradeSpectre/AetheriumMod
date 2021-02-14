@@ -5,6 +5,7 @@
     /// </summary>
     public abstract class CoreModule
     {
+        public abstract string Name { get; }
         public abstract void Init();
     }
 }

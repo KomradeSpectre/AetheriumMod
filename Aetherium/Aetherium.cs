@@ -2,6 +2,7 @@
 
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
+using Aetherium.Interactables;
 using Aetherium.Items;
 using BepInEx;
 using BepInEx.Configuration;
@@ -23,7 +24,7 @@ namespace Aetherium
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
@@ -80,17 +81,23 @@ namespace Aetherium
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
 
-            foreach(var coreModuleType in CoreModuleTypes)
+            ModLogger.LogInfo("--------------CORE MODULES---------------------");
+
+            foreach (var coreModuleType in CoreModuleTypes)
             {
                 CoreModule coreModule = (CoreModule)Activator.CreateInstance(coreModuleType);
 
                 coreModule.Init();
 
-                ModLogger.LogInfo("Core Module: " + coreModule + " Initialized!");
+                ModLogger.LogInfo("Core Module: " + coreModule.Name + " Initialized!");
             }
+
+            //Achievement
 
             //Item Initialization
             var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
+
+            ModLogger.LogInfo("----------------------ITEMS--------------------");
 
             foreach (var itemType in ItemTypes)
             {
@@ -106,6 +113,8 @@ namespace Aetherium
             //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
 
+            ModLogger.LogInfo("-----------------EQUIPMENT---------------------");
+
             foreach (var equipmentType in EquipmentTypes)
             {
                 EquipmentBase equipment = (EquipmentBase)System.Activator.CreateInstance(equipmentType);
@@ -116,6 +125,14 @@ namespace Aetherium
                     ModLogger.LogInfo("Equipment: " + equipment.EquipmentName + " Initialized!");
                 }
             }
+
+            new BuffBrazier().Init(Config);
+
+            ModLogger.LogInfo("-----------------------------------------------");
+            ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
+            ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
+            ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
+            ModLogger.LogInfo("-----------------------------------------------");
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)

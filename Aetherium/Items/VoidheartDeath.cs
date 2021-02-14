@@ -15,6 +15,7 @@ namespace Aetherium.Items
         public float voidHeartCooldownDuration;
         public float voidHeartImplosionDamageMultiplier;
         public float fixedAge;
+        public float ExplosionHappenedAtThisTime;
         public bool hasFiredVoidPortal;
         public bool voidPortalKilledSomething;
         public CharacterMaster toReviveMaster;
@@ -36,6 +37,20 @@ namespace Aetherium.Items
                     if (component)
                     {
                         component.newDuration = DeathState.duration;
+                    }
+                    if (toReviveMaster)
+                    {
+                        var cameraComponent = toReviveMaster.GetComponent<VoidheartDeathCameraController>();
+                        if (!cameraComponent)
+                        {
+                            cameraComponent = toReviveMaster.gameObject.AddComponent<VoidheartDeathCameraController>();
+                            cameraComponent.Master = toReviveMaster;
+                            cameraComponent.DeathPoint = portalPosition.Value;
+                            cameraComponent.VoidheartDeath = this;
+                            AetheriumPlugin.ModLogger.LogInfo($"Voidheart Camera Component Added.\n" +
+                                $"Master is: {cameraComponent.Master}\n" +
+                                $"DeathPoint is: {cameraComponent.DeathPoint}");
+                        }
                     }
                 }
             }
@@ -89,6 +104,8 @@ namespace Aetherium.Items
 
         private void FireVoidPortal()
         {
+            ExplosionHappenedAtThisTime = Time.time;
+
             if (NetworkServer.active && portalPosition != null)
             {
                 Collider[] array = Physics.OverlapSphere(portalPosition.Value, voidExplosionRadius, LayerIndex.entityPrecise.mask);
@@ -130,6 +147,62 @@ namespace Aetherium.Items
                         origin = base.transform.position,
                         scale = voidExplosionRadius
                     }, true);
+                }
+            }
+        }
+
+        public class VoidheartDeathCameraController : MonoBehaviour
+        {
+            public CharacterMaster Master;
+            public GameObject DeathObject;
+            public Vector3 DeathPoint;
+            public VoidheartDeath VoidheartDeath;
+
+            public CameraRigController Camera;
+            public ForcedCamera ForcedCameraInstance;
+
+            public double Angle = 0;
+            public float Radius = 0;
+
+            public void FixedUpdate()
+            {
+                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0)
+                {
+                    UnityEngine.Object.Destroy(DeathObject);
+                    UnityEngine.Object.Destroy(this);
+                }
+
+                var playerCharacterMasterController = Master.playerCharacterMasterController;
+
+                if (playerCharacterMasterController && playerCharacterMasterController.networkUser && playerCharacterMasterController.networkUser.cameraRigController)
+                {
+                    Camera = playerCharacterMasterController.networkUser.cameraRigController;
+
+                    if (Camera)
+                    {
+                        if (!DeathObject)
+                        {
+                            DeathObject = new GameObject();
+                            ForcedCameraInstance = DeathObject.AddComponent<ForcedCamera>();
+                            ForcedCameraInstance.fovOverride = 100;
+                            Camera.SetOverrideCam(ForcedCameraInstance, 0);
+                        }
+                        
+                        Angle += Math.PI * Voidheart.VoidImplosionCameraSpinSpeed;
+
+                        if (VoidheartDeath.voidPortalKilledSomething)
+                        {
+                            float Slide = Mathf.Clamp((Time.time - VoidheartDeath.ExplosionHappenedAtThisTime) / 2f, 0, 1);
+                            Radius = EasingFunction.EaseInQuad(15, 1, Slide);
+                        }
+                        else
+                        {
+                            Radius = Mathf.Clamp(Radius + 0.1f, 0, 15);
+                        } 
+                        
+                        DeathObject.transform.position = DeathPoint + new Vector3(Radius * (float)Math.Sin(Angle), Radius / 2, Radius * (float)Math.Cos(Angle));
+                        DeathObject.transform.rotation = Util.QuaternionSafeLookRotation(DeathPoint - DeathObject.transform.position);                        
+                    }
                 }
             }
         }

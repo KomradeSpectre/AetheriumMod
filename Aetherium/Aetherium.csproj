@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
+    <Compile Remove="Interactables\InteractableBase.cs" />
+    <Compile Remove="Items\NailBomb.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -71,6 +74,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Achievements\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
   </ItemGroup>

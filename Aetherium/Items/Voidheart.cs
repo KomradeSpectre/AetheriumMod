@@ -9,6 +9,7 @@ namespace Aetherium.Items
 {
     public class Voidheart : ItemBase<Voidheart>
     {
+        public static float VoidImplosionCameraSpinSpeed;
         public static float VoidImplosionDamageMultiplier;
         public static float VoidImplosionBaseRadius;
         public static float VoidImplosionAdditionalRadius;
@@ -64,6 +65,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            VoidImplosionCameraSpinSpeed = config.Bind<float>("Item: " + ItemName, "Void Implosion Camera Spin Speed", 0.0125f, "How fast should the camera spin around the circle? (0.0125 = PI * 0.0125 or 1 half circle * 0.0125 per tick)").Value;
             VoidImplosionDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))").Value;
             VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))").Value;
             VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))").Value;

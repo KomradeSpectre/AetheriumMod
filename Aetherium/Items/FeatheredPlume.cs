@@ -20,7 +20,17 @@ namespace Aetherium.Items
         public override string ItemLangTokenName => "FEATHERED_PLUME";
         public override string ItemPickupDesc => "After taking damage, gain a boost in speed.";
         public override string ItemFullDescription => $"Gain a temporary <style=cIsUtility>{FloatToPercentageString(MoveSpeedPercentageBonusPerBuffStack)} speed boost</style> upon taking damage that stacks {BuffStacksPerFeatheredPlume} times for {BaseDurationOfBuffInSeconds} seconds. <style=cStack>(+{BuffStacksPerFeatheredPlume} stacks and +{AdditionalDurationOfBuffInSeconds} second duration per additional Feathered Plume.)</style>";
-        public override string ItemLore => "A feather plucked from a legendary alloy vulture. Field testers have noted it to allow them to 'Haul Ass' away from conflict when they get injured.";
+        public override string ItemLore => OrderManifestLoreFormatter(
+            ItemName,
+            "05/05/2077",
+            "Unmarked Drop Point #951",
+            "591********",
+            ItemPickupDesc,
+            "Bio-metal / Bio-Hazardous / Light",
+
+            "A couple feathers from a legendary alloy vulture. Scans show that the quills generate a powerful muscle stimulant upon taking an impact. Our field testers have also reported this," +
+            " albeit their exact words is that the feathers allow them to 'haul ass' out of danger, and that they had a need.\n" +
+            "A need for speed.");
 
         public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
@@ -225,10 +235,25 @@ namespace Aetherium.Items
 
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
-            var InventoryCount = GetCount(self.body);
-            if (InventoryCount > 0 && self.body.GetBuffCount(SpeedBuff) < BuffStacksPerFeatheredPlume * InventoryCount)
+            var body = self.body;
+            if (body)
             {
-                self.body.AddTimedBuffAuthority(SpeedBuff, (BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * InventoryCount - 1)));
+                var buffCount = body.GetBuffCount(SpeedBuff);
+                var InventoryCount = GetCount(body);
+
+                if (InventoryCount > 0)
+                {
+                    var stackTime = BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * (InventoryCount - 1));
+                    if (buffCount < BuffStacksPerFeatheredPlume * InventoryCount)
+                    {
+                        RefreshTimedBuffs(body, SpeedBuff, stackTime);
+                        body.AddTimedBuffAuthority(SpeedBuff, stackTime);
+                    }
+                    if(buffCount >= BuffStacksPerFeatheredPlume * InventoryCount)
+                    {
+                        RefreshTimedBuffs(body, SpeedBuff, stackTime);
+                    }
+                }
             }
             orig(self, damageInfo);
         }
