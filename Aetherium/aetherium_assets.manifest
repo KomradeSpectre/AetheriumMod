@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1216695885
+CRC: 879443949
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 3af7c54f3fad87ea3331eb31414153b4
+    Hash: e2fc6fc4c59b21dd4150d27d17e30bf4
   TypeTreeHash:
     serializedVersion: 2
     Hash: cf357dae61e710f97eeea9c170535b0e
@@ -53,6 +53,7 @@ Assets:
 - Assets/Shaders/3D Shaders/ToonUnlit.shader
 - Assets/Animations/Torus.002.controller
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab
+- Assets/Shaders/3D Shaders/intersection.shader
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab
 - Assets/Animations/ThrusterLAfterburner.controller
 - Assets/Textures/Material Textures/FeatheredPlumeTestTexture.png
@@ -188,6 +189,7 @@ Assets:
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
 - Assets/Textures/Material Textures/InspiringDroneHeadsetWireTexture.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingSkull.mat
+- Assets/Textures/Material Textures/BuffBrazierCloud1.jpg
 - Assets/Animations/AlienMagnetBlueTorus.anim
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerParticle.mat
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldSpikes.mat
@@ -198,6 +200,7 @@ Assets:
 - Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png
 - Assets/Textures/Material Textures/BuffBrazierDiffuse.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveParticleMateiral.mat
+- Assets/Textures/Material Textures/10587 - Copy.jpg
 - Assets/Textures/Material Textures/LightningRamp.png
 - Assets/Shaders/3D Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Material Textures/BuffBrazierNormal.png
@@ -222,9 +225,11 @@ Assets:
 - Assets/Textures/Material Textures/Powergem.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCoreGlass.mat
 - Assets/Textures/Material Textures/3989-bump - Copy.jpg
+- Assets/Textures/Material Textures/BuffBrazierRamp.png
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshaping.prefab
 - Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingHandles.mat
+- Assets/Textures/Material Textures/testcolorrampforintersectionshader.png
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerPlumes.mat
 - Assets/Shaders/3D Shaders/FireMaskShader.shader
 - Assets/Animations/JarProjectileSawSecondary.controller
@@ -247,6 +252,7 @@ Assets:
 - Assets/Shaders/3D Shaders/2sidednormal.shader
 - Assets/Animations/JarOfReshapingProjectileMain.controller
 - Assets/Textures/Icons/Item/AccursedPotionIcon.png
+- Assets/Textures/Material Textures/BuffBrazierCloud2.png
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRing.prefab
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgsnowtopped.shader
@@ -259,6 +265,7 @@ Assets:
 - Assets/Textures/Material Textures/13021-diffuse.jpg
 - Assets/Shaders/3D Shaders/StencilShield.shader
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab
+- Assets/Models/Raw Models/BuffBrazierSphere.blend
 - Assets/Models/Raw Models/Voidheart.blend
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
 - Assets/Textures/Materials/Miscellaneous/FractureInner.mat
@@ -329,6 +336,7 @@ Assets:
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat
 - Assets/Shaders/3D Shaders/RainbowShader.shader
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordTrail.mat
+- Assets/Textures/Material Textures/10089 - Copy.jpg
 - Assets/Shaders/3D Shaders/ToonSpecularShader.shader
 - Assets/Shaders/3D Shaders/DeferredStandardStrippedFake.shader
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEarBase.mat
@@ -379,6 +387,7 @@ Assets:
 - Assets/Textures/Material Textures/8bee108.jpg
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldCoreMaterial.mat
 - Assets/Models/Raw Models/HexPendulum.blend
+- Assets/Textures/Material Textures/BuffBrazierRamp1.png
 - Assets/Models/Raw Models/AccursedPotion.blend
 - Assets/Textures/Icons/Item/UnstableDesignIcon.png
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionGlass.mat

@@ -35,6 +35,7 @@ namespace Aetherium
 
         public static AssetBundle MainAssets;
         public static Shader HopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
+        public static Shader IntersectionShader = Resources.Load<Shader>("shaders/fx/hgintersectioncloudremap");
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
@@ -63,15 +64,23 @@ namespace Aetherium
             //Material shader autoconversion
             var materialAssets = MainAssets.LoadAllAssets<Material>();
 
+            ModLogger.LogInfo("Intersection Shader is: " + IntersectionShader);
+
             foreach(Material material in materialAssets)
             {
                 if (!material.shader.name.StartsWith("Fake")) { continue; }
 
-                switch (material.shader.name)
+                switch (material.shader.name.ToLower())
                 {
-                    case ("Fake RoR/Hopoo Games/Deferred/HGStandard"):
+                    case ("fake ror/hopoo games/deferred/hgstandard"):
 
                         material.shader = HopooShader;
+
+                        break;
+
+                    case ("fake ror/hopoo games/fx/hgcloud intersection remap"):
+
+                        material.shader = IntersectionShader;
 
                         break;
                 }
@@ -133,6 +142,8 @@ namespace Aetherium
             ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
             ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
+
+
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)
