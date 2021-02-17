@@ -17,15 +17,15 @@ namespace Aetherium.Utils
                 {
                     switch (Material.shader.name)
                     {
-                        case "hgstandard":
+                        case "Hopoo Games/Deferred/Standard":
                             var standardController = gameObject.AddComponent<HGStandardController>();
                             standardController.Material = Material;
                             break;
-                        case "hgcloudremap":
+                        case "Hopoo Games/FX/Cloud Remap":
                             var cloudController = gameObject.AddComponent<HGCloudRemapController>();
                             cloudController.Material = Material;
                             break;
-                        case "hgintersectioncloudremap":
+                        case "Hopoo Games/FX/Cloud Intersection Remap":
                             var intersectionController = gameObject.AddComponent<HGIntersectionController>();
                             intersectionController.Material = Material;
                             break;

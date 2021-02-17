@@ -12,13 +12,18 @@ namespace Aetherium.Utils
         /// </summary>
         /// <param name="obj">The GameObject/Prefab that you wish to set up RendererInfos for.</param>
         /// <returns>Returns an array full of RendererInfos for GameObject.</returns>
-        public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj)
+        public static CharacterModel.RendererInfo[] ItemDisplaySetup(GameObject obj, bool debugmode = false)
         {
             MeshRenderer[] meshes = obj.GetComponentsInChildren<MeshRenderer>();
             CharacterModel.RendererInfo[] renderInfos = new CharacterModel.RendererInfo[meshes.Length];
 
             for (int i = 0; i < meshes.Length; i++)
             {
+                if (debugmode)
+                {
+                    var controller = meshes[i].gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
+                    controller.Material = meshes[i].material;
+                }
                 renderInfos[i] = new CharacterModel.RendererInfo
                 {
                     defaultMaterial = meshes[i].material,

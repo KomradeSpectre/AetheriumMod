@@ -215,7 +215,7 @@ namespace Aetherium.Interactables
                         material.shader = AetheriumPlugin.IntersectionShader;
                         material.SetColor("_TintColor", ChosenBrazierBuff.EndColor / 255);
                         meshRenderer.material = material;
-                        var materialController = BrazierAOEIndicator.AddComponent<MaterialControllerComponents.HGIntersectionController>();
+                        var materialController = BrazierAOEIndicator.AddComponent<MaterialControllerComponents.HGControllerFinder>();
                         materialController.Material = meshRenderer.material;
                     }
 
