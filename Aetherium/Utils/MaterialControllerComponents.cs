@@ -7,6 +7,34 @@ namespace Aetherium.Utils
 {
     public class MaterialControllerComponents
     {
+        public class HGControllerFinder : MonoBehaviour
+        {
+            public Material Material;
+
+            public void Start()
+            {
+                if (Material)
+                {
+                    switch (Material.shader.name)
+                    {
+                        case "hgstandard":
+                            var standardController = gameObject.AddComponent<HGStandardController>();
+                            standardController.Material = Material;
+                            break;
+                        case "hgcloudremap":
+                            var cloudController = gameObject.AddComponent<HGCloudRemapController>();
+                            cloudController.Material = Material;
+                            break;
+                        case "hgintersectioncloudremap":
+                            var intersectionController = gameObject.AddComponent<HGIntersectionController>();
+                            intersectionController.Material = Material;
+                            break;
+                    }
+                    Destroy(this);
+                }
+            }
+        }
+
         public class HGStandardController : MonoBehaviour
         {
             public Material Material;
@@ -32,7 +60,7 @@ namespace Aetherium.Utils
             [Range(0f, 1f)]
             public float _Smoothness;
 
-            public bool _ForceSpecOn;
+            public bool _IgnoreDiffuseAlphaForSpeculars;
 
             public enum _RampInfoEnum
             {
@@ -42,7 +70,7 @@ namespace Aetherium.Utils
                 Subsurface,
                 Grass
             }
-            public _RampInfoEnum _RampInfo;
+            public _RampInfoEnum _RampChoice;
 
             public enum _DecalLayerEnum
             {
@@ -65,14 +93,14 @@ namespace Aetherium.Utils
                 Front,
                 Back
             }
-            public _CullEnum _Cull;
+            public _CullEnum _Cull_Mode;
 
-            public bool _DitherOn;
+            public bool _EnableDither;
 
             [Range(0f, 1f)]
             public float _FadeBias;
 
-            public bool _FEON;
+            public bool _EnableFresnelEmission;
 
             public Texture _FresnelRamp;
 
@@ -84,26 +112,26 @@ namespace Aetherium.Utils
             [Range(0f, 20f)]
             public float _FresnelBoost;
 
-            public bool _PrintOn;
+            public bool _EnablePrinting;
 
             [Range(-25f, 25f)]
             public float _SliceHeight;
 
             [Range(0f, 10f)]
-            public float _SliceBandHeight;
+            public float _PrintBandHeight;
 
             [Range(0f, 1f)]
-            public float _SliceAlphaDepth;
+            public float _PrintAlphaDepth;
 
-            public Texture _SliceAlphaTex;
-            public Vector2 _SliceAlphaTexScale;
-            public Vector2 _SliceAlphaTexOffset;
+            public Texture _PrintAlphaTexture;
+            public Vector2 _PrintAlphaTextureScale;
+            public Vector2 _PrintAlphaTextureOffset;
 
             [Range(0f, 10f)]
-            public float _PrintBoost;
+            public float _PrintColorBoost;
 
             [Range(0f, 4f)]
-            public float _PrintBias;
+            public float _PrintAlphaBias;
 
             [Range(0f, 1f)]
             public float _PrintEmissionToAlbedoLerp;
@@ -124,11 +152,11 @@ namespace Aetherium.Utils
             [Range(-10f, 10f)]
             public float _EliteBrightnessMax;
 
-            public bool _SplatmapOn;
-            public bool _ColorsOn;
+            public bool _EnableSplatmap;
+            public bool _UseVertexColorsInstead;
 
             [Range(0f, 1f)]
-            public float _Depth;
+            public float _BlendDepth;
 
             public Texture _SplatmapTex;
             public Vector2 _SplatmapTexScale;
@@ -155,8 +183,8 @@ namespace Aetherium.Utils
             [Range(-2f, 5f)]
             public float _BlueChannelBias;
 
-            public bool _FlowmapOn;
-            public Texture _FlowTex;
+            public bool _EnableFlowmap;
+            public Texture _FlowTexture;
             public Texture _FlowHeightmap;
             public Vector2 _FlowHeightmapScale;
             public Vector2 _FlowHeightmapOffset;
@@ -177,15 +205,15 @@ namespace Aetherium.Utils
             public float _FlowSpeed;
 
             [Range(0f, 5f)]
-            public float _FlowMaskStrength;
+            public float _MaskFlowStrength;
 
             [Range(0f, 5f)]
-            public float _FlowNormalStrength;
+            public float _NormalFlowStrength;
 
             [Range(0f, 10f)]
             public float _FlowTextureScaleFactor;
 
-            public bool _LimbRemovalOn;
+            public bool _EnableLimbRemoval;
 
             public void Start()
             {
@@ -204,36 +232,36 @@ namespace Aetherium.Utils
                     _EmTex = Material.GetTexture("_EmTex");
                     _EmPower = Material.GetFloat("_EmPower");
                     _Smoothness = Material.GetFloat("_Smoothness");
-                    _ForceSpecOn = Convert.ToBoolean(Material.GetFloat("_ForceSpecOn"));
-                    _RampInfo = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
+                    _IgnoreDiffuseAlphaForSpeculars = Convert.ToBoolean(Material.GetFloat("_ForceSpecOn"));
+                    _RampChoice = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
                     _DecalLayer = (_DecalLayerEnum)(int)Material.GetFloat("_DecalLayer");
                     _SpecularStrength = Material.GetFloat("_SpecularStrength");
                     _SpecularExponent = Material.GetFloat("_SpecularExponent");
-                    _Cull = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _DitherOn = Convert.ToBoolean(Material.GetFloat("_DitherOn"));
+                    _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
+                    _EnableDither = Convert.ToBoolean(Material.GetFloat("_DitherOn"));
                     _FadeBias = Material.GetFloat("_FadeBias");
-                    _FEON = Convert.ToBoolean(Material.GetFloat("_FEON"));
+                    _EnableFresnelEmission = Convert.ToBoolean(Material.GetFloat("_FEON"));
                     _FresnelRamp = Material.GetTexture("_FresnelRamp");
                     _FresnelPower = Material.GetFloat("_FresnelPower");
                     _FresnelMask = Material.GetTexture("_FresnelMask");
                     _FresnelBoost = Material.GetFloat("_FresnelBoost");
-                    _PrintOn = Convert.ToBoolean(Material.GetFloat("_PrintOn"));
+                    _EnablePrinting = Convert.ToBoolean(Material.GetFloat("_PrintOn"));
                     _SliceHeight = Material.GetFloat("_SliceHeight");
-                    _SliceBandHeight = Material.GetFloat("_SliceBandHeight");
-                    _SliceAlphaDepth = Material.GetFloat("_SliceAlphaDepth");
-                    _SliceAlphaTex = Material.GetTexture("_SliceAlphaTex");
-                    _SliceAlphaTexScale = Material.GetTextureScale("_SliceAlphaTex");
-                    _SliceAlphaTexOffset = Material.GetTextureOffset("_SliceAlphaTex");
-                    _PrintBoost = Material.GetFloat("_PrintBoost");
-                    _PrintBias = Material.GetFloat("_PrintBias");
+                    _PrintBandHeight = Material.GetFloat("_SliceBandHeight");
+                    _PrintAlphaDepth = Material.GetFloat("_SliceAlphaDepth");
+                    _PrintAlphaTexture = Material.GetTexture("_SliceAlphaTex");
+                    _PrintAlphaTextureScale = Material.GetTextureScale("_SliceAlphaTex");
+                    _PrintAlphaTextureOffset = Material.GetTextureOffset("_SliceAlphaTex");
+                    _PrintColorBoost = Material.GetFloat("_PrintBoost");
+                    _PrintAlphaBias = Material.GetFloat("_PrintBias");
                     _PrintEmissionToAlbedoLerp = Material.GetFloat("_PrintEmissionToAlbedoLerp");
                     _PrintDirection = (_PrintDirectionEnum)(int)Material.GetFloat("_PrintDirection");
                     _PrintRamp = Material.GetTexture("_PrintRamp");
                     _EliteBrightnessMin = Material.GetFloat("_EliteBrightnessMin");
                     _EliteBrightnessMax = Material.GetFloat("_EliteBrightnessMax");
-                    _SplatmapOn = Convert.ToBoolean(Material.GetFloat("_SplatmapOn"));
-                    _ColorsOn = Convert.ToBoolean(Material.GetFloat("_ColorsOn"));
-                    _Depth = Material.GetFloat("_Depth");
+                    _EnableSplatmap = Convert.ToBoolean(Material.GetFloat("_SplatmapOn"));
+                    _UseVertexColorsInstead = Convert.ToBoolean(Material.GetFloat("_ColorsOn"));
+                    _BlendDepth = Material.GetFloat("_Depth");
                     _SplatmapTex = Material.GetTexture("_SplatmapTex");
                     _SplatmapTexScale = Material.GetTextureScale("_SplatmapTex");
                     _SplatmapTexOffset = Material.GetTextureOffset("_SplatmapTex");
@@ -246,8 +274,8 @@ namespace Aetherium.Utils
                     _BlueChannelNormalTex = Material.GetTexture("_BlueChannelNormalTex");
                     _BlueChannelSmoothness = Material.GetFloat("_BlueChannelSmoothness");
                     _BlueChannelBias = Material.GetFloat("_BlueChannelBias");
-                    _FlowmapOn = Convert.ToBoolean(Material.GetFloat("_FlowmapOn"));
-                    _FlowTex = Material.GetTexture("_FlowTex");
+                    _EnableFlowmap = Convert.ToBoolean(Material.GetFloat("_FlowmapOn"));
+                    _FlowTexture = Material.GetTexture("_FlowTex");
                     _FlowHeightmap = Material.GetTexture("_FlowHeightmap");
                     _FlowHeightmapScale = Material.GetTextureScale("_FlowHeightmap");
                     _FlowHeightmapOffset = Material.GetTextureOffset("_FlowHeightmap");
@@ -258,10 +286,220 @@ namespace Aetherium.Utils
                     _FlowHeightPower = Material.GetFloat("_FlowHeightPower");
                     _FlowEmissionStrength = Material.GetFloat("_FlowEmissionStrength");
                     _FlowSpeed = Material.GetFloat("_FlowSpeed");
-                    _FlowMaskStrength = Material.GetFloat("_FlowMaskStrength");
-                    _FlowNormalStrength = Material.GetFloat("_FlowNormalStrength");
+                    _MaskFlowStrength = Material.GetFloat("_FlowMaskStrength");
+                    _NormalFlowStrength = Material.GetFloat("_FlowNormalStrength");
                     _FlowTextureScaleFactor = Material.GetFloat("_FlowTextureScaleFactor");
-                    _LimbRemovalOn = Convert.ToBoolean(Material.GetFloat("_LimbRemovalOn"));
+                    _EnableLimbRemoval = Convert.ToBoolean(Material.GetFloat("_LimbRemovalOn"));
+                }
+            }
+
+            public void Update()
+            {
+                if (Material)
+                {
+                    Material.SetFloat("_EnableCutout", Convert.ToSingle(_EnableCutout));
+                    Material.SetColor("_Color", _Color);
+
+                    if (_MainTex)
+                    {
+                        Material.SetTexture("_MainTex", _MainTex);
+                        Material.SetTextureScale("_MainTex", _MainTexScale);
+                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_MainTex", null);
+                    }
+
+                    Material.SetFloat("_NormalStrength", _NormalStrength);
+
+                    if (_NormalTex)
+                    {
+                        Material.SetTexture("_NormalTex", _NormalTex);
+                        Material.SetTextureScale("_NormalTex", _NormalTexScale);
+                        Material.SetTextureOffset("_NormalTex", _NormalTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_NormalTex", null);
+                    }
+
+                    Material.SetColor("_EmColor", _EmColor);
+
+                    if (_EmTex)
+                    {
+                        Material.SetTexture("_EmTex", _EmTex);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_EmTex", null);
+                    }
+
+                    Material.SetFloat("_EmPower", _EmPower);
+                    Material.SetFloat("_Smoothness", _Smoothness);
+                    Material.SetFloat("_ForceSpecOn", Convert.ToSingle(_IgnoreDiffuseAlphaForSpeculars));
+                    Material.SetFloat("_RampInfo", Convert.ToSingle(_RampChoice));
+                    Material.SetFloat("_DecalLayer", Convert.ToSingle(_DecalLayer));
+                    Material.SetFloat("_SpecularStrength", _SpecularStrength);
+                    Material.SetFloat("_SpecularExponent", _SpecularExponent);
+                    Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
+                    Material.SetFloat("_DitherOn", Convert.ToSingle(_EnableDither));
+                    Material.SetFloat("_FadeBias", _FadeBias);
+                    Material.SetFloat("_FEON", Convert.ToSingle(_EnableFresnelEmission));
+
+                    if (_FresnelRamp)
+                    {
+                        Material.SetTexture("_FresnelRamp", _FresnelRamp);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_FresnelRamp", null);
+                    }
+
+                    Material.SetFloat("_FresnelPower", _FresnelPower);
+
+                    if (_FresnelMask)
+                    {
+                        Material.SetTexture("_FresnelMask", _FresnelMask);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_FresnelMask", null);
+                    }
+
+                    Material.SetFloat("_FresnelBoost", _FresnelBoost);
+                    Material.SetFloat("_PrintOn", Convert.ToSingle(_EnablePrinting));
+                    Material.SetFloat("_SliceHeight", _SliceHeight);
+                    Material.SetFloat("_SliceBandHeight", _PrintBandHeight);
+                    Material.SetFloat("_SliceAlphaDepth", _PrintAlphaDepth);
+
+                    if (_PrintAlphaTexture)
+                    {
+                        Material.SetTexture("_SliceAlphaTex", _PrintAlphaTexture);
+                        Material.SetTextureScale("_SliceAlphaTex", _PrintAlphaTextureScale);
+                        Material.SetTextureOffset("_SliceAlphaTex", _PrintAlphaTextureOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_SliceAlphaTex", null);
+                    }
+
+                    Material.SetFloat("_PrintBoost", _PrintColorBoost);
+                    Material.SetFloat("_PrintBias", _PrintAlphaBias);
+                    Material.SetFloat("_PrintEmissionToAlbedoLerp", _PrintEmissionToAlbedoLerp);
+                    Material.SetFloat("_PrintDirection", Convert.ToSingle(_PrintDirection));
+
+                    if (_PrintRamp)
+                    {
+                        Material.SetTexture("_PrintRamp", _PrintRamp);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_PrintRamp", null);
+                    }
+
+                    Material.SetFloat("_EliteBrightnessMin", _EliteBrightnessMin);
+                    Material.SetFloat("_EliteBrightnessMax", _EliteBrightnessMax);
+                    Material.SetFloat("_SplatmapOn", Convert.ToSingle(_EnableSplatmap));
+                    Material.SetFloat("_ColorsOn", Convert.ToSingle(_UseVertexColorsInstead));
+                    Material.SetFloat("_Depth", _BlendDepth);
+
+                    if (_SplatmapTex)
+                    {
+                        Material.SetTexture("_SplatmapTex", _SplatmapTex);
+                        Material.SetTextureScale("_SplatmapTex", _SplatmapTexScale);
+                        Material.SetTextureOffset("_SplatmapTex", _SplatmapTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_SplatmapTex", null);
+                    }
+
+                    Material.SetFloat("_SplatmapTileScale", _SplatmapTileScale);
+
+                    if (_GreenChannelTex)
+                    {
+                        Material.SetTexture("_GreenChannelTex", _GreenChannelTex);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_GreenChannelTex", null);
+                    }
+
+                    if (_GreenChannelNormalTex)
+                    {
+                        Material.SetTexture("_GreenChannelNormalTex", _GreenChannelNormalTex);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_GreenChannelNormalTex", null);
+                    }
+
+                    Material.SetFloat("_GreenChannelSmoothness", _GreenChannelSmoothness);
+                    Material.SetFloat("_GreenChannelBias", _GreenChannelBias);
+
+                    if (_BlueChannelTex)
+                    {
+                        Material.SetTexture("_BlueChannelTex", _BlueChannelTex);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_BlueChannelTex", null);
+                    }
+
+                    if (_BlueChannelNormalTex)
+                    {
+                        Material.SetTexture("_BlueChannelNormalTex", _BlueChannelNormalTex);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_BlueChannelNormalTex", null);
+                    }
+
+                    Material.SetFloat("_BlueChannelSmoothness", _BlueChannelSmoothness);
+                    Material.SetFloat("_BlueChannelBias", _BlueChannelBias);
+
+                    Material.SetFloat("_FlowmapOn", Convert.ToSingle(_EnableFlowmap));
+
+                    if (_FlowTexture)
+                    {
+                        Material.SetTexture("_FlowTex", _FlowTexture);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_FlowTex", null);
+                    }
+
+                    if (_FlowHeightmap)
+                    {
+                        Material.SetTexture("_FlowHeightmap", _FlowHeightmap);
+                        Material.SetTextureScale("_FlowHeightmap", _FlowHeightmapScale);
+                        Material.SetTextureOffset("_FlowHeightmap", _FlowHeightmapOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_FlowHeightmap", null);
+                    }
+
+                    if (_FlowHeightRamp)
+                    {
+                        Material.SetTexture("_FlowHeightRamp", _FlowHeightRamp);
+                        Material.SetTextureScale("_FlowHeightRamp", _FlowHeightRampScale);
+                        Material.SetTextureOffset("_FlowHeightRamp", _FlowHeightRampOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_FlowHeightRamp", null);
+                    }
+
+                    Material.SetFloat("_FlowHeightBias", _FlowHeightBias);
+                    Material.SetFloat("_FlowHeightPower", _FlowHeightPower);
+                    Material.SetFloat("_FlowEmissionStrength", _FlowEmissionStrength);
+                    Material.SetFloat("_FlowSpeed", _FlowSpeed);
+                    Material.SetFloat("_FlowMaskStrength", _MaskFlowStrength);
+                    Material.SetFloat("_FlowNormalStrength", _NormalFlowStrength);
+                    Material.SetFloat("_FlowTextureScaleFactor", _FlowTextureScaleFactor);
+                    Material.SetFloat("_LimbRemovalOn", Convert.ToSingle(_EnableLimbRemoval));
                 }
             }
 
