@@ -41,10 +41,12 @@ namespace Aetherium
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
+        public List<InteractableBase> Interactables = new List<InteractableBase>();
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
+        public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
         private void Awake()
         {
@@ -58,7 +60,7 @@ namespace Aetherium
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
-                var provider = new AssetBundleResourcesProvider("@Aetherium", MainAssets);
+                var provider = new AssetBundleResourcesProvider($"@{ModName}", MainAssets);
                 ResourcesAPI.AddProvider(provider);
             }
 
@@ -142,12 +144,26 @@ namespace Aetherium
                 }
             }
 
-            new BuffBrazier().Init(Config);
+            //Interactables Initialization
+            var InteractableTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(InteractableBase)));
+
+            ModLogger.LogInfo("-----------------INTERACTABLES---------------------");
+
+            foreach(var interactableType in InteractableTypes)
+            {
+                InteractableBase interactable = (InteractableBase)System.Activator.CreateInstance(interactableType);
+                if(ValidateInteractable(interactable, Interactables))
+                {
+                    interactable.Init(Config);
+                    ModLogger.LogInfo("Interactable: " + interactable.InteractableName + " Initialized!");
+                }
+            }
 
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
             ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
             ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
+            ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
 
 
@@ -180,6 +196,20 @@ namespace Aetherium
             if (enabled)
             {
                 equipmentList.Add(equipment);
+                return true;
+            }
+            return false;
+        }
+
+        public bool ValidateInteractable(InteractableBase interactable, List<InteractableBase> interactableList)
+        {
+            var enabled = Config.Bind<bool>("Interactable: " + interactable.InteractableName, "Enable Interactable?", true, "Should this interactable appear in runs?").Value;
+
+            InteractableStatusDictionary.Add(interactable, enabled);
+
+            if (enabled)
+            {
+                interactableList.Add(interactable);
                 return true;
             }
             return false;

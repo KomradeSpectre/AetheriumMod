@@ -16,42 +16,38 @@ using UnityEngine.SceneManagement;
 
 namespace Aetherium.Interactables
 {
-    public class BuffBrazier
+    public class BuffBrazier : InteractableBase<BuffBrazier>
     {
         public static int BaseCostForBuffBrazier;
 
-        public string InteractableName = "Buff Brazier";
+        public override string InteractableName => "Buff Brazier";
 
-        public string InteractableContext = "Donate to allow the flames to empower you.";
+        public override string InteractableContext => "Accept the power of the sacred flames.";
 
-        public string InteractableLangToken = "BUFF_BRAZIER";
+        public override string InteractableLangToken => "BUFF_BRAZIER";
 
-        public string InteractableModelPath = "@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab";
+        public override string InteractableModelPath => "@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab";
 
         public static GameObject InteractableBodyModelPrefab;
 
         public static RoR2.InteractableSpawnCard InteractableSpawnCard;
 
-        public void Init(ConfigFile config)
+        public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
-            CreateInteractable();
+            CreateInteractablePrefab();
+            CreateInteractableSpawnCard();
+            CreateDirectorCard();
             CreateFlameItem();
         }
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseCostForBuffBrazier = config.Bind<int>("Interactables: " + InteractableName, "Base Cost for Buff Brazier", 120, "What should be the base cost of the Buff Brazier?").Value;
+            BaseCostForBuffBrazier = config.Bind<int>("Interactable: " + InteractableName, "Base Cost for Buff Brazier", 120, "What should be the base cost of the Buff Brazier?").Value;
         }
 
-        private void CreateLang()
-        {
-            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_NAME", InteractableName);
-            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_CONTEXT", InteractableContext);
-        }
-
-        private void CreateInteractable()
+        private void CreateInteractablePrefab()
         {
             InteractableBodyModelPrefab = Resources.Load<GameObject>(InteractableModelPath);
 
@@ -81,7 +77,10 @@ namespace Aetherium.Interactables
             var hologramController = InteractableBodyModelPrefab.AddComponent<HologramProjector>();
             hologramController.hologramPivot = InteractableBodyModelPrefab.transform.GetChild(2);
             hologramController.displayDistance = 10;
+        }
 
+        public void CreateInteractableSpawnCard()
+        {
             InteractableSpawnCard = ScriptableObject.CreateInstance<InteractableSpawnCard>();
             InteractableSpawnCard.prefab = InteractableBodyModelPrefab;
             InteractableSpawnCard.sendOverNetwork = true;
@@ -93,10 +92,13 @@ namespace Aetherium.Interactables
             InteractableSpawnCard.occupyPosition = false;
             InteractableSpawnCard.orientToFloor = false;
             InteractableSpawnCard.skipSpawnWhenSacrificeArtifactEnabled = false;
+        }
 
+        public void CreateDirectorCard()
+        {
             RoR2.DirectorCard directorCard = new RoR2.DirectorCard
             {
-                spawnCard = InteractableSpawnCard,                
+                spawnCard = InteractableSpawnCard,
                 selectionWeight = 1000
             };
             DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);
