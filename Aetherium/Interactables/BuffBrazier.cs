@@ -37,6 +37,7 @@ namespace Aetherium.Interactables
             CreateConfig(config);
             CreateLang();
             CreateInteractable();
+            CreateFlameItem();
         }
 
         private void CreateConfig(ConfigFile config)
@@ -65,11 +66,8 @@ namespace Aetherium.Interactables
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
 
-            AetheriumPlugin.ModLogger.LogInfo("Starting to add Component");
             var swordBuffBrazierComponent = InteractableBodyModelPrefab.AddComponent<BuffBrazierManager>();
-            AetheriumPlugin.ModLogger.LogInfo("Component added");
             swordBuffBrazierComponent.PurchaseInteraction = purchaseInteraction;
-            AetheriumPlugin.ModLogger.LogInfo("Purchase Interaction added");
             swordBuffBrazierComponent.OriginalCost = BaseCostForBuffBrazier;
 
             var entityLocator = InteractableBodyModelPrefab.GetComponentInChildren<MeshCollider>().gameObject.AddComponent<RoR2.EntityLocator>();
@@ -92,16 +90,26 @@ namespace Aetherium.Interactables
             InteractableSpawnCard.requiredFlags = RoR2.Navigation.NodeFlags.None;
             InteractableSpawnCard.forbiddenFlags = RoR2.Navigation.NodeFlags.NoShrineSpawn;
             InteractableSpawnCard.directorCreditCost = 10;
-            InteractableSpawnCard.occupyPosition = true;
+            InteractableSpawnCard.occupyPosition = false;
             InteractableSpawnCard.orientToFloor = false;
             InteractableSpawnCard.skipSpawnWhenSacrificeArtifactEnabled = false;
 
             RoR2.DirectorCard directorCard = new RoR2.DirectorCard
             {
-                spawnCard = InteractableSpawnCard,
+                spawnCard = InteractableSpawnCard,                
                 selectionWeight = 1000
             };
             DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);
+        }
+
+        public void CreateFlameItem()
+        {
+            var flameItemDef = new ItemDef
+            {
+                canRemove = false,
+                tier = ItemTier.NoTier,
+                pickupIconPath = "@Aetherium:"
+            };
         }
 
         public class BuffBrazierManager : MonoBehaviour
@@ -143,7 +151,7 @@ namespace Aetherium.Interactables
                 CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2));
 
                 //No Cooldown Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.NoCooldowns, new Color(142, 10, 161, 255), new Color(70, 16, 79, 255), 4));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.NoCooldowns, new Color(142, 30, 161, 255), new Color(70, 30, 79, 255), 4));
 
                 //Slowdown Debuff
                 CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Slow80, new Color(115, 111, 93, 255), new Color(69, 66, 55, 255), 1));
@@ -173,7 +181,7 @@ namespace Aetherium.Interactables
                     if (particleSystemRenderer)
                     {
                         var material = new Material(particleSystemRenderer.material);
-                        material.SetColor("_EmissionColor", normalizedColorEnd);
+                        //material.SetColor("_Tint", normalizedColorEnd);
                         particleSystemRenderer.material = material;
                     }
 
@@ -201,6 +209,30 @@ namespace Aetherium.Interactables
                 PurchaseInteraction.Networkcost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
             }
 
+            public void ShrinePurchaseAttempt(Interactor interactor)
+            {
+                ShrineHasBeenUsedThisManyTimes++;
+                LastInteractor = interactor;
+                EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new EffectData
+                {
+                    origin = this.transform.position,
+                    rotation = Quaternion.identity,
+                    scale = 1
+
+                }, true);
+
+                if (ParticleSystem.isPlaying)
+                {
+                    ParticleSystem.Stop();
+                }
+
+                InUse = true;
+                Timer = CooldownBetweenRestock;
+                AOEEasingInTimer = 0;
+                AOEEasingOutTimer = 0;
+                PurchaseInteraction.SetAvailable(false);
+            }
+
             public void FixedUpdate()
             {
                 if (InUse)
@@ -216,7 +248,7 @@ namespace Aetherium.Interactables
                         material.SetColor("_TintColor", ChosenBrazierBuff.EndColor / 255);
                         meshRenderer.material = material;
                         var materialController = BrazierAOEIndicator.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                        materialController.Material = meshRenderer.material;
+                        materialController.MeshRenderer = meshRenderer;
                     }
 
                     AOEEasingInTimer += Time.fixedDeltaTime;
@@ -280,27 +312,6 @@ namespace Aetherium.Interactables
                     }
                     
                 }
-            }
-
-            public void ShrinePurchaseAttempt(Interactor interactor)
-            {
-                ShrineHasBeenUsedThisManyTimes++;
-                LastInteractor = interactor;
-                EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new EffectData
-                {
-                    origin = this.transform.position,
-                    rotation = Quaternion.identity,
-                    scale = 1
-
-                }, true);
-
-                PurchaseInteraction.cost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier * ShrineHasBeenUsedThisManyTimes);
-                PurchaseInteraction.Networkcost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier * ShrineHasBeenUsedThisManyTimes);
-                InUse = true;
-                Timer = CooldownBetweenRestock;
-                AOEEasingInTimer = 0;
-                AOEEasingOutTimer = 0;
-                PurchaseInteraction.SetAvailable(false);
             }
         }
 

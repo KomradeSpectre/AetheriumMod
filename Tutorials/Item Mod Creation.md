@@ -2381,7 +2381,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
                 {
                     list.Add(EggProjectile);
                 };
-			}    
+			}
     
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {

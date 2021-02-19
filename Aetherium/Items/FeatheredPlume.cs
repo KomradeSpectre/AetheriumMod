@@ -83,7 +83,7 @@ namespace Aetherium.Items
         {
             ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new ItemDisplayRule[]

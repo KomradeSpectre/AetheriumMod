@@ -36,6 +36,7 @@ namespace Aetherium
         public static AssetBundle MainAssets;
         public static Shader HopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
         public static Shader IntersectionShader = Resources.Load<Shader>("shaders/fx/hgintersectioncloudremap");
+        public static Shader CloudRemapShader = Resources.Load<Shader>("shaders/fx/hgcloudremap");
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
@@ -81,6 +82,12 @@ namespace Aetherium
                     case ("fake ror/hopoo games/fx/hgcloud intersection remap"):
 
                         material.shader = IntersectionShader;
+
+                        break;
+
+                    case ("fake ror/hopoo games/fx/hgcloud remap"):
+
+                        material.shader = CloudRemapShader;
 
                         break;
                 }

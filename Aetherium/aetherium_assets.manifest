@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 879443949
+CRC: 2630051133
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e2fc6fc4c59b21dd4150d27d17e30bf4
+    Hash: 9de249efb2122f6d79a6f95d40c5dd2e
   TypeTreeHash:
     serializedVersion: 2
     Hash: cf357dae61e710f97eeea9c170535b0e
@@ -234,6 +234,7 @@ Assets:
 - Assets/Shaders/3D Shaders/FireMaskShader.shader
 - Assets/Animations/JarProjectileSawSecondary.controller
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
+- Assets/Shaders/tests/test.shader
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Material Textures/HorizontalGradientBW.png
 - Assets/Textures/Material Textures/LabelTextureEmissionMap.png
@@ -331,6 +332,7 @@ Assets:
 - Assets/Textures/Material Textures/BlueToTransparentRampInner.png
 - Assets/Shaders/3D Shaders/SpriteSheet.shader
 - Assets/Models/Raw Models/InspiringDrone.blend
+- Assets/Shaders/3D Shaders/FireParticle.shader
 - Assets/Textures/Material Textures/BlasterSwordTexture.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltBladeSharp.mat
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat

@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;

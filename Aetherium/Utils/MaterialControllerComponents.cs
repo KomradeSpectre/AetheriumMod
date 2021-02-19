@@ -9,35 +9,45 @@ namespace Aetherium.Utils
     {
         public class HGControllerFinder : MonoBehaviour
         {
+            public MeshRenderer MeshRenderer;
             public Material Material;
 
             public void Start()
             {
-                if (Material)
+                if (MeshRenderer)
                 {
-                    switch (Material.shader.name)
+                    Material = MeshRenderer.material;
+                    if (Material)
                     {
-                        case "Hopoo Games/Deferred/Standard":
-                            var standardController = gameObject.AddComponent<HGStandardController>();
-                            standardController.Material = Material;
-                            break;
-                        case "Hopoo Games/FX/Cloud Remap":
-                            var cloudController = gameObject.AddComponent<HGCloudRemapController>();
-                            cloudController.Material = Material;
-                            break;
-                        case "Hopoo Games/FX/Cloud Intersection Remap":
-                            var intersectionController = gameObject.AddComponent<HGIntersectionController>();
-                            intersectionController.Material = Material;
-                            break;
+                        switch (Material.shader.name)
+                        {
+                            case "Hopoo Games/Deferred/Standard":
+                                var standardController = gameObject.AddComponent<HGStandardController>();
+                                standardController.Material = Material;
+                                standardController.MeshRenderer = MeshRenderer;
+                                break;
+                            case "Hopoo Games/FX/Cloud Remap":
+                                var cloudController = gameObject.AddComponent<HGCloudRemapController>();
+                                cloudController.Material = Material;
+                                cloudController.MeshRenderer = MeshRenderer;
+                                break;
+                            case "Hopoo Games/FX/Cloud Intersection Remap":
+                                var intersectionController = gameObject.AddComponent<HGIntersectionController>();
+                                intersectionController.Material = Material;
+                                intersectionController.MeshRenderer = MeshRenderer;
+                                break;
+                        }
                     }
-                    Destroy(this);
                 }
+                Destroy(this);
             }
         }
 
         public class HGStandardController : MonoBehaviour
         {
             public Material Material;
+            public MeshRenderer MeshRenderer;
+            public string MaterialName;
 
             public bool _EnableCutout;
             public Color _Color;
@@ -217,6 +227,10 @@ namespace Aetherium.Utils
 
             public void Start()
             {
+                GrabMaterialValues();
+            }
+            public void GrabMaterialValues()
+            {
                 if (Material)
                 {
                     _EnableCutout = Convert.ToBoolean(Material.GetFloat("_EnableCutout"));
@@ -290,6 +304,15 @@ namespace Aetherium.Utils
                     _NormalFlowStrength = Material.GetFloat("_FlowNormalStrength");
                     _FlowTextureScaleFactor = Material.GetFloat("_FlowTextureScaleFactor");
                     _EnableLimbRemoval = Convert.ToBoolean(Material.GetFloat("_LimbRemovalOn"));
+                    MaterialName = Material.name;
+                }
+            }
+
+            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
+            {
+                if (Material && meshRenderer)
+                {
+                    meshRenderer.material = Material;
                 }
             }
 
@@ -297,6 +320,12 @@ namespace Aetherium.Utils
             {
                 if (Material)
                 {
+                    if (Material.name != MaterialName && MeshRenderer)
+                    {
+                        GrabMaterialValues();
+                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                    }
+
                     Material.SetFloat("_EnableCutout", Convert.ToSingle(_EnableCutout));
                     Material.SetColor("_Color", _Color);
 
@@ -512,6 +541,8 @@ namespace Aetherium.Utils
         public class HGCloudRemapController : MonoBehaviour
         {
             public Material Material;
+            public MeshRenderer MeshRenderer;
+            public string MaterialName;
 
             public Color _Tint;
             public bool _DisableRemapping;
@@ -593,6 +624,11 @@ namespace Aetherium.Utils
 
             public void Start()
             {
+                GrabMaterialValues();
+            }
+
+            public void GrabMaterialValues()
+            {
                 if (Material)
                 {
                     _Tint = Material.GetColor("_TintColor");
@@ -631,6 +667,15 @@ namespace Aetherium.Utils
                     _SkyboxOnly = Convert.ToBoolean(Material.GetFloat("_SkyboxOnly"));
                     _FresnelPower = Material.GetFloat("_FresnelPower");
                     _VertexOffsetAmount = Material.GetFloat("_OffsetAmount");
+                    MaterialName = Material.name;
+                }
+            }
+
+            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
+            {
+                if (Material && meshRenderer)
+                {
+                    meshRenderer.material = Material;
                 }
             }
 
@@ -639,6 +684,11 @@ namespace Aetherium.Utils
 
                 if (Material)
                 {
+                    if (Material.name != MaterialName && MeshRenderer)
+                    {
+                        GrabMaterialValues();
+                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                    }
                     Material.SetColor("_TintColor", _Tint);
                     Material.SetFloat("_DisableRemapOn", Convert.ToSingle(_DisableRemapping));
 
@@ -720,6 +770,8 @@ namespace Aetherium.Utils
         public class HGIntersectionController : MonoBehaviour
         {
             public Material Material;
+            public MeshRenderer MeshRenderer;
+            public string MaterialName;
 
             public enum _SrcBlendFloatEnum
             {
@@ -801,6 +853,11 @@ namespace Aetherium.Utils
 
             public void Start()
             {
+                GrabMaterialValues();
+            }
+
+            public void GrabMaterialValues()
+            {
                 if (Material)
                 {
                     _Source_Blend_Mode = (_SrcBlendFloatEnum)(int)Material.GetFloat("_SrcBlendFloat");
@@ -829,6 +886,15 @@ namespace Aetherium.Utils
                     _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
                     _IgnoreVertexColors = Convert.ToBoolean(Material.GetFloat("_VertexColorsOn"));
                     _EnableTriplanarProjectionsForClouds = Convert.ToBoolean(Material.GetFloat("_TriplanarOn"));
+                    MaterialName = Material.name;
+                }
+            }
+
+            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
+            {
+                if (Material && meshRenderer)
+                {
+                    meshRenderer.material = Material;
                 }
             }
 
@@ -837,6 +903,11 @@ namespace Aetherium.Utils
 
                 if (Material)
                 {
+                    if (Material.name != MaterialName && MeshRenderer)
+                    {
+                        GrabMaterialValues();
+                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                    }
                     Material.SetFloat("_SrcBlendFloat", Convert.ToSingle(_Source_Blend_Mode));
                     Material.SetFloat("_DstBlendFloat", Convert.ToSingle(_Destination_Blend_Mode));
                     Material.SetColor("_TintColor", _Tint);
