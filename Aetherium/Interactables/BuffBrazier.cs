@@ -7,6 +7,7 @@ using RoR2;
 using RoR2.Hologram;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using TMPro;
@@ -58,6 +59,8 @@ namespace Aetherium.Interactables
         {
             InteractableBodyModelPrefab = Resources.Load<GameObject>(InteractableModelPath);
 
+            InteractableBodyModelPrefab.AddComponent<NetworkIdentity>();
+
             var purchaseInteraction = InteractableBodyModelPrefab.AddComponent<RoR2.PurchaseInteraction>();
             purchaseInteraction.displayNameToken = "INTERACTABLE_" + InteractableLangToken + "_NAME";
             purchaseInteraction.contextToken = "INTERACTABLE_" + InteractableLangToken + "_CONTEXT";
@@ -86,6 +89,8 @@ namespace Aetherium.Interactables
             var hologramController = InteractableBodyModelPrefab.AddComponent<HologramProjector>();
             hologramController.hologramPivot = InteractableBodyModelPrefab.transform.GetChild(2);
             hologramController.displayDistance = 10;
+
+            PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
 
         public void CreateInteractableSpawnCard()
@@ -110,14 +115,14 @@ namespace Aetherium.Interactables
                 spawnCard = InteractableSpawnCard,
                 selectionWeight = 1000
             };
-            DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);
+            DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);            
         }
 
         public void CreateFlameItem()
         {
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_NAME", "Sacred Flame");
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_PICKUP", "The sacred flame accepts your plea for help, and will assist your attempt to escape this area.");
-            LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", "Upon activating the teleporter, the flame will spread out into a radius of [x] around the teleporter and grant you and your allies aid within the area for [x] seconds.");
+            LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", $"Upon activating the teleporter, the flame will spread out into a radius of {AreaOfEffectRadius} around the teleporter and grant you and your allies aid within the area for {DurationOfEffect} seconds.");
 
             var flameItemDef = new RoR2.ItemDef
             {
@@ -137,6 +142,7 @@ namespace Aetherium.Interactables
         public void Hooks()
         {
             On.RoR2.TeleporterInteraction.OnInteractionBegin += ExpendFlames;
+            //On.RoR2.SceneDirector.PopulateScene += RefundDuplicates;
             On.RoR2.Run.EndStage += RemoveErrantSacredFlames;
         }
 
@@ -185,6 +191,7 @@ namespace Aetherium.Interactables
                             foreach(BuffBrazierSacredFlameCache sacredFlameCache in flameCaches)
                             {
                                 sacredFlameCache.BuffBrazierManager.PositionOfAOE = self.gameObject.transform.position;
+                                sacredFlameCache.BuffBrazierManager.ParticleSystem.transform.parent = self.gameObject.transform;
                                 sacredFlameCache.BuffBrazierManager.AreaOfEffectRadius = Mathf.Clamp(sacredFlameCache.BuffBrazierManager.AreaOfEffectRadius + RoR2.Run.instance.stageRng.RangeFloat(-1, 1), 0, float.MaxValue);
                                 sacredFlameCache.BuffBrazierManager.Timer = DurationOfEffect;
                                 sacredFlameCache.BuffBrazierManager.AOEEasingInTimer = 0;
@@ -200,9 +207,12 @@ namespace Aetherium.Interactables
             orig(self, activator);
         }
 
+
+
         public class BuffBrazierManager : MonoBehaviour
         {
             public RoR2.Interactor LastInteractor;
+            public CharacterMaster LastInteractorMaster;
             public RoR2.PurchaseInteraction PurchaseInteraction;
 
             public float OriginalCost;
@@ -226,30 +236,30 @@ namespace Aetherium.Interactables
             public void CreateCuratedBuffList()
             {
                 //War Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.WarCryBuff, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.WarCryBuff, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1, false));
 
                 //Invisibility Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cloak, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cloak, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f, false));
 
                 //Cripple Debuff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cripple, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cripple, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f, true));
 
                 //Jade Elephant Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.ElephantArmorBoost, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.ElephantArmorBoost, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2, false));
 
                 //Super Leech Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2, false));
 
                 //No Cooldown Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.NoCooldowns, new Color(142, 30, 161, 255), new Color(70, 30, 79, 255), 4));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.NoCooldowns, new Color(142, 30, 161, 255), new Color(70, 30, 79, 255), 4, false));
 
                 //Slowdown Debuff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Slow80, new Color(115, 111, 93, 255), new Color(69, 66, 55, 255), 1));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Slow80, new Color(115, 111, 93, 255), new Color(69, 66, 55, 255), 1, true));
             }
 
             public BrazierBuffCuratedType ChooseTheBrazierBuff()
             {
-                return CuratedBuffList[RoR2.Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count - 1)];
+                return CuratedBuffList[RoR2.Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count)];
             }
 
             public void FindParticleSystemAndLightAndSetColor()
@@ -321,6 +331,7 @@ namespace Aetherium.Interactables
                     var master = body.master;
                     if (master)
                     {
+                        LastInteractorMaster = master;
                         master.inventory.GiveItem(BuffBrazier.instance.FlameIndex);
                         var sacredFlameCache = master.gameObject.AddComponent<BuffBrazierSacredFlameCache>();
                         sacredFlameCache.BuffBrazierManager = this;
@@ -337,7 +348,6 @@ namespace Aetherium.Interactables
                     if (!BrazierAOEIndicator)
                     {
                         BrazierAOEIndicator = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab"));
-                        BrazierAOEIndicator.transform.position = PositionOfAOE;
 
                         var meshRenderer = BrazierAOEIndicator.GetComponent<MeshRenderer>();
                         var material = new Material(meshRenderer.material);
@@ -346,6 +356,9 @@ namespace Aetherium.Interactables
                         meshRenderer.material = material;
                         var materialController = BrazierAOEIndicator.AddComponent<MaterialControllerComponents.HGControllerFinder>();
                         materialController.MeshRenderer = meshRenderer;
+
+                        NetworkServer.Spawn(BrazierAOEIndicator);
+                        BrazierAOEIndicator.transform.position = PositionOfAOE;
                     }
 
                     AOEEasingInTimer += Time.fixedDeltaTime;
@@ -357,18 +370,39 @@ namespace Aetherium.Interactables
                     }
                     else
                     {
+                        if (ParticleSystem.isStopped)
+                        {
+                            ParticleSystem.Play();
+                        }
                         Timer -= Time.fixedDeltaTime;
 
                         if (Timer > 0)
                         {
-                            RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
+                            List<HurtBox> HurtBoxes = new List<HurtBox>();
+                            if (ChosenBrazierBuff.IsDebuff)
                             {
-                                radius = DurationOfField,
-                                mask = RoR2.LayerIndex.entityPrecise.mask,
-                                origin = BrazierAOEIndicator.transform.position
-                            }.RefreshCandidates().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
+                                RoR2.TeamMask EnemyTeams = RoR2.TeamMask.GetEnemyTeams(LastInteractorMaster.teamIndex);
+                                HurtBoxes = new RoR2.SphereSearch
+                                {
+                                    radius = DurationOfField,
+                                    mask = RoR2.LayerIndex.entityPrecise.mask,
+                                    origin = BrazierAOEIndicator.transform.position
+                                }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(EnemyTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
+                            }
+                            else
+                            {
+                                RoR2.TeamMask AlliedTeams = new TeamMask();
+                                AlliedTeams.AddTeam(LastInteractorMaster.teamIndex);
 
-                            foreach (RoR2.HurtBox hurtbox in hurtBoxes)
+                                HurtBoxes = new RoR2.SphereSearch
+                                {
+                                    radius = DurationOfField,
+                                    mask = RoR2.LayerIndex.entityPrecise.mask,
+                                    origin = BrazierAOEIndicator.transform.position
+                                }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(AlliedTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
+                            }
+
+                            foreach (RoR2.HurtBox hurtbox in HurtBoxes)
                             {
                                 var healthComponent = hurtbox.healthComponent;
                                 if (healthComponent)
@@ -383,6 +417,10 @@ namespace Aetherium.Interactables
                         }
                         else
                         {
+                            if (ParticleSystem.isPlaying)
+                            {
+                                ParticleSystem.Stop();
+                            }
                             AOEEasingOutTimer += Time.fixedDeltaTime;
                             if(AOEEasingOutTimer <= 1)
                             {
@@ -413,13 +451,15 @@ namespace Aetherium.Interactables
             public Color StartColor;
             public Color EndColor;
             public float CostModifier;
+            public bool IsDebuff;
 
-            public BrazierBuffCuratedType(BuffIndex buffIndex, Color startColor, Color endColor, float costModifier)
+            public BrazierBuffCuratedType(BuffIndex buffIndex, Color startColor, Color endColor, float costModifier, bool isDebuff)
             {
                 Index = buffIndex;
                 StartColor = startColor;
                 EndColor = endColor;
                 CostModifier = costModifier;
+                IsDebuff = isDebuff;
             }
         }
     }
