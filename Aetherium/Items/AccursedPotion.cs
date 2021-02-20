@@ -2,6 +2,7 @@
 using R2API;
 using RoR2;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.Utils.ItemHelpers;
@@ -18,6 +19,7 @@ namespace Aetherium.Items
         public float BaseRadiusGranted;
         public float AdditionalRadiusGranted;
         public float MaxEffectsAccrued;
+        public string BlacklistedBuffsAndDebuffsString;
 
         //Lang
 
@@ -63,9 +65,9 @@ namespace Aetherium.Items
 
         public static BuffIndex AccursedPotionSipCooldownDebuff;
 
-        public static Xoroshiro128Plus random = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
-
         public static GameObject ItemBodyModelPrefab;
+
+        public List<BuffIndex> BlacklistedBuffsAndDebuffs = new List<BuffIndex>();
 
         public AccursedPotion()
         {
@@ -87,6 +89,18 @@ namespace Aetherium.Items
             BaseRadiusGranted = config.Bind<float>("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)").Value;
             AdditionalRadiusGranted = config.Bind<float>("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)").Value;
             MaxEffectsAccrued = config.Bind<int>("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)").Value;
+            BlacklistedBuffsAndDebuffsString = config.Bind<string>("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?").Value;
+
+            var testStringArray = BlacklistedBuffsAndDebuffsString.Split(',');
+            if(testStringArray.Length > 0)
+            {
+                foreach(string stringToTest in testStringArray)
+                {
+                    if (BuffCatalog.FindBuffIndex(stringToTest) == BuffIndex.None){ continue; }
+
+                    BlacklistedBuffsAndDebuffs.Add(BuffCatalog.FindBuffIndex(stringToTest));
+                }
+            }
         }
 
         private void CreateBuff()
@@ -246,12 +260,18 @@ namespace Aetherium.Items
                 {
                     if (!self.HasBuff(AccursedPotionSipCooldownDebuff) && self.activeBuffsListCount <= MaxEffectsAccrued)
                     {
-                        BuffIndex ChosenBuff = RoR2.BuffCatalog.buffDefs[random.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)].buffIndex;
+                        BuffIndex ChosenBuff = RoR2.BuffCatalog.buffDefs[Run.instance.stageRng.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)].buffIndex;
+
+                        if (BlacklistedBuffsAndDebuffs.Contains(ChosenBuff))
+                        {
+                            ChosenBuff = BuffIndex.None;
+                        }
+
                         if (RoR2.BuffCatalog.GetBuffDef(ChosenBuff).iconPath != null && ChosenBuff != BuffIndex.Immune && ChosenBuff != BuffIndex.HiddenInvincibility)
                         {
                             var BuffCount = RoR2.BuffCatalog.GetBuffDef(ChosenBuff).canStack ? InventoryCount : 1;
 
-                            var randomEffectDuration = random.RangeFloat(10, 20);
+                            var randomEffectDuration = Run.instance.stageRng.RangeFloat(10, 20);
                             RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(self.teamComponent.teamIndex);
                             RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
                             {

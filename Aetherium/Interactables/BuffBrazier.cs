@@ -19,6 +19,8 @@ namespace Aetherium.Interactables
     public class BuffBrazier : InteractableBase<BuffBrazier>
     {
         public static int BaseCostForBuffBrazier;
+        public static float DurationOfEffect;
+        public static float AreaOfEffectRadius;
 
         public override string InteractableName => "Buff Brazier";
 
@@ -32,6 +34,8 @@ namespace Aetherium.Interactables
 
         public static RoR2.InteractableSpawnCard InteractableSpawnCard;
 
+        public ItemIndex FlameIndex;
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -40,11 +44,14 @@ namespace Aetherium.Interactables
             CreateInteractableSpawnCard();
             CreateDirectorCard();
             CreateFlameItem();
+            Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
             BaseCostForBuffBrazier = config.Bind<int>("Interactable: " + InteractableName, "Base Cost for Buff Brazier", 120, "What should be the base cost of the Buff Brazier?").Value;
+            DurationOfEffect = config.Bind<float>("Interactable: " + InteractableName, "Duration of Flame Buff Effect", 60, "How long should the flame last once it is deployed?").Value;
+            AreaOfEffectRadius = config.Bind<float>("Interactable: " + InteractableName, "Radius of Flame Buff Effect", 60, "How large (in meters) should the radius of the deployed flame buff be?").Value;
         }
 
         private void CreateInteractablePrefab()
@@ -65,6 +72,8 @@ namespace Aetherium.Interactables
             var swordBuffBrazierComponent = InteractableBodyModelPrefab.AddComponent<BuffBrazierManager>();
             swordBuffBrazierComponent.PurchaseInteraction = purchaseInteraction;
             swordBuffBrazierComponent.OriginalCost = BaseCostForBuffBrazier;
+            swordBuffBrazierComponent.DurationOfField = DurationOfEffect;
+            swordBuffBrazierComponent.AreaOfEffectRadius = AreaOfEffectRadius;
 
             var entityLocator = InteractableBodyModelPrefab.GetComponentInChildren<MeshCollider>().gameObject.AddComponent<RoR2.EntityLocator>();
             entityLocator.entity = InteractableBodyModelPrefab;
@@ -81,7 +90,7 @@ namespace Aetherium.Interactables
 
         public void CreateInteractableSpawnCard()
         {
-            InteractableSpawnCard = ScriptableObject.CreateInstance<InteractableSpawnCard>();
+            InteractableSpawnCard = ScriptableObject.CreateInstance<RoR2.InteractableSpawnCard>();
             InteractableSpawnCard.prefab = InteractableBodyModelPrefab;
             InteractableSpawnCard.sendOverNetwork = true;
             InteractableSpawnCard.hullSize = HullClassification.Human;
@@ -110,27 +119,97 @@ namespace Aetherium.Interactables
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_PICKUP", "The sacred flame accepts your plea for help, and will assist your attempt to escape this area.");
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", "Upon activating the teleporter, the flame will spread out into a radius of [x] around the teleporter and grant you and your allies aid within the area for [x] seconds.");
 
-            var flameItemDef = new ItemDef
+            var flameItemDef = new RoR2.ItemDef
             {
+                name = "INTERACTABLE_ITEM_SACRED_FLAME",
                 nameToken = "INTERACTABLE_ITEM_SACRED_FLAME_NAME",
                 pickupToken = "INTERACTABLE_ITEM_SACRED_FLAME_PICKUP",
                 descriptionToken = "INTERACTABLE_ITEM_SACRED_FLAME_DESC",
                 canRemove = false,
                 tier = ItemTier.NoTier,
-                tags = new ItemTag[] { ItemTag.WorldUnique },
-                pickupIconPath = "@Aetherium:"
+                tags = new ItemTag[] { ItemTag.WorldUnique | ItemTag.AIBlacklist },
+                pickupIconPath = "@Aetherium:Assets/Textures/Icons/Item/Sacred Flame.png"
             };
+            FlameIndex = ItemAPI.Add(new CustomItem(flameItemDef, new RoR2.ItemDisplayRule[] { }));
+            
+        }
+
+        public void Hooks()
+        {
+            On.RoR2.TeleporterInteraction.OnInteractionBegin += ExpendFlames;
+            On.RoR2.Run.EndStage += RemoveErrantSacredFlames;
+        }
+
+        private void RemoveErrantSacredFlames(On.RoR2.Run.orig_EndStage orig, RoR2.Run self)
+        {
+            var players = RoR2.PlayerCharacterMasterController.instances;
+            foreach (RoR2.PlayerCharacterMasterController playerController in players)
+            {
+                var master = playerController.master;
+
+                if (master)
+                {
+                    var inventoryCount = master.inventory.GetItemCount(FlameIndex);
+                    if (inventoryCount > 0)
+                    {
+                        var flameCaches = master.GetComponents<BuffBrazierSacredFlameCache>();
+                        if (flameCaches.Length > 0)
+                        {
+                            foreach (BuffBrazierSacredFlameCache sacredFlameCache in flameCaches)
+                            {
+                                UnityEngine.Object.Destroy(sacredFlameCache);
+                            }
+                        }
+                        master.inventory.RemoveItem(FlameIndex, inventoryCount);
+                    }
+                }
+            }
+            orig(self);
+        }
+
+        private void ExpendFlames(On.RoR2.TeleporterInteraction.orig_OnInteractionBegin orig, RoR2.TeleporterInteraction self, RoR2.Interactor activator)
+        {
+            var players = RoR2.PlayerCharacterMasterController.instances;
+            foreach(RoR2.PlayerCharacterMasterController playerController in players)
+            {
+                var master = playerController.master;
+
+                if (master)
+                {
+                    var inventoryCount = master.inventory.GetItemCount(FlameIndex);
+                    if (inventoryCount > 0)
+                    {
+                        var flameCaches = master.GetComponents<BuffBrazierSacredFlameCache>();
+                        if(flameCaches.Length > 0)
+                        {
+                            foreach(BuffBrazierSacredFlameCache sacredFlameCache in flameCaches)
+                            {
+                                sacredFlameCache.BuffBrazierManager.PositionOfAOE = self.gameObject.transform.position;
+                                sacredFlameCache.BuffBrazierManager.AreaOfEffectRadius = Mathf.Clamp(sacredFlameCache.BuffBrazierManager.AreaOfEffectRadius + RoR2.Run.instance.stageRng.RangeFloat(-1, 1), 0, float.MaxValue);
+                                sacredFlameCache.BuffBrazierManager.Timer = DurationOfEffect;
+                                sacredFlameCache.BuffBrazierManager.AOEEasingInTimer = 0;
+                                sacredFlameCache.BuffBrazierManager.AOEEasingOutTimer = 0;
+                                sacredFlameCache.BuffBrazierManager.InUse = true;
+                                UnityEngine.Object.Destroy(sacredFlameCache);
+                            }
+                        }
+                        master.inventory.RemoveItem(FlameIndex, inventoryCount);
+                    }
+                }
+            }
+            orig(self, activator);
         }
 
         public class BuffBrazierManager : MonoBehaviour
         {
-            public Interactor LastInteractor;
-            public PurchaseInteraction PurchaseInteraction;
+            public RoR2.Interactor LastInteractor;
+            public RoR2.PurchaseInteraction PurchaseInteraction;
 
             public float OriginalCost;
-            public int ShrineHasBeenUsedThisManyTimes;
 
-            public float CooldownBetweenRestock = 60f;
+            public float DurationOfField = 60f;
+            public float AreaOfEffectRadius = 60f;
+
             public float Timer;
             public bool InUse = false;
 
@@ -140,6 +219,7 @@ namespace Aetherium.Interactables
             public BrazierBuffCuratedType ChosenBrazierBuff;
 
             public GameObject BrazierAOEIndicator;
+            public Vector3 PositionOfAOE;
             public float AOEEasingInTimer;
             public float AOEEasingOutTimer;
 
@@ -169,7 +249,7 @@ namespace Aetherium.Interactables
 
             public BrazierBuffCuratedType ChooseTheBrazierBuff()
             {
-                return CuratedBuffList[Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count - 1)];
+                return CuratedBuffList[RoR2.Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count - 1)];
             }
 
             public void FindParticleSystemAndLightAndSetColor()
@@ -206,7 +286,7 @@ namespace Aetherium.Interactables
             public void Start()
             {
                 PurchaseInteraction.SetAvailableTrue();
-                PurchaseInteraction.onPurchase.AddListener(delegate (Interactor interactor)
+                PurchaseInteraction.onPurchase.AddListener(delegate (RoR2.Interactor interactor)
                 {
                     this.ShrinePurchaseAttempt(interactor);
                 });
@@ -219,11 +299,10 @@ namespace Aetherium.Interactables
                 PurchaseInteraction.Networkcost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
             }
 
-            public void ShrinePurchaseAttempt(Interactor interactor)
+            public void ShrinePurchaseAttempt(RoR2.Interactor interactor)
             {
-                ShrineHasBeenUsedThisManyTimes++;
                 LastInteractor = interactor;
-                EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new EffectData
+                RoR2.EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new RoR2.EffectData
                 {
                     origin = this.transform.position,
                     rotation = Quaternion.identity,
@@ -236,10 +315,18 @@ namespace Aetherium.Interactables
                     ParticleSystem.Stop();
                 }
 
-                InUse = true;
-                Timer = CooldownBetweenRestock;
-                AOEEasingInTimer = 0;
-                AOEEasingOutTimer = 0;
+                var body = interactor.GetComponent<RoR2.CharacterBody>();
+                if (body)
+                {
+                    var master = body.master;
+                    if (master)
+                    {
+                        master.inventory.GiveItem(BuffBrazier.instance.FlameIndex);
+                        var sacredFlameCache = master.gameObject.AddComponent<BuffBrazierSacredFlameCache>();
+                        sacredFlameCache.BuffBrazierManager = this;
+                    }
+
+                }
                 PurchaseInteraction.SetAvailable(false);
             }
 
@@ -250,7 +337,7 @@ namespace Aetherium.Interactables
                     if (!BrazierAOEIndicator)
                     {
                         BrazierAOEIndicator = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab"));
-                        BrazierAOEIndicator.transform.position = this.transform.position + new Vector3(0, 2f, 0);
+                        BrazierAOEIndicator.transform.position = PositionOfAOE;
 
                         var meshRenderer = BrazierAOEIndicator.GetComponent<MeshRenderer>();
                         var material = new Material(meshRenderer.material);
@@ -265,28 +352,23 @@ namespace Aetherium.Interactables
 
                     if (AOEEasingInTimer <= 1)
                     {
-                        var easingValue = EasingFunction.EaseInQuad(0, CooldownBetweenRestock, AOEEasingInTimer);
+                        var easingValue = EasingFunction.EaseInQuad(0, AreaOfEffectRadius, AOEEasingInTimer);
                         BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
                     }
                     else
                     {
-                        if (ParticleSystem.isPlaying)
-                        {
-                            ParticleSystem.Stop();
-                        }
-
                         Timer -= Time.fixedDeltaTime;
 
                         if (Timer > 0)
                         {
                             RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
                             {
-                                radius = CooldownBetweenRestock,
+                                radius = DurationOfField,
                                 mask = RoR2.LayerIndex.entityPrecise.mask,
                                 origin = BrazierAOEIndicator.transform.position
                             }.RefreshCandidates().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
 
-                            foreach (HurtBox hurtbox in hurtBoxes)
+                            foreach (RoR2.HurtBox hurtbox in hurtBoxes)
                             {
                                 var healthComponent = hurtbox.healthComponent;
                                 if (healthComponent)
@@ -304,25 +386,25 @@ namespace Aetherium.Interactables
                             AOEEasingOutTimer += Time.fixedDeltaTime;
                             if(AOEEasingOutTimer <= 1)
                             {
-                                var easingValue = EasingFunction.EaseOutQuad(CooldownBetweenRestock, 0, AOEEasingOutTimer);
+                                var easingValue = EasingFunction.EaseOutQuad(DurationOfField, 0, AOEEasingOutTimer);
                                 BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
                             }
                             else
-                            {
-                                if (ParticleSystem.isStopped)
-                                {
-                                    ParticleSystem.Play();
-                                }
-
-                                InUse = false;
+                            { 
                                 Destroy(BrazierAOEIndicator);
-                                PurchaseInteraction.SetAvailable(true);
+                                Destroy(ParticleSystem);
+                                Destroy(this);
                             }
                         }
                     }
                     
                 }
             }
+        }
+
+        public class BuffBrazierSacredFlameCache : MonoBehaviour
+        {
+            public BuffBrazierManager BuffBrazierManager;
         }
 
         public class BrazierBuffCuratedType

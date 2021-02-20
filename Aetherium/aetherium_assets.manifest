@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2630051133
+CRC: 3659661709
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9de249efb2122f6d79a6f95d40c5dd2e
+    Hash: 8d364cac4eb170bbe3f03a5e6073e81d
   TypeTreeHash:
     serializedVersion: 2
     Hash: cf357dae61e710f97eeea9c170535b0e
@@ -342,6 +342,7 @@ Assets:
 - Assets/Shaders/3D Shaders/ToonSpecularShader.shader
 - Assets/Shaders/3D Shaders/DeferredStandardStrippedFake.shader
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEarBase.mat
+- Assets/Textures/Icons/Item/Sacred Flame.png
 - Assets/Shaders/2D Shaders/SpriteShaderDistort.shader
 - Assets/Textures/Material Textures/BlackToWhiteSlowGradient.png
 - Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png

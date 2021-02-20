@@ -46,7 +46,6 @@ namespace Aetherium.Items
         public static GameObject SwordProjectile;
 
         public bool RecursionPrevention;
-        public static Xoroshiro128Plus swordRandom = new Xoroshiro128Plus((ulong)System.DateTime.Now.Ticks);
 
         public static HashSet<string> BlacklistedProjectiles = new HashSet<string>()
         {
@@ -746,7 +745,7 @@ namespace Aetherium.Items
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default
                                 };
-                                var positionChosen = damageInfo.position + new Vector3(swordRandom.RangeFloat(-10, 10), swordRandom.RangeFloat(0, 10), swordRandom.RangeFloat(-10, 10)).normalized * 4;
+                                var positionChosen = damageInfo.position + new Vector3(Run.instance.stageRng.RangeFloat(-10, 10), Run.instance.stageRng.RangeFloat(0, 10), Run.instance.stageRng.RangeFloat(-10, 10)).normalized * 4;
                                 newProjectileInfo.position = positionChosen;
                                 newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
 
