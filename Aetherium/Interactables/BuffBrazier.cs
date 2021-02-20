@@ -106,10 +106,18 @@ namespace Aetherium.Interactables
 
         public void CreateFlameItem()
         {
+            LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_NAME", "Sacred Flame");
+            LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_PICKUP", "The sacred flame accepts your plea for help, and will assist your attempt to escape this area.");
+            LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", "Upon activating the teleporter, the flame will spread out into a radius of [x] around the teleporter and grant you and your allies aid within the area for [x] seconds.");
+
             var flameItemDef = new ItemDef
             {
+                nameToken = "INTERACTABLE_ITEM_SACRED_FLAME_NAME",
+                pickupToken = "INTERACTABLE_ITEM_SACRED_FLAME_PICKUP",
+                descriptionToken = "INTERACTABLE_ITEM_SACRED_FLAME_DESC",
                 canRemove = false,
                 tier = ItemTier.NoTier,
+                tags = new ItemTag[] { ItemTag.WorldUnique },
                 pickupIconPath = "@Aetherium:"
             };
         }
