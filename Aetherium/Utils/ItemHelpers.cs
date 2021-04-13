@@ -74,12 +74,12 @@ namespace Aetherium.Utils
             return String.Join("\n", Manifest);
         }
 
-        public static void RefreshTimedBuffs(CharacterBody body, BuffIndex buffIndex, float duration)
+        public static void RefreshTimedBuffs(CharacterBody body, BuffDef buffDef, float duration)
         {
-            if(!body || body.GetBuffCount(buffIndex) <= 0) { return; }
+            if(!body || body.GetBuffCount(buffDef) <= 0) { return; }
             foreach (var buff in body.timedBuffs)
             {
-                if (buff.buffIndex == buffIndex)
+                if (buffDef.buffIndex == buff.buffIndex)
                 {
                     buff.timer = duration;
                 }

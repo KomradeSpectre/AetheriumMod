@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -11,11 +12,11 @@ namespace Aetherium.Items
 {
     public class FeatheredPlume : ItemBase<FeatheredPlume>
     {
-        public static bool UseNewIcons;
-        public static float BaseDurationOfBuffInSeconds;
-        public static float AdditionalDurationOfBuffInSeconds;
-        public static int BuffStacksPerFeatheredPlume;
-        public static float MoveSpeedPercentageBonusPerBuffStack;
+        public static ConfigOption<bool> UseNewIcons;
+        public static ConfigOption<float> BaseDurationOfBuffInSeconds;
+        public static ConfigOption<float> AdditionalDurationOfBuffInSeconds;
+        public static ConfigOption<int> BuffStacksPerFeatheredPlume;
+        public static ConfigOption<float> MoveSpeedPercentageBonusPerBuffStack;
 
         public override string ItemName => "Feathered Plume";
         public override string ItemLangTokenName => "FEATHERED_PLUME";
@@ -36,12 +37,12 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/FeatheredPlume/FeatheredPlume.prefab";
-        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/FeatheredPlumeIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("FeatheredPlume.prefab");
+        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("FeatheredPlumeIconAlt.png") : MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
-        public BuffIndex SpeedBuff { get; private set; }
+        public BuffDef SpeedBuff { get; private set; }
 
         public FeatheredPlume()
         {
@@ -58,30 +59,28 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
-            BaseDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?").Value;
-            AdditionalDurationOfBuffInSeconds = config.Bind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?").Value;
-            BuffStacksPerFeatheredPlume = config.Bind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?").Value;
-            MoveSpeedPercentageBonusPerBuffStack = config.Bind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)").Value;
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            BaseDurationOfBuffInSeconds = config.ActiveBind<float>("Item: " + ItemName, "Base Duration of Buff with One Feathered Plume", 5f, "How many seconds should feathered plume's buff last with a single feathered plume?");
+            AdditionalDurationOfBuffInSeconds = config.ActiveBind<float>("Item: " + ItemName, "Additional Duration of Buff per Feathered Plume Stack", 0.5f, "How many additional seconds of buff should each feathered plume after the first give?");
+            BuffStacksPerFeatheredPlume = config.ActiveBind<int>("Item: " + ItemName, "Stacks of Buff per Feathered Plume", 3, "How many buff stacks should each feather give?");
+            MoveSpeedPercentageBonusPerBuffStack = config.ActiveBind<float>("Item: " + ItemName, "Movement speed per Feathered Plume Buff Stack", 0.07f, "How much movement speed in percent should each stack of Feathered Plume's buff give? (0.07 = 7%)");
         }
 
         private void CreateBuff()
         {
-            var speedBuff = new R2API.CustomBuff(
-            new BuffDef
-            {
-                buffColor = Color.green,
-                canStack = true,
-                isDebuff = false,
-                name = "Aetherium: Feathered Plume Speed",
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/FeatheredPlumeBuffIcon.png"
-            });
-            SpeedBuff = R2API.BuffAPI.Add(speedBuff);
+            SpeedBuff = ScriptableObject.CreateInstance<BuffDef>();
+            SpeedBuff.name = "Aetherium: Feathered Plume Speed";
+            SpeedBuff.buffColor = Color.green;
+            SpeedBuff.canStack = true;
+            SpeedBuff.isDebuff = false;
+            SpeedBuff.iconSprite = MainAssets.LoadAsset<Sprite>("FeatheredPlumeBuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(SpeedBuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -229,7 +228,7 @@ namespace Aetherium.Items
                     if (buffCount < BuffStacksPerFeatheredPlume * InventoryCount)
                     {
                         RefreshTimedBuffs(body, SpeedBuff, stackTime);
-                        body.AddTimedBuffAuthority(SpeedBuff, stackTime);
+                        body.AddTimedBuffAuthority(SpeedBuff.buffIndex, stackTime);
                     }
                     if(buffCount >= BuffStacksPerFeatheredPlume * InventoryCount)
                     {

@@ -6,6 +6,7 @@ using R2API.Utils;
 using RoR2;
 using System;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -14,11 +15,11 @@ namespace Aetherium.Items
 {
     public class ShieldingCore : ItemBase<ShieldingCore>
     {
-        public static bool UseNewIcons;
-        public static bool EnableParticleEffects;
-        public static float BaseShieldingCoreArmorGrant;
-        public static float AdditionalShieldingCoreArmorGrant;
-        public static float BaseGrantShieldMultiplier;
+        public static ConfigOption<bool> UseNewIcons;
+        public static ConfigOption<bool> EnableParticleEffects;
+        public static ConfigOption<float> BaseShieldingCoreArmorGrant;
+        public static ConfigOption<float> AdditionalShieldingCoreArmorGrant;
+        public static ConfigOption<float> BaseGrantShieldMultiplier;
 
         public override string ItemName => "Shielding Core";
 
@@ -56,8 +57,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCore.prefab";
-        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/ShieldingCoreIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/shieldingCoreIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("ShieldingCore.prefab");
+        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("ShieldingCoreIconAlt.png") : MainAssets.LoadAsset<Sprite>("ShieldingCoreIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -73,16 +74,16 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
-            EnableParticleEffects = config.Bind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?").Value;
-            BaseShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?").Value;
-            AdditionalShieldingCoreArmorGrant = config.Bind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?").Value;
-            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.08f, "How much should the starting shield be upon receiving the item?").Value;
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            EnableParticleEffects = config.ActiveBind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?");
+            BaseShieldingCoreArmorGrant = config.ActiveBind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?");
+            AdditionalShieldingCoreArmorGrant = config.ActiveBind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?");
+            BaseGrantShieldMultiplier = config.ActiveBind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.08f, "How much should the starting shield be upon receiving the item?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }

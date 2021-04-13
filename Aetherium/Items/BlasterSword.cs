@@ -1,6 +1,8 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using On.RoR2;
 using R2API;
 using RoR2;
 using RoR2.Projectile;
@@ -9,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
@@ -16,11 +20,11 @@ namespace Aetherium.Items
 {
     public class BlasterSword : ItemBase<BlasterSword>
     {
-        public static bool UseAlternateModel;
-        public static bool EnableParticleEffects;
-        public bool UseImpaleProjectile;
-        public float BaseSwordDamageMultiplier;
-        public float AdditionalSwordDamageMultiplier;
+        public static ConfigOption<bool> UseAlternateModel;
+        public static ConfigOption<bool> EnableParticleEffects;
+        public ConfigOption<bool> UseImpaleProjectile;
+        public ConfigOption<float> BaseSwordDamageMultiplier;
+        public ConfigOption<float> AdditionalSwordDamageMultiplier;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
@@ -39,8 +43,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Damage };
 
-        public override string ItemModelPath => UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab";
-        public override string ItemIconPath => UseAlternateModel ? "@Aetherium:Assets/Textures/Icons/Item/BlasterKatanaIcon.png" : "@Aetherium:Assets/Textures/Icons/Item/BlasterSwordIcon.png";
+        public override GameObject ItemModel => UseAlternateModel ? MainAssets.LoadAsset<GameObject>("PickupBlasterSwordAlt.prefab") : MainAssets.LoadAsset<GameObject>("PickupBlasterSword.prefab");
+        public override Sprite ItemIcon => UseAlternateModel ? MainAssets.LoadAsset<Sprite>("BlasterKatanaIcon.png") : MainAssets.LoadAsset<Sprite>("BlasterSwordIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject SwordProjectile;
@@ -54,7 +58,7 @@ namespace Aetherium.Items
             "FireworkProjectile"
         };
 
-        public static BuffIndex BlasterSwordActiveBuff;
+        public static RoR2.BuffDef BlasterSwordActiveBuff;
 
         public BlasterSword()
         {
@@ -73,11 +77,11 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseAlternateModel = config.Bind<bool>("Item: " + ItemName, "Use Alternate Blaster Sword Model", false, "Do you wish to start feeling motivated now?").Value;
-            EnableParticleEffects = config.Bind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?").Value;
-            UseImpaleProjectile = config.Bind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?").Value;
-            BaseSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)").Value;
-            AdditionalSwordDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)").Value;
+            UseAlternateModel = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternate Blaster Sword Model", false, "Do you wish to start feeling motivated now?");
+            EnableParticleEffects = config.ActiveBind<bool>("Item: " + ItemName, "Enable Particle Effects", true, "Should the particle effects for the models be enabled?");
+            UseImpaleProjectile = config.ActiveBind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?");
+            BaseSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
+            AdditionalSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
 
         }
 
@@ -92,23 +96,21 @@ namespace Aetherium.Items
 
         private void CreateBuff()
         {
-            var blasterSwordActiveBuff = new R2API.CustomBuff(
-            new RoR2.BuffDef
-            {
-                buffColor = Color.white,
-                canStack = false,
-                isDebuff = false,
-                name = "Aetherium: Blaster Sword Active",
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/BlasterSwordBuffIcon.png"
-            });
-            BlasterSwordActiveBuff = R2API.BuffAPI.Add(blasterSwordActiveBuff);
+            BlasterSwordActiveBuff = ScriptableObject.CreateInstance<RoR2.BuffDef>();
+            BlasterSwordActiveBuff.name = "Aetherium: Blaster Sword Active";
+            BlasterSwordActiveBuff.buffColor = Color.white;
+            BlasterSwordActiveBuff.canStack = false;
+            BlasterSwordActiveBuff.isDebuff = false;
+            BlasterSwordActiveBuff.iconSprite = MainAssets.LoadAsset<Sprite>("BlasterSwordBuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(BlasterSwordActiveBuff));
         }
 
         private void CreateProjectile()
         {
             SwordProjectile = UseImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
 
-            var model = UseAlternateModel ? Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab") : Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordProjectile.prefab");
+            var model = UseAlternateModel ? MainAssets.LoadAsset<GameObject>("BlasterSwordAltProjectile.prefab") : MainAssets.LoadAsset<GameObject>("BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
             model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
 
@@ -145,7 +147,7 @@ namespace Aetherium.Items
                 var overlapAttack = SwordProjectile.GetComponent<ProjectileOverlapAttack>();
                 overlapAttack.impactEffect = impactEffect;
 
-                var applyTorqueOnStart = SwordProjectile.AddComponent<ApplyTorqueOnStart>();
+                var applyTorqueOnStart = SwordProjectile.AddComponent<RoR2.ApplyTorqueOnStart>();
                 applyTorqueOnStart.localTorque = new Vector3(0, 1500, 0);
             }
 
@@ -153,15 +155,12 @@ namespace Aetherium.Items
             if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
 
             // add it to the projectile catalog or it won't work in multiplayer
-            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-            {
-                list.Add(SwordProjectile);
-            };
+            ProjectileAPI.Add(SwordProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(UseAlternateModel ? "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab" : "@Aetherium:Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab");
+            ItemBodyModelPrefab = ItemModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -372,7 +371,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.12f, 0.12f, 0.12f)
                 }
             });
-            rulesNormal.Add("mdlBrother", new ItemDisplayRule[]
+            rulesNormal.Add("mdlBrother", new RoR2.ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {
@@ -610,7 +609,7 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.12F, 0.0916F, 0.12F)
                 }
             });
-            rulesAlt.Add("mdlBrother", new ItemDisplayRule[]
+            rulesAlt.Add("mdlBrother", new RoR2.ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {
@@ -662,15 +661,15 @@ namespace Aetherium.Items
             var c = new ILCursor(il);
 
             int damageInfoIndex = 15;
-            c.GotoNext(x => x.MatchNewobj<DamageInfo>());
+            c.GotoNext(x => x.MatchNewobj<RoR2.DamageInfo>());
             c.GotoNext(x => x.MatchStloc(out damageInfoIndex));
-            c.GotoNext(MoveType.After, x => x.MatchLdfld<HurtBox>("hurtBoxGroup"));
+            c.GotoNext(MoveType.After, x => x.MatchLdfld<RoR2.HurtBox>("hurtBoxGroup"));
             c.Emit(OpCodes.Ldloc, damageInfoIndex);
-            c.EmitDelegate<Action<DamageInfo>>((damageInfo) =>
+            c.EmitDelegate<Action<RoR2.DamageInfo>>((damageInfo) =>
             {
                 if (damageInfo.attacker)
                 {
-                    var body = damageInfo.attacker.GetComponent<CharacterBody>();
+                    var body = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
                     if (body)
                     {
                         var InventoryCount = GetCount(body);
@@ -720,14 +719,14 @@ namespace Aetherium.Items
             var c = new ILCursor(il);
 
             int damageInfoIndex = 4;
-            c.GotoNext(x => x.MatchNewobj<DamageInfo>(), x => x.MatchStloc(out damageInfoIndex));
-            c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<GlobalEventManager>("OnHitAll"));
+            c.GotoNext(x => x.MatchNewobj<RoR2.DamageInfo>(), x => x.MatchStloc(out damageInfoIndex));
+            c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<RoR2.GlobalEventManager>("OnHitAll"));
             c.Emit(OpCodes.Ldloc, damageInfoIndex);
-            c.EmitDelegate<Action<DamageInfo>>((damageInfo) =>
+            c.EmitDelegate<Action<RoR2.DamageInfo>>((damageInfo) =>
             {
                 if (damageInfo.attacker)
                 {
-                    var body = damageInfo.attacker.GetComponent<CharacterBody>();
+                    var body = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
                     if (body)
                     {
                         var InventoryCount = GetCount(body);
@@ -745,7 +744,7 @@ namespace Aetherium.Items
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default
                                 };
-                                var positionChosen = damageInfo.position + new Vector3(Run.instance.stageRng.RangeFloat(-10, 10), Run.instance.stageRng.RangeFloat(0, 10), Run.instance.stageRng.RangeFloat(-10, 10)).normalized * 4;
+                                var positionChosen = damageInfo.position + new Vector3(RoR2.Run.instance.stageRng.RangeFloat(-10, 10), RoR2.Run.instance.stageRng.RangeFloat(0, 10), RoR2.Run.instance.stageRng.RangeFloat(-10, 10)).normalized * 4;
                                 newProjectileInfo.position = positionChosen;
                                 newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
 
@@ -831,7 +830,73 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        private bool FireSwordOnMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HealthComponent> hitResults)
+        /*private bool FireSwordOnMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HealthComponent> hitResults)
+        {
+            var owner = self.inflictor;
+            if (owner)
+            {
+                var body = owner.GetComponent<RoR2.CharacterBody>();
+                if (body)
+                {
+                    var InventoryCount = GetCount(body);
+                    if (InventoryCount > 0)
+                    {
+                        if (body.HasBuff(BlasterSwordActiveBuff))
+                        {
+                            Vector3 HitPositionSums = Vector3.zero;
+                            if (self.overlapList.Count > 0)
+                            {
+                                for (int i = 0; i < self.overlapList.Count; i++)
+                                {
+                                    HitPositionSums += self.overlapList[i].hitPosition;
+                                }
+
+                                HitPositionSums /= self.overlapList.Count;
+                            }
+                            else
+                            {
+                                HitPositionSums += body.corePosition;
+                            }
+                            var inputBank = body.inputBank;
+
+                            var cooldownHandler = owner.GetComponent<SwordCooldownHandlerIDunno>();
+                            if (!cooldownHandler) { cooldownHandler = owner.AddComponent<SwordCooldownHandlerIDunno>(); }
+
+                            if (!cooldownHandler.MeleeTracker.ContainsKey(self))
+                            {
+                                cooldownHandler.MeleeTracker.Add(self, 0);
+                                var newProjectileInfo = new FireProjectileInfo
+                                {
+                                    owner = self.inflictor,
+                                    projectilePrefab = SwordProjectile,
+                                    speedOverride = 100.0f,
+                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                    damageTypeOverride = null,
+                                    damageColorIndex = DamageColorIndex.Default,
+                                    procChainMask = default,
+                                    position = HitPositionSums,
+                                    rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward)
+                                };
+
+                                try
+                                {
+                                    RecursionPrevention = true;
+                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                                }
+                                finally
+                                {
+                                    RecursionPrevention = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return orig(self, hitResults);
+        }
+        */
+
+        private bool FireSwordOnMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HurtBox> hitResults)
         {
             var owner = self.inflictor;
             if (owner)
@@ -901,7 +966,7 @@ namespace Aetherium.Items
             var projectileOwner = self.owner;
             if (projectileOwner)
             {
-                var projectileBody = projectileOwner.GetComponent<CharacterBody>();
+                var projectileBody = projectileOwner.GetComponent<RoR2.CharacterBody>();
                 if (projectileBody)
                 {
                     var InventoryCount = GetCount(projectileBody);
@@ -924,7 +989,7 @@ namespace Aetherium.Items
                             var weapon = self.weapon;
                             if (weapon)
                             {
-                                var weaponModelLocator = weapon.GetComponent<ModelLocator>();
+                                var weaponModelLocator = weapon.GetComponent<RoR2.ModelLocator>();
                                 if (weaponModelLocator && weaponModelLocator.transform)
                                 {
                                     ChildLocator childLocator = weaponModelLocator.modelTransform.GetComponent<ChildLocator>();
@@ -1022,21 +1087,21 @@ namespace Aetherium.Items
 
         public class SwordGlowHandler : MonoBehaviour
         {
-            public ItemDisplay ItemDisplay;
+            public RoR2.ItemDisplay ItemDisplay;
             public ParticleSystem ParticleSystem;
-            public CharacterMaster OwnerMaster;
-            public CharacterBody OwnerBody;
+            public RoR2.CharacterMaster OwnerMaster;
+            public RoR2.CharacterBody OwnerBody;
             public void FixedUpdate()
             {
 
                 if (!OwnerMaster || !ItemDisplay || !ParticleSystem)
                 {
-                    ItemDisplay = this.GetComponentInParent<ItemDisplay>();
+                    ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
                     if (ItemDisplay)
                     {
                         ParticleSystem = ItemDisplay.GetComponent<ParticleSystem>();
                         //Debug.Log("Found ItemDisplay: " + itemDisplay);
-                        var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
+                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
                         if (characterModel)
                         {

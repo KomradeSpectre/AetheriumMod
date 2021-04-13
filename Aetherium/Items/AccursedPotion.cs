@@ -1,10 +1,12 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
@@ -13,13 +15,12 @@ namespace Aetherium.Items
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
         //Config
-
-        public float BaseSipCooldownDuration;
-        public float AdditionalStackSipCooldownReductionPercentage;
-        public float BaseRadiusGranted;
-        public float AdditionalRadiusGranted;
-        public float MaxEffectsAccrued;
-        public string BlacklistedBuffsAndDebuffsString;
+        public ConfigOption<float> BaseSipCooldownDuration;
+        public ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
+        public ConfigOption<float> BaseRadiusGranted;
+        public ConfigOption<float> AdditionalRadiusGranted;
+        public ConfigOption<int> MaxEffectsAccrued;
+        public ConfigOption<string> BlacklistedBuffsAndDebuffsString;
 
         //Lang
 
@@ -58,16 +59,16 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/AccursedPotion/AccursedPotion.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/AccursedPotionIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("AccursedPotion.prefab");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("AccursedPotionIcon.png");
 
-        //public override bool CanRemove => false;
-
-        public static BuffIndex AccursedPotionSipCooldownDebuff;
+        public static BuffDef AccursedPotionSipCooldownDebuff;
 
         public static GameObject ItemBodyModelPrefab;
 
-        public List<BuffIndex> BlacklistedBuffsAndDebuffs = new List<BuffIndex>();
+        public List<BuffDef> BlacklistedBuffsAndDebuffs = new List<BuffDef>();
+
+
 
         public AccursedPotion()
         {
@@ -84,42 +85,32 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseSipCooldownDuration = config.Bind<float>("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))").Value;
-            AdditionalStackSipCooldownReductionPercentage = config.Bind<float>("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))").Value;
-            BaseRadiusGranted = config.Bind<float>("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)").Value;
-            AdditionalRadiusGranted = config.Bind<float>("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)").Value;
-            MaxEffectsAccrued = config.Bind<int>("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)").Value;
-            BlacklistedBuffsAndDebuffsString = config.Bind<string>("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?").Value;
+            BaseSipCooldownDuration = config.ActiveBind("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
+            AdditionalStackSipCooldownReductionPercentage = config.ActiveBind("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
+            BaseRadiusGranted = config.ActiveBind("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
+            AdditionalRadiusGranted = config.ActiveBind("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
+            MaxEffectsAccrued = config.ActiveBind("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
+            BlacklistedBuffsAndDebuffsString = config.ActiveBind("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?");
 
-            var testStringArray = BlacklistedBuffsAndDebuffsString.Split(',');
-            if(testStringArray.Length > 0)
-            {
-                foreach(string stringToTest in testStringArray)
-                {
-                    if (BuffCatalog.FindBuffIndex(stringToTest) == BuffIndex.None){ continue; }
 
-                    BlacklistedBuffsAndDebuffs.Add(BuffCatalog.FindBuffIndex(stringToTest));
-                }
-            }
         }
+
 
         private void CreateBuff()
         {
-            var sipCooldownDebuff = new R2API.CustomBuff(
-            new RoR2.BuffDef
-            {
-                buffColor = new Color(50, 0, 50),
-                canStack = false,
-                isDebuff = false,
-                name = "Aetherium: Accursed Potion Sip Cooldown",
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png"
-            });
-            AccursedPotionSipCooldownDebuff = R2API.BuffAPI.Add(sipCooldownDebuff);
+            AccursedPotionSipCooldownDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            AccursedPotionSipCooldownDebuff.name = "Aetherium: Accursed Potion Sip Cooldown";
+            AccursedPotionSipCooldownDebuff.buffColor = new Color(50, 0, 50);
+            AccursedPotionSipCooldownDebuff.canStack = false;
+            AccursedPotionSipCooldownDebuff.isDebuff = false;
+            AccursedPotionSipCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(AccursedPotionSipCooldownDebuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -248,7 +239,26 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
+        }
+
+        private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)
+        {
+            string testString = BlacklistedBuffsAndDebuffsString;
+            var testStringArray = testString.Split(',');
+            if (testStringArray.Length > 0)
+            {
+                foreach (string stringToTest in testStringArray)
+                {
+                    var buff = Array.Find<BuffDef>(RoR2.BuffCatalog.buffDefs, buffDef => buffDef.name == stringToTest);
+                    if (!buff) { continue; }
+
+                    BlacklistedBuffsAndDebuffs.Add(buff);
+                }
+            }
+
+            orig(self);
         }
 
         private void ForceFeedPotion(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -260,18 +270,18 @@ namespace Aetherium.Items
                 {
                     if (!self.HasBuff(AccursedPotionSipCooldownDebuff) && self.activeBuffsListCount <= MaxEffectsAccrued)
                     {
-                        BuffIndex ChosenBuff = RoR2.BuffCatalog.buffDefs[Run.instance.stageRng.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)].buffIndex;
+                        BuffDef ChosenBuff = BuffCatalog.buffDefs[RoR2.Run.instance.stageRng.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)];
 
                         if (BlacklistedBuffsAndDebuffs.Contains(ChosenBuff))
                         {
-                            ChosenBuff = BuffIndex.None;
+                            ChosenBuff = null;
                         }
 
-                        if (RoR2.BuffCatalog.GetBuffDef(ChosenBuff).iconPath != null && ChosenBuff != BuffIndex.Immune && ChosenBuff != BuffIndex.HiddenInvincibility)
+                        if (ChosenBuff.iconSprite != null && ChosenBuff != RoR2Content.Buffs.Immune && ChosenBuff != RoR2Content.Buffs.HiddenInvincibility)
                         {
-                            var BuffCount = RoR2.BuffCatalog.GetBuffDef(ChosenBuff).canStack ? InventoryCount : 1;
+                            var BuffCount = ChosenBuff.canStack ? InventoryCount : 1;
 
-                            var randomEffectDuration = Run.instance.stageRng.RangeFloat(10, 20);
+                            var randomEffectDuration = RoR2.Run.instance.stageRng.RangeFloat(10, 20);
                             RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(self.teamComponent.teamIndex);
                             RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
                             {
@@ -297,18 +307,18 @@ namespace Aetherium.Items
             orig(self);
         }
 
-        public void AddBuffAndDot(BuffIndex buff, float duration, int stackCount, RoR2.CharacterBody body)
+        public void AddBuffAndDot(BuffDef buff, float duration, int stackCount, RoR2.CharacterBody body)
         {
-            DotController.DotIndex index = (DotController.DotIndex)Array.FindIndex(DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
+            RoR2.DotController.DotIndex index = (RoR2.DotController.DotIndex)Array.FindIndex(RoR2.DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
             for (int y = 0; y < stackCount; y++)
             {
-                if (index != DotController.DotIndex.None)
+                if (index != RoR2.DotController.DotIndex.None)
                 {
-                    DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f);
+                    RoR2.DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f);
                 }
                 else
                 {
-                    body.AddTimedBuffAuthority(buff, duration);
+                    body.AddTimedBuffAuthority(buff.buffIndex, duration);
                 }
             }
         }

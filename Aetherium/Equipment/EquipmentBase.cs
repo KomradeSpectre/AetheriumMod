@@ -2,6 +2,7 @@
 using R2API;
 using RoR2;
 using System;
+using UnityEngine;
 
 namespace Aetherium.Equipment
 {
@@ -24,8 +25,8 @@ namespace Aetherium.Equipment
         public abstract string EquipmentFullDescription { get; }
         public abstract string EquipmentLore { get; }
 
-        public abstract string EquipmentModelPath { get; }
-        public abstract string EquipmentIconPath { get; }
+        public abstract GameObject EquipmentModel { get; }
+        public abstract Sprite EquipmentIcon { get; }
 
         public virtual bool AppearsInSinglePlayer { get; } = true;
 
@@ -41,7 +42,7 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
-        public EquipmentIndex Index;
+        public EquipmentDef EquipmentDef;
 
         public abstract void Init(ConfigFile config);
 
@@ -57,37 +58,35 @@ namespace Aetherium.Equipment
 
         protected void CreateEquipment()
         {
-            EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-            {
-                name = "EQUIPMENT_" + EquipmentLangTokenName,
-                nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-                pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-                descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-                loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-                pickupModelPath = EquipmentModelPath,
-                pickupIconPath = EquipmentIconPath,
-                appearsInSinglePlayer = AppearsInSinglePlayer,
-                appearsInMultiPlayer = AppearsInMultiPlayer,
-                canDrop = CanDrop,
-                cooldown = Cooldown,
-                enigmaCompatible = EnigmaCompatible,
-                isBoss = IsBoss,
-                isLunar = IsLunar
-            };
-            var itemDisplayRules = CreateItemDisplayRules();
-            Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+            EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+            EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+            EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+            EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+            EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+            EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+            EquipmentDef.pickupModelPrefab = EquipmentModel;
+            EquipmentDef.pickupIconSprite = EquipmentIcon;
+            EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+            EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+            EquipmentDef.canDrop = CanDrop;
+            EquipmentDef.cooldown = Cooldown;
+            EquipmentDef.enigmaCompatible = EnigmaCompatible;
+            EquipmentDef.isBoss = IsBoss;
+            EquipmentDef.isLunar = IsLunar;
+
+            ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules()));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
         }
 
-        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
+        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
         {
-            if (equipmentIndex == Index)
+            if (equipmentDef == EquipmentDef)
             {
                 return ActivateEquipment(self);
             }
             else
             {
-                return orig(self, equipmentIndex);
+                return orig(self, equipmentDef);
             }
         }
 

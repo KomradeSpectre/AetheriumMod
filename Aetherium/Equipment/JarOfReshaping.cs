@@ -12,15 +12,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Equipment
 {
     public class JarOfReshaping : EquipmentBase<JarOfReshaping>
     {
-        public static float BaseRadiusGranted;
-        public static float ProjectileAbsorptionTime;
-        public static float JarCooldown;
-        public static bool IWantToLoseFriendsInChaosMode;
+        public static ConfigOption<float> BaseRadiusGranted;
+        public static ConfigOption<float> ProjectileAbsorptionTime;
+        public static ConfigOption<float> JarCooldown;
+        public static ConfigOption<bool> IWantToLoseFriendsInChaosMode;
 
         public override string EquipmentName => "Jar Of Reshaping";
 
@@ -51,9 +52,9 @@ namespace Aetherium.Equipment
             $"[The jar activates, shooting its contents around the room. One of the projectiles hits the hull and explodes, ripping a hole through it moments before the feed is lost.]\n" +
             $"\n[END OF FILE] ";
 
-        public override string EquipmentModelPath => "@Aetherium:Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshaping.prefab";
+        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("JarOfReshaping.prefab");
 
-        public override string EquipmentIconPath => "@Aetherium:Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png";
+        public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("JarOfReshapingIcon.png");
 
         public override float Cooldown => JarCooldown;
 
@@ -78,10 +79,10 @@ namespace Aetherium.Equipment
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseRadiusGranted = config.Bind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)").Value;
-            ProjectileAbsorptionTime = config.Bind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)").Value;
-            JarCooldown = config.Bind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)").Value;
-            IWantToLoseFriendsInChaosMode = config.Bind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?").Value;
+            BaseRadiusGranted = config.ActiveBind<float>("Equipment: " + EquipmentName, "Base Projectile Absorption Radius", 20f, "What radius should the jar devour bullets? (in meters)");
+            ProjectileAbsorptionTime = config.ActiveBind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
+            JarCooldown = config.ActiveBind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
+            IWantToLoseFriendsInChaosMode = config.ActiveBind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
         }
 
         private void CreateNetworking()
@@ -93,7 +94,7 @@ namespace Aetherium.Equipment
 
         private void CreateEffect()
         {
-            JarChargeSphere = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingAbsorbEffect.prefab");
+            JarChargeSphere = MainAssets.LoadAsset<GameObject>("JarOfReshapingAbsorbEffect.prefab");
 
             var chargeSphereEffectComponent = JarChargeSphere.AddComponent<RoR2.EffectComponent>();
             chargeSphereEffectComponent.parentToReferencedTransform = true;
@@ -111,7 +112,7 @@ namespace Aetherium.Equipment
             EffectAPI.AddEffect(JarChargeSphere);
             //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
 
-            JarOrb = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab");
+            JarOrb = MainAssets.LoadAsset<GameObject>("JarOfReshapingOrb.prefab");
 
             JarOrb.AddComponent<RoR2.EffectComponent>();
 
@@ -141,7 +142,7 @@ namespace Aetherium.Equipment
         {
             JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
 
-            var model = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingProjectile.prefab");
+            var model = MainAssets.LoadAsset<GameObject>("JarOfReshapingProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
             model.AddComponent<ProjectileGhostController>();
 
@@ -166,15 +167,12 @@ namespace Aetherium.Equipment
             if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
 
             // add it to the projectile catalog or it won't work in multiplayer
-            RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-            {
-                list.Add(JarProjectile);
-            };
+            ProjectileAPI.Add(JarProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(EquipmentModelPath);
+            ItemBodyModelPrefab = EquipmentModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -312,7 +310,7 @@ namespace Aetherium.Equipment
             var slot = self.equipmentSlot;
             if (slot)
             {
-                if (slot.equipmentIndex == Index)
+                if (slot.equipmentIndex == EquipmentDef.equipmentIndex)
                 {
                     var bulletTracker = self.GetComponent<JarBulletTracker>();
                     if (!bulletTracker)
@@ -327,7 +325,7 @@ namespace Aetherium.Equipment
 
         private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_Update orig, RoR2.EquipmentSlot self)
         {
-            if (self.equipmentIndex == Index)
+            if (self.equipmentIndex == EquipmentDef.equipmentIndex)
             {
                 var selfDisplay = self.FindActiveEquipmentDisplay();
                 var body = self.characterBody;
@@ -481,7 +479,7 @@ namespace Aetherium.Equipment
                                         {
                                             new SyncJarOrb(SyncJarOrb.MessageType.Fired, bodyIdentity.netId, controller.transform.position).Send(NetworkDestination.Clients);
                                         }
-                                        RoR2.Util.PlayScaledSound(EntityStates.Engi.EngiWeapon.ChargeGrenades.chargeStockSoundString, body.gameObject, jarBullets.Count);
+                                        RoR2.Util.PlayAttackSpeedSound(EntityStates.Engi.EngiWeapon.ChargeGrenades.chargeStockSoundString, body.gameObject, jarBullets.Count);
                                         EntityState.Destroy(controller.gameObject);
                                     }
                                 }

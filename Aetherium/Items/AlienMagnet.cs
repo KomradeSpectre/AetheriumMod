@@ -1,25 +1,23 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
-using KinematicCharacterController;
 using R2API;
 using RoR2;
-using System;
-using System.Net.Http.Headers;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 
 namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
-        public float TimeToDecayLiftStacks;
-        public float BaseDurationOfLevitationDebuff;
-        public float AdditionalDurationOfLevitationDebuff;
-        public bool UseOldAlienMagnet;
-        public float StartingForceMultiplier;
-        public float AdditionalForceMultiplier;
-        public float MinimumForceMultiplier;
-        public float MaximumForceMultiplier;
+        public ConfigOption<float> TimeToDecayLiftStacks;
+        public ConfigOption<float> BaseDurationOfLevitationDebuff;
+        public ConfigOption<float> AdditionalDurationOfLevitationDebuff;
+        public ConfigOption<bool> UseOldAlienMagnet;
+        public ConfigOption<float> StartingForceMultiplier;
+        public ConfigOption<float> AdditionalForceMultiplier;
+        public ConfigOption<float> MinimumForceMultiplier;
+        public ConfigOption<float> MaximumForceMultiplier;
 
         public override string ItemName => "Alien Magnet";
         public override string ItemLangTokenName => "ALIEN_MAGNET";
@@ -30,12 +28,13 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/AlienMagnetIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("AlienMagnet.prefab");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("AlienMagnetIcon.png");
 
         public override bool CanRemove => false;
 
         public static BuffIndex LiftStackDebuff;
+        public static Sprite LiftStackDebuffIcon;
         public static BuffIndex LevitationDebuff;
 
         public static GameObject ItemBodyModelPrefab;
@@ -49,6 +48,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateAdditionalAssets();
             CreateBuff();
             CreateItem();
             Hooks();
@@ -56,14 +56,19 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            TimeToDecayLiftStacks = config.Bind<float>("Item: " + ItemName, "Time Until Lift Stack Debuff Decays", 4, "Time until a Lift stack removes itself from the victim.").Value;
-            BaseDurationOfLevitationDebuff = config.Bind<float>("Item: " + ItemName, "Base Duration of Levitation Debuff", 15, "How long should the duration of the Levitation debuff be?").Value;
-            AdditionalDurationOfLevitationDebuff = config.Bind<float>("Item: " + ItemName, "Additional Duration of Levitation Debuff per Alien Magnet Stack", 5, "How long should each additional Alien Magnet grant the levitation debuff duration?").Value;
-            UseOldAlienMagnet = config.Bind<bool>("Item: " + ItemName, "Use Old Alien Magnet Functionality", false, "Should we use the old functionality of wonky pulling?").Value;
-            StartingForceMultiplier = config.Bind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?").Value;
-            AdditionalForceMultiplier = config.Bind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?").Value;
-            MinimumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?").Value;
-            MaximumForceMultiplier = config.Bind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?").Value;
+            TimeToDecayLiftStacks = config.ActiveBind<float>("Item: " + ItemName, "Time Until Lift Stack Debuff Decays", 4f, "Time until a Lift stack removes itself from the victim.");
+            BaseDurationOfLevitationDebuff = config.ActiveBind<float>("Item: " + ItemName, "Base Duration of Levitation Debuff", 15f, "How long should the duration of the Levitation debuff be?");
+            AdditionalDurationOfLevitationDebuff = config.ActiveBind<float>("Item: " + ItemName, "Additional Duration of Levitation Debuff per Alien Magnet Stack", 5f, "How long should each additional Alien Magnet grant the levitation debuff duration?");
+            UseOldAlienMagnet = config.ActiveBind<bool>("Item: " + ItemName, "Use Old Alien Magnet Functionality", false, "Should we use the old functionality of wonky pulling?");
+            StartingForceMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Starting Pull Force Multiplier", 3f, "What should the starting pull force multiplier of the Alien Magnet's pull be?");
+            AdditionalForceMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Additional Pull Force Multiplier per Stack", 2f, "How much additional force multiplier should be granted per Alien Magnet stack?");
+            MinimumForceMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Minimum Pull Force Multiplier", 3f, "What should the minimum force multiplier be for the Alien Magnet?");
+            MaximumForceMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Maximum Pull Force Multiplier", 10f, "What should the maximum force multiplier be for the Alien Magnet?");
+        }
+
+        private void CreateAdditionalAssets()
+        {
+
         }
 
         private void CreateBuff()

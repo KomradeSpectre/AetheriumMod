@@ -3,20 +3,21 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
 {
     public class Voidheart : ItemBase<Voidheart>
     {
-        public static float VoidImplosionCameraSpinSpeed;
-        public static float VoidImplosionDamageMultiplier;
-        public static float VoidImplosionBaseRadius;
-        public static float VoidImplosionAdditionalRadius;
-        public static float VoidHeartBaseTickingTimeBombHealthThreshold;
-        public static float VoidHeartAdditionalTickingTimeBombHealthThreshold;
-        public static float VoidHeartMaxTickingTimeBombHealthThreshold;
-        public static float VoidHeartCooldownDebuffDuration;
+        public static ConfigOption<float> VoidImplosionCameraSpinSpeed;
+        public static ConfigOption<float> VoidImplosionDamageMultiplier;
+        public static ConfigOption<float> VoidImplosionBaseRadius;
+        public static ConfigOption<float> VoidImplosionAdditionalRadius;
+        public static ConfigOption<float> VoidHeartBaseTickingTimeBombHealthThreshold;
+        public static ConfigOption<float> VoidHeartAdditionalTickingTimeBombHealthThreshold;
+        public static ConfigOption<float> VoidHeartMaxTickingTimeBombHealthThreshold;
+        public static ConfigOption<float> VoidHeartCooldownDebuffDuration;
 
         public override string ItemName => "Heart of the Void";
 
@@ -47,12 +48,12 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/Voidheart/Voidheart.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/VoidheartIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("Voidheart.prefab");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("VoidheartIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
-        public static BuffIndex VoidInstabilityDebuff { get; private set; }
+        public static BuffDef VoidInstabilityDebuff { get; private set; }
 
         public override void Init(ConfigFile config)
         {
@@ -65,33 +66,31 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            VoidImplosionCameraSpinSpeed = config.Bind<float>("Item: " + ItemName, "Void Implosion Camera Spin Speed", 0.0125f, "How fast should the camera spin around the circle? (0.0125 = PI * 0.0125 or 1 half circle * 0.0125 per tick)").Value;
-            VoidImplosionDamageMultiplier = config.Bind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))").Value;
-            VoidImplosionBaseRadius = config.Bind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))").Value;
-            VoidImplosionAdditionalRadius = config.Bind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))").Value;
-            VoidHeartBaseTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))").Value;
-            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))").Value;
-            VoidHeartMaxTickingTimeBombHealthThreshold = config.Bind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))").Value;
-            VoidHeartCooldownDebuffDuration = config.Bind<float>("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))").Value;
+            VoidImplosionCameraSpinSpeed = config.ActiveBind<float>("Item: " + ItemName, "Void Implosion Camera Spin Speed", 0.0125f, "How fast should the camera spin around the circle? (0.0125 = PI * 0.0125 or 1 half circle * 0.0125 per tick)");
+            VoidImplosionDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Void Implosion Damage Multiplier", 120f, "How high should the damage multiplier be for the void implosion? (120 for example, is currentDamage * 120))");
+            VoidImplosionBaseRadius = config.ActiveBind<float>("Item: " + ItemName, "Base Radius of Void Implosion", 15f, "What should the first Heart of the Void pickup's void implosion radius be? (Default: 15 (That is to say, 15m))");
+            VoidImplosionAdditionalRadius = config.ActiveBind<float>("Item: " + ItemName, "Additional Implosion Radius per Additional Heart of the Void", 7.5f, "What should additional Heart of the Void pickups increase the radius of the void implosion by? (Default: 7.5 (That is to say, 7.5m))");
+            VoidHeartBaseTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Ticking Time Bomb Threshold", 0.3f, "What percentage of health should the first Heart of the Void pickup have the ticking time bomb activation be? (Default: 0.3 (30%))");
+            VoidHeartAdditionalTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
+            VoidHeartMaxTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
+            VoidHeartCooldownDebuffDuration = config.ActiveBind("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
         }
 
         private void CreateBuff()
         {
-            var voidInstability = new R2API.CustomBuff(
-            new RoR2.BuffDef
-            {
-                buffColor = Color.magenta,
-                canStack = false,
-                isDebuff = true,
-                name = "Aetherium: Void Instability Debuff",
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png"
-            });
-            VoidInstabilityDebuff = R2API.BuffAPI.Add(voidInstability);
+            VoidInstabilityDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            VoidInstabilityDebuff.name = "Aetherium: Void Instability Debuff";
+            VoidInstabilityDebuff.buffColor = Color.magenta;
+            VoidInstabilityDebuff.canStack = false;
+            VoidInstabilityDebuff.isDebuff = true;
+            VoidInstabilityDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("VoidInstabilityDebuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(VoidInstabilityDebuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -338,7 +337,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //Unga bunga, voidheart not like deployables. POP!
-                    self.inventory.RemoveItem(Index, InventoryCount);
+                    self.inventory.RemoveItem(ItemDef, InventoryCount);
                 }
             }
         }

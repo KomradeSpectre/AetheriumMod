@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -15,20 +16,20 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : ItemBase<InspiringDrone>
     {
-        public static bool IsGreenRarity;
-        public static bool SetAllStatValuesAtOnce;
-        public static float AllStatValueGrantedPercentage;
-        public static float DamageGrantedPercentage;
-        public static float AttackSpeedGrantedPercentage;
-        public static float CritChanceGrantedPercentage;
-        public static float HealthGrantedPercentage;
-        public static float RegenGrantedPercentage;
-        public static float ArmorGrantedPercentage;
-        public static float MovementSpeedGrantedPercentage;
-        public static float TurretTeleportationCooldownDuration;
-        public static float DroneTeleportationCooldownDuration;
-        public static float TurretTeleportationDistanceAroundOwner;
-        public static float DroneTeleportationDistanceAroundOwner;
+        public static ConfigOption<bool> IsGreenRarity;
+        public static ConfigOption<bool> SetAllStatValuesAtOnce;
+        public static ConfigOption<float> AllStatValueGrantedPercentage;
+        public static ConfigOption<float> DamageGrantedPercentage;
+        public static ConfigOption<float> AttackSpeedGrantedPercentage;
+        public static ConfigOption<float> CritChanceGrantedPercentage;
+        public static ConfigOption<float> HealthGrantedPercentage;
+        public static ConfigOption<float> RegenGrantedPercentage;
+        public static ConfigOption<float> ArmorGrantedPercentage;
+        public static ConfigOption<float> MovementSpeedGrantedPercentage;
+        public static ConfigOption<float> TurretTeleportationCooldownDuration;
+        public static ConfigOption<float> DroneTeleportationCooldownDuration;
+        public static ConfigOption<float> TurretTeleportationDistanceAroundOwner;
+        public static ConfigOption<float> DroneTeleportationDistanceAroundOwner;
 
         public override string ItemName => "Inspiring Drone";
 
@@ -74,9 +75,9 @@ namespace Aetherium.Items
         public override ItemTier Tier => IsGreenRarity ? ItemTier.Tier2 : ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.AIBlacklist, ItemTag.Utility };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/InspiringDrone/InspiringDrone.prefab";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("InspiringDrone.prefab");
 
-        public override string ItemIconPath => IsGreenRarity ? "@Aetherium:Assets/Textures/Icons/Item/InspiringDroneIconTier2.png" : "@Aetherium:Assets/Textures/Icons/Item/InspiringDroneIconTier3.png";
+        public override Sprite ItemIcon => IsGreenRarity ? MainAssets.LoadAsset<Sprite>("InspiringDroneIconTier2.png") : MainAssets.LoadAsset<Sprite>("InspiringDroneIconTier3.png");
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
@@ -109,20 +110,20 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            IsGreenRarity = config.Bind<bool>("Item: " + ItemName, "Should the Inspiring Drone be Green Rarity instead of Red Rarity?", false, "Should the Inspiring Drone show up in the Tier2 (Green Rarity) item pool instead of the Tier3 (Red Rarity) item pool?").Value;
-            SetAllStatValuesAtOnce = config.Bind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.").Value;
-            AllStatValueGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%").Value;
-            DamageGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            AttackSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            CritChanceGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            HealthGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            RegenGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            ArmorGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            MovementSpeedGrantedPercentage = config.Bind<float>("Item: " + ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?").Value;
-            TurretTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)").Value;
-            DroneTeleportationCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)").Value;
-            TurretTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)").Value;
-            DroneTeleportationDistanceAroundOwner = config.Bind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)").Value;
+            IsGreenRarity = config.ActiveBind<bool>("Item: " + ItemName, "Should the Inspiring Drone be Green Rarity instead of Red Rarity?", false, "Should the Inspiring Drone show up in the Tier2 (Green Rarity) item pool instead of the Tier3 (Red Rarity) item pool?");
+            SetAllStatValuesAtOnce = config.ActiveBind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.");
+            AllStatValueGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%");
+            DamageGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Stat Gain (Individual)", 0.5f, "What percentage of the damage stat from the drone's owner do we transfer over to the drones per stack?");
+            AttackSpeedGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Attack Speed Stat Gain (Individual)", 0.5f, "What percentage of the attack speed stat from the drone's owner do we transfer over to the drones per stack?");
+            CritChanceGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Critical Chance Stat Gain (Individual)", 0.5f, "What percentage of the critical chance stat from the drone's owner do we transfer over to the drones per stack?");
+            HealthGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Health Stat Gain (Individual)", 0.5f, "What percentage of the health stat from the drone's owner do we transfer over to the drones per stack?");
+            RegenGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Regeneration Stat Gain (Individual)", 0.5f, "What percentage of the regeneration stat from the drone's owner do we transfer over to the drones per stack?");
+            ArmorGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Armor Stat Gain (Individual)", 0.5f, "What percentage of the armor stat from the drone's owner do we transfer over to the drones per stack?");
+            MovementSpeedGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Movement Speed Stat Gain (Individual)", 0.5f, "What percentage of the movement speed stat from the drone's owner do we transfer over to the drones per stack?");
+            TurretTeleportationCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Turret Teleportation Cooldown", 40f, "How many seconds till we teleport turrets (tracked individually) close to their owner? (in seconds)");
+            DroneTeleportationCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Drone Teleportation Cooldown", 30f, "How many seconds till we teleport drone (tracked individually) close to their owner? (in seconds)");
+            TurretTeleportationDistanceAroundOwner = config.ActiveBind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Turrets", 20f, "How far out should we place turrets from the owner when teleporting them? (in meters)");
+            DroneTeleportationDistanceAroundOwner = config.ActiveBind<float>("Item: " + ItemName, "Distance Away from Owner to Teleport Drone", 30f, "How far out should we place drone from the owner when teleporting them? (in meters)");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -132,8 +133,8 @@ namespace Aetherium.Items
             //The ItemFollower component I reference here is a slightly modified version of the base one.
             //Since the base one has no virtuals on their methods, couldn't override it.
 
-            ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab");
-            ItemFollowerPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("InspiringDroneTracker.prefab");
+            ItemFollowerPrefab = ItemModel;
             var ItemFollower = ItemBodyModelPrefab.AddComponent<ItemFollowerSmooth>();
             ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
             ItemFollower.itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
@@ -315,7 +316,7 @@ namespace Aetherium.Items
                 if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //YEAH, YEAH, TAKE THAT YOU DANG DEPLOYABLES. NO CUTE DRONE FOR YOU!
-                    self.inventory.RemoveItem(Index, inventoryCount);
+                    self.inventory.RemoveItem(ItemDef, inventoryCount);
                 }
             }
         }

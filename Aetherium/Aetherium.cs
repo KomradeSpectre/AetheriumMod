@@ -5,26 +5,26 @@ using Aetherium.Equipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
 using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
+using InLobbyConfig.Fields;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TMPro;
 using UnityEngine;
 
 namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
+    [BepInDependency("com.KingEnderBrine.InLobbyConfig", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
@@ -48,6 +48,9 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
+        //Mod compat
+        public static bool IsLobbyConfigEnabled = false;
+
         private void Awake()
         {
 #if DEBUG
@@ -57,11 +60,10 @@ namespace Aetherium
 
             ModLogger = this.Logger;
 
+
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
-                var provider = new AssetBundleResourcesProvider($"@{ModName}", MainAssets);
-                ResourcesAPI.AddProvider(provider);
             }
 
             //Material shader autoconversion
@@ -128,6 +130,7 @@ namespace Aetherium
                 }
             }
 
+
             //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
 
@@ -165,7 +168,6 @@ namespace Aetherium
             ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
             ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
-
 
         }
 

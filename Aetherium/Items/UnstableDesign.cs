@@ -10,21 +10,22 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
 {
     public class UnstableDesign : ItemBase<UnstableDesign>
     {
-        public static float LunarChimeraResummonCooldownDuration;
-        public static float LunarChimeraRetargetingCooldown;
-        public static float LunarChimeraMinimumSpawnDistanceFromUser;
-        public static float LunarChimeraMaximumSpawnDistanceFromUser;
-        public static int LunarChimeraBaseDamageBoost;
-        public static int LunarChimeraAdditionalDamageBoost;
-        public static int LunarChimeraBaseHPBoost;
-        public static int LunarChimeraBaseAttackSpeedBoost;
-        public static int LunarChimeraBaseMovementSpeedBoost;
+        public static ConfigOption<float> LunarChimeraResummonCooldownDuration;
+        public static ConfigOption<float> LunarChimeraRetargetingCooldown;
+        public static ConfigOption<float> LunarChimeraMinimumSpawnDistanceFromUser;
+        public static ConfigOption<float> LunarChimeraMaximumSpawnDistanceFromUser;
+        public static ConfigOption<int> LunarChimeraBaseDamageBoost;
+        public static ConfigOption<int> LunarChimeraAdditionalDamageBoost;
+        public static ConfigOption<int> LunarChimeraBaseHPBoost;
+        public static ConfigOption<int> LunarChimeraBaseAttackSpeedBoost;
+        public static ConfigOption<int> LunarChimeraBaseMovementSpeedBoost;
 
         public override string ItemName => "Unstable Design";
 
@@ -48,8 +49,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Cleansable };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/UnstableDesignIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("UnstableDesign.prefab");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("UnstableDesignIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
         public static RoR2.SpawnCard LunarChimeraSpawnCard;
@@ -79,15 +80,15 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            LunarChimeraResummonCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?").Value;
-            LunarChimeraRetargetingCooldown = config.Bind<float>("Item: " + ItemName, "Duration of Chimera Retargeting Cooldown", 10f, "If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets?").Value;
-            LunarChimeraMinimumSpawnDistanceFromUser = config.Bind<float>("Item: " + ItemName, "Minimum Spawn Distance Away From User", 80f, "What is the closest distance the Lunar Chimera should spawn to the user?").Value;
-            LunarChimeraMaximumSpawnDistanceFromUser = config.Bind<float>("Item: " + ItemName, "Maximum Spawn Distance Away From User", 170f, "What is the furthest distance away the Lunar Chimera should spawn away from the user?").Value;
-            LunarChimeraBaseDamageBoost = config.Bind<int>("Item: " + ItemName, "Base Damage Boosting Item Amount", 40, "What should the Lunar Chimera's base damage boost be? (Default: 40 (400% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only. First stack.)").Value;
-            LunarChimeraAdditionalDamageBoost = config.Bind<int>("Item: " + ItemName, "Additional Damage Boosting Item Amount", 10, "What should the Lunar Chimera's additional damage boost be per stack? (Default: 10 (100% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only.)").Value;
-            LunarChimeraBaseHPBoost = config.Bind<int>("Item: " + ItemName, "HP Boosting Item Amount", 10, "What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)").Value;
-            LunarChimeraBaseAttackSpeedBoost = config.Bind<int>("Item: " + ItemName, "Attack Speed Item Amount", 30, "What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)").Value;
-            LunarChimeraBaseMovementSpeedBoost = config.Bind<int>("Item: " + ItemName, "Movement Speed Item Amount", 2, "What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)").Value;
+            LunarChimeraResummonCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?");
+            LunarChimeraRetargetingCooldown = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Retargeting Cooldown", 10f, "If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets?");
+            LunarChimeraMinimumSpawnDistanceFromUser = config.ActiveBind<float>("Item: " + ItemName, "Minimum Spawn Distance Away From User", 80f, "What is the closest distance the Lunar Chimera should spawn to the user?");
+            LunarChimeraMaximumSpawnDistanceFromUser = config.ActiveBind<float>("Item: " + ItemName, "Maximum Spawn Distance Away From User", 170f, "What is the furthest distance away the Lunar Chimera should spawn away from the user?");
+            LunarChimeraBaseDamageBoost = config.ActiveBind<int>("Item: " + ItemName, "Base Damage Boosting Item Amount", 40, "What should the Lunar Chimera's base damage boost be? (Default: 40 (400% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only. First stack.)");
+            LunarChimeraAdditionalDamageBoost = config.ActiveBind<int>("Item: " + ItemName, "Additional Damage Boosting Item Amount", 10, "What should the Lunar Chimera's additional damage boost be per stack? (Default: 10 (100% damage boost). This is how many damage boosting items we give it, which give it a 10% damage boost each. Whole numbers only.)");
+            LunarChimeraBaseHPBoost = config.ActiveBind<int>("Item: " + ItemName, "HP Boosting Item Amount", 10, "What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)");
+            LunarChimeraBaseAttackSpeedBoost = config.ActiveBind<int>("Item: " + ItemName, "Attack Speed Item Amount", 30, "What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)");
+            LunarChimeraBaseMovementSpeedBoost = config.ActiveBind<int>("Item: " + ItemName, "Movement Speed Item Amount", 2, "What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)");
         }
 
         private void CreateSpawncard()
@@ -108,7 +109,7 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignRolledUp.prefab");
+            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("UnstableDesignRolledUp.prefab");
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -274,10 +275,10 @@ namespace Aetherium.Items
                             {
                                 //RoR2.Chat.AddMessage($"Character Master Found: {component}");
                                 cMaster.teamIndex = TeamIndex.Neutral;
-                                cMaster.inventory.GiveItem(ItemIndex.BoostDamage, LunarChimeraBaseDamageBoost + (LunarChimeraAdditionalDamageBoost * inventoryCount - 1));
-                                cMaster.inventory.GiveItem(ItemIndex.BoostHp, LunarChimeraBaseHPBoost * inventoryCount);
-                                cMaster.inventory.GiveItem(ItemIndex.BoostAttackSpeed, LunarChimeraBaseAttackSpeedBoost);
-                                cMaster.inventory.GiveItem(ItemIndex.Hoof, LunarChimeraBaseMovementSpeedBoost * inventoryCount);
+                                cMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, LunarChimeraBaseDamageBoost + (LunarChimeraAdditionalDamageBoost * inventoryCount - 1));
+                                cMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, LunarChimeraBaseHPBoost * inventoryCount);
+                                cMaster.inventory.GiveItem(RoR2Content.Items.BoostAttackSpeed, LunarChimeraBaseAttackSpeedBoost);
+                                cMaster.inventory.GiveItem(RoR2Content.Items.Hoof, LunarChimeraBaseMovementSpeedBoost * inventoryCount);
                                 cMaster.minionOwnership.SetOwner(master);
 
                                 RoR2.CharacterBody cBody = cMaster.GetBody();

@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -11,11 +12,11 @@ namespace Aetherium.Items
 {
     public class BloodSoakedShield : ItemBase<BloodSoakedShield>
     {
-        public static bool UseNewIcons;
-        public static float ShieldPercentageRestoredPerKill;
-        public static float AdditionalShieldPercentageRestoredPerKillDiminishing;
-        public static float MaximumPercentageShieldRestoredPerKill;
-        public static float BaseGrantShieldMultiplier;
+        public static ConfigOption<bool> UseNewIcons;
+        public static ConfigOption<float> ShieldPercentageRestoredPerKill;
+        public static ConfigOption<float> AdditionalShieldPercentageRestoredPerKillDiminishing;
+        public static ConfigOption<float> MaximumPercentageShieldRestoredPerKill;
+        public static ConfigOption<float> BaseGrantShieldMultiplier;
 
         public override string ItemName => "Blood Soaked Shield";
         public override string ItemLangTokenName => "BLOOD_SOAKED_SHIELD";
@@ -30,8 +31,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Healing };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/BloodSoakedShield/BloodSoakedShield.prefab";
-        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("BloodSoakedShield.prefab");
+        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIconAlt.png") : MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -49,16 +50,16 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
-            ShieldPercentageRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%").Value;
-            AdditionalShieldPercentageRestoredPerKillDiminishing = config.Bind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%").Value;
-            MaximumPercentageShieldRestoredPerKill = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%").Value;
-            BaseGrantShieldMultiplier = config.Bind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%").Value;
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            ShieldPercentageRestoredPerKill = config.ActiveBind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%");
+            AdditionalShieldPercentageRestoredPerKillDiminishing = config.ActiveBind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%");
+            MaximumPercentageShieldRestoredPerKill = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%");
+            BaseGrantShieldMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Shield Granted on First BSS Stack", 0.08f, "How much should the starting shield be upon receiving the item? 0.08 = 8%");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 

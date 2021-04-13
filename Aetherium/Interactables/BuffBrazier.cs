@@ -19,9 +19,9 @@ namespace Aetherium.Interactables
 {
     public class BuffBrazier : InteractableBase<BuffBrazier>
     {
-        public static int BaseCostForBuffBrazier;
-        public static float DurationOfEffect;
-        public static float AreaOfEffectRadius;
+        public static ConfigOption<int> BaseCostForBuffBrazier;
+        public static ConfigOption<float> DurationOfEffect;
+        public static ConfigOption<float> AreaOfEffectRadius;
 
         public override string InteractableName => "Buff Brazier";
 
@@ -50,9 +50,9 @@ namespace Aetherium.Interactables
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseCostForBuffBrazier = config.Bind<int>("Interactable: " + InteractableName, "Base Cost for Buff Brazier", 120, "What should be the base cost of the Buff Brazier?").Value;
-            DurationOfEffect = config.Bind<float>("Interactable: " + InteractableName, "Duration of Flame Buff Effect", 60, "How long should the flame last once it is deployed?").Value;
-            AreaOfEffectRadius = config.Bind<float>("Interactable: " + InteractableName, "Radius of Flame Buff Effect", 60, "How large (in meters) should the radius of the deployed flame buff be?").Value;
+            BaseCostForBuffBrazier = config.ActiveBind<int>("Interactable: " + InteractableName, "Base Cost for Buff Brazier", 120, "What should be the base cost of the Buff Brazier?");
+            DurationOfEffect = config.ActiveBind<float>("Interactable: " + InteractableName, "Duration of Flame Buff Effect", 60f, "How long should the flame last once it is deployed?");
+            AreaOfEffectRadius = config.ActiveBind<float>("Interactable: " + InteractableName, "Radius of Flame Buff Effect", 60f, "How large (in meters) should the radius of the deployed flame buff be?");
         }
 
         private void CreateInteractablePrefab()
@@ -236,16 +236,16 @@ namespace Aetherium.Interactables
             public void CreateCuratedBuffList()
             {
                 //War Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.WarCryBuff, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1, false));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.WarCryBuff.buffIndex, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1, false));
 
                 //Invisibility Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cloak, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f, false));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.Cloak.buffIndex, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f, false));
 
                 //Cripple Debuff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Cripple, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f, true));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.Cripple.buffIndex, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f, true));
 
                 //Jade Elephant Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.ElephantArmorBoost, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2, false));
+                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.ElephantArmorBoost.buffIndex, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2, false));
 
                 //Super Leech Buff
                 CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2, false));

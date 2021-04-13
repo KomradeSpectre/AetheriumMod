@@ -20,7 +20,7 @@ namespace Aetherium.Items
         public bool voidPortalKilledSomething;
         public CharacterMaster toReviveMaster;
         public CharacterBody toReviveBody;
-        public BuffIndex voidInstabilityDebuff;
+        public BuffDef voidInstabilityDebuff;
 
         public void Init()
         {
@@ -95,7 +95,7 @@ namespace Aetherium.Items
                     if (voidPortalKilledSomething)
                     {
                         var bodyRevived = toReviveMaster.GetBody();
-                        bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff, voidHeartCooldownDuration);
+                        bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff.buffIndex, voidHeartCooldownDuration);
                     }
                     UnityEngine.Object.Destroy(base.gameObject);
                 }

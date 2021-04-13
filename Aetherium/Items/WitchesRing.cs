@@ -4,16 +4,17 @@ using R2API;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Items
 {
     public class WitchesRing : ItemBase<WitchesRing>
     {
-        public static float WitchesRingTriggerThreshold;
-        public static float BaseCooldownDuration;
-        public static float AdditionalCooldownReduction;
-        public static bool GlobalCooldownOnUse;
+        public static ConfigOption<float> WitchesRingTriggerThreshold;
+        public static ConfigOption<float> BaseCooldownDuration;
+        public static ConfigOption<float> AdditionalCooldownReduction;
+        public static ConfigOption<bool> GlobalCooldownOnUse;
 
         public override string ItemName => "Witches Ring";
 
@@ -33,13 +34,13 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/WitchesRing/WitchesRing.prefab";
-        public override string ItemIconPath => "@Aetherium:Assets/Textures/Icons/Item/WitchesRingIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("WitchesRing.prefab");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("WitchesRingIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject CircleBodyModelPrefab;
 
-        public static BuffIndex WitchesRingImmunityBuff;
+        public static BuffDef WitchesRingImmunityBuffDef;
 
         public override void Init(ConfigFile config)
         {
@@ -52,30 +53,28 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            WitchesRingTriggerThreshold = config.Bind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?").Value;
-            BaseCooldownDuration = config.Bind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?").Value;
-            AdditionalCooldownReduction = config.Bind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?").Value;
-            GlobalCooldownOnUse = config.Bind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?").Value;
+            WitchesRingTriggerThreshold = config.ActiveBind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?");
+            BaseCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?");
+            AdditionalCooldownReduction = config.ActiveBind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?");
+            GlobalCooldownOnUse = config.ActiveBind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?");
         }
 
         private void CreateBuff()
         {
-            var witchesRingImmunityBuff = new R2API.CustomBuff(
-            new RoR2.BuffDef
-            {
-                buffColor = new Color(0, 80, 0),
-                canStack = false,
-                isDebuff = false,
-                name = "Aetherium: Witches Ring Immunity",
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png"
-            });
-            WitchesRingImmunityBuff = R2API.BuffAPI.Add(witchesRingImmunityBuff);
+            WitchesRingImmunityBuffDef = ScriptableObject.CreateInstance<BuffDef>();
+            WitchesRingImmunityBuffDef.name = "Aetherium: Witches Ring Immunity";
+            WitchesRingImmunityBuffDef.buffColor = new Color(0, 80, 0);
+            WitchesRingImmunityBuffDef.canStack = false;
+            WitchesRingImmunityBuffDef.isDebuff = false;
+            WitchesRingImmunityBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WitchesRingBuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(WitchesRingImmunityBuffDef));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
-            CircleBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/WitchesRing/WitchesRingCircle.prefab");
+            ItemBodyModelPrefab = ItemModel;
+            CircleBodyModelPrefab = MainAssets.LoadAsset<GameObject>("WitchesRingCircle.prefab");
 
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
@@ -322,17 +321,17 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(body);
                     if (InventoryCount > 0)
                     {
-                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold && !victimBody.HasBuff(WitchesRingImmunityBuff))
+                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold && !victimBody.HasBuff(WitchesRingImmunityBuffDef))
                         {
                             if (NetworkServer.active)
                             {
                                 if (!GlobalCooldownOnUse)
                                 {
-                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
+                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
                                 }
                                 else
                                 {
-                                    body.AddTimedBuffAuthority(WitchesRingImmunityBuff, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
+                                    body.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
                                 }
                                 DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
                                 GlobalEventManager.instance.OnCharacterDeath(damageReport);

@@ -1,8 +1,10 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
+using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
@@ -10,13 +12,13 @@ namespace Aetherium.Items
 {
     public class SharkTeeth : ItemBase<SharkTeeth>
     {
-        public bool UseNewIcons;
+        public ConfigOption<bool> UseNewIcons;
         //public static bool UseNewIcons;
-        public static float BaseDamageSpreadPercentage;
-        public static float AdditionalDamageSpreadPercentage;
-        public static float MaxDamageSpreadPercentage;
-        public static float DurationOfDamageSpread;
-        public static int TicksOfDamageDuringDuration;
+        public static ConfigOption<float> BaseDamageSpreadPercentage;
+        public static ConfigOption<float> AdditionalDamageSpreadPercentage;
+        public static ConfigOption<float> MaxDamageSpreadPercentage;
+        public static ConfigOption<float> DurationOfDamageSpread;
+        public static ConfigOption<int> TicksOfDamageDuringDuration;
 
         public override string ItemName => "Shark Teeth";
 
@@ -31,8 +33,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.AIBlacklist };
 
-        public override string ItemModelPath => "@Aetherium:Assets/Models/Prefabs/Item/SharkTeeth/SharkTeeth.prefab";
-        public override string ItemIconPath => UseNewIcons ? "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIconAlt.png" : "@Aetherium:Assets/Textures/Icons/Item/SharkTeethIcon.png";
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("SharkTeeth.prefab");
+        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("SharkTeethIconAlt.png") : MainAssets.LoadAsset<Sprite>("SharkTeethIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -48,17 +50,17 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.Bind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.").Value;
-            BaseDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?").Value;
-            AdditionalDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?").Value;
-            MaxDamageSpreadPercentage = config.Bind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?").Value;
-            DurationOfDamageSpread = config.Bind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?").Value;
-            TicksOfDamageDuringDuration = config.Bind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?").Value;
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
+            AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
+            MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
+            DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
+            TicksOfDamageDuringDuration = config.ActiveBind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+            ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
