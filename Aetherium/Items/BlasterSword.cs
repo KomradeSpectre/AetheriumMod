@@ -160,7 +160,7 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = ItemModel;
+            ItemBodyModelPrefab = UseAlternateModel ? MainAssets.LoadAsset<GameObject>("BlasterSwordAlt.prefab") : MainAssets.LoadAsset<GameObject>("BlasterSword.prefab");
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -403,6 +403,27 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
+            rulesNormal.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MainWeapon",
+                    localPos = new Vector3(-0.0182F, 1.0776F, -0.0001F),
+                    localAngles = new Vector3(0F, 180F, 180F),
+                    localScale = new Vector3(0.0386F, 0.0312F, 0.05F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "SideWeapon",
+                    localPos = new Vector3(0F, -0.3997F, 0.0889F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.015F, 0.0179F, 0.0179F)
+                }
+            });
 
             ItemDisplayRuleDict rulesAlt = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -641,7 +662,27 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1f, 0.1f, 0.1f)
                 }
             });
-
+            rulesAlt.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MainWeapon",
+                    localPos = new Vector3(-0.0113F, 1.1339F, 0.0013F),
+                    localAngles = new Vector3(0.0624F, 5.493F, 179.5722F),
+                    localScale = new Vector3(0.05F, 0.0353F, 0.0537F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "SideWeapon",
+                    localPos = new Vector3(0F, -0.3728F, 0.0889F),
+                    localAngles = new Vector3(0F, 300F, 0F),
+                    localScale = new Vector3(0.0179F, 0.0115F, 0.0179F)
+                }
+            });
             return UseAlternateModel ? rulesAlt : rulesNormal;
         }
 

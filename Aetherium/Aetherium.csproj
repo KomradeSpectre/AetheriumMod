@@ -9,6 +9,7 @@
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Interactables\BuffBrazier.cs" />
     <Compile Remove="Items\AlienMagnet.cs" />
+    <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\NailBomb.cs" />
   </ItemGroup>
 
@@ -90,6 +91,6 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\komra\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\E\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\komra\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y" />
   </Target>
 </Project>

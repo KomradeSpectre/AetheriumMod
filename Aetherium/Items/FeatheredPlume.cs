@@ -205,6 +205,18 @@ namespace Aetherium.Items
                     localScale = generalScale
                 }
             });
+            rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.0973F, 0.0867F, -0.0004F),
+                    localAngles = new Vector3(336.8192F, 344.1323F, 20.5313F),
+                    localScale = new Vector3(0.2456F, 0.2456F, 0.2456F)
+                }
+            });
             return rules;
         }
 

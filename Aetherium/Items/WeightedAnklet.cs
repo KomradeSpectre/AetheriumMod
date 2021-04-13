@@ -18,6 +18,7 @@ namespace Aetherium.Items
 {
     public class WeightedAnklet : ItemBase<WeightedAnklet>
     {
+        public static ConfigOption<float> BaseKnockbackReductionPercentage;
         public static ConfigOption<float> BaseAttackSpeedReductionPercentage;
         public static ConfigOption<float> AttackSpeedReductionPercentageCap;
         public static ConfigOption<float> BaseMovementSpeedReductionPercentage;
@@ -84,6 +85,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            BaseKnockbackReductionPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Knockback Reduction Percentage", 0.25f, "How much knockback reduction in percentage should be given for each Weighted Anklet?");
             BaseAttackSpeedReductionPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Attack Speed Reduction Percentage", 0.1f, "How much attack speed in percentage should be reduced per Weighted Anklet?");
             AttackSpeedReductionPercentageCap = config.ActiveBind<float>("Item: " + ItemName, "Absolute Lowest Attack Speed Reduction Percentage", 0.1f, "What should the lowest percentage that we should be able to reduce attack speed to be?");
             BaseMovementSpeedReductionPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Movement Speed Reduction Percentage", 0.1f, "How much movement speed in percentage should be reduced per Weighted Anklet?");
@@ -256,6 +258,18 @@ namespace Aetherium.Items
                     localPos = new Vector3(0f, 0.39f, 0f),
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(0.2f, 0.2f, 0.2f)
+                }
+            });
+            rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CalfL",
+                    localPos = new Vector3(0F, 0.3587F, 0.005F),
+                    localAngles = new Vector3(355.047F, 0F, 357.3693F),
+                    localScale = new Vector3(0.2168F, 0.2168F, 0.2168F)
                 }
             });
             return rules;
@@ -469,6 +483,18 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.05f, 0.05f, 0.05f)
                 }
             });
+            rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = LimiterReleaseEyePrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.0105F, 0.0505F, 0.1133F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.0609F, 0.0609F, 0.0609F)
+                }
+            });
             return rules;
         }
 
@@ -497,6 +523,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;
+            On.RoR2.HealthComponent.TakeDamage += ReduceKnockback;
 
             var methodBlast = typeof(RoR2.BlastAttack).GetMethod("HandleHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             new MonoMod.RuntimeDetour.Hook(methodBlast, new Action<Action<RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>, RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>((orig, self, hitPoints) =>
@@ -730,6 +757,17 @@ namespace Aetherium.Items
                 UnityEngine.Object.Destroy(spawnCard);
                 return false;
             }
+        }
+
+        private void ReduceKnockback(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
+        {
+            var InventoryCount = GetCount(self.body);
+            if (InventoryCount > 0)
+            {
+                var percentReduction = Mathf.Clamp(1 - (InventoryCount * BaseKnockbackReductionPercentage), 0, 1);
+                damageInfo.force *= percentReduction;
+            }
+            orig(self, damageInfo);
         }
 
         public class AnkletTracker : MonoBehaviour
