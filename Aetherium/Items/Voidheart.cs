@@ -234,7 +234,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
-            On.RoR2.CharacterBody.Awake += VoidheartPreventionInteraction;
+            //On.RoR2.CharacterBody.Awake += VoidheartPreventionInteraction;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
         }
 
@@ -270,9 +270,9 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if (self.body && InventoryCount > 0)
             {
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) &&
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.body.master.currentLifeStopwatch > 7)
                     //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
-                    self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
+                    //self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo
                     {

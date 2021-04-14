@@ -163,10 +163,11 @@ namespace Aetherium.Items
 
             public double Angle = 0;
             public float Radius = 0;
+            public float Slide = 0;
 
             public void FixedUpdate()
             {
-                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0)
+                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0 || Slide >= 1)
                 {
                     UnityEngine.Object.Destroy(DeathObject);
                     UnityEngine.Object.Destroy(this);
@@ -192,7 +193,7 @@ namespace Aetherium.Items
 
                         if (VoidheartDeath.voidPortalKilledSomething)
                         {
-                            float Slide = Mathf.Clamp((Time.time - VoidheartDeath.ExplosionHappenedAtThisTime) / 2f, 0, 1);
+                            Slide = Mathf.Clamp((Time.time - VoidheartDeath.ExplosionHappenedAtThisTime) / 2f, 0, 1);
                             Radius = EasingFunction.EaseInQuad(15, 1, Slide);
                         }
                         else
