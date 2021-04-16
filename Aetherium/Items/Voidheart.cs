@@ -54,6 +54,7 @@ namespace Aetherium.Items
         public static GameObject ItemBodyModelPrefab;
 
         public static BuffDef VoidInstabilityDebuff { get; private set; }
+        public static BuffDef VoidImmunityBuff { get; private set; }
 
         public override void Init(ConfigFile config)
         {
@@ -85,7 +86,15 @@ namespace Aetherium.Items
             VoidInstabilityDebuff.isDebuff = true;
             VoidInstabilityDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("VoidInstabilityDebuffIcon.png");
 
+            VoidImmunityBuff = ScriptableObject.CreateInstance<BuffDef>();
+            VoidImmunityBuff.name = "Aetherium: Voidheart Temporary Immunity";
+            VoidImmunityBuff.buffColor = Color.gray;
+            VoidImmunityBuff.canStack = false;
+            VoidImmunityBuff.isDebuff = false;
+            VoidImmunityBuff.iconSprite = MainAssets.LoadAsset<Sprite>("VoidInstabilityDebuffIcon.png");
+
             BuffAPI.Add(new CustomBuff(VoidInstabilityDebuff));
+            BuffAPI.Add(new CustomBuff(VoidImmunityBuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -234,8 +243,19 @@ namespace Aetherium.Items
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
-            //On.RoR2.CharacterBody.Awake += VoidheartPreventionInteraction;
+            On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
+        }
+
+        private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            var cacheComponent = self.GetComponent<VoidHeartCacheHealthComponent>();
+            if (!cacheComponent) 
+            {
+                cacheComponent = self.gameObject.AddComponent<VoidHeartCacheHealthComponent>();
+                cacheComponent.LastMaxHealth = self.maxHealth;
+            }
         }
 
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
@@ -270,9 +290,22 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self.body);
             if (self.body && InventoryCount > 0)
             {
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.body.master.currentLifeStopwatch > 7)
-                    //This check is for the timer to determine time since spawn, at <= 10f it'll only activate after the tenth second
-                    //self.GetComponent<VoidHeartPrevention>().internalTimer >= 7f)
+                var cacheComponent = self.body.GetComponent<VoidHeartCacheHealthComponent>();
+                if (!cacheComponent)
+                {
+                    cacheComponent = self.body.gameObject.AddComponent<VoidHeartCacheHealthComponent>();
+                    cacheComponent.LastMaxHealth = self.body.maxHealth;
+                }
+                else 
+                {
+                    if(cacheComponent.LastMaxHealth != self.body.maxHealth)
+                    {
+                        self.body.AddTimedBuffAuthority(VoidImmunityBuff.buffIndex, 0.1f);
+                        cacheComponent.LastMaxHealth = self.body.maxHealth;
+                    }
+                }
+
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.body.master.currentLifeStopwatch > 7 && !self.body.HasBuff(VoidImmunityBuff))
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo
                     {
@@ -294,6 +327,7 @@ namespace Aetherium.Items
 
         private void VoidheartOverlayManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
+
             if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
@@ -326,19 +360,11 @@ namespace Aetherium.Items
             }
         }
 
-        //If I want to update the size of the meta-balls in the shader
-        /*private void UpdateVoidheartVisual(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        public class VoidHeartCacheHealthComponent : MonoBehaviour
         {
-            orig(self);
-            if (GetCount(self) > 0)
-            {
-                var scale = ruleLookup[self.modelLocator.modelTransform.name];
-                ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobScale", 3.16f / scale);
-                ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobDepth", 2.9f * scale);
-                //ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobScale", 3.16f + (1-scale));
-                ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos[0].defaultMaterial.SetFloat("_BlobMoveSpeed", 6 * scale);
-            }
-        }*/
+            public float LastMaxHealth;
+
+        }
 
         private void VoidheartAnnihilatesItselfOnDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
         {
@@ -352,34 +378,6 @@ namespace Aetherium.Items
                     self.inventory.RemoveItem(ItemDef, InventoryCount);
                 }
             }
-        }
-
-        public class VoidHeartPrevention : MonoBehaviour
-        {
-            public float internalTimer = 0f;
-
-            private void Update()
-            {
-                internalTimer += Time.deltaTime;
-            }
-
-            public void ResetTimer()
-            {
-                internalTimer = 0f;
-            }
-        }
-
-        private void VoidheartPreventionInteraction(On.RoR2.CharacterBody.orig_Awake orig, RoR2.CharacterBody self)
-        {
-            //First just run the normal awake stuff
-            orig(self);
-            //If I somehow lack the Prevention, give me one
-            if (!self.gameObject.GetComponent<VoidHeartPrevention>())
-            {
-                self.gameObject.AddComponent<VoidHeartPrevention>();
-            }
-            //And reset the timer
-            self.gameObject.GetComponent<VoidHeartPrevention>().ResetTimer();
         }
     }
 }
