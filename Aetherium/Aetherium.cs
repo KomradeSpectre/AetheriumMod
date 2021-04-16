@@ -48,6 +48,9 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
+        //Compatability
+        public static bool IsArtifactOfTheKingInstalled;
+
         private void Awake()
         {
 #if DEBUG
@@ -172,11 +175,8 @@ namespace Aetherium
                 TILER2Compat();
             }
 
-        }
+            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing") ? true : false;
 
-        public void TILER2Compat()
-        {
-            TILER2.FakeInventory.blacklist.Add(WeightedAnklet.instance.ItemDef);
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)
@@ -223,6 +223,11 @@ namespace Aetherium
                 return true;
             }
             return false;
+        }
+
+        public void TILER2Compat()
+        {
+            TILER2.FakeInventory.blacklist.Add(WeightedAnklet.instance.ItemDef);
         }
     }
 }

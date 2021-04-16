@@ -8,6 +8,7 @@ using RoR2.CharacterAI;
 using RoR2.Skills;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
@@ -27,6 +28,7 @@ namespace Aetherium.Items
         public static ConfigOption<int> LunarChimeraBaseHPBoost;
         public static ConfigOption<int> LunarChimeraBaseAttackSpeedBoost;
         public static ConfigOption<int> LunarChimeraBaseMovementSpeedBoost;
+        public static ConfigOption<bool> ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled;
 
         public override string ItemName => "Unstable Design";
 
@@ -62,7 +64,18 @@ namespace Aetherium.Items
         {
             get
             {
-                if (!_airSkill) _airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("FireRandomProjectiles"));
+                if (!_airSkill) 
+                {
+                    if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled) 
+                    {
+                        _airSkill = IsArtifactOfTheKingInstalled ? SkillCatalog.allSkillDefs.Where(x => x.activationState.typeName == "EntityStates.LunarExploderMonster.Weapon.FireExploderShards").First() : SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
+                    }
+                    else
+                    {
+                        _airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
+                    }
+                    
+                } 
                 return _airSkill;
             }
         }
@@ -91,6 +104,7 @@ namespace Aetherium.Items
             LunarChimeraBaseHPBoost = config.ActiveBind<int>("Item: " + ItemName, "HP Boosting Item Amount", 10, "What should the Lunar Chimera's base HP boost be? (Default: 10 (100% HP boost). This is how many HP Boost items we give it, which give it a 10% HP boost each. Whole numbers only.)");
             LunarChimeraBaseAttackSpeedBoost = config.ActiveBind<int>("Item: " + ItemName, "Attack Speed Item Amount", 30, "What should the Lunar Chimera's base attack speed boost be? (Default: 30 (300% attack speed boost). This is how many attack speed boost items we give it, which give it a 10% attack speed boost each. Whole numbers only.)");
             LunarChimeraBaseMovementSpeedBoost = config.ActiveBind<int>("Item: " + ItemName, "Movement Speed Item Amount", 2, "What should the Lunar Chimera's base movement speed boost be? (Default: 2 (28% movement speed boost). This is how many goat hooves we give it, which give it a 14% movement speed boost each. Whole numbers only.)");
+            ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled = config.ActiveBind<bool>("Item: " + ItemName, "Replace Unstable Design Air Skill if AOTK is Installed", false, "Should the default primary (Lunar Sprint Shards) be replaced with the Lunar Exploder's Primary (Tri-Orb Shot) if Artifact of the King is installed?");
         }
 
         private void CreateSpawncard()
@@ -459,6 +473,12 @@ namespace Aetherium.Items
                             if (targetBody && (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded))
                             {
                                 skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
+
+                                if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled)
+                                {
+                                    skillComponent.primary.maxStock = 4;
+                                    skillComponent.primary.finalRechargeInterval = 1 / 4f;
+                                }
                             }
                             else
                             {
