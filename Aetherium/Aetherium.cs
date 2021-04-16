@@ -175,7 +175,7 @@ namespace Aetherium
                 TILER2Compat();
             }
 
-            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing") ? true : false;
+            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
 
         }
 
