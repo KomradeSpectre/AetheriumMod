@@ -519,6 +519,7 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            On.RoR2.CharacterBody.OnInventoryChanged += RemoveWeightedAnkletAndLimitersFromDeployables;
             GetStatCoefficients += ManageBonusesAndPenalties;
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
@@ -630,6 +631,22 @@ namespace Aetherium.Items
 
             }));
 
+        }
+
+        private void RemoveWeightedAnkletAndLimitersFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
+        {
+            orig(self);
+            var InventoryCount = GetCount(self);
+            if (InventoryCount > 0 && self.master)
+            {
+                if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                {
+                    //Deployables have no muscle mass, can't get swole!
+                    self.inventory.RemoveItem(ItemDef, InventoryCount);
+                    var limiterReleaseCount = GetCountSpecific(self, LimiterReleaseItemDef);
+                    self.inventory.RemoveItem(LimiterReleaseItemDef, limiterReleaseCount);
+                }
+            }
         }
 
         private void ManageBonusesAndPenalties(RoR2.CharacterBody sender, StatHookEventArgs args)
