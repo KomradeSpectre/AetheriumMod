@@ -54,7 +54,7 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             WitchesRingTriggerThreshold = config.ActiveBind<float>("Item: " + ItemName, "Damage Multiplier Required in a Hit to Activate", 5f, "What threshold should damage have to pass to trigger the Witches Ring?");
-            BaseCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 5f, "What should be the base duration of the Witches Ring cooldown?");
+            BaseCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Cooldown After Use", 10f, "What should be the base duration of the Witches Ring cooldown?");
             AdditionalCooldownReduction = config.ActiveBind<float>("Item: " + ItemName, "Cooldown Duration Reduction per Additional Witches Ring (Diminishing)", 0.1f, "What percentage (hyperbolically) should each additional Witches Ring reduce the cooldown duration?");
             GlobalCooldownOnUse = config.ActiveBind<bool>("Item: " + ItemName, "Global Cooldown On Use", false, "Should the cooldown effect be applied in the same manner as Kjaro/Runald Bands, or on the victim of the effect?");
         }
@@ -342,20 +342,23 @@ namespace Aetherium.Items
                     var InventoryCount = GetCount(body);
                     if (InventoryCount > 0)
                     {
-                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold && !victimBody.HasBuff(WitchesRingImmunityBuffDef))
+                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold)
                         {
-                            if (NetworkServer.active)
+                            if (GlobalCooldownOnUse && !body.HasBuff(WitchesRingImmunityBuffDef) || !GlobalCooldownOnUse && !victimBody.HasBuff(WitchesRingImmunityBuffDef))
                             {
-                                if (!GlobalCooldownOnUse)
+                                if (NetworkServer.active)
                                 {
-                                    victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
+                                    if (!GlobalCooldownOnUse)
+                                    {
+                                        victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
+                                    }
+                                    else
+                                    {
+                                        body.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
+                                    }
+                                    DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
+                                    GlobalEventManager.instance.OnCharacterDeath(damageReport);
                                 }
-                                else
-                                {
-                                    body.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
-                                }
-                                DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
-                                GlobalEventManager.instance.OnCharacterDeath(damageReport);
                             }
                         }
                     }

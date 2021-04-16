@@ -52,6 +52,9 @@
     <Reference Include="R2API">
       <HintPath>lib\R2API.dll</HintPath>
     </Reference>
+    <Reference Include="TILER2">
+      <HintPath>lib\TILER2.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
       <HintPath>lib\Unity.Postprocessing.Runtime.dll</HintPath>
     </Reference>

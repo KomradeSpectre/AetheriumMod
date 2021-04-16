@@ -17,6 +17,7 @@ namespace Aetherium.Items
 {
     public class UnstableDesign : ItemBase<UnstableDesign>
     {
+        public static ConfigOption<float> SecondsBeforeFirstLunarChimeraSpawn;
         public static ConfigOption<float> LunarChimeraResummonCooldownDuration;
         public static ConfigOption<float> LunarChimeraRetargetingCooldown;
         public static ConfigOption<float> LunarChimeraMinimumSpawnDistanceFromUser;
@@ -61,7 +62,7 @@ namespace Aetherium.Items
         {
             get
             {
-                if (!_airSkill) _airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
+                if (!_airSkill) _airSkill = SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("FireRandomProjectiles"));
                 return _airSkill;
             }
         }
@@ -80,6 +81,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            SecondsBeforeFirstLunarChimeraSpawn = config.ActiveBind<float>("Item: " + ItemName, "Seconds Before First Lunar Chimera Spawn", 15f, "How many seconds into a stage/life before the Lunar Chimera can spawn for the first time?");
             LunarChimeraResummonCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?");
             LunarChimeraRetargetingCooldown = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Retargeting Cooldown", 10f, "If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets?");
             LunarChimeraMinimumSpawnDistanceFromUser = config.ActiveBind<float>("Item: " + ItemName, "Minimum Spawn Distance Away From User", 80f, "What is the closest distance the Lunar Chimera should spawn to the user?");
@@ -258,7 +260,7 @@ namespace Aetherium.Items
         {
             int inventoryCount = GetCount(self);
             RoR2.CharacterMaster master = self.master;
-            if (NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master)) //Check if we're a minion or not. If we are, we don't summon a chimera.
+            if (NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master) && master.currentLifeStopwatch >= SecondsBeforeFirstLunarChimeraSpawn) //Check if we're a minion or not. If we are, we don't summon a chimera.
             {
                 LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(master);
                 if (!lcComponent.LastChimeraSpawned || !lcComponent.LastChimeraSpawned.master || !lcComponent.LastChimeraSpawned.master.hasBody)

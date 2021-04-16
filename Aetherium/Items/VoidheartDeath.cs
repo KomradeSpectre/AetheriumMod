@@ -94,6 +94,13 @@ namespace Aetherium.Items
                 {
                     if (voidPortalKilledSomething)
                     {
+                        var inventory = toReviveMaster.inventory;
+                        var bearCount = inventory.GetItemCount(RoR2Content.Items.ExtraLifeConsumed);
+                        if(bearCount > 0) 
+                        {
+                            inventory.RemoveItem(RoR2Content.Items.ExtraLifeConsumed, 1);
+                        }
+
                         var bodyRevived = toReviveMaster.GetBody();
                         bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff.buffIndex, voidHeartCooldownDuration);
                     }

@@ -20,7 +20,7 @@ namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
-    [BepInDependency("com.KingEnderBrine.InLobbyConfig", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
@@ -48,9 +48,6 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
-        //Mod compat
-        public static bool IsLobbyConfigEnabled = false;
-
         private void Awake()
         {
 #if DEBUG
@@ -59,7 +56,6 @@ namespace Aetherium
 #endif
 
             ModLogger = this.Logger;
-
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
@@ -169,6 +165,18 @@ namespace Aetherium
             ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
 
+            //Compatability
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(TILER2.TILER2Plugin.ModGuid) && Items.Any(x => x is WeightedAnklet))
+            {
+                //Blacklist this from TinkerSatchel Mimic
+                TILER2Compat();
+            }
+
+        }
+
+        public void TILER2Compat()
+        {
+            TILER2.FakeInventory.blacklist.Add(WeightedAnklet.instance.ItemDef);
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)
