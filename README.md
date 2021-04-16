@@ -45,6 +45,23 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 ## Changelog
 ----
+[0.5.3]
++ Fixed Heart of the Void cinematic spinning endlessly
++ Heart of the Void will now no longer leave a used dio in your inventory. It gets removed when the instability debuff is added.
++ Fixed a longstanding bug with Heart of the Void where having a huge health change happen would kill you instantly.
++ Added compatibility for Tinkers Satchel, whenever it updates. The mimic should no longer grant free Limiter Releases.
++ Witches Ring Global Cooldown option now actually works. Before, I never actually checked for the buff on the person's body while its enabled.
++ Unstable Design now has a config option to replace its primary if Artifact of the King is installed. It's false by default.
+- Remove Weighted Anklet and Limiter Releases from Deployables until they fix turrets just ignoring gravity. I can't be bothered to patch this every single time.
+
+[0.5.2]
++ Added more visual touches to items in the mod.
++ Added a Cinematic Heart of the Void revival.
++ Added ItemDisplayRules for Bandit.
++ Updated to make everything work for post-anniversary update changes.
++ Added Knockback Resistance back to the Weighted Anklet, this goes away when you remove them and get a limiter release instead.
++ Other changes that I forgot to document.
+
 [0.5.0]
 + Massive visuals update for the mod. Can't list every change here, but I have converted a great deal of it to the Hopoo Games shader and redesigned the look of some items.
 + Added some nice particle effects for a few items.
@@ -74,24 +91,6 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 [0.4.4]
 + Quick hotfix to address R2API weirdness due to previously using the experimental build. Woopsies!
-
-[0.4.3]
-+ AETHERIUM REWRITE. Lots of refactoring had to be done, but now my process of item creation should be the default R2API way to do it. This means others can probably learn from it easier now.
-+ Nerfed Shark Teeth default # of ticks value from 10 to 5 (As a result, it has more damage per these ticks vs Before.) Suggestion by Breadguy.
-+ Nerfed Alien Magnet default starting force 6->3, force per stack 1->2 (To make it worth picking up more than one.) Suggestion by Breadguy.
-+ Fixed Alien Magnet's force calculations to now work properly on things without a character motor. (Thanks to Chen for this)
-+ Assorted fixes for Inspiring Drone and Unstable Design. (Thanks to Chen for this)
-+ Added Texture to Shark Teeth.
-+ Added an animation to Alien Magnet.
-+ Made Alien Magnet use the ItemFollower system.
-+ Retouched Icons, still working on these as development goes on.
-+ Made the non-impale Blaster Sword projectile speeeeeeeeeeeeeeeeeeeen.
-- Removed TILER2 dependency, migrated to my own ItemBase now.
-
-[0.4.2]
-+ Added Witches Ring.  
-+ Fixed DOT effects doing nothing on the Accursed Potion. Be wary of how many potions you have now.  
-+ Fixed a weird bug involving loading due to TILER2.  
 
 
 ----

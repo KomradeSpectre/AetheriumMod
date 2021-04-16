@@ -47,9 +47,6 @@ namespace Aetherium.Items
                             cameraComponent.Master = toReviveMaster;
                             cameraComponent.DeathPoint = portalPosition.Value;
                             cameraComponent.VoidheartDeath = this;
-                            AetheriumPlugin.ModLogger.LogInfo($"Voidheart Camera Component Added.\n" +
-                                $"Master is: {cameraComponent.Master}\n" +
-                                $"DeathPoint is: {cameraComponent.DeathPoint}");
                         }
                     }
                 }
