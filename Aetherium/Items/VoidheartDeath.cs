@@ -162,6 +162,8 @@ namespace Aetherium.Items
             public Vector3 DeathPoint;
             public VoidheartDeath VoidheartDeath;
 
+            public bool DestroyThisNow = false;
+
             public CameraRigController Camera;
             public ForcedCamera ForcedCameraInstance;
 
@@ -171,7 +173,7 @@ namespace Aetherium.Items
 
             public void FixedUpdate()
             {
-                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0 || Slide >= 1)
+                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0 || Slide >= 1 || DestroyThisNow)
                 {
                     UnityEngine.Object.Destroy(DeathObject);
                     UnityEngine.Object.Destroy(this);
@@ -203,10 +205,14 @@ namespace Aetherium.Items
                         else
                         {
                             Radius = Mathf.Clamp(Radius + 0.1f, 0, 15);
+                            if(Radius >= 15 && VoidheartDeath.fixedAge >= DeathState.duration + 4f) 
+                            {
+                                DestroyThisNow = true;
+                            }
                         } 
                         
                         DeathObject.transform.position = DeathPoint + new Vector3(Radius * (float)Math.Sin(Angle), Radius / 2, Radius * (float)Math.Cos(Angle));
-                        DeathObject.transform.rotation = Util.QuaternionSafeLookRotation(DeathPoint - DeathObject.transform.position);                        
+                        DeathObject.transform.rotation = Util.QuaternionSafeLookRotation(DeathPoint - DeathObject.transform.position);
                     }
                 }
             }

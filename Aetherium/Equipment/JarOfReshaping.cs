@@ -22,7 +22,7 @@ namespace Aetherium.Equipment
         public static ConfigOption<float> ProjectileAbsorptionTime;
         public static ConfigOption<float> JarCooldown;
         public static ConfigOption<bool> IWantToLoseFriendsInChaosMode;
-        public static ConfigOption<bool> SpawnOriginalProjectileOnImpact;
+        public static ConfigOption<bool> SpawnOriginalProjectile;
 
         public override string EquipmentName => "Jar Of Reshaping";
 
@@ -84,7 +84,7 @@ namespace Aetherium.Equipment
             ProjectileAbsorptionTime = config.ActiveBind<float>("Equipment: " + EquipmentName, "Projectile Absorption Time / SUCC Mode Duration", 3f, "How long should the jar be in the projectile absorption state?  (In seconds)");
             JarCooldown = config.ActiveBind<float>("Equipment: " + EquipmentName, "Cooldown Duration of Jar", 20f, "How long should the jar's main cooldown be? (In seconds)");
             IWantToLoseFriendsInChaosMode = config.ActiveBind<bool>("Equipment: " + EquipmentName, "I Want To Lose Friends In Chaos Mode", false, "If artifact of chaos is on, should we be able to absorb projectiles from other players?");
-            SpawnOriginalProjectileOnImpact = config.ActiveBind<bool>("Equipment: " + EquipmentName, "Spawn Copy of Original Projectile on Jar of Reshaping Bullet Impact?", false, "Should the jar's bullet spawn a copy of the projectile it was based on when it impacts?");
+            SpawnOriginalProjectile = config.ActiveBind<bool>("Equipment: " + EquipmentName, "Spawn Copy of Original Projectile from Jar of Reshaping?", true, "Should the jar fire a copy of the projectile it absorbed?");
         }
 
         private void CreateNetworking()
@@ -388,7 +388,6 @@ namespace Aetherium.Equipment
             public DamageColorIndex DamageColorIndex;
             public DamageType DamageType;
             public GameObject OriginalProjectile;
-            public GameObject UniqueJarBullet;
 
             public JarBullet(float damage, DamageColorIndex damageColorIndex, DamageType damageType, GameObject originalProjectile = null)
             {
@@ -398,19 +397,6 @@ namespace Aetherium.Equipment
                 OriginalProjectile = originalProjectile;
             }
 
-            public void ConstructUniqueJarBullet() 
-            {
-                if (!OriginalProjectile) { return; }
-
-                UniqueJarBullet = PrefabAPI.InstantiateClone(JarProjectile, $"Jar Bullet: ({OriginalProjectile.name})");
-
-                var impactExplosion = UniqueJarBullet.GetComponent<ProjectileImpactExplosion>();
-                impactExplosion.fireChildren = true;
-                impactExplosion.childrenCount = 1;
-                impactExplosion.childrenProjectilePrefab = OriginalProjectile;
-
-                PrefabAPI.RegisterNetworkPrefab(UniqueJarBullet);
-            }
         }
 
         public class JarBulletTracker : MonoBehaviour
@@ -527,11 +513,13 @@ namespace Aetherium.Equipment
                         if (NetworkServer.active)
                         {
                             var bullet = jarBullets.Last();
-                            bullet.ConstructUniqueJarBullet();
+
+                            var projectileToFire = SpawnOriginalProjectile ? bullet.OriginalProjectile : JarProjectile;
+                            if (!projectileToFire) { projectileToFire = JarProjectile; }
 
                             FireProjectileInfo projectileInfo = new FireProjectileInfo
                             {
-                                projectilePrefab = SpawnOriginalProjectileOnImpact ? bullet.UniqueJarBullet : JarProjectile,
+                                projectilePrefab = projectileToFire,
                                 damage = 20 + bullet.Damage * 2,
                                 damageColorIndex = bullet.DamageColorIndex,
                                 damageTypeOverride = bullet.DamageType,
