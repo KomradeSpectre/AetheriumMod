@@ -449,6 +449,8 @@ namespace Aetherium.Items
             private RoR2.CharacterMaster master;
             private RoR2.CharacterBody body;
 
+            private GameObject TrackerObject;
+
             private void Awake()
             {
                 body = gameObject.GetComponent<RoR2.CharacterBody>();
@@ -466,10 +468,10 @@ namespace Aetherium.Items
                     BaseAI baseAIComponent = master.GetComponent<BaseAI>();
                     if (baseAIComponent)
                     {
+                        RoR2.CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
                         RoR2.SkillLocator skillComponent = gameObject.GetComponent<RoR2.SkillLocator>();
                         if (skillComponent)
                         {
-                            RoR2.CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
                             if (targetBody && (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded))
                             {
                                 skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
@@ -493,6 +495,28 @@ namespace Aetherium.Items
                                 baseAIComponent.currentEnemy.Reset();
                                 baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
                                 SetCooldown();
+                            }
+                        }
+
+                        if (targetBody && body)
+                        {
+                            if (NetworkServer.active)
+                            {
+                                if (!TrackerObject)
+                                {
+                                    TrackerObject = UnityEngine.Object.Instantiate(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingIndicator"));
+                                }
+
+                                var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
+                                TrackerObject.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                                TrackerObject.transform.position = calculatedUpPosition;
+                            }
+                        }
+                        else
+                        {
+                            if (TrackerObject)
+                            {
+                                UnityEngine.Object.Destroy(TrackerObject);
                             }
                         }
                     }

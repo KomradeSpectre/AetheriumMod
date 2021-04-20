@@ -25,6 +25,7 @@ namespace Aetherium.Items
         public ConfigOption<bool> UseImpaleProjectile;
         public ConfigOption<float> BaseSwordDamageMultiplier;
         public ConfigOption<float> AdditionalSwordDamageMultiplier;
+        public ConfigOption<bool> HomingProjectiles;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
@@ -82,6 +83,7 @@ namespace Aetherium.Items
             UseImpaleProjectile = config.ActiveBind<bool>("Item: " + ItemName, "Use Impale Projectile Variant?", true, "Should the swords impale and stick to targets (true), or pierce and explode on world collision (false)?");
             BaseSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
             AdditionalSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
+            HomingProjectiles = config.ActiveBind<bool>("Item: " + ItemName, "Homing Projectiles", false, "Should the Blaster Sword projectiles home in on enemies?");
 
 
         }
@@ -150,6 +152,32 @@ namespace Aetherium.Items
 
                 var applyTorqueOnStart = SwordProjectile.AddComponent<RoR2.ApplyTorqueOnStart>();
                 applyTorqueOnStart.localTorque = new Vector3(0, 1500, 0);
+            }
+
+            if (HomingProjectiles)
+            {
+                var projectileTarget = SwordProjectile.AddComponent<ProjectileTargetComponent>();
+
+                var projectileDirectionalTargetFinder = SwordProjectile.AddComponent<ProjectileDirectionalTargetFinder>();
+                projectileDirectionalTargetFinder.lookRange = 25;
+                projectileDirectionalTargetFinder.lookCone = 20;
+                projectileDirectionalTargetFinder.targetSearchInterval = 0.1f;
+                projectileDirectionalTargetFinder.onlySearchIfNoTarget = true;
+                projectileDirectionalTargetFinder.allowTargetLoss = false;
+                projectileDirectionalTargetFinder.testLoS = false;
+                projectileDirectionalTargetFinder.ignoreAir = false;
+                projectileDirectionalTargetFinder.flierAltitudeTolerance = float.PositiveInfinity;
+                projectileDirectionalTargetFinder.targetComponent = projectileTarget;
+
+                var projectileHoming = SwordProjectile.AddComponent<ProjectileSteerTowardTarget>();
+                projectileHoming.targetComponent = projectileTarget;
+                projectileHoming.rotationSpeed = 90;
+                projectileHoming.yAxisOnly = false;
+
+                var projectileSimple = SwordProjectile.GetComponent<ProjectileSimple>();
+                projectileSimple.enableVelocityOverLifetime = true;
+                projectileSimple.updateAfterFiring = true;
+                projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(2, 70) });
             }
 
             // register it for networking

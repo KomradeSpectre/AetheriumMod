@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1177236481
+CRC: 487202936
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0474fdd426ef02c92c38ee58686a5cd9
+    Hash: 71e89c624c7c9db4e64daaf80d1dbc5b
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -136,6 +136,7 @@ Assets:
 - Assets/Shaders/3D Shaders/FireParticleShader.shader
 - Assets/Models/Raw Models/BlasterSwordAltProjectile.blend
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat
+- Assets/Animations/UnstableDesignTargetingIndicator.controller
 - Assets/Textures/Material Textures/3989-bump.jpg
 - Assets/Textures/Materials/Miscellaneous/Gem Glass.mat
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat
@@ -169,6 +170,8 @@ Assets:
 - Assets/Textures/Material Textures/PearlescentPinkRamp.png
 - Assets/Textures/Material Textures/6147-bump.jpg
 - Assets/Animations/HexPendulum.controller
+- Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingIndicator.prefab
+- Assets/Animations/UnstableDesignTargetingIndicator.anim
 - Assets/Models/Raw Models/WitchesBand.blend
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgsolidparallax.shader
@@ -290,6 +293,7 @@ Assets:
 - Assets/Textures/Material Textures/FeatheredPlumeNormal.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingGlass.mat
 - Assets/Shaders/3D Shaders/UVDistortion.shader
+- Assets/Models/Raw Models/UnstableDesignTargetingIndicator.blend
 - Assets/Models/Prefabs/Item/WeightedAnklet/LimiterReleaseEyeTrail.prefab
 - Assets/Textures/Material Textures/CircularNormal.png
 - Assets/Models/Raw Models/BlasterSword.blend
