@@ -14,6 +14,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Interactables
 {
@@ -35,7 +36,7 @@ namespace Aetherium.Interactables
 
         public static RoR2.InteractableSpawnCard InteractableSpawnCard;
 
-        public ItemIndex FlameIndex;
+        public ItemDef FlameItemDef;
 
         public override void Init(ConfigFile config)
         {
@@ -135,7 +136,7 @@ namespace Aetherium.Interactables
                 tags = new ItemTag[] { ItemTag.WorldUnique | ItemTag.AIBlacklist },
                 pickupIconPath = "@Aetherium:Assets/Textures/Icons/Item/Sacred Flame.png"
             };
-            FlameIndex = ItemAPI.Add(new CustomItem(flameItemDef, new RoR2.ItemDisplayRule[] { }));
+            FlameItemDef = ItemAPI.Add(new CustomItem(flameItemDef, new RoR2.ItemDisplayRule[] { }));
             
         }
 
@@ -155,7 +156,7 @@ namespace Aetherium.Interactables
 
                 if (master)
                 {
-                    var inventoryCount = master.inventory.GetItemCount(FlameIndex);
+                    var inventoryCount = master.inventory.GetItemCount(FlameItemDef);
                     if (inventoryCount > 0)
                     {
                         var flameCaches = master.GetComponents<BuffBrazierSacredFlameCache>();
@@ -166,7 +167,7 @@ namespace Aetherium.Interactables
                                 UnityEngine.Object.Destroy(sacredFlameCache);
                             }
                         }
-                        master.inventory.RemoveItem(FlameIndex, inventoryCount);
+                        master.inventory.RemoveItem(FlameItemDef, inventoryCount);
                     }
                 }
             }
@@ -182,7 +183,7 @@ namespace Aetherium.Interactables
 
                 if (master)
                 {
-                    var inventoryCount = master.inventory.GetItemCount(FlameIndex);
+                    var inventoryCount = master.inventory.GetItemCount(FlameItemDef);
                     if (inventoryCount > 0)
                     {
                         var flameCaches = master.GetComponents<BuffBrazierSacredFlameCache>();
@@ -200,7 +201,7 @@ namespace Aetherium.Interactables
                                 UnityEngine.Object.Destroy(sacredFlameCache);
                             }
                         }
-                        master.inventory.RemoveItem(FlameIndex, inventoryCount);
+                        master.inventory.RemoveItem(FlameItemDef, inventoryCount);
                     }
                 }
             }
@@ -332,7 +333,7 @@ namespace Aetherium.Interactables
                     if (master)
                     {
                         LastInteractorMaster = master;
-                        master.inventory.GiveItem(BuffBrazier.instance.FlameIndex);
+                        master.inventory.GiveItem(BuffBrazier.instance.FlameItemDef);
                         var sacredFlameCache = master.gameObject.AddComponent<BuffBrazierSacredFlameCache>();
                         sacredFlameCache.BuffBrazierManager = this;
                     }
@@ -347,7 +348,7 @@ namespace Aetherium.Interactables
                 {
                     if (!BrazierAOEIndicator)
                     {
-                        BrazierAOEIndicator = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab"));
+                        BrazierAOEIndicator = brazie.InstantiateClone();
 
                         var meshRenderer = BrazierAOEIndicator.GetComponent<MeshRenderer>();
                         var material = new Material(meshRenderer.material);

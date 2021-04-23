@@ -34,9 +34,13 @@ namespace Aetherium
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
         public static AssetBundle MainAssets;
-        public static Shader HopooShader = Resources.Load<Shader>("shaders/deferred/hgstandard");
-        public static Shader IntersectionShader = Resources.Load<Shader>("shaders/fx/hgintersectioncloudremap");
-        public static Shader CloudRemapShader = Resources.Load<Shader>("shaders/fx/hgcloudremap");
+
+        public static Dictionary<string, string> ShaderLookup = new Dictionary<string, string>()
+        {
+            {"fake ror/hopoo games/deferred/hgstandard", "shaders/deferred/hgstandard"},
+            {"fake ror/hopoo games/fx/hgcloud intersection remap", "shaders/fx/hgintersectioncloudremap" },
+            {"fake ror/hopoo games/fx/hgcloud remap", "shaders/fx/hgcloudremap" }
+        };
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ItemBase> Items = new List<ItemBase>();
@@ -68,32 +72,13 @@ namespace Aetherium
             //Material shader autoconversion
             var materialAssets = MainAssets.LoadAllAssets<Material>();
 
-            ModLogger.LogInfo("Intersection Shader is: " + IntersectionShader);
-
             foreach(Material material in materialAssets)
             {
                 if (!material.shader.name.StartsWith("Fake")) { continue; }
 
-                switch (material.shader.name.ToLower())
-                {
-                    case ("fake ror/hopoo games/deferred/hgstandard"):
+                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
+                if (replacementShader) { material.shader = replacementShader; }
 
-                        material.shader = HopooShader;
-
-                        break;
-
-                    case ("fake ror/hopoo games/fx/hgcloud intersection remap"):
-
-                        material.shader = IntersectionShader;
-
-                        break;
-
-                    case ("fake ror/hopoo games/fx/hgcloud remap"):
-
-                        material.shader = CloudRemapShader;
-
-                        break;
-                }
             }
 
 

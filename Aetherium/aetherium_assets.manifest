@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 487202936
+CRC: 3042304099
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 71e89c624c7c9db4e64daaf80d1dbc5b
+    Hash: e92461c8e7a0aedf9081e3cfefdfc5bb
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -136,8 +136,8 @@ Assets:
 - Assets/Shaders/3D Shaders/FireParticleShader.shader
 - Assets/Models/Raw Models/BlasterSwordAltProjectile.blend
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat
-- Assets/Animations/UnstableDesignTargetingIndicator.controller
 - Assets/Textures/Material Textures/3989-bump.jpg
+- Assets/Models/Raw Models/UnstableDesignTargetingSphere.blend
 - Assets/Textures/Materials/Miscellaneous/Gem Glass.mat
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat
 - Assets/Animations/InspiringDroneChest.controller
@@ -161,6 +161,7 @@ Assets:
 - Assets/Textures/Icons/Item/WeightedAnkletIcon.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingMain.mat
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingPowerCore.mat
+- Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
 - Assets/Models/Raw Models/BlasterSwordAlt.blend
 - Assets/Textures/Material Textures/7w6XK.png
 - Assets/Shaders/3D Shaders/Glass.shader
@@ -171,7 +172,6 @@ Assets:
 - Assets/Textures/Material Textures/6147-bump.jpg
 - Assets/Animations/HexPendulum.controller
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingIndicator.prefab
-- Assets/Animations/UnstableDesignTargetingIndicator.anim
 - Assets/Models/Raw Models/WitchesBand.blend
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuter.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgsolidparallax.shader
@@ -204,6 +204,7 @@ Assets:
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulumTracker.prefab
+- Assets/Textures/Materials/Miscellaneous/Hologram 2.mat
 - Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png
 - Assets/Textures/Material Textures/BuffBrazierDiffuse.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveParticleMateiral.mat
