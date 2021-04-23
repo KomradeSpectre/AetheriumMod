@@ -67,7 +67,6 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            //On.RoR2.CharacterMaster.OnBodyDeath += ReviveDronesAndTurret;
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
         }
 
@@ -110,34 +109,6 @@ namespace Aetherium.Items
                 }
             }
             orig(self, characterBody);
-        }
-
-        private void ReviveDronesAndTurret(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
-        {
-            if(body && !body.isPlayerControlled)
-            {
-                if(self.minionOwnership && self.minionOwnership.ownerMaster && self.minionOwnership.ownerMaster.GetBody())
-                {
-                    var ownerBody = self.minionOwnership.ownerMaster.GetBody();
-                    var inventoryCount = GetCount(ownerBody);
-                    if (inventoryCount > 0)
-                    {
-                        foreach (string droneName in DronesList)
-                        {
-                            if (body.name.Contains(droneName))
-                            {
-                                var shouldWeRevive = Util.CheckRoll((BaseRevivalPercentChance + (MaximumRevivalPercentChance - MaximumRevivalPercentChance / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1))))*100, self.minionOwnership.ownerMaster);
-                                if (shouldWeRevive)
-                                {
-                                    self.RespawnExtraLife();
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            orig(self, body);
         }
 
         public class EngineersToolbeltRevivalComponent : MonoBehaviour
