@@ -580,11 +580,13 @@ namespace Aetherium.Items
                     {
                         if (!TrackerObject)
                         {
-                            TrackerObject = UnityEngine.Object.Instantiate(TargetingIndicatorSphere);
+                            TrackerObject = GameObject.Instantiate(TargetingIndicatorSphere);
+                            NetworkServer.Spawn(TrackerObject);
                         }
                         if (!TrackerArrow)
                         {
-                            TrackerArrow = UnityEngine.Object.Instantiate(TargetingIndicatorArrow);
+                            TrackerArrow = GameObject.Instantiate(TargetingIndicatorArrow);
+                            NetworkServer.Spawn(TrackerArrow);
                         }
 
                         if (TrackerObject && TrackerArrow)
@@ -602,10 +604,12 @@ namespace Aetherium.Items
                         if (TrackerObject)
                         {
                             UnityEngine.Object.Destroy(TrackerObject);
+                            NetworkServer.UnSpawn(TrackerObject);
                         }
                         if (TrackerArrow)
                         {
                             UnityEngine.Object.Destroy(TrackerArrow);
+                            NetworkServer.UnSpawn(TrackerArrow);
                         }
 
                     }

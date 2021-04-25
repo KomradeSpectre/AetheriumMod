@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3042304099
+CRC: 2542995443
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e92461c8e7a0aedf9081e3cfefdfc5bb
+    Hash: 809bf5cc8ee5fd7ee60e537fe3862704
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -85,6 +85,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileSecondary.mat
 - Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png
 - Assets/Shaders/3D Shaders/CelShader.shader
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltMetal.mat
 - Assets/Textures/Material Textures/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab
@@ -153,6 +154,7 @@ Assets:
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierActiveField.mat
 - Assets/Models/Raw Models/PheromoneSac.blend
 - Assets/Animations/PheromoneSacInner.anim
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltBuckle.mat
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierMain.mat
 - Assets/Animations/ThrusterRAfterburner.controller
 - Assets/Models/Raw Models/FeatheredPlume1.blend
@@ -184,10 +186,13 @@ Assets:
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
 - Assets/Textures/Icons/Item/SharkTeethIconAlt.png
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothTop.mat
 - Assets/Textures/Icons/Item/WitchesRingIcon.png
 - Assets/Textures/Material Textures/10089.jpg
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBelt.mat
 - Assets/Textures/Icons/Item/AlienMagnetIcon.png
 - Assets/Textures/Material Textures/7029.jpg
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothBody.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain1.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCore.mat
 - Assets/Textures/Material Textures/BlueToTransparentRamp.png
@@ -197,6 +202,7 @@ Assets:
 - Assets/Textures/Material Textures/InspiringDroneHeadsetWireTexture.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingSkull.mat
 - Assets/Textures/Material Textures/BuffBrazierCloud1.jpg
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTape.mat
 - Assets/Animations/AlienMagnetBlueTorus.anim
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerParticle.mat
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldSpikes.mat
@@ -218,6 +224,7 @@ Assets:
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreGlass.mat
 - Assets/Textures/Material Textures/SnowGradient.PNG
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneScreenGlass.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTapeOuterRoll.mat
 - Assets/Animations/JarOfReshapingSphere.anim
 - Assets/Models/Raw Models/AccursedPotionVial.blend
 - Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab
@@ -225,6 +232,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Iridescent.shader
 - Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Material Textures/11375-bump1.jpg
+- Assets/Models/Prefabs/Item/EngineersToolbelt/EngineersToolbelt.prefab
 - Assets/Animations/Torus.003.controller
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneJointMetal.mat
 - Assets/Textures/Icons/Item/InspiringDroneIconTier3.png
@@ -232,6 +240,7 @@ Assets:
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat
 - Assets/Textures/Material Textures/Powergem.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCoreGlass.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryCap.mat
 - Assets/Textures/Material Textures/3989-bump - Copy.jpg
 - Assets/Textures/Material Textures/BuffBrazierRamp.png
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshaping.prefab
@@ -262,6 +271,8 @@ Assets:
 - Assets/Animations/JarOfReshapingProjectileMain.controller
 - Assets/Textures/Icons/Item/AccursedPotionIcon.png
 - Assets/Textures/Material Textures/BuffBrazierCloud2.png
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryBody.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltWeirdScrewMesh.mat
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRing.prefab
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgsnowtopped.shader
@@ -300,11 +311,14 @@ Assets:
 - Assets/Models/Raw Models/BlasterSword.blend
 - Assets/Textures/Material Textures/UnstableDesignBackTexture.png
 - Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClasp.mat
 - Assets/Textures/Material Textures/MagicCircleEmission.png
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Materials/Item/PheromoneSac/PheromoneSacHiveInner.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltHandle.mat
 - Assets/Textures/Icons/Item/VoidheartIcon.png
 - Assets/Textures/Material Textures/4793.jpg
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltClasp.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignRolledUp.prefab
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureEmission.png
 - Assets/Textures/Icons/Item/ShieldingCoreIcon.png
@@ -315,6 +329,7 @@ Assets:
 - Assets/Animations/InspiringDroneHead.anim
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffFlameParticles.mat
 - Assets/Textures/Material Textures/3398-diffuse.jpg
+- Assets/Textures/Material Textures/leather-normal.jpg
 - Assets/Shaders/3D Shaders/GhostRim.shader
 - Assets/Textures/Material Textures/1678-bump.jpg
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgvertexonly.shader
@@ -323,14 +338,18 @@ Assets:
 - Assets/Textures/Material Textures/FlameNoiseTexture.png
 - Assets/Textures/Material Textures/UnstableDesignHolderTexture.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileMain.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltRachetKnob.mat
 - Assets/Shaders/3D Shaders/SonarFx.shader
 - Assets/Shaders/3D Shaders/Hologram.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
+- Assets/Textures/Icons/Item/EngineersToolbelt.png
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
+- Assets/Models/Raw Models/EngineersToolbelt.blend
 - Assets/Textures/Material Textures/414.jpg
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreFlap.mat
 - Assets/Shaders/3D Shaders/VFX Master.shader
 - Assets/Models/Raw Models/BloodSoakedShield.blend
+- Assets/Textures/Material Textures/9393-normal.jpg
 - Assets/Textures/Material Textures/4638-v8.jpg
 - Assets/Shaders/3D Shaders/SmoothOutline.shader
 - Assets/Animations/AlienMagnetRedTorus.anim
@@ -415,7 +434,9 @@ Assets:
 - Assets/Textures/Material Textures/LightningRamp1.png
 - Assets/Textures/Material Textures/3398-normal.jpg
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordProjectile.mat
+- Assets/Textures/Material Textures/screws-texture.png
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignFrontTexture.mat
+- Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTapeStopper.mat
 - Assets/Animations/InspiringDroneThrusterPlume.anim
 - Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png
 - Assets/Textures/Material Textures/LabelTexture.png
