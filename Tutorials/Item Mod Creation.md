@@ -139,6 +139,8 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 	```csharp
 	using BepInEx;
 	using R2API;
+	using System.Reflection;
+	using UnityEngine;
 
 	namespace MyModCsProjDirectoryName
 	{
@@ -205,14 +207,14 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 		public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
 		public const string ModName = "MyModName";
 		public const string ModVer = "0.0.1";
+		
+		public static AssetBundle MainAssets;
 
 		public void Awake()
 		{
 				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
 			{
-				var bundle = AssetBundle.LoadFromStream(stream);
-				var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
-				ResourcesAPI.AddProvider(provider);
+				MainAssets = AssetBundle.LoadFromStream(stream);
 			}
 		}
 	}
@@ -222,13 +224,14 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 	```csharp
 	using BepInEx;
 	using R2API;
+	using System.Reflection;
+	using UnityEngine;
 
 	namespace MyModCSProjDirectoryName
 	{
 		[BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
 		[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
 		[BepinPlugin(ModGuid, ModName, ModVer)]
-		[R2APISubmoduleDependency(nameof(ResourcesAPI))]
 		
 		public class Main : BaseUnityPlugin
 		{
@@ -236,24 +239,34 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 			public const string ModName = "MyModName";
 			public const string ModVer = "0.0.1";
 		
+		    public static AssetBundle MainAssets;
+		
 			public void Awake()
 			{
 				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
 				{
-					var bundle = AssetBundle.LoadFromStream(stream);
-					var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
-					ResourcesAPI.AddProvider(provider);
+					MainAssets = AssetBundle.LoadFromStream(stream);
 				}
 			}
 		}
 	}
 	```
 
-13. As we utilize more of R2API, we'll need to add more onto the `R2APISubmoduleDependency` attribute. Doing so just requires you to alter it like so with whatever API you need to load in. In this example we'll load in ItemAPI alongside the ResourcesAPI:
+13. As we utilize more of R2API, we'll need to add and use various parts of R2API's submodules. To do so, we'll use the `R2APISubmoduleDependency` attribute, and add onto said attribute the further we go along. Doing so just requires you to alter it like so with whatever API you need to load in. In this example we'll load in ItemAPI:
 	```csharp
-	[R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(ItemAPI))]
+	[R2APISubmoduleDependency(nameof(ItemAPI))]
 	```
-14. Easy right? Let's move on to the harder bits now.
+14. Easy right? To add more onto it, put a comma after `nameof(ItemAPI)` and add another. Let's move on to the harder bits now.
+
+15. You're probably noticing a few errors pop up in various places here. We'll need to add a reference to a Unity engine dll. In your Risk of Rain 2 folder, look for the `Managed` folder.
+
+16. If you've followed a competent tutorial, it will have recommended you to make a libs folder in your Visual Studio project directory (the one with your csproj file). If you haven't yet, make one.
+
+17. If you're referencing the `BepinEx` and `R2API` dlls from anywhere but the libs folder, go ahead and remove those references now from your dependencies. Then, copy the dlls to the libs folder we made in the previous step, and add them back in as references now.
+
+18. Back in the `Managed` folder, look for the `UnityEngine` dll, and `UnityEngine.AssetBundleModule` dll. Copy these to your libs folder, and add them as references in your visual studio project.
+
+19. You should have noticed the errors go away now.
 
 -----------
 
@@ -295,8 +308,8 @@ If you're not too experienced with formal programming you're probably wondering,
     - A `Full Item Description` field - This is the long description of our item. It should be detailed.
     - A `Lore Entry` field - This is our lore snippet for the item, they're optional but users like to read them sometimes.
     - An `Item Tier` field - This is what tier our item will appear in. `ItemTier.Lunar` for example.
-    - An `Item Model Path` field  - This is the path to our item model in our asset bundle. Like `"@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab"`
-    - An `Item Icon Path` field - This is the path to our item icon in our asset bundle. Like `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png"`
+    - An `Item Model` field  - This is the direct reference to our model in our asset bundle. We need to load it in when we set this, and we can do it with our MainAsset file. Like `MainAssets.LoadAsset<type>("nameoffile.extension");`
+    - An `Item Icon` field - This is the direct reference to our item icon in our asset bundle. We need to load it in when we set this, and we can do it with our MainAsset file. Like `MainAssets.LoadAsset<type>("nameoffile.extension");`
     - An `Initialization` method - Necessary in ordering your code execution flow in your items/item base (or what executes in what order). Also in the context of this tutorial, it will allow you to easily pass through the config file provided to you automatically by BepinEx to allow easy config entries. More on this later.
     - An `Item Display Rule Setup` method - Necessary for an easy time setting up the actual ingame display for your item models. The `ItemDisplayRuleDict` we return from this method will allow us to attach our item display rules to our item definition.
     - A `Hooks` method - Necessary to keep track of what events/methods we subscribe to that we use to give our item its functionality.
@@ -343,8 +356,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			public abstract ItemTier Tier { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 		}
 	}
 	```
@@ -369,8 +382,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			public abstract ItemTier Tier { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 		}
@@ -397,8 +410,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			public abstract ItemTier Tier { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -468,8 +481,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			public abstract ItemTier Tier { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -491,27 +504,29 @@ If you're not too experienced with formal programming you're probably wondering,
 	```csharp
 	using BepInEx;
 	using R2API;
+	using System.Reflection;
+	using UnityEngine;
 
 	namespace MyModCSProjDirectoryName
 	{
 		[BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
 		[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
 		[BepinPlugin(ModGuid, ModName, ModVer)]
-		[R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(LanguageAPI))]
+		[R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI))]
 		
 		public class Main : BaseUnityPlugin
 		{
 			public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
 			public const string ModName = "MyModName";
 			public const string ModVer = "0.0.1";
+			
+			public static AssetBundle MainAssets;
 		
 			public void Awake()
 			{
 				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
 				{
-					var bundle = AssetBundle.LoadFromStream(stream);
-					var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
-					ResourcesAPI.AddProvider(provider);
+					MainAssets = AssetBundle.LoadFromStream(stream);
 				}
 			}
 		}
@@ -538,8 +553,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			public abstract ItemTier Tier { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -569,8 +584,8 @@ If you're not too experienced with formal programming you're probably wondering,
     - `pickupToken` - The string corresponding to the language token for the pickup description of the item. For example, `ITEM_OMNIPOTENT_EGG_PICKUP`.
     - `descriptionToken` - The string corresponding to the language token for the detailed description of the item. For example, `ITEM_OMNIPOTENT_EGG_DESCRIPTION`.
     - `loreToken` - The string corresponding to the language token for the lorebook entry of the item. For example, `ITEM_OMNIPOTENT_EGG_LORE`.
-    - `pickupModelPath` - The string path that leads to the model for the item in our asset bundle. Since we have defined a provider (`@MyModName`) in our main class while setting up the asset bundle, we can use it in our string. For example, `"@MyModName:Assets/Models/Prefab/Item/OmnipotentEgg/OmnipotentEgg.prefab"`.
-    - `pickupIconPath` - The string path that leads to the icon for the item in our asset bundle. For example, `"@MyModName:Assets/Textures/Icons/Item/OmnipotentEggIcon.png"`.
+    - `pickupModelPrefab` - The direct reference to a prefab from our assetbundle. This requires a GameObject, we provide one in our `ItemModel` field which we'll use to set this.
+    - `pickupIconSprite` - The direct reference to a prefab from our assetbundle. This requires a Sprite, we provide one in our `ItemIcon` field which we'll use to set this..
     - `hidden` - A boolean that determines whether or not the item in question will be displayed upon the others in the lore screen, and item selections. **That said, not every item requires this.**
     - `tags` - An enum array that represents the category of your item, and gives your item unique features from the base game. An example is `ItemTag.AIBlacklist` which will prevent the AI from obtaining or using your item. Another is `ItemTag.Utility` which will make the item appear in `Utility` chests. **That said, not every item requires this.**
     - `canRemove` - A boolean that determines whether or not we can drop the item, or remove it from our inventory with things like the Bazaar cauldrons. **That said, not every item requires this.**
@@ -599,8 +614,8 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
 			public virtual bool Hidden { get; } = false;        
@@ -626,7 +641,7 @@ If you're not too experienced with formal programming you're probably wondering,
 		}
 	}
 	```
-20. Now we create our ItemDef. It is made up of all the properties we've defined thus far in a manner of speaking.
+20. Now we create our `ItemDef`. First, we create a field to save our `ItemDef` that we are about to create. Each class that inherits this abstract base will have its own defined `ItemDef` here. Now we create the `ItemDef` itself. It is made up of all the properties we've defined thus far in a manner of speaking.
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -648,12 +663,14 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
 			public virtual bool Hidden { get; } = false;        
 			
+			public ItemDef ItemDef;
+			
 			public abstract void Init(ConfigFile config);
 			
 			protected void CreateLang()
@@ -668,27 +685,25 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};            
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
 			}
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-21. To register the item, we'll need to use `ItemAPI`. `ItemAPI.Add()` requires one argument, a new `CustomItem`. `CustomItem` requires the `ItemDef` we just created, and an `ItemDisplayRuleDict` which we have created a method for earlier and will return an Index of our newly registered item. First things first, let's create a variable to store our `ItemDisplayRuleDict` and we'll do it by calling that method. Like so:
+21. To register the item, we'll need to use `ItemAPI`. `ItemAPI.Add()` requires one argument, a new `CustomItem`. `CustomItem` requires the `ItemDef` we just created, and an `ItemDisplayRuleDict` which we have created a method for earlier. First things first, let's create a variable to store our `ItemDisplayRuleDict` and we'll do it by calling that method. Like so:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -710,12 +725,14 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
 			public virtual bool Hidden { get; } = false;        
 			
+			public ItemDef ItemDef;
+			
 			public abstract void Init(ConfigFile config);
 			
 			protected void CreateLang()
@@ -730,20 +747,19 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};       
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
+                
 				var itemDisplayRuleDict = CreateItemDisplayRules();
 			}
 			
@@ -751,7 +767,7 @@ If you're not too experienced with formal programming you're probably wondering,
 		}
 	}
 	```
-22. Now that we have the `ItemDisplayRuleDict`, we can register the item with R2API's `ItemAPI`. Firstly, let's add a field `Index` to our `ItemBase` that will store the index of our item when we register it. This index can be used later in a multitude of ways, one of which allows us to easily create an Inventory Count method to track how many of our item we have. To create the field, we just do:
+22. Now that we have the `ItemDisplayRuleDict`, we can register the item with R2API's `ItemAPI`. As a recap that `ItemDef` we created can be used later in a multitude of ways, one of which allows us to easily create an Inventory Count method to track how many of our item we have. It is the direct reference to our item. By now your class should be looking like this:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -773,13 +789,13 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
-			public virtual bool Hidden { get; } = false;
+			public virtual bool Hidden { get; } = false;        
 			
-			public ItemIndex Index;
+			public ItemDef ItemDef;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -795,20 +811,19 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};       
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
+                
 				var itemDisplayRuleDict = CreateItemDisplayRules();
 			}
 			
@@ -816,7 +831,7 @@ If you're not too experienced with formal programming you're probably wondering,
 		}
 	}
 	```
-23. Now the moment you've been waiting for, where we register our item. We just need to feed in our `itemDef` and our `itemDisplayRuleDict` to `ItemAPI.Add()` and set our `Index` too.
+23. Now the moment you've been waiting for, where we register our item. We just need to feed in our `ItemDef` and our `itemDisplayRuleDict` to `ItemAPI.Add()`.
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -838,13 +853,13 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
-			public virtual bool Hidden { get; } = false;
+			public virtual bool Hidden { get; } = false;        
 			
-			public ItemIndex Index;
+			public ItemDef ItemDef;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -860,53 +875,54 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};       
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
+                
 				var itemDisplayRuleDict = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+				ItemAPI.Add(new CustomItem(ItemDef, itemDisplayRuleDict));
 			}
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-24. Once again, we'll need to return to our main class and add another `R2APISubmoduleDependency`. This time, it's `ItemAPI`. We'll add it with our usual process:
+24. Once again, we'll need to return to our main class and check our `R2APISubmoduleDependency`. It should look like this so far:
 	```csharp
 	using BepInEx;
 	using R2API;
+	using System.Reflection;
+	using UnityEngine;
 
 	namespace MyModCSProjDirectoryName
 	{
 		[BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
 		[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
 		[BepinPlugin(ModGuid, ModName, ModVer)]
-		[R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(LanguageAPI), nameof(ItemAPI))]
+		[R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI))]
 		
 		public class Main : BaseUnityPlugin
 		{
 			public const string ModGuid = "com.MyUserName.MyModName"; //Our Package Name
 			public const string ModName = "MyModName";
 			public const string ModVer = "0.0.1";
+			
+			public static AssetBundle MainAssets;
 		
 			public void Awake()
 			{
 				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MyCoolModsNamespaceHere.mycoolmod_assets"))
 				{
-					var bundle = AssetBundle.LoadFromStream(stream);
-					var provider = new AssetBundleResourcesProvider("@MyModNamePleaseReplace", bundle);
-					ResourcesAPI.AddProvider(provider);
+					MainAssets = AssetBundle.LoadFromStream(stream);
 				}
 			}
 		}
@@ -934,13 +950,13 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
-			public virtual bool Hidden { get; } = false;
+			public virtual bool Hidden { get; } = false;        
 			
-			public ItemIndex Index;
+			public ItemDef ItemDef;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -956,22 +972,21 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};       
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
+                
 				var itemDisplayRuleDict = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+				ItemAPI.Add(new CustomItem(ItemDef, itemDisplayRuleDict));
 			}
 			
 			public abstract void Hooks();
@@ -986,7 +1001,7 @@ If you're not too experienced with formal programming you're probably wondering,
 		}
 	}
 	```
-26. The process of populating these two methods is going to be extremely similar between the two of them. First, we'll do a condition with an early return to null check the parameter and passing that the parameter's inventory. If our parameter or its inventory is null, we will early return a value of `0`, as in `0` items. If our parameter or its inventory is not null, we'll get the count of our items in that inventory using `parameter.inventory.GetItemCount` which takes our field we defined earlier, `Index`. Let's go ahead and populate those methods like so:
+26. The process of populating these two methods is going to be extremely similar between the two of them. First, we'll do a condition with an early return to null check the parameter and passing that the parameter's inventory. If our parameter or its inventory is null, we will early return a value of `0`, as in `0` items. If our parameter or its inventory is not null, we'll get the count of our items in that inventory using `parameter.inventory.GetItemCount` which takes our field we defined earlier, `ItemDef`. Let's go ahead and populate those methods like so:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -1008,13 +1023,13 @@ If you're not too experienced with formal programming you're probably wondering,
 			public abstract ItemTier Tier { get; }
 			public virtual ItemTag[] ItemTags { get; }
 			
-			public abstract string ItemModelPath { get; }
-			public abstract string ItemIconPath { get; }
+			public abstract GameObject ItemModel { get; }
+			public abstract Sprite ItemIcon { get; }
 			
 			public virtual bool CanRemove { get; } = true;
-			public virtual bool Hidden { get; } = false;
+			public virtual bool Hidden { get; } = false;        
 			
-			public ItemIndex Index;
+			public ItemDef ItemDef;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1030,22 +1045,21 @@ If you're not too experienced with formal programming you're probably wondering,
 			
 			protected void CreateItem()
 			{
-				ItemDef itemDef = new RoR2.ItemDef()
-				{
-					name = "ITEM_" + ItemLangTokenName,
-					nameToken = "ITEM_" + ItemLangTokenName + "_NAME",
-					pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP",
-					descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION",
-					loreToken = "ITEM_" + ItemLangTokenName + "_LORE",
-					pickupModelPath = ItemModelPath,
-					pickupIconPath = ItemIconPath,
-					hidden = Hidden,
-					tags = ItemTags,
-					canRemove = CanRemove,                
-					tier = Tier
-				};       
+                ItemDef = ScriptableObject.CreateInstance<ItemDef>();
+                ItemDef.name = "ITEM_" + ItemLangTokenName;
+                ItemDef.nameToken = "ITEM_" + ItemLangTokenName + "_NAME";
+                ItemDef.pickupToken = "ITEM_" + ItemLangTokenName + "_PICKUP";
+                ItemDef.descriptionToken = "ITEM_" + ItemLangTokenName + "_DESCRIPTION";
+                ItemDef.loreToken = "ITEM_" + ItemLangTokenName + "_LORE";
+                ItemDef.pickupModelPrefab = ItemModel;
+                ItemDef.pickupIconSprite = ItemIcon;
+                ItemDef.hidden = false;
+                ItemDef.canRemove = CanRemove;
+                ItemDef.tier = Tier;
+                ItemDef.tags = ItemTags;
+                
 				var itemDisplayRuleDict = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomItem(itemDef, itemDisplayRuleDict));
+				ItemAPI.Add(new CustomItem(ItemDef, itemDisplayRuleDict));
 			}
 			
 			public abstract void Hooks();
@@ -1054,14 +1068,14 @@ If you're not too experienced with formal programming you're probably wondering,
 			{
 				if (!body || !body.inventory) { return 0; }
 
-				return body.inventory.GetItemCount(IndexOfItem);
+				return body.inventory.GetItemCount(ItemDef);
 			}
 
 			public int GetCount(CharacterMaster master)
 			{
 				if (!master || !master.inventory) { return 0; }
 
-				return master.inventory.GetItemCount(IndexOfItem);
+				return master.inventory.GetItemCount(ItemDef);
 			}
 		}
 	}
@@ -1090,8 +1104,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
 		}
 	}
 	```
@@ -1114,8 +1128,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1148,8 +1162,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1186,8 +1200,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1216,8 +1230,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
     - `pickupToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_PICKUP`.
     - `descriptionToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_DESCRIPTION`.
     - `loreToken` - Just like before, this corresponds to our language token. `EQUIPMENT_BOLT_LAUNCHER_LORE`.
-    - `pickupModelPath` - Just like before, this corresponds to the path to our equipment model.
-    - `pickupIconPath` - Just like before, this corresponds to the path to our equipment icon.
+    - `pickupModelPrefab` - Just like before, this corresponds to a direct reference to our equipment model.
+    - `pickupIconSprite` - Just like before, this corresponds to a direct reference to our equipment icon.
     - `appearsInSinglePlayer` - A boolean that determines whether or not you want this equipment to appear in Singleplayer. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
     - `appearsInMultiplayer` - A boolean that determines whether or not you want this equipment to appear in Multiplayer. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
     - `canDrop` - A boolean that determines whether or not we can remove this equipment from our inventory. **This doesn't have to be changed from the default value we'll assign it, it's optional.**
@@ -1245,8 +1259,8 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1295,8 +1309,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1320,32 +1336,30 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));            
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules()));           
 			}        
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-8. Don't forget to create an `Index` field of type `EquipmentIndex`, and then assign it when registering the equipment like we did before. Like so:
+8. By now your class should look like this:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -1364,8 +1378,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1374,8 +1390,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1391,32 +1405,30 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));            
-			}        
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules()));           
+			}              
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-9. This next part is important. We're going to subscribe to an event for the first time. Think of the process as if we had a conveyor belt that leads to two (or more) paths. On one path, we allow the items on the belt to pass as they are. On the others, we modify the items to do specific things if they match certain conditions. At the end (or sometimes in the beginning) we return these modified items back into the belt same as the others. Following me? The point of this in context to this section of the tutorial is that we're going to subscribe to an event and we're going to call a method if the data in that event matches our equipment's `Index`. We'll be using the event `On.RoR2.EquipmentSlot.PerformEquipmentAction`. Like so:
+9. This next part is important. We're going to subscribe to an event for the first time. Think of the process as if we had a conveyor belt that leads to two (or more) paths. On one path, we allow the items on the belt to pass as they are. On the others, we modify the items to do specific things if they match certain conditions. At the end (or sometimes in the beginning) we return these modified items back into the belt same as the others. Following me? The point of this in context to this section of the tutorial is that we're going to subscribe to an event and we're going to call a method if the data in that event matches our equipment's `ItemDef`. We'll be using the event `On.RoR2.EquipmentSlot.PerformEquipmentAction`. Like so:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -1435,8 +1447,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1445,8 +1459,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1462,25 +1474,23 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules())); 
 				On.RoR2.EquipmentSlot.PerformEquipmentAction +=
 			}        
 			
@@ -1507,8 +1517,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1517,8 +1529,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1534,37 +1544,35 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules())); 
 				On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
 			}        
 			
-			private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
-			{
-			}        
+            private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
+            {
+			}
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-11. The general rule with these kinds of methods is that if we're not planning to disrupt the original input of the method, we return the original input. What we want to do in this method is check if the input data of the method `equipmentIndex` is our equipment's `Index`. If it is, we will call a method we'll create in a second to allow us an easier time creating equipment use actions. If it isn't, we'll return the original input by passing it back into the parameter `orig`. Let's set up the logic for that:
+11. The general rule with these kinds of methods is that if we're not planning to disrupt the original input of the method, we return the original input. What we want to do in this method is check if the input data of the method `equipmentDef` is our equipment's `EquipmentDef`. If it is, we will call a method we'll create in a second to allow us an easier time creating equipment use actions. If it isn't, we'll return the original input by passing it back into the parameter `orig`. Let's set up the logic for that:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -1583,8 +1591,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1593,8 +1603,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1610,44 +1618,42 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules())); 
 				On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
-			}        
+			}            
 			
-			private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
-			{
-				if(equipmentIndex == Index)
-				{
-				}
-				else
-				{
-					return orig(self, equipmentIndex);
-				}
-			}        
+            private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
+            {
+                if (equipmentDef == EquipmentDef)
+                {
+                }
+                else
+                {
+                    return orig(self, equipmentDef);
+                }
+            }   
 			
 			public abstract void Hooks();        
 		}
 	}
 	```
-12. In our condition `equipmentIndex == Index` we're going to be returning the result of a method that will check if we've activated our equipment and whatever behaviors we've defined on it. We'll be doing something similar to a proxy method of type `bool` here, by having our method have an `EquipmentSlot` parameter. We'll call it `ActivateEquipment`. It's easier done than said, so let's start by creating the method:
+12. In our condition `equipmentDef == EquipmentDef` we're going to be returning the result of a method that will check if we've activated our equipment and whatever behaviors we've defined on it. We'll be doing something similar to a proxy method of type `bool` here, by having our method have an `EquipmentSlot` parameter. We'll call it `ActivateEquipment`. It's easier done than said, so let's start by creating the method:
 	```csharp
 	using BepInEx.Configuration;
 	using ROR2;
@@ -1666,8 +1672,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1676,8 +1684,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1693,38 +1699,36 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules())); 
 				On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
-			}        
+			}            
 			
-			private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
-			{
-				if(equipmentIndex == Index)
-				{
-				}
-				else
-				{
-					return orig(self, equipmentIndex);
-				}
-			}        
+            private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
+            {
+                if (equipmentDef == EquipmentDef)
+                {
+                }
+                else
+                {
+                    return orig(self, equipmentDef);
+                }
+            }    
 			
 			protected abstract bool ActivateEquipment(EquipmentSlot slot);
 			
@@ -1751,8 +1755,10 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public abstract string EquipmentFullDescription { get; }
 			public abstract string EquipmentLore { get; }
 			
-			public abstract string EquipmentModelPath { get; }
-			public abstract string EquipmentIconPath { get; }
+			public abstract GameObject EquipmentModel { get; }
+			public abstract Sprite EquipmentIcon { get; }
+			
+			public EquipmentDef EquipmentDef;
 			
 			public virtual bool AppearsInSinglePlayer { get; } = true;
 			public virtual bool AppearsInMultiPlayer { get; } = true;
@@ -1761,8 +1767,6 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			public virtual bool EnigmaCompatible { get; } = true;
 			public virtual bool IsBoss { get; } = false;
 			public virtual bool IsLunar { get; } = false;
-			
-			public static EquipmentIndex Index;
 			
 			public abstract void Init(ConfigFile config);
 			
@@ -1778,39 +1782,37 @@ With that, we've defined an `ItemBase` that we can use for our items. We'll impr
 			
 			protected void CreateEquipment()
 			{
-				EquipmentDef equipmentDef = new RoR2.EquipmentDef()
-				{
-					name = "EQUIPMENT_" + EquipmentLangTokenName,
-					nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME",
-					pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP",
-					descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION",
-					loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE",
-					pickupModelPath = EquipmentModelPath,
-					pickupIconPath = EquipmentIconPath,
-					appearsInSinglePlayer = AppearsInSinglePlayer,
-					appearsInMultiPlayer = AppearsInMultiPlayer,
-					canDrop = CanDrop,
-					cooldown = Cooldown,
-					enigmaCompatible = EnigmaCompatible,
-					isBoss = IsBoss,
-					isLunar = IsLunar
-				};        
-				var itemDisplayRules = CreateItemDisplayRules();
-				Index = ItemAPI.Add(new CustomEquipment(equipmentDef, itemDisplayRules));
+                EquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
+                EquipmentDef.name = "EQUIPMENT_" + EquipmentLangTokenName;
+                EquipmentDef.nameToken = "EQUIPMENT_" + EquipmentLangTokenName + "_NAME";
+                EquipmentDef.pickupToken = "EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP";
+                EquipmentDef.descriptionToken = "EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION";
+                EquipmentDef.loreToken = "EQUIPMENT_" + EquipmentLangTokenName + "_LORE";
+                EquipmentDef.pickupModelPrefab = EquipmentModel;
+                EquipmentDef.pickupIconSprite = EquipmentIcon;
+                EquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;
+                EquipmentDef.appearsInMultiPlayer = AppearsInMultiPlayer;
+                EquipmentDef.canDrop = CanDrop;
+                EquipmentDef.cooldown = Cooldown;
+                EquipmentDef.enigmaCompatible = EnigmaCompatible;
+                EquipmentDef.isBoss = IsBoss;
+                EquipmentDef.isLunar = IsLunar;
+    
+                ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules())); 
 				On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
-			}        
+			}            
 			
-			private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentIndex equipmentIndex)
-			{
-				if(equipmentIndex == Index)
-				{
-					return ActivateEquipment(self);
-				}
-				else
-				{
-					return orig(self, equipmentIndex);
-				}
-			}        
+            private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
+            {
+                if (equipmentDef == EquipmentDef)
+                {
+                    return ActivateEquipment(self);
+                }
+                else
+                {
+                    return orig(self, equipmentDef);
+                }
+            }          
 			
 			protected abstract bool ActivateEquipment(EquipmentSlot slot);
 			
@@ -1875,8 +1877,8 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			
 			public override ItemTier Tier => throw new NotImplementedException();        
 
-			public override string ItemModelPath => throw new NotImplementedException();
-			public override string ItemIconPath => throw new NotImplementedException();
+			public override GameObject ItemModel => throw new NotImplementedException();
+			public override Sprite ItemIcon => throw new NotImplementedException();
 			
 			public override void Init(ConfigFile config)
 			{
@@ -1921,8 +1923,8 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			
 			public override ItemTier Tier => throw new NotImplementedException();        
 
-			public override string ItemModelPath => throw new NotImplementedException();
-			public override string ItemIconPath => throw new NotImplementedException();
+			public override GameObject ItemModel => throw new NotImplementedException();
+			public override Sprite ItemIcon => throw new NotImplementedException();
 			
 			public float DamageOfMainProjectile;
 			public float AdditionalDamageOfMainProjectilePerStack;
@@ -2021,8 +2023,8 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			
 			public override ItemTier Tier => throw new NotImplementedException();        
 
-			public override string ItemModelPath => throw new NotImplementedException();
-			public override string ItemIconPath => throw new NotImplementedException();
+			public override GameObject ItemModel => throw new NotImplementedException();
+			public override Sprite ItemIcon => throw new NotImplementedException();
 			
 			public float DamageOfMainProjectile;
 			public float AdditionalDamageOfMainProjectilePerStack;        
@@ -2078,10 +2080,20 @@ Now that we've defined both of our abstract classes that will serve as the templ
 	```csharp
 			public override ItemTier Tier => ItemTier.Tier2;
 	```
-17. Fill out the model and icon paths as we discussed before by using the provider and a string path to the asset (including the filetype).
+17. Load in the model and icon. To do so, first at the very top of the file add in a static using to our main class. This will allow us to use the static field for our asset bundle as if we were in the main class. Then to load things in, you can reference the asset bundle from the main class by using `MainAssets.LoadAsset<type>("filename.extension");`
+    ```csharp
+	using BepInEx.Configuration;
+	using R2API;
+	using RoR2;
+	using System;
+	using System.Collections.Generic;
+	using System.Text;
+	using static MyModsNameSpace.MyMainClass;
+	```
+	
 	```csharp
-			public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
-			public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+			public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("OmnipotentEgg.prefab");
+			public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("OmnipotentEgg.png");
 	```
 18. Now in our `Init` method, simply add a `CreateLang();` under `CreateConfig(config);`. This will initialize our Language Token registry after we bind the config values to the fields, resulting in a description that changes if the user changes their values.
 
@@ -2093,6 +2105,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
 	using System;
 	using System.Collections.Generic;
 	using System.Text;
+	using static MyModsNameSpace.MyMainClass;	
 
 	namespace MyModsNameSpace.Items
 	{
@@ -2110,8 +2123,8 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			
 			public override ItemTier Tier => ItemTier.Tier2;        
 
-			public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
-			public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+			public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("OmnipotentEgg.prefab");
+			public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("OmnipotentEgg.png");
 			
 			public float DamageOfMainProjectile;
 			public float AdditionalDamageOfMainProjectilePerStack;        
@@ -2148,6 +2161,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
 	using System;
 	using System.Collections.Generic;
 	using System.Text;
+	using static MyModsNameSpace.MyMainClass;	
 
 	namespace MyModsNameSpace.Items
 	{
@@ -2165,8 +2179,8 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			
 			public override ItemTier Tier => ItemTier.Tier2;        
 
-			public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
-			public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+			public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("OmnipotentEgg.prefab");
+			public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("OmnipotentEgg.png");
 			
 			public float DamageOfMainProjectile;
 			public float AdditionalDamageOfMainProjectilePerStack;        
@@ -2201,37 +2215,37 @@ Now that we've defined both of our abstract classes that will serve as the templ
 	}
 	```
 21. When creating a projectile, there are a few paths you can go:
-     - You can create your own projectile from scratch, which takes considerable effort and experience. 
- 
+     - You can create your own projectile from scratch, which takes considerable effort and experience.
      - You can use a base game projectile, such as Commando's `FMJ`.  
      - You can clone a base game projectile, and edit the properties of it safely. **This is what we're going to do.**
 22. Below our fields and properties, put a new `public` `static` field of type  `GameObject`. Name it `EggProjectile`. Like so:
     ```csharp
-    using BepInEx.Configuration;
-    using R2API;
-    using RoR2;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    
-    namespace MyModsNameSpace.Items
-    {
-        public class OmnipotentEgg : ItemBase
-        {
-            public override string ItemName => "Omnipotent Egg";
-            
-            public override string ItemLangTokenName => "OMNIPOTENT_EGG";
-            
-            public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
-            
-            public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
-            
-            public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
-            
-            public override ItemTier Tier => ItemTier.Tier2;        
-    
-            public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
-            public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+	using BepInEx.Configuration;
+	using R2API;
+	using RoR2;
+	using System;
+	using System.Collections.Generic;
+	using System.Text;
+	using static MyModsNameSpace.MyMainClass;	
+
+	namespace MyModsNameSpace.Items
+	{
+		public class OmnipotentEgg : ItemBase
+		{
+			public override string ItemName => "Omnipotent Egg";
+			
+			public override string ItemLangTokenName => "OMNIPOTENT_EGG";
+			
+			public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
+			
+			public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
+			
+			public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
+			
+			public override ItemTier Tier => ItemTier.Tier2;        
+
+			public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("OmnipotentEgg.prefab");
+			public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("OmnipotentEgg.png");
             
             public float DamageOfMainProjectile;
             public float AdditionalDamageOfMainProjectilePerStack;
@@ -2293,7 +2307,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
 			}    
     ```
     
-27. Now that we've got the properties of our projectile set up, all we have to do now is register it and then add it to the projectile catalog. The first one is done with `PrefabAPI`'s `RegisterNetworkPrefab` which accepts a `GameObject`. The second one will be us adding to the list of projectiles in the Projectile Catalog. Let's do so now:
+27. Now that we've got the properties of our projectile set up, all we have to do now is register it and then add it to the projectile catalog. The first one is done with `PrefabAPI`'s `RegisterNetworkPrefab` which accepts a `GameObject`. The second one will be us adding to the list of projectiles using the new `ProjectileAPI`. Let's do so now:
     ```csharp
 			public void CreateProjectile()
 			{
@@ -2303,16 +2317,13 @@ Now that we've defined both of our abstract classes that will serve as the templ
 				damage = DamageType.SlowOnHit;
 				
                 if (EggProjectile) PrefabAPI.RegisterNetworkPrefab(EggProjectile);
-
-                RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-                {
-                    list.Add(EggProjectile);
-                };
+                
+                ProjectileAPI.Add(EggProjectile);
 			}    
     ```
-28. Back in the main class, add `PrefabAPI` into your `R2APISubmoduleDependency`attribute as we've done multiple times now when we use one of `R2API`'s submodules.
+28. Back in the main class, add `PrefabAPI` and `ProjectileAPI` into your `R2APISubmoduleDependency`attribute as we've done multiple times now when we use one of `R2API`'s submodules.
     ```csharp
-    		[R2APISubmoduleDependency(nameof(ResourcesAPI), nameof(LanguageAPI), nameof(ItemAPI), nameof(PrefabAPI))]
+    		[R2APISubmoduleDependency(nameof(LanguageAPI), nameof(ItemAPI), nameof(PrefabAPI)), nameof(ProjectileAPI)]
     ```
 29. Now for the hellish bit, `ItemDisplayRules`. You can skip this over completely and just return an empty `ItemDisplayRuleDict` in the method `CreateItemDisplayRules()`, or you can sit through this to have your items appear on characters. First things first, give your `CreateItemDisplayRules` method a body. Like so:
     ```csharp
@@ -2322,33 +2333,34 @@ Now that we've defined both of our abstract classes that will serve as the templ
         }
     ```
 30. Create another `GameObject` field under your properties at the start of the class with the `public` access modifier and `static` keyword. Name it something like `ItemBodyModelPrefab`. This field will be used to set up your `ItemDisplay`, as well as the `RendererInfos` for it. As an added bonus in our public class, this allows mod authors to easily add in your `ItemDisplay` to their models by referencing it.
-31. We'll assign the field in our `CreateItemDisplayRules` method by using `Resource.Load<Type>` to load in our `Prefab`. For the path, we can use the one we set in our properties already, `ItemModelPath`. At this point your code should look similar to the following:
+31. We'll assign the field in our `CreateItemDisplayRules` method by using our `ItemModel` we set up earlier. At this point your code should look similar to the following:
     ```csharp
-    using BepInEx.Configuration;
-    using R2API;
-    using RoR2;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    
-    namespace MyModsNameSpace.Items
-    {
-        public class OmnipotentEgg : ItemBase
-        {
-            public override string ItemName => "Omnipotent Egg";
-            
-            public override string ItemLangTokenName => "OMNIPOTENT_EGG";
-            
-            public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
-            
-            public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
-            
-            public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
-            
-            public override ItemTier Tier => ItemTier.Tier2;        
-    
-            public override string ItemModelPath => "@MyModName:Assets/Models/Prefabs/Item/OmnipotentEgg/OmnipotentEgg.prefab";
-            public override string ItemIconPath => "@MyModName:Assets/Textures/Icons/Item/OmnipotentEgg.png";
+	using BepInEx.Configuration;
+	using R2API;
+	using RoR2;
+	using System;
+	using System.Collections.Generic;
+	using System.Text;
+	using static MyModsNameSpace.MyMainClass;	
+
+	namespace MyModsNameSpace.Items
+	{
+		public class OmnipotentEgg : ItemBase
+		{
+			public override string ItemName => "Omnipotent Egg";
+			
+			public override string ItemLangTokenName => "OMNIPOTENT_EGG";
+			
+			public override string ItemPickupDesc => "Shoot a projectile out when you are damaged";
+			
+			public override string ItemFullDescription => $"When you are damaged, shoot out a projectile for <style=cIsDamage>{DamageOfMainProjectile}</style> <style=cStack>(+{AdditionalDamageOfMainProjectilePerStack}).";
+			
+			public override string ItemLore => "Since the dawn of man, one egg has always stood above the rest. This egg.";
+			
+			public override ItemTier Tier => ItemTier.Tier2;        
+
+			public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("OmnipotentEgg.prefab");
+			public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("OmnipotentEgg.png");
             
             public float DamageOfMainProjectile;
             public float AdditionalDamageOfMainProjectilePerStack;
@@ -2376,16 +2388,13 @@ Now that we've defined both of our abstract classes that will serve as the templ
 				damage = DamageType.SlowOnHit;
 				
                 if (EggProjectile) PrefabAPI.RegisterNetworkPrefab(EggProjectile);
-
-                RoR2.ProjectileCatalog.getAdditionalEntries += list =>
-                {
-                    list.Add(EggProjectile);
-                };
-			}
+                
+                ProjectileAPI.Add(EggProjectile);
+			}   
     
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
             }
     
             public override void Hooks()
@@ -2400,7 +2409,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
             }
     ```
@@ -2436,7 +2445,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
                 itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
             }
@@ -2446,7 +2455,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
                 itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -2470,7 +2479,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
                 itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -2498,7 +2507,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
                 itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -2534,7 +2543,7 @@ Now that we've defined both of our abstract classes that will serve as the templ
     ```csharp
             public override ItemDisplayRuleDict CreateItemDisplayRules()
             {
-                ItemBodyModelPrefab = Resources.Load<GameObject>(ItemModelPath);
+                ItemBodyModelPrefab = ItemModel;
                 var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
                 itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
