@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2542995443
+CRC: 1743836166
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 809bf5cc8ee5fd7ee60e537fe3862704
+    Hash: d3ab801962d9e457247982db4926c1f1
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -182,6 +182,7 @@ Assets:
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
 - Assets/Textures/Icons/Achievement/BlasterSwordAchievementIcon.png
 - Assets/Textures/Material Textures/12148-beams.png
+- Assets/Animations/HiveInner 1.controller
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgcloudremap.shader
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
@@ -302,6 +303,7 @@ Assets:
 - Assets/Textures/Materials/Miscellaneous/BlackHole.mat
 - Assets/Textures/Material Textures/1378-normal.jpg
 - Assets/Textures/Material Textures/BlueToTransparentRampCircular.png
+- Assets/Models/Prefabs/Equipment/PheromoneSac/PheromoneSac.prefab
 - Assets/Textures/Material Textures/FeatheredPlumeNormal.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingGlass.mat
 - Assets/Shaders/3D Shaders/UVDistortion.shader
@@ -314,7 +316,7 @@ Assets:
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClasp.mat
 - Assets/Textures/Material Textures/MagicCircleEmission.png
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
-- Assets/Textures/Materials/Item/PheromoneSac/PheromoneSacHiveInner.mat
+- Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveInner.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltHandle.mat
 - Assets/Textures/Icons/Item/VoidheartIcon.png
 - Assets/Textures/Material Textures/4793.jpg
@@ -342,7 +344,7 @@ Assets:
 - Assets/Shaders/3D Shaders/SonarFx.shader
 - Assets/Shaders/3D Shaders/Hologram.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
-- Assets/Textures/Icons/Item/EngineersToolbelt.png
+- Assets/Textures/Icons/Item/EngineersToolbeltIcon.png
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
 - Assets/Models/Raw Models/EngineersToolbelt.blend
 - Assets/Textures/Material Textures/414.jpg
@@ -354,11 +356,12 @@ Assets:
 - Assets/Shaders/3D Shaders/SmoothOutline.shader
 - Assets/Animations/AlienMagnetRedTorus.anim
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingHolder.mat
-- Assets/Textures/Materials/Item/PheromoneSac/PheromoneSacHiveOuter.mat
+- Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveOuter.mat
 - Assets/Shaders/3D Shaders/Distortion.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgopaquecloudremap.shader
 - Assets/Textures/Material Textures/BlueToTransparentRampInner.png
 - Assets/Shaders/3D Shaders/SpriteSheet.shader
+- Assets/Textures/Icons/Equipment/PheromoneSacIcon.png
 - Assets/Models/Raw Models/InspiringDrone.blend
 - Assets/Shaders/3D Shaders/FireParticle.shader
 - Assets/Textures/Material Textures/BlasterSwordTexture.png

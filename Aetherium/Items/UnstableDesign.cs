@@ -574,46 +574,45 @@ namespace Aetherium.Items
 
             private void ManageTrackingIndicators(CharacterBody targetBody)
             {
-                if (NetworkServer.active)
+
+                if (targetBody && body)
                 {
-                    if (targetBody && body)
+                    if (!TrackerObject)
                     {
-                        if (!TrackerObject)
-                        {
-                            TrackerObject = GameObject.Instantiate(TargetingIndicatorSphere);
-                            NetworkServer.Spawn(TrackerObject);
-                        }
-                        if (!TrackerArrow)
-                        {
-                            TrackerArrow = GameObject.Instantiate(TargetingIndicatorArrow);
-                            NetworkServer.Spawn(TrackerArrow);
-                        }
-
-                        if (TrackerObject && TrackerArrow)
-                        {
-                            var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
-                            TrackerObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-                            TrackerObject.transform.position = calculatedUpPosition;
-                            TrackerArrow.transform.position = ClosestPointOnSphereToPoint(TrackerObject.transform.position, 0.4f, body.transform.position);
-                            TrackerArrow.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-                            TrackerArrow.transform.rotation = Quaternion.LookRotation(body.transform.position - TrackerArrow.transform.position);
-                        }
+                        TrackerObject = GameObject.Instantiate(TargetingIndicatorSphere);
+                        NetworkServer.Spawn(TrackerObject);
                     }
-                    else
+                    if (!TrackerArrow)
                     {
-                        if (TrackerObject)
-                        {
-                            UnityEngine.Object.Destroy(TrackerObject);
-                            NetworkServer.UnSpawn(TrackerObject);
-                        }
-                        if (TrackerArrow)
-                        {
-                            UnityEngine.Object.Destroy(TrackerArrow);
-                            NetworkServer.UnSpawn(TrackerArrow);
-                        }
+                        TrackerArrow = GameObject.Instantiate(TargetingIndicatorArrow);
+                        NetworkServer.Spawn(TrackerArrow);
+                    }
 
+                    if (TrackerObject && TrackerArrow)
+                    {
+                        var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
+                        TrackerObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+                        TrackerObject.transform.position = calculatedUpPosition;
+                        TrackerArrow.transform.position = ClosestPointOnSphereToPoint(TrackerObject.transform.position, 0.4f, body.transform.position);
+                        TrackerArrow.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+                        TrackerArrow.transform.rotation = Quaternion.LookRotation(body.transform.position - TrackerArrow.transform.position);
                     }
                 }
+                else
+                {
+                    if (TrackerObject)
+                    {
+                        UnityEngine.Object.Destroy(TrackerObject);
+                        NetworkServer.UnSpawn(TrackerObject);
+                    }
+                    if (TrackerArrow)
+                    {
+                        UnityEngine.Object.Destroy(TrackerArrow);
+                        NetworkServer.UnSpawn(TrackerArrow);
+                    }
+
+                }
+
             }
 
             private void PullAggressionFromTarget(CharacterBody targetBody)

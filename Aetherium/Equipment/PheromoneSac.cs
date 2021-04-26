@@ -6,21 +6,20 @@ using R2API;
 using R2API.Networking;
 using R2API.Networking.Interfaces;
 using RoR2;
+using RoR2.CharacterAI;
 using RoR2.Orbs;
 using RoR2.Projectile;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Equipment
 {
     public class PheromoneSac : EquipmentBase<PheromoneSac>
     {
-        public static ConfigEntry<float> BaseRadiusGranted;
-        public static ConfigEntry<float> ProjectileAbsorptionTime;
-        public static ConfigEntry<float> JarCooldown;
-        public static ConfigEntry<bool> IWantToLoseFriendsInChaosMode;
 
         public override string EquipmentName => "Pheromone Sac";
 
@@ -28,10 +27,7 @@ namespace Aetherium.Equipment
 
         public override string EquipmentPickupDesc => "On activation, release a cloud of pheromones that frenzy enemies caught inside of it.";
 
-        public override string EquipmentFullDescription => $"On activation, <style=cIsUtility>absorb projectiles</style> in a <style=cIsUtility>{BaseRadiusGranted.Value}m</style> radius for <style=cIsUtility>{ProjectileAbsorptionTime.Value}</style> second(s). " +
-            $"Upon success, <style=cIsDamage>fire all of the projectiles out of the jar</style> upon next activation. " +
-            $"The damage traits of each projectiles fired from the jar depends on the <style=cIsDamage>bullets you absorbed</style>. " +
-            $"After all the projectiles have been fired from the jar, it will need to cool down.";
+        public override string EquipmentFullDescription => "";
 
         public override string EquipmentLore => $"[INCIDENT NUMBER 421076]\n" +
             $"[VISUAL RECORDING RECOVERED FROM BLACK BOX ON DERELICT 'UES SAFETY FIRST' ENGINEERING VESSEL. TRANSCRIPT TO FOLLOW]\n" +
@@ -51,24 +47,20 @@ namespace Aetherium.Equipment
             $"[The jar activates, shooting its contents around the room. One of the projectiles hits the hull and explodes, ripping a hole through it moments before the feed is lost.]\n" +
             $"\n[END OF FILE] ";
 
-        public override string EquipmentModelPath => "@Aetherium:Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshaping.prefab";
+        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("PheromoneSac.prefab");
 
-        public override string EquipmentIconPath => "@Aetherium:Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png";
+        public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("PheromoneSacIcon.png");
 
-        public override float Cooldown => JarCooldown.Value;
 
         public static GameObject ItemBodyModelPrefab;
 
-        public static GameObject JarProjectile;
-
-        public static GameObject JarOrb;
-
-        public static GameObject JarChargeSphere;
+        public static BuffDef BrainwashDebuff;
 
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
+            CreateBuff();
             CreateEquipment();
             Hooks();
         }
@@ -77,9 +69,20 @@ namespace Aetherium.Equipment
         {
         }
 
+        private void CreateBuff()
+        {
+            BrainwashDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            BrainwashDebuff.name = "Aetherium: Brainwashed Debuff";
+            BrainwashDebuff.buffColor = Color.white;
+            BrainwashDebuff.canStack = false;
+            BrainwashDebuff.isDebuff = true;
+
+            BuffAPI.Add(new CustomBuff(BrainwashDebuff));
+        }
+
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>(EquipmentModelPath);
+            ItemBodyModelPrefab = EquipmentModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -92,7 +95,7 @@ namespace Aetherium.Equipment
                     childName = "Base",
                     localPos = new Vector3(-1f, 0, -1f),
                     localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                    localScale = new Vector3(0.5f, 0.5f, 0.5f)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -212,6 +215,84 @@ namespace Aetherium.Equipment
 
         protected override bool ActivateEquipment(RoR2.EquipmentSlot slot)
         {
+            if (!slot.characterBody || !slot.characterBody.teamComponent || !slot.characterBody.master) return false;
+
+            var ownerMaster = slot.characterBody.master;
+            RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(slot.teamComponent.teamIndex);
+            RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
+            {
+                radius = 20,
+                mask = RoR2.LayerIndex.entityPrecise.mask,
+                origin = slot.characterBody.corePosition
+            }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeams).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
+
+            foreach(HurtBox hurtbox in hurtBoxes)
+            {
+                var body = hurtbox.healthComponent.body;
+                if (body)
+                {
+                    if (body.isPlayerControlled || !body.teamComponent) { continue; }
+
+                    var master = body.master;
+                    if (master)
+                    {
+                        var baseAI = master.GetComponent<BaseAI>();
+                        if (baseAI)
+                        {
+                            body.AddTimedBuff(BrainwashDebuff, 240);
+
+                            var brainwashComponent = master.GetComponent<BrainwashHandler>();
+                            if (!brainwashComponent) { brainwashComponent = master.gameObject.AddComponent<BrainwashHandler>(); }
+
+                            brainwashComponent.Master = master;
+                            brainwashComponent.Body = body;
+
+                            brainwashComponent.OriginalTeam = master.teamIndex;
+
+                            body.teamComponent.teamIndex = ownerMaster.teamIndex;
+                            master.teamIndex = ownerMaster.teamIndex;
+
+                            baseAI.currentEnemy.Reset();
+                            baseAI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        public class BrainwashHandler : MonoBehaviour
+        {
+            public TeamIndex OriginalTeam;
+
+            public BaseAI AI;
+
+            public CharacterMaster Master;
+            public CharacterBody Body;
+
+            public void FixedUpdate()
+            {
+                if(Master && Body && AI && Body.HasBuff(BrainwashDebuff))
+                {
+                    if(AI.currentEnemy != null && AI.currentEnemy.characterBody && AI.currentEnemy.characterBody.teamComponent && AI.currentEnemy.characterBody.teamComponent.teamIndex == Body.teamComponent.teamIndex)
+                    {
+                        AI.currentEnemy.Reset();
+                        AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+                    }
+                }
+
+                if(Master && Body && AI && !Body.HasBuff(BrainwashDebuff))
+                {
+                    Master.teamIndex = OriginalTeam;
+                    Body.teamComponent.teamIndex = OriginalTeam;
+                    Body.teamComponent.SetupIndicator();
+
+                    AI.currentEnemy.Reset();
+                    AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+
+                    UnityEngine.Object.Destroy(this);
+                }
+            }
         }
     }
 }

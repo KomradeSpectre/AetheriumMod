@@ -32,7 +32,7 @@ namespace Aetherium.Items
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("EngineersToolbelt.prefab");
 
-        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("EngineersToolbelt.png");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("EngineersToolbeltIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 

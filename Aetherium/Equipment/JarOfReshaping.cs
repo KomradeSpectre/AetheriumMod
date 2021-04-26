@@ -57,6 +57,8 @@ namespace Aetherium.Equipment
 
         public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("JarOfReshapingIcon.png");
 
+        public override bool EnigmaCompatible => false;
+
         public override float Cooldown => JarCooldown;
 
         public static GameObject ItemBodyModelPrefab;
