@@ -62,9 +62,14 @@ namespace Aetherium.Items
             var networkIdentityMain = NailBombProjectileMain.GetComponent<NetworkIdentity>();
             if (!networkIdentityMain) { NailBombProjectileMain.AddComponent<NetworkIdentity>(); }
 
-            Debug.Log($"NailBombProjectileMain is: {NailBombProjectileMain}");
+            var model = MainAssets.LoadAsset<GameObject>("NailBomb.prefab");
+            model.AddComponent<ProjectileGhostController>();
+            model.AddComponent<NetworkIdentity>();
+
             var projectileController = NailBombProjectileMain.GetComponent<ProjectileController>();
-            projectileController.ghostPrefab = ItemModel;
+            projectileController.ghostPrefab = model;
+
+            var damage = NailBombProjectileMain.AddComponent<ProjectileDamage>();
 
             var funballBehaviour = NailBombProjectileMain.GetComponent<ProjectileFunballBehavior>();
             funballBehaviour.blastDamage = 0;
@@ -73,24 +78,21 @@ namespace Aetherium.Items
             velocityRandom.coneAngle = 30;
             velocityRandom.directionMode = VelocityRandomOnStart.DirectionMode.Hemisphere;
             velocityRandom.baseDirection = Vector3.up;
-            velocityRandom.minSpeed = 50;
-            velocityRandom.maxSpeed = 100;
+            velocityRandom.minSpeed = 25;
+            velocityRandom.maxSpeed = 50;
 
-            var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileImpactExplosion>();
-            impactExplosion.fireChildren = true;
-
-            NailBombProjectileSub = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "NailBombProjectileSub");
+            NailBombProjectileSub = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/SyringeProjectile"), "NailBombProjectileSub");
 
             var networkIdentitySub = NailBombProjectileSub.GetComponent<NetworkIdentity>();
             if(!networkIdentitySub) { NailBombProjectileSub.AddComponent<NetworkIdentity>(); }
 
-
+            var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileImpactExplosion>();
+            impactExplosion.childrenProjectilePrefab = NailBombProjectileSub;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
             impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
             impactExplosion.minAngleOffset = new Vector3(-180, -180, -180);
             impactExplosion.maxAngleOffset = new Vector3(180, 180, 180);
-            impactExplosion.destroyOnEnemy = true;
-            impactExplosion.destroyOnWorld = true;
+            impactExplosion.fireChildren = true;
 
             PrefabAPI.RegisterNetworkPrefab(NailBombProjectileMain);
             ProjectileAPI.Add(NailBombProjectileMain);
@@ -124,12 +126,13 @@ namespace Aetherium.Items
                     {
                         if (damageInfo.damage / body.damage >= PercentDamageThresholdRequiredToActivate)
                         {
+                            var calculatedUpPosition = victimBody.mainHurtBox.collider.ClosestPointOnBounds(victimBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
                             FireProjectileInfo newProjectileLaunch = new FireProjectileInfo()
                             {
                                 projectilePrefab = NailBombProjectileMain,
                                 owner = body.gameObject,
                                 damage = body.damage,
-                                position = damageInfo.position,
+                                position = calculatedUpPosition,
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default
