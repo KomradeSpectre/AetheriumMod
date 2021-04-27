@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Aetherium.Utils;
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.Utils.ItemHelpers;
+using static Aetherium.Utils.MathHelpers;
 using RoR2.CharacterAI;
 
 namespace Aetherium.Items
@@ -24,9 +26,37 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => "You have a chance to revive drones and turrets when they die.";
 
-        public override string ItemFullDescription => "You have a <style=cIsUtility>10%</style> chance <style=cStack>(+10% hyperbolically)</style> to revive drones and turrets when they <style=cDeath>die</style>.";
+        public override string ItemFullDescription => $"You have a <style=cIsUtility>{FloatToPercentageString(BaseRevivalPercentChance)}</style> chance " +
+            $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of " +
+            $"{FloatToPercentageString(MaximumRevivalPercentChance)})</style> to revive drones and turrets when they <style=cDeath>die</style>.";
 
-        public override string ItemLore => "";
+        public override string ItemLore => OrderManifestLoreFormatter(
+            ItemName,
+
+            "9/9/2079",
+            
+            "UES Safe Travels/Unmarked Sector/Outer Rim",
+
+            "667********",
+            
+            ItemPickupDesc,
+            
+            "Next Day Delivery / Common Industrial / Small",
+            
+            "Hey Pal,\n" +
+            "\nJust got your delivery request for a replacement toolbelt. Couldn't believe that the Safe Travels doesn't have a single one of them on board." +
+            "We've been running low on some supplies here so all this stuff is what I had on hand. Included in the belt there's everything your standard Drone and Turret repair technician would need." +
+            "You've got: \n" +
+            "<indent=5%>- A flathead screwdriver</indent>\n" +
+            "<indent=5%>- A entire pouch of Ionocell AA batteries (lucky you)</indent>\n" +
+            "<indent=5%>- A drive ratchet</indent>\n" +
+            "<indent=5%>- My daughter's Zebra print duct tape that she won't miss</indent>\n" +
+            "<indent=5%>- A pouch filled to the brim with all the loose screws I could find.</indent>\n" +
+            "<indent=5%>- Some nuts and bolts in a few pouches.</indent>\n" +
+            "<indent=5%>- And you'll enjoy this, if you open any of the remaining pouches, you'll find I packed you some snacks in there. No telling if they'll be good to eat when this arrives.</indent>\n" +
+            "\nBest Regards,\n" +
+            "A Humble Technician\n" +
+            "\nP.S. some Ionocell batteries might not survive the trip into hyperspace, but with the amount I've included if they don't make those bots pop up, try another pair.");
 
         public override ItemTier Tier => ItemTier.Tier2;
 
@@ -77,9 +107,9 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
+                    childName = "Chest",
                     localPos = new Vector3(0F, -0.043F, 0F),
-                    localAngles = new Vector3(0F, 90F, 180F),
+                    localAngles = new Vector3(0F, 90F, 0F),
                     localScale = new Vector3(0.22F, 0.22F, 0.22F)
                 }
             });
@@ -102,9 +132,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Hip",
-                    localPos = new Vector3(0F, -0.4395F, 0F),
+                    localPos = new Vector3(0F, 0.2173F, 0F),
                     localAngles = new Vector3(0F, 0F, 180F),
-                    localScale = new Vector3(1.1F, 1.1F, 1.1F)
+                    localScale = new Vector3(1.5F, 1.5F, 1.5F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -114,7 +144,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Pelvis",
-                    localPos = new Vector3(0F, -0.006F, 0F),
+                    localPos = new Vector3(0F, -0.0269F, 0F),
                     localAngles = new Vector3(0F, 90F, 180F),
                     localScale = new Vector3(0.28F, 0.28F, 0.28F)
                 }
@@ -139,7 +169,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Pelvis",
                     localPos = new Vector3(0F, 0.0107F, -0.0013F),
-                    localAngles = new Vector3(359.5742F, 79.7867F, 184.4904F),
+                    localAngles = new Vector3(357.9873F, 79.9759F, 175.6149F),
                     localScale = new Vector3(0.22F, 0.22F, 0.22F)
                 }
             });
@@ -173,10 +203,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Head",
-                    localPos = new Vector3(0.0439F, 0.4547F, -0.5683F),
-                    localAngles = new Vector3(19.1091F, 66.0667F, 27.681F),
-                    localScale = new Vector3(2.1F, 2.1F, 2.1F)
+                    childName = "Hip",
+                    localPos = new Vector3(0.0439F, 0.4383F, -0.5598F),
+                    localAngles = new Vector3(-0.0002F, 89.9997F, 165.5597F),
+                    localScale = new Vector3(2F, 2F, 2F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -185,10 +215,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.0007F, -0.1231F, -0.0208F),
-                    localAngles = new Vector3(353.1227F, 107.3045F, 179.6526F),
-                    localScale = new Vector3(0.23F, 0.23F, 0.23F)
+                    childName = "Stomach",
+                    localPos = new Vector3(0.0007F, 0.1481F, 0.0258F),
+                    localAngles = new Vector3(0F, 90F, 0F),
+                    localScale = new Vector3(0.22F, 0.22F, 0.22F)
                 }
             });
             rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]

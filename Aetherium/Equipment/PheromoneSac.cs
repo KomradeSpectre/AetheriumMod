@@ -55,6 +55,7 @@ namespace Aetherium.Equipment
         public static GameObject ItemBodyModelPrefab;
 
         public static BuffDef BrainwashDebuff;
+        public static BuffDef StrengthenedMindBuff;
 
         public override void Init(ConfigFile config)
         {
@@ -78,6 +79,14 @@ namespace Aetherium.Equipment
             BrainwashDebuff.isDebuff = true;
 
             BuffAPI.Add(new CustomBuff(BrainwashDebuff));
+
+            StrengthenedMindBuff = ScriptableObject.CreateInstance<BuffDef>();
+            StrengthenedMindBuff.name = "Aetherium: Strengthened Mind Buff";
+            StrengthenedMindBuff.buffColor = Color.white;
+            StrengthenedMindBuff.canStack = false;
+            StrengthenedMindBuff.isDebuff = false;
+
+            BuffAPI.Add(new CustomBuff(StrengthenedMindBuff));
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -231,7 +240,11 @@ namespace Aetherium.Equipment
                 var body = hurtbox.healthComponent.body;
                 if (body)
                 {
-                    if (body.isPlayerControlled || !body.teamComponent) { continue; }
+                    if (body.HasBuff(BrainwashDebuff))
+                    {
+                        body.AddBuff(StrengthenedMindBuff);
+                    }
+                    if (body.isPlayerControlled || !body.teamComponent || body.HasBuff(StrengthenedMindBuff) || body.isBoss) { continue; }
 
                     var master = body.master;
                     if (master)
@@ -239,17 +252,22 @@ namespace Aetherium.Equipment
                         var baseAI = master.GetComponent<BaseAI>();
                         if (baseAI)
                         {
-                            body.AddTimedBuff(BrainwashDebuff, 240);
+                            body.AddTimedBuff(BrainwashDebuff, 2);
 
                             var brainwashComponent = master.GetComponent<BrainwashHandler>();
                             if (!brainwashComponent) { brainwashComponent = master.gameObject.AddComponent<BrainwashHandler>(); }
 
                             brainwashComponent.Master = master;
                             brainwashComponent.Body = body;
+                            brainwashComponent.AI = baseAI;
 
                             brainwashComponent.OriginalTeam = master.teamIndex;
 
                             body.teamComponent.teamIndex = ownerMaster.teamIndex;
+
+                            UnityEngine.Object.Destroy(body.teamComponent.indicator);
+                            body.teamComponent.SetupIndicator();
+
                             master.teamIndex = ownerMaster.teamIndex;
 
                             baseAI.currentEnemy.Reset();
@@ -272,26 +290,32 @@ namespace Aetherium.Equipment
 
             public void FixedUpdate()
             {
-                if(Master && Body && AI && Body.HasBuff(BrainwashDebuff))
+                if(Master && Body && AI)
                 {
-                    if(AI.currentEnemy != null && AI.currentEnemy.characterBody && AI.currentEnemy.characterBody.teamComponent && AI.currentEnemy.characterBody.teamComponent.teamIndex == Body.teamComponent.teamIndex)
+                    if (Body.HasBuff(BrainwashDebuff))
                     {
+                        if (AI.currentEnemy != null && AI.currentEnemy.characterBody && AI.currentEnemy.characterBody.teamComponent && AI.currentEnemy.characterBody.teamComponent.teamIndex == Body.teamComponent.teamIndex)
+                        {
+                            AI.currentEnemy.Reset();
+                            AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+                        }
+                    }
+                    else
+                    {
+                        Master.teamIndex = OriginalTeam;
+                        Body.teamComponent.teamIndex = OriginalTeam;
+                        UnityEngine.Object.Destroy(Body.teamComponent.indicator);
+                        Body.teamComponent.SetupIndicator();
+
                         AI.currentEnemy.Reset();
                         AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+
+                        Body.AddBuff(StrengthenedMindBuff);
+
+                        UnityEngine.Object.Destroy(this);
                     }
                 }
 
-                if(Master && Body && AI && !Body.HasBuff(BrainwashDebuff))
-                {
-                    Master.teamIndex = OriginalTeam;
-                    Body.teamComponent.teamIndex = OriginalTeam;
-                    Body.teamComponent.SetupIndicator();
-
-                    AI.currentEnemy.Reset();
-                    AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
-
-                    UnityEngine.Object.Destroy(this);
-                }
             }
         }
     }

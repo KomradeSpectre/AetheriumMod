@@ -119,6 +119,7 @@ namespace Aetherium.Items
         {
             TargetingIndicatorSphere = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingSphere"), "Unstable Design Targeting Indicator");
             TargetingIndicatorSphere.AddComponent<NetworkIdentity>();
+            TargetingIndicatorSphere.AddComponent<UnstableDesignPinpointerDestroyer>();
 
             var scaleCurve1 = TargetingIndicatorSphere.AddComponent<ObjectScaleCurve>();
             scaleCurve1.useOverallCurveOnly = true;
@@ -128,6 +129,7 @@ namespace Aetherium.Items
 
             TargetingIndicatorArrow = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingIndicator"), "Unstable Design Targeting Arrow");
             TargetingIndicatorArrow.AddComponent<NetworkIdentity>();
+            TargetingIndicatorArrow.AddComponent<UnstableDesignPinpointerDestroyer>();
 
             var scaleCurve2 = TargetingIndicatorArrow.AddComponent<ObjectScaleCurve>();
             scaleCurve2.useOverallCurveOnly = true;
@@ -142,6 +144,7 @@ namespace Aetherium.Items
             LunarChimeraSpawnCard = UnityEngine.Object.Instantiate(LunarChimeraSpawnCard);
             LunarChimeraMasterPrefab = LunarChimeraSpawnCard.prefab;
             LunarChimeraMasterPrefab = LunarChimeraMasterPrefab.InstantiateClone($"{LunarChimeraMasterPrefab.name}{nameSuffix}");
+            LunarChimeraMasterPrefab.AddComponent<UnstableDesignPinpointComponent>();
             RoR2.CharacterMaster masterPrefab = LunarChimeraMasterPrefab.GetComponent<RoR2.CharacterMaster>();
             LunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
             LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}");
@@ -298,7 +301,6 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
             On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
             On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
-            On.RoR2.GlobalEventManager.OnCharacterDeath += RemoveTrackerObjectsOnDeath;
         }
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
@@ -419,31 +421,6 @@ namespace Aetherium.Items
             orig(self, damageReport);
         }
 
-        private void RemoveTrackerObjectsOnDeath(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, GlobalEventManager self, DamageReport damageReport)
-        {
-            var victimBody = damageReport.victimBody;
-            if (victimBody && victimBody.name.Contains(nameSuffix))
-            {
-                var retargetComponent = victimBody.GetComponent<LunarChimeraRetargetComponent>();
-                if (retargetComponent)
-                {
-
-                    if (retargetComponent.TrackerObject)
-                    {
-                        UnityEngine.Object.Destroy(retargetComponent.TrackerObject);
-                    }
-
-                    if (retargetComponent.TrackerArrow)
-                    {
-                        UnityEngine.Object.Destroy(retargetComponent.TrackerArrow);
-                    }
-
-                    UnityEngine.Object.Destroy(retargetComponent);
-                }
-            }
-            orig(self, damageReport);
-        }
-
         private bool IsMinion(RoR2.CharacterMaster master)
         {
             // Replace the old minion checker so that it can support enemies that get lunar items too
@@ -529,90 +506,53 @@ namespace Aetherium.Items
                     if (baseAIComponent)
                     {
                         RoR2.CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
-                        RoR2.SkillLocator skillComponent = gameObject.GetComponent<RoR2.SkillLocator>();
-                        if (skillComponent)
-                        {
-                            if (targetBody && (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded))
-                            {
-                                skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
 
-                                if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled)
+                        if (targetBody)
+                        {
+                            var pinpointerComponent = master.GetComponent<UnstableDesignPinpointComponent>();
+                            if (pinpointerComponent && NetworkServer.active)
+                            {
+                                pinpointerComponent.Origin = targetBody.gameObject;
+                            }
+
+                            RoR2.SkillLocator skillComponent = gameObject.GetComponent<RoR2.SkillLocator>();
+                            if (skillComponent)
+                            {
+                                if (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded)
                                 {
-                                    skillComponent.primary.maxStock = 4;
-                                    skillComponent.primary.finalRechargeInterval = 1 / 4f;
+                                    skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
+
+                                    if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled)
+                                    {
+                                        skillComponent.primary.maxStock = 4;
+                                        skillComponent.primary.finalRechargeInterval = 1 / 4f;
+                                    }
+                                }
+                                else
+                                {
+                                    skillComponent.primary.UnsetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
                                 }
                             }
-                            else
+
+                            retargetTimer -= Time.fixedDeltaTime;
+                            if (retargetTimer <= 0)
                             {
-                                skillComponent.primary.UnsetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
+                                if (!baseAIComponent.currentEnemy.hasLoS)
+                                {
+                                    baseAIComponent.currentEnemy.Reset();
+                                    baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+                                    SetCooldown();
+                                }
+                            }
+
+                            if (ShouldUnstableDesignPullAggroOnTargets)
+                            {
+                                PullAggressionFromTarget(targetBody);
                             }
                         }
-
-                        retargetTimer -= Time.fixedDeltaTime;
-                        if (retargetTimer <= 0)
-                        {
-                            if (!baseAIComponent.currentEnemy.hasLoS)
-                            {
-                                baseAIComponent.currentEnemy.Reset();
-                                baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
-                                SetCooldown();
-                            }
-                        }
-
-                        if (EnableTargetingIndicator)
-                        {
-                            ManageTrackingIndicators(targetBody);
-                        }
-
-                        if (ShouldUnstableDesignPullAggroOnTargets)
-                        {
-                            PullAggressionFromTarget(targetBody);
-                        }
-                    }
-                }
-            }
-
-            private void ManageTrackingIndicators(CharacterBody targetBody)
-            {
-
-                if (targetBody && body)
-                {
-                    if (!TrackerObject)
-                    {
-                        TrackerObject = GameObject.Instantiate(TargetingIndicatorSphere);
-                        NetworkServer.Spawn(TrackerObject);
-                    }
-                    if (!TrackerArrow)
-                    {
-                        TrackerArrow = GameObject.Instantiate(TargetingIndicatorArrow);
-                        NetworkServer.Spawn(TrackerArrow);
-                    }
-
-                    if (TrackerObject && TrackerArrow)
-                    {
-                        var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
-                        TrackerObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-                        TrackerObject.transform.position = calculatedUpPosition;
-                        TrackerArrow.transform.position = ClosestPointOnSphereToPoint(TrackerObject.transform.position, 0.4f, body.transform.position);
-                        TrackerArrow.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-                        TrackerArrow.transform.rotation = Quaternion.LookRotation(body.transform.position - TrackerArrow.transform.position);
-                    }
-                }
-                else
-                {
-                    if (TrackerObject)
-                    {
-                        UnityEngine.Object.Destroy(TrackerObject);
-                        NetworkServer.UnSpawn(TrackerObject);
-                    }
-                    if (TrackerArrow)
-                    {
-                        UnityEngine.Object.Destroy(TrackerArrow);
-                        NetworkServer.UnSpawn(TrackerArrow);
                     }
 
                 }
-
             }
 
             private void PullAggressionFromTarget(CharacterBody targetBody)
@@ -635,6 +575,20 @@ namespace Aetherium.Items
                 if (customCooldown == null) retargetTimer = LunarChimeraRetargetingCooldown;
                 else retargetTimer = (float)customCooldown;
             }
+        }
+
+        public class UnstableDesignPinpointerDestroyer : MonoBehaviour
+        {
+            public CharacterBody OwnerBody;
+
+            public void FixedUpdate()
+            {
+                if (!OwnerBody || OwnerBody && OwnerBody.healthComponent && !OwnerBody.healthComponent.alive)
+                {
+                    UnityEngine.Object.Destroy(this.gameObject);
+                }
+            }
+
         }
 
         public class AssignOwner : INetMessage
@@ -673,6 +627,72 @@ namespace Aetherium.Items
                 writer.Write(ownerNetId);
                 writer.Write(minionNetId);
             }
+        }
+    }
+
+    public class UnstableDesignPinpointComponent : NetworkBehaviour
+    {
+        [SyncVar]
+        public GameObject Origin;
+
+        public GameObject LunarChimeraBody => gameObject.GetComponent<CharacterMaster>()?.GetBodyObject();
+
+        public GameObject TrackerObject;
+        public GameObject TrackerArrow;
+
+        public void FixedUpdate()
+        {
+            if (UnstableDesign.EnableTargetingIndicator)
+            {
+                ManageTrackingIndicators();
+            }
+        }
+
+        private void ManageTrackingIndicators()
+        {
+            if (!Origin || !LunarChimeraBody) { return; }
+
+            var targetBody = Origin.GetComponent<CharacterBody>();
+            var body = LunarChimeraBody.GetComponent<CharacterBody>();
+
+            if (targetBody && body)
+            {
+                if (!TrackerObject)
+                {
+                    TrackerObject = GameObject.Instantiate(UnstableDesign.TargetingIndicatorSphere);
+                    var visualDestroyer = TrackerObject.GetComponent<UnstableDesign.UnstableDesignPinpointerDestroyer>();
+                    visualDestroyer.OwnerBody = body;
+                }
+                if (!TrackerArrow)
+                {
+                    TrackerArrow = GameObject.Instantiate(UnstableDesign.TargetingIndicatorArrow);
+                    var visualDestroyer = TrackerArrow.GetComponent<UnstableDesign.UnstableDesignPinpointerDestroyer>();
+                    visualDestroyer.OwnerBody = body;
+                }
+
+                if (TrackerObject && TrackerArrow)
+                {
+                    var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
+                    TrackerObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+                    TrackerObject.transform.position = calculatedUpPosition;
+                    TrackerArrow.transform.position = ClosestPointOnSphereToPoint(TrackerObject.transform.position, 0.4f, body.transform.position);
+                    TrackerArrow.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+                    TrackerArrow.transform.rotation = Quaternion.LookRotation(body.transform.position - TrackerArrow.transform.position);
+                }
+            }
+            else
+            {
+                if (TrackerObject)
+                {
+                    UnityEngine.Object.Destroy(TrackerObject);
+                }
+                if (TrackerArrow)
+                {
+                    UnityEngine.Object.Destroy(TrackerArrow);
+                }
+
+            }
+
         }
     }
 }
