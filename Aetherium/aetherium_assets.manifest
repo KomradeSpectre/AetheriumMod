@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4173232931
+CRC: 968616416
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 976da462b53f6ff3ec3ff2dadd19618e
+    Hash: a8346fe3e1ef6bb8034524b86c7c83da
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -120,12 +120,15 @@ Assets:
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat
+- Assets/Textures/Materials/Item/NailBomb/NailBombCasing.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgstandard.shader
 - Assets/Textures/Material Textures/starparticle.png
 - Assets/Textures/Material Textures/11286-normal.jpg
 - Assets/Animations/Voidheart.controller
 - Assets/Textures/Material Textures/WitchesRingEmissionMap.png
 - Assets/Models/Raw Models/WitchesRingCircle.blend
+- Assets/Textures/Material Textures/nailbomb-normal.jpg
+- Assets/Textures/Materials/Item/NailBomb/NailBombWick.mat
 - Assets/Shaders/3D Shaders/WaterShader.shader
 - Assets/Textures/Icons/Item/SharkTeethIcon.png
 - Assets/Shaders/3D Shaders/DistanceAwareOutline.shader
@@ -141,6 +144,7 @@ Assets:
 - Assets/Models/Raw Models/UnstableDesignTargetingSphere.blend
 - Assets/Textures/Materials/Miscellaneous/Gem Glass.mat
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat
+- Assets/Models/Prefabs/Item/NailBomb/NailBomb.prefab
 - Assets/Animations/InspiringDroneChest.controller
 - Assets/Shaders/3D Shaders/Rim + Texture.shader
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png
@@ -161,6 +165,7 @@ Assets:
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusionTransparent.png
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/Item/WeightedAnkletIcon.png
+- Assets/Textures/Material Textures/nailbomb-wick-texture.jpg
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingMain.mat
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingPowerCore.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
@@ -210,6 +215,7 @@ Assets:
 - Assets/Animations/HiveInner.controller
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
+- Assets/Textures/Material Textures/nailbomb-binding-texture.jpg
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulumTracker.prefab
 - Assets/Textures/Materials/Miscellaneous/Hologram 2.mat
 - Assets/Textures/Icons/Item/BloodSoakedShieldIconAlt.png
@@ -286,6 +292,7 @@ Assets:
 - Assets/Textures/Material Textures/13021-diffuse.jpg
 - Assets/Shaders/3D Shaders/StencilShield.shader
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab
+- Assets/Models/Raw Models/NailBomb.blend
 - Assets/Models/Raw Models/BuffBrazierSphere.blend
 - Assets/Models/Raw Models/Voidheart.blend
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
@@ -328,7 +335,9 @@ Assets:
 - Assets/Models/Raw Models/UnstableDesign.blend
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveStar.mat
 - Assets/Animations/InspiringDroneUpperArmR.anim
+- Assets/Textures/Material Textures/nailbomb-texture.jpg
 - Assets/Animations/InspiringDroneHead.anim
+- Assets/Textures/Material Textures/nailbomb-wick-normal.png
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffFlameParticles.mat
 - Assets/Textures/Material Textures/3398-diffuse.jpg
 - Assets/Textures/Material Textures/leather-normal.jpg
@@ -376,6 +385,7 @@ Assets:
 - Assets/Textures/Icons/Item/Sacred Flame.png
 - Assets/Shaders/2D Shaders/SpriteShaderDistort.shader
 - Assets/Textures/Material Textures/BlackToWhiteSlowGradient.png
+- Assets/Textures/Materials/Item/NailBomb/NailBombBinding.mat
 - Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png
 - Assets/Shaders/3D Shaders/LavaShader.shader
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
@@ -414,6 +424,7 @@ Assets:
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Animations/ThrusterRAfterburner.anim
 - Assets/Textures/Materials/Miscellaneous/MiscBlack.mat
+- Assets/Textures/Materials/Item/NailBomb/NailBombSpikes.mat
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab
 - Assets/Textures/Material Textures/Black.png
 - Assets/Textures/Material Textures/InspiringDroneText.png

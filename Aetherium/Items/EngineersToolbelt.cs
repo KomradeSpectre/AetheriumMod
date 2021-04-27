@@ -46,7 +46,7 @@ namespace Aetherium.Items
             "Hey Pal,\n" +
             "\nJust got your delivery request for a replacement toolbelt. Couldn't believe that the Safe Travels doesn't have a single one of them on board." +
             "We've been running low on some supplies here so all this stuff is what I had on hand. Included in the belt there's everything your standard Drone and Turret repair technician would need." +
-            "You've got: \n" +
+            "\nYou've got: \n" +
             "<indent=5%>- A flathead screwdriver</indent>\n" +
             "<indent=5%>- A entire pouch of Ionocell AA batteries (lucky you)</indent>\n" +
             "<indent=5%>- A drive ratchet</indent>\n" +
