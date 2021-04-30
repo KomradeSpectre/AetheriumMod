@@ -74,7 +74,7 @@ namespace Aetherium
 
             foreach(Material material in materialAssets)
             {
-                if (!material.shader.name.StartsWith("Fake")) { continue; }
+                if (!material.shader.name.StartsWith("Fake RoR")) { continue; }
 
                 var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
                 if (replacementShader) { material.shader = replacementShader; }

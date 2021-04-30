@@ -26,6 +26,7 @@ namespace Aetherium.Items
         public ConfigOption<float> BaseSwordDamageMultiplier;
         public ConfigOption<float> AdditionalSwordDamageMultiplier;
         public ConfigOption<bool> HomingProjectiles;
+        public ConfigOption<bool> AnyBarrierGrantsActivationBuff;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
@@ -84,6 +85,8 @@ namespace Aetherium.Items
             BaseSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Inheritance Multiplier", 2f, "In percentage, how much of the wielder's damage should we have for the sword projectile? (2 = 200%)");
             AdditionalSwordDamageMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Damage Multiplier Gained per Additional Stacks", 0.5f, "In percentage, how much of the wielder's damage should we add per additional stack? (0.5 = 50%)");
             HomingProjectiles = config.ActiveBind<bool>("Item: " + ItemName, "Homing Projectiles", false, "Should the Blaster Sword projectiles home in on enemies?");
+            AnyBarrierGrantsActivationBuff = config.ActiveBind<bool>("Item: " + ItemName, "Any Barrier Grants Blaster Sword Activation Buff", false, "Should having any amount of barrier allow you to use the effect of Blaster Sword?");
+
 
 
         }
@@ -839,11 +842,11 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self);
             if (InventoryCount > 0)
             {
-                if (self.healthComponent.combinedHealthFraction >= 1 && !self.HasBuff(BlasterSwordActiveBuff))
+                if (self.healthComponent.combinedHealthFraction >= 1 && !self.HasBuff(BlasterSwordActiveBuff) || AnyBarrierGrantsActivationBuff && self.healthComponent.barrier > 0 && !self.HasBuff(BlasterSwordActiveBuff))
                 {
                     self.AddBuff(BlasterSwordActiveBuff);
                 }
-                if (self.healthComponent.combinedHealthFraction < 1 && self.HasBuff(BlasterSwordActiveBuff))
+                if (self.healthComponent.combinedHealthFraction < 1 && self.HasBuff(BlasterSwordActiveBuff) || AnyBarrierGrantsActivationBuff && self.healthComponent.barrier <= 0 && !self.HasBuff(BlasterSwordActiveBuff))
                 {
                     self.RemoveBuff(BlasterSwordActiveBuff);
                 }

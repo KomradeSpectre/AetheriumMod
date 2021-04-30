@@ -3,6 +3,7 @@ using R2API;
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -16,6 +17,10 @@ namespace Aetherium.Items
 {
     public class EngineersToolbelt : ItemBase<EngineersToolbelt>
     {
+        public ConfigOption<float> BaseDuplicationPercentChance;
+        public ConfigOption<float> AdditionalDuplicationPercentChance;
+        public ConfigOption<float> MaximumDuplicationPercentChance;
+
         public ConfigOption<float> BaseRevivalPercentChance;
         public ConfigOption<float> AdditionalRevivalPercentChance;
         public ConfigOption<float> MaximumRevivalPercentChance;
@@ -24,7 +29,7 @@ namespace Aetherium.Items
 
         public override string ItemLangTokenName => "ENGINEERS_TOOLBELT";
 
-        public override string ItemPickupDesc => "You have a chance to revive drones and turrets when they die.";
+        public override string ItemPickupDesc => "Gain a small chance to duplicate drones and turrets on purchase. Drones and turrets have a small chance to revive themselves on death.";
 
         public override string ItemFullDescription => $"You have a <style=cIsUtility>{FloatToPercentageString(BaseRevivalPercentChance)}</style> chance " +
             $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of " +
@@ -66,11 +71,13 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+
         private static readonly List<string> DronesList = new List<string>
         {
             "DroneBackup",
             "Drone1",
             "Drone2",
+            "EquipmentDrone",
             "EmergencyDrone",
             "FlameDrone",
             "MegaDrone",
@@ -238,7 +245,29 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            On.RoR2.PurchaseInteraction.OnInteractionBegin += DuplicateDronesAndTurrets;
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
+        }
+
+        private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
+        {
+            if(self.name.Contains("BrokenDrone") || self.name.Contains("BrokenTurret"))
+            {
+
+                if (masterPrefab)
+                {
+                    if (activator && activator.gameObject)
+                    {
+                        var characterBody = activator.gameObject.GetComponent<CharacterBody>();
+                        var inventoryCount = GetCount(characterBody);
+
+                        if (characterBody && inventoryCount > 0)
+                        {
+
+                        }
+                    }
+                }
+            }
         }
 
         private void ReviveDronesAndTurrets(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
@@ -257,6 +286,7 @@ namespace Aetherium.Items
                             {
                                 if (characterBody.name.Contains(droneName))
                                 {
+                                    //var reviveAltCalc = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))));
                                     var shouldWeRevive = Util.CheckRoll((BaseRevivalPercentChance + (MaximumRevivalPercentChance - MaximumRevivalPercentChance / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))) * 100, self.master.minionOwnership.ownerMaster);
                                     if (shouldWeRevive)
                                     {

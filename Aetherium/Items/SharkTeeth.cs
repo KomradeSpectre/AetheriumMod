@@ -19,6 +19,7 @@ namespace Aetherium.Items
         public static ConfigOption<float> MaxDamageSpreadPercentage;
         public static ConfigOption<float> DurationOfDamageSpread;
         public static ConfigOption<int> TicksOfDamageDuringDuration;
+        public static ConfigOption<bool> SharkTeethIsNonLethal;
 
         public override string ItemName => "Shark Teeth";
 
@@ -56,6 +57,7 @@ namespace Aetherium.Items
             MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
             DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
             TicksOfDamageDuringDuration = config.ActiveBind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
+            SharkTeethIsNonLethal = config.ActiveBind<bool>("Item: " + ItemName, "Shark Teeth Effect is Non-Lethal", false, "Should the Shark Teeth's bleed ticks be unable to kill you? If this is set to true, it will void any damage from segments that would kill you.");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -295,7 +297,10 @@ namespace Aetherium.Items
                             damageType = DamageType
                         };
                         //var healthBefore = characterBody.healthComponent.health; //debug
-                        characterBody.healthComponent.TakeDamage(damageInfo);
+                        if (!SharkTeethIsNonLethal || SharkTeethIsNonLethal && characterBody.healthComponent.health > damageInfo.damage)
+                        {
+                            characterBody.healthComponent.TakeDamage(damageInfo);
+                        }
                         DamageDealt = 0;
                         //Chat.AddMessage($"Actual Tick Damage: {healthBefore - characterBody.healthComponent.health}"); //debug
                     }

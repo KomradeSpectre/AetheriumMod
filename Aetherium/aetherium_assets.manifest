@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 968616416
+CRC: 3334798612
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a8346fe3e1ef6bb8034524b86c7c83da
+    Hash: 712fa441e625791f22f1965797e34bf2
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -158,6 +158,7 @@ Assets:
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierActiveField.mat
 - Assets/Models/Raw Models/PheromoneSac.blend
 - Assets/Animations/PheromoneSacInner.anim
+- Assets/Animations/InspiringDrone.controller
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltBuckle.mat
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierMain.mat
 - Assets/Animations/ThrusterRAfterburner.controller
@@ -237,6 +238,7 @@ Assets:
 - Assets/Models/Prefabs/Item/WeightedAnklet/WeightedAnklet.prefab
 - Assets/Textures/Material Textures/10587.jpg
 - Assets/Shaders/3D Shaders/Iridescent.shader
+- Assets/Models/Prefabs/Item/NailBomb/NailBombProjectile.prefab
 - Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Material Textures/11375-bump1.jpg
 - Assets/Models/Prefabs/Item/EngineersToolbelt/EngineersToolbelt.prefab
@@ -246,6 +248,7 @@ Assets:
 - Assets/Models/Raw Models/JarOfReshapingAbsorbEffect.blend
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat
 - Assets/Textures/Material Textures/Powergem.png
+- Assets/Textures/Materials/Item/NailBomb/NailBombWickSparks.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCoreGlass.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryCap.mat
 - Assets/Textures/Material Textures/3989-bump - Copy.jpg
@@ -354,6 +357,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Hologram.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
 - Assets/Textures/Icons/Item/EngineersToolbeltIcon.png
+- Assets/Models/Raw Models/NailBombSubProjectile.blend
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
 - Assets/Models/Raw Models/EngineersToolbelt.blend
 - Assets/Textures/Material Textures/414.jpg

@@ -36,6 +36,8 @@ namespace Aetherium.Utils
             return renderInfos;
         }
 
+
+        public static Material CreateAndSetMaterialVariant(Renderer)
         /// <summary>
         /// A complicated helper method that sets up strings entered into it to be formatted similar to Risk of Rain 1's manifest style.
         /// </summary>

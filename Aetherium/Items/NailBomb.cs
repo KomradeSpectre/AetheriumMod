@@ -18,13 +18,17 @@ namespace Aetherium.Items
         public ConfigOption<float> PercentDamageThresholdRequiredToActivate;
         public ConfigOption<int> AmountOfNailsPerNailBomb;
         public ConfigOption<float> PercentDamagePerNailInNailBomb;
+        public ConfigOption<float> PercentDamageBonusOfAdditionalStacks;
+        public ConfigOption<bool> UseAlternateImplementation;
+        public ConfigOption<float> NailBombDropDelay;
 
         public override string ItemName => "Nail Bomb";
 
         public override string ItemLangTokenName => "NAIL_BOMB";
 
-        public override string ItemPickupDesc => $"Attacks that deal <style=cIsDamage>high damage</style> release a shrapnel grenade that explodes after a delay.";
-        public override string ItemFullDescription => $"Attacks that deal {FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more release a shrapnel grenade that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} damage. Cooldown of 8s (-15% per stack).";
+        public override string ItemPickupDesc => UseAlternateImplementation ? $"Occasionally drop a shrapnel grenade from your position that explodes after a delay." : $"Attacks that deal <style=cIsDamage>high damage</style> release a shrapnel grenade that explodes after a delay.";
+
+        public override string ItemFullDescription => UseAlternateImplementation ? $"After {NailBombDropDelay} second(s) you will drop a shrapnel grenade from your current position that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack). The shrapnel has a high chance to trigger On-Hit effects." : $"Attacks that deal {FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more release a shrapnel grenade that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack).";
 
         public override string ItemLore => "";
 
@@ -51,48 +55,62 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             PercentDamageThresholdRequiredToActivate = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Threshold Required to Activate Effect", 3f, "What percentage of damage should we deal in a single hit to activate the effect of this item?");
-            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 10, "How many nails should get released upon explosion of the projectile?");
+            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 15, "How many nails should get released upon explosion of the projectile?");
             PercentDamagePerNailInNailBomb = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage per Nail in Nail Bomb", 0.3f, "What percentage of damage should each nail in the nail bomb deal?");
+            PercentDamageBonusOfAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Bonus of Additional Stacks", 0.5f, "What additional percentage of the body's damage should be given per additional stacks of Nail Bomb?");
+            UseAlternateImplementation = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternate Item Implementation?", false, "If true, Nail Bomb drops from your position after a delay.");
+            NailBombDropDelay = config.ActiveBind<float>("Item: " + ItemName, "")
+
         }
 
         private void CreateProjectile()
         {
-            NailBombProjectileMain = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Funball"), "NailBombProjectile");
+            NailBombProjectileMain = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile");
 
             var networkIdentityMain = NailBombProjectileMain.GetComponent<NetworkIdentity>();
             if (!networkIdentityMain) { NailBombProjectileMain.AddComponent<NetworkIdentity>(); }
 
-            var model = MainAssets.LoadAsset<GameObject>("NailBomb.prefab");
+            var model = MainAssets.LoadAsset<GameObject>("NailBombProjectile.prefab");
             model.AddComponent<ProjectileGhostController>();
             model.AddComponent<NetworkIdentity>();
 
             var projectileController = NailBombProjectileMain.GetComponent<ProjectileController>();
             projectileController.ghostPrefab = model;
 
-            var damage = NailBombProjectileMain.AddComponent<ProjectileDamage>();
-
-            var funballBehaviour = NailBombProjectileMain.GetComponent<ProjectileFunballBehavior>();
-            funballBehaviour.blastDamage = 0;
-
-            var velocityRandom = NailBombProjectileMain.GetComponent<VelocityRandomOnStart>();
+            var velocityRandom = NailBombProjectileMain.AddComponent<VelocityRandomOnStart>();
             velocityRandom.coneAngle = 30;
-            velocityRandom.directionMode = VelocityRandomOnStart.DirectionMode.Hemisphere;
+            velocityRandom.directionMode = VelocityRandomOnStart.DirectionMode.Cone;
             velocityRandom.baseDirection = Vector3.up;
-            velocityRandom.minSpeed = 25;
-            velocityRandom.maxSpeed = 50;
+            velocityRandom.minSpeed = 15;
+            velocityRandom.maxSpeed = 20;
 
             NailBombProjectileSub = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/SyringeProjectile"), "NailBombProjectileSub");
 
             var networkIdentitySub = NailBombProjectileSub.GetComponent<NetworkIdentity>();
             if(!networkIdentitySub) { NailBombProjectileSub.AddComponent<NetworkIdentity>(); }
 
-            var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileImpactExplosion>();
+            var projectileControllerSub = NailBombProjectileSub.GetComponent<ProjectileController>();
+            projectileControllerSub.procCoefficient = 0.5f;
+
+            var projectileSimple = NailBombProjectileSub.GetComponent<ProjectileSimple>();
+            projectileSimple.desiredForwardSpeed = 40;
+
+            var projectileStickOnImpact = NailBombProjectileSub.AddComponent<ProjectileStickOnImpact>();
+            projectileStickOnImpact.alignNormals = true;
+
+            var impactExplosion = NailBombProjectileMain.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.childrenProjectilePrefab = NailBombProjectileSub;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
+            impactExplosion.explosionEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
+            //impactExplosion.impactEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
             impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
             impactExplosion.minAngleOffset = new Vector3(-180, -180, -180);
             impactExplosion.maxAngleOffset = new Vector3(180, 180, 180);
             impactExplosion.fireChildren = true;
+            impactExplosion.destroyOnEnemy = false;
+            impactExplosion.destroyOnWorld = false;
+            impactExplosion.lifetime = 2;
+            impactExplosion.lifetimeAfterImpact = 0.2f;
 
             PrefabAPI.RegisterNetworkPrefab(NailBombProjectileMain);
             ProjectileAPI.Add(NailBombProjectileMain);
@@ -126,13 +144,12 @@ namespace Aetherium.Items
                     {
                         if (damageInfo.damage / body.damage >= PercentDamageThresholdRequiredToActivate)
                         {
-                            var calculatedUpPosition = victimBody.mainHurtBox.collider.ClosestPointOnBounds(victimBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
                             FireProjectileInfo newProjectileLaunch = new FireProjectileInfo()
                             {
                                 projectilePrefab = NailBombProjectileMain,
                                 owner = body.gameObject,
-                                damage = body.damage,
-                                position = calculatedUpPosition,
+                                damage = body.damage + (body.damage * (PercentDamageBonusOfAdditionalStacks * (InventoryCount - 1))),
+                                position = damageInfo.position,
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default
