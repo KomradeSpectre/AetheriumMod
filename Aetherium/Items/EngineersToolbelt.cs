@@ -71,7 +71,6 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
-
         private static readonly List<string> DronesList = new List<string>
         {
             "DroneBackup",
@@ -251,23 +250,45 @@ namespace Aetherium.Items
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
         {
-            if(self.name.Contains("BrokenDrone") || self.name.Contains("BrokenTurret"))
+            if (NetworkServer.active)
             {
-
-                if (masterPrefab)
+                if (self.name.Contains("Drone") || self.name.Contains("Turret"))
                 {
-                    if (activator && activator.gameObject)
+                    var droneName = self.name.Replace("Broken", "").Replace("(Clone)", "") + "Master";
+
+                    var masterPrefab = Resources.Load<GameObject>($"Prefabs/CharacterMasters/" + droneName);
+
+                    if (masterPrefab)
                     {
-                        var characterBody = activator.gameObject.GetComponent<CharacterBody>();
-                        var inventoryCount = GetCount(characterBody);
+                        ModLogger.LogError($"MastePrefab name is: {masterPrefab.name}");
 
-                        if (characterBody && inventoryCount > 0)
+                        if (activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
                         {
+                            var characterBody = activator.gameObject.GetComponent<CharacterBody>();
+                            var inventoryCount = GetCount(characterBody);
 
+                            if (characterBody && inventoryCount > 0)
+                            {
+                                CharacterMaster summonedDrone = new MasterSummon()
+                                {
+                                    masterPrefab = masterPrefab,
+                                    position = self.transform.position,
+                                    rotation = self.transform.rotation,
+                                    summonerBodyObject = activator.gameObject,
+                                    ignoreTeamMemberLimit = true,
+
+                                }.Perform();
+
+                                if (droneName == "EquipmentDroneMaster")
+                                {
+                                    summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
+                                }
+                            }
                         }
                     }
                 }
             }
+            orig(self, activator);
         }
 
         private void ReviveDronesAndTurrets(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)

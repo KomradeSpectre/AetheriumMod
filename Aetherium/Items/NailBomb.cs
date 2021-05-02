@@ -21,6 +21,7 @@ namespace Aetherium.Items
         public ConfigOption<float> PercentDamageBonusOfAdditionalStacks;
         public ConfigOption<bool> UseAlternateImplementation;
         public ConfigOption<float> NailBombDropDelay;
+        public ConfigOption<float> DurationPercentageReducedByWithAdditionalStacks;
 
         public override string ItemName => "Nail Bomb";
 
@@ -28,13 +29,13 @@ namespace Aetherium.Items
 
         public override string ItemPickupDesc => UseAlternateImplementation ? $"Occasionally drop a shrapnel grenade from your position that explodes after a delay." : $"Attacks that deal <style=cIsDamage>high damage</style> release a shrapnel grenade that explodes after a delay.";
 
-        public override string ItemFullDescription => UseAlternateImplementation ? $"After {NailBombDropDelay} second(s) you will drop a shrapnel grenade from your current position that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack). The shrapnel has a high chance to trigger On-Hit effects." : $"Attacks that deal {FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more release a shrapnel grenade that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack).";
+        public override string ItemFullDescription => UseAlternateImplementation ? $"After {NailBombDropDelay} second(s) <style=cStack>(-{FloatToPercentageString(DurationPercentageReducedByWithAdditionalStacks)} per stack)</style> you will drop a shrapnel grenade from your current position that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack). The shrapnel has a high chance to trigger On-Hit effects." : $"Attacks that deal {FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more release a shrapnel grenade that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack).";
 
         public override string ItemLore => "";
 
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Damage };
 
-        public override ItemTier Tier => ItemTier.Tier1;
+        public override ItemTier Tier => UseAlternateImplementation ? ItemTier.Tier2 : ItemTier.Tier1;
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("NailBomb.prefab");
 
@@ -43,10 +44,13 @@ namespace Aetherium.Items
         public static GameObject NailBombProjectileMain;
         public static GameObject NailBombProjectileSub;
 
+        public static BuffDef NailBombCooldownDebuff;
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
+            CreateBuff();
             CreateProjectile();
             CreateItem();
             Hooks();
@@ -59,8 +63,21 @@ namespace Aetherium.Items
             PercentDamagePerNailInNailBomb = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage per Nail in Nail Bomb", 0.3f, "What percentage of damage should each nail in the nail bomb deal?");
             PercentDamageBonusOfAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Bonus of Additional Stacks", 0.5f, "What additional percentage of the body's damage should be given per additional stacks of Nail Bomb?");
             UseAlternateImplementation = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternate Item Implementation?", false, "If true, Nail Bomb drops from your position after a delay.");
-            NailBombDropDelay = config.ActiveBind<float>("Item: " + ItemName, "")
+            NailBombDropDelay = config.ActiveBind<float>("Item: " + ItemName, "Delay Between Nail Bomb Drops in Alternate Implementation", 10, "How many seconds should we wait between Nail Bomb drops for the first stack?");
+            DurationPercentageReducedByWithAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Duration Percentage is Reduced By With Additional Stacks", 0.2f, "What percentage should we reduce the cooldown duration of Nail Bomb Alternate Implementation? (hyperbolically).");
 
+        }
+
+        private void CreateBuff()
+        {
+            NailBombCooldownDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            NailBombCooldownDebuff.name = "Aetherium: Nail Bomb Cooldown Debuff";
+            NailBombCooldownDebuff.buffColor = new Color(255, 255, 255);
+            NailBombCooldownDebuff.canStack = false;
+            NailBombCooldownDebuff.isDebuff = true;
+            NailBombCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
+
+            BuffAPI.Add(new CustomBuff(NailBombCooldownDebuff));
         }
 
         private void CreateProjectile()
@@ -90,7 +107,7 @@ namespace Aetherium.Items
             if(!networkIdentitySub) { NailBombProjectileSub.AddComponent<NetworkIdentity>(); }
 
             var projectileControllerSub = NailBombProjectileSub.GetComponent<ProjectileController>();
-            projectileControllerSub.procCoefficient = 0.5f;
+            projectileControllerSub.procCoefficient = UseAlternateImplementation ? 3.5f : 1f;
 
             var projectileSimple = NailBombProjectileSub.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40;
@@ -101,8 +118,8 @@ namespace Aetherium.Items
             var impactExplosion = NailBombProjectileMain.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.childrenProjectilePrefab = NailBombProjectileSub;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
-            impactExplosion.explosionEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
-            //impactExplosion.impactEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
+            //impactExplosion.explosionEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
+            impactExplosion.impactEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
             impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
             impactExplosion.minAngleOffset = new Vector3(-180, -180, -180);
             impactExplosion.maxAngleOffset = new Vector3(180, 180, 180);
@@ -127,7 +144,42 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            On.RoR2.GlobalEventManager.OnHitEnemy += FireNailBomb;
+            if (UseAlternateImplementation)
+            {
+                On.RoR2.CharacterBody.FixedUpdate += FireNailBombFromBody;
+            }
+            else
+            {
+                On.RoR2.GlobalEventManager.OnHitEnemy += FireNailBomb;
+            }
+            
+        }
+
+        private void FireNailBombFromBody(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        {
+            var inventoryCount = GetCount(self);
+            if(inventoryCount > 0 && self)
+            {
+                if (!self.HasBuff(NailBombCooldownDebuff))
+                {
+                    FireProjectileInfo fireProjectileInfo = new FireProjectileInfo()
+                    {
+                        projectilePrefab = NailBombProjectileMain,
+                        owner = self.gameObject,
+                        damage = self.damage + (self.damage * (PercentDamageBonusOfAdditionalStacks * (inventoryCount - 1))),
+                        position = self.corePosition != Vector3.zero ? self.corePosition : self.transform.position,
+                        damageTypeOverride = null,
+                        damageColorIndex = DamageColorIndex.Default,
+                        procChainMask = default
+                    };
+
+                    ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+
+                    self.AddTimedBuff(NailBombCooldownDebuff, NailBombDropDelay / (1 + DurationPercentageReducedByWithAdditionalStacks * (inventoryCount - 1)));
+                }
+            }
+
+            orig(self);
         }
 
         private void FireNailBomb(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject victim)

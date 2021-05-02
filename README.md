@@ -45,6 +45,22 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 ## Changelog
 ----
+[0.5.5]
++ Added a homing swords configuration option for Blaster Sword, disabled by default.
++ Added a config option to allow Blaster Sword to be used with any level of Barrier, disabled by default.
++ Added a config option to stop Shark Teeth from being able to kill you, disabled by default.
++ Added Nail Bomb, a new Item.
++ Added two implementations of the Nail Bomb item : One emits from the enemy if you pass a damage threshold, the other emits from you after a delay. The first one is a white, the second is a green. Config togglable.
++ Added Engineers Toolbelt, a new Green Item. With it, you have a small chance to duplicate drones or turrets on purchase, and a small chance for them to revive themselves on death.
++ Added a Targeting Indicator config option to Unstable Design. If there is an unstable design out, it places one of these above whatever it is targeting's head. An arrow on it points to the one targeting you.
++ Added an Aggression Pulling config option to Unstable Design. If it is targeting any AI, it will draw their aggression until it loses sight of them, changes target, or either party dies.
+
+
+
+[0.5.4]
++ Jar of Reshaping now fires the original projectiles it absorbed out. If it cannot find the original projectile it absorbed in the catalog, it fires my crystal jar bullet instead. This is config toggleable, but is now the default functionality.
++ The voidheart camera spin bug has been now truly defeated. It should never happen again.
+
 [0.5.3]
 + Fixed Heart of the Void cinematic spinning endlessly
 + Heart of the Void will now no longer leave a used dio in your inventory. It gets removed when the instability debuff is added.
@@ -85,13 +101,6 @@ Discord: https://www.discord.gg/WNap5qcPf6
 + Made this readme more legible.
 + Made preparations for Pheromone Sac (0.5.0), will be releasing with another item.
 - Removed obscure feature.
-
-[0.4.5]
-+ Another hotfix. Forgot to set the correct access level on some classes. It's fixed now, this should be the last hotfix, next update should be more items.
-
-[0.4.4]
-+ Quick hotfix to address R2API weirdness due to previously using the experimental build. Woopsies!
-
 
 ----
 
