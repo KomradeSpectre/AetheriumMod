@@ -220,7 +220,7 @@ For asset bundles, think of them as if they're a central zip/pak/etc that stores
 	}
 	```
 
-12. We'll need to add a submodule dependency for ResourcesAPI so it loads in upon startup. We can do so via adding the `R2APISubmoduleDependency` attribute and setting its parameters. To do so, we do the following:
+12. Your code should look like this by now:
 	```csharp
 	using BepInEx;
 	using R2API;
