@@ -19,11 +19,9 @@ namespace Aetherium.Items
     {
         public ConfigOption<float> BaseDuplicationPercentChance;
         public ConfigOption<float> AdditionalDuplicationPercentChance;
-        public ConfigOption<float> MaximumDuplicationPercentChance;
 
         public ConfigOption<float> BaseRevivalPercentChance;
         public ConfigOption<float> AdditionalRevivalPercentChance;
-        public ConfigOption<float> MaximumRevivalPercentChance;
 
         public override string ItemName => "Engineers Toolbelt";
 
@@ -32,8 +30,7 @@ namespace Aetherium.Items
         public override string ItemPickupDesc => "Gain a small chance to duplicate drones and turrets on purchase. Drones and turrets have a small chance to revive themselves on death.";
 
         public override string ItemFullDescription => $"You have a <style=cIsUtility>{FloatToPercentageString(BaseRevivalPercentChance)}</style> chance " +
-            $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of " +
-            $"{FloatToPercentageString(MaximumRevivalPercentChance)})</style> to revive drones and turrets when they <style=cDeath>die</style>.";
+            $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of 100% chance) to revive drones and turrets when they <style=cDeath>die</style>.";
 
         public override string ItemLore => OrderManifestLoreFormatter(
             ItemName,
@@ -49,9 +46,9 @@ namespace Aetherium.Items
             "Next Day Delivery / Common Industrial / Small",
             
             "Hey Pal,\n" +
-            "\nJust got your delivery request for a replacement toolbelt. Couldn't believe that the Safe Travels doesn't have a single one of them on board." +
+            "\nJust got your delivery request for a replacement toolbelt. Couldn't believe that the Safe Travels doesn't have a single one of them on board. " +
             "We've been running low on some supplies here so all this stuff is what I had on hand. Included in the belt there's everything your standard Drone and Turret repair technician would need." +
-            "\nYou've got: \n" +
+            "\n\nYou've got: \n\n" +
             "<indent=5%>- A flathead screwdriver</indent>\n" +
             "<indent=5%>- A entire pouch of Ionocell AA batteries (lucky you)</indent>\n" +
             "<indent=5%>- A drive ratchet</indent>\n" +
@@ -94,9 +91,12 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            BaseDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Duplication Percent Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase with the first stack of this?");
+            AdditionalDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Duplication Percentage Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase per additional stack? (hyperbolically)");
+
             BaseRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death with the first stack of this?");
             AdditionalRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death per additional stack?");
-            MaximumRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Maximum Revival Percentage Chance", 1f, "What is the maximum percent chance that a drone or turret should have of reviving on death?");
+
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -260,28 +260,29 @@ namespace Aetherium.Items
 
                     if (masterPrefab)
                     {
-                        ModLogger.LogError($"MastePrefab name is: {masterPrefab.name}");
-
                         if (activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
                         {
                             var characterBody = activator.gameObject.GetComponent<CharacterBody>();
                             var inventoryCount = GetCount(characterBody);
 
-                            if (characterBody && inventoryCount > 0)
+                            if (characterBody && characterBody.master && inventoryCount > 0)
                             {
-                                CharacterMaster summonedDrone = new MasterSummon()
+                                if (Util.CheckRoll((BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (inventoryCount - 1))))*100, characterBody.master))
                                 {
-                                    masterPrefab = masterPrefab,
-                                    position = self.transform.position,
-                                    rotation = self.transform.rotation,
-                                    summonerBodyObject = activator.gameObject,
-                                    ignoreTeamMemberLimit = true,
+                                    CharacterMaster summonedDrone = new MasterSummon()
+                                    {
+                                        masterPrefab = masterPrefab,
+                                        position = self.transform.position,
+                                        rotation = self.transform.rotation,
+                                        summonerBodyObject = activator.gameObject,
+                                        ignoreTeamMemberLimit = true,
 
-                                }.Perform();
+                                    }.Perform();
 
-                                if (droneName == "EquipmentDroneMaster")
-                                {
-                                    summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
+                                    if (droneName == "EquipmentDroneMaster")
+                                    {
+                                        summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
+                                    }
                                 }
                             }
                         }
@@ -308,7 +309,7 @@ namespace Aetherium.Items
                                 if (characterBody.name.Contains(droneName))
                                 {
                                     //var reviveAltCalc = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))));
-                                    var shouldWeRevive = Util.CheckRoll((BaseRevivalPercentChance + (MaximumRevivalPercentChance - MaximumRevivalPercentChance / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))) * 100, self.master.minionOwnership.ownerMaster);
+                                    var shouldWeRevive = Util.CheckRoll((BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (inventoryCount - 1))))*100, self.master.minionOwnership.ownerMaster);
                                     if (shouldWeRevive)
                                     {
                                         var originalOwner = self.master.minionOwnership.ownerMaster;

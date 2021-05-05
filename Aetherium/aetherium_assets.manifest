@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3334798612
+CRC: 927742688
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 712fa441e625791f22f1965797e34bf2
+    Hash: c851d4002b35b6b7ecbf924c98f094bf
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -332,6 +332,7 @@ Assets:
 - Assets/Textures/Material Textures/4793.jpg
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltClasp.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignRolledUp.prefab
+- Assets/Textures/Icons/Item/NailBombTier2.png
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureEmission.png
 - Assets/Textures/Icons/Item/ShieldingCoreIcon.png
 - Assets/Textures/Material Textures/BlueToWhiteRamp.png
@@ -402,6 +403,7 @@ Assets:
 - Assets/Models/Raw Models/FeatheredPlume.blend
 - Assets/Animations/AlienMagnet.controller
 - Assets/Textures/Material Textures/BlasterSwordTextureNormal.png
+- Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacBrainwashOverlay.mat
 - Assets/Shaders/3D Shaders/AuraOutline.shader
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureDetailMask.png
 - Assets/Textures/Materials/Item/Voidheart/VoidheartBlack.mat
@@ -424,6 +426,7 @@ Assets:
 - Assets/Textures/Material Textures/11375-bump.jpg
 - Assets/Textures/Material Textures/WitchesRingHolderEmissionMap.png
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
+- Assets/Textures/Icons/Item/NailBombTier1.png
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Animations/ThrusterRAfterburner.anim

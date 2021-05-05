@@ -91,6 +91,10 @@ namespace Aetherium.Items
             model.AddComponent<ProjectileGhostController>();
             model.AddComponent<NetworkIdentity>();
 
+            var scaleCurve = model.AddComponent<ObjectScaleCurve>();
+            scaleCurve.useOverallCurveOnly = true;
+            scaleCurve.overallCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.1f, 1));
+
             var projectileController = NailBombProjectileMain.GetComponent<ProjectileController>();
             projectileController.ghostPrefab = model;
 

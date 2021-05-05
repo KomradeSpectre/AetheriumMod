@@ -57,6 +57,8 @@ namespace Aetherium.Equipment
         public static BuffDef BrainwashDebuff;
         public static BuffDef StrengthenedMindBuff;
 
+        public static Material BrainwashOverlayMaterial => MainAssets.LoadAsset<Material>("PheromoneSacBrainwashOverlay.mat");
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -252,7 +254,7 @@ namespace Aetherium.Equipment
                         var baseAI = master.GetComponent<BaseAI>();
                         if (baseAI)
                         {
-                            body.AddTimedBuff(BrainwashDebuff, 2);
+                            body.AddTimedBuff(BrainwashDebuff, 30);
 
                             var brainwashComponent = master.GetComponent<BrainwashHandler>();
                             if (!brainwashComponent) { brainwashComponent = master.gameObject.AddComponent<BrainwashHandler>(); }
@@ -288,6 +290,27 @@ namespace Aetherium.Equipment
             public CharacterMaster Master;
             public CharacterBody Body;
 
+            public TemporaryOverlay BrainwashOverlay;
+
+            public void Start()
+            {
+                if (Body)
+                {
+                    EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/LevelUpEffect"), Body.transform.position, Body.transform.rotation, true);
+
+                    if(Body.modelLocator && Body.modelLocator.modelTransform)
+                    {
+                        BrainwashOverlay = Body.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
+                        BrainwashOverlay.duration = float.PositiveInfinity;
+                        BrainwashOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+                        BrainwashOverlay.animateShaderAlpha = true;
+                        BrainwashOverlay.destroyComponentOnEnd = true;
+                        BrainwashOverlay.originalMaterial = BrainwashOverlayMaterial;
+                        BrainwashOverlay.AddToCharacerModel(Body.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
+                    }
+                }
+            }
+
             public void FixedUpdate()
             {
                 if(Master && Body && AI)
@@ -311,6 +334,11 @@ namespace Aetherium.Equipment
                         AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
 
                         Body.AddBuff(StrengthenedMindBuff);
+
+                        if (BrainwashOverlay)
+                        {
+                            UnityEngine.Object.Destroy(BrainwashOverlay);
+                        }
 
                         UnityEngine.Object.Destroy(this);
                     }
