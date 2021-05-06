@@ -254,6 +254,28 @@ namespace Aetherium.Items
         {
             On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
+
+            if (IsItemStatsModInstalled)
+            {
+                ItemCatalog.availability.CallWhenAvailable(ItemStatsModCompat);
+            }
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStats.ItemStatDef SipCooldownStatDef = new ItemStats.ItemStatDef
+            {
+
+                Stats = new List<ItemStats.Stat.ItemStat>()
+                {
+                    new ItemStats.Stat.ItemStat(
+
+                        (itemCount, ctx) => BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, itemCount - 1),
+                        (value, ctx) => $"Sip Cooldown Duration is: {value} second(s)"
+                        )
+                }
+            };
+            ItemStats.ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SipCooldownStatDef);
         }
 
         private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)

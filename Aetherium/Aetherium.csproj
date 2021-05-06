@@ -36,6 +36,9 @@
     <Reference Include="InLobbyConfig">
       <HintPath>lib\InLobbyConfig.dll</HintPath>
     </Reference>
+    <Reference Include="ItemStats">
+      <HintPath>lib\ItemStats.dll</HintPath>
+    </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>lib\MMHOOK_Assembly-CSharp.dll</HintPath>
     </Reference>

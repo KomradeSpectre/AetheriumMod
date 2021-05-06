@@ -36,16 +36,22 @@ namespace Aetherium.Items
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
+            CreateLang();
+            CreateItem();
+            Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
-            
+            BaseMinimumPercentPrice = config.ActiveBind<float>("Item: " + ItemName, "Base Minimum Percentage for Interactable Prices", 0.2f, "What percentage should we be able to reduce prices by at max for the first stack?");
+            AdditionalMinimumPriceReduction = config.ActiveBind<float>("Item: " + ItemName, "Minimum Percentage Subtracted per Additional Stacks", 0.05f, "How much further should we reduce the minimum price possible per additional stack of this item?");
+            BasePricePercentageReduction = config.ActiveBind<float>("Item: " + ItemName, "Base Price Percentage Reduction per Kill", 0.025f, "How much cost in percentage should we remove per kill?");
+            AdditionalPricePercentageReduction = config.ActiveBind<float>("Item: " + ItemName, "Additional Price Percentage Reduction per Kill", 0.025f, "How much cost in percentage should we reduce per additional stacks of this item per kill?");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            throw new NotImplementedException();
+            return new ItemDisplayRuleDict();
         }
 
         public override void Hooks()
@@ -55,49 +61,71 @@ namespace Aetherium.Items
 
         private void DiscountNearbyGoldInteractables(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
         {
+            orig(self, damageReport);
+
             if (damageReport.attackerBody && damageReport.victimBody)
             {
+                ModLogger.LogError($"AttackerBody is: {damageReport.attackerBody}\nVictimBody is: {damageReport.victimBody}");
+
                 var inventoryCount = GetCount(damageReport.attackerBody);
                 if(inventoryCount > 0)
                 {
+                    ModLogger.LogError($"Starting Spheresearch.");
                     List<Collider> colliders = new List<Collider>();
                     new SphereSearch()
                     {
                         origin = damageReport.victimBody.transform.position,
-                        mask = RoR2.LayerIndex.entityPrecise.mask,
+                        mask = RoR2.LayerIndex.CommonMasks.interactable,
                         radius = 30,
-                    }.OrderCandidatesByDistance().FilterCandidatesByDistinctColliderEntities().GetColliders(colliders);
+                        queryTriggerInteraction = QueryTriggerInteraction.Collide,
 
-                    foreach(Collider collider in colliders)
+                    }.ClearCandidates().RefreshCandidates().FilterCandidatesByColliderEntities().OrderCandidatesByDistance().FilterCandidatesByDistinctColliderEntities().GetColliders(colliders);
+
+                    ModLogger.LogError($"Found {colliders.Count} colliders");
+
+                    foreach (Collider collider in colliders)
                     {
-                        var interactionComponent = collider.gameObject.GetComponent<PurchaseInteraction>();
-                        if (interactionComponent && interactionComponent.costType == CostTypeIndex.Money)
+                        ModLogger.LogError($"Collider is: {collider}");
+
+                        var interactionEntity = collider.GetComponent<EntityLocator>();
+                        if (interactionEntity)
                         {
-                            var costCacheComponent = collider.gameObject.GetComponent<MoneyInteractableCostCache>();
-                            if (!costCacheComponent) 
-                            { 
-                                costCacheComponent = collider.gameObject.AddComponent<MoneyInteractableCostCache>();
-                                costCacheComponent.OriginalCost = interactionComponent.cost;
+                            ModLogger.LogError($"Found Interaction Entity: {interactionEntity}");
+                            var interactionComponent = interactionEntity.entity.GetComponent<PurchaseInteraction>();
+
+                            if (interactionComponent && interactionComponent.costType == CostTypeIndex.Money && interactionComponent.available)
+                            {
+                                ModLogger.LogError($"Found Purchase Interaction: {interactionComponent} and passed conditions");
+                                var costCacheComponent = collider.gameObject.GetComponent<MoneyInteractableCostCache>();
+                                if (!costCacheComponent)
+                                {
+                                    costCacheComponent = collider.gameObject.AddComponent<MoneyInteractableCostCache>();
+                                    costCacheComponent.OriginalCost = interactionComponent.cost;
+                                }
+
+                                costCacheComponent.KillsOnThisInteractable++;
+
+                                var minRate = 1 - (BaseMinimumPercentPrice + (1 - BaseMinimumPercentPrice) * (1 - 1 / (1 + AdditionalMinimumPriceReduction * (inventoryCount - 1))));
+                                var rate = Mathf.Clamp(1 - (BasePricePercentageReduction + AdditionalPricePercentageReduction * costCacheComponent.KillsOnThisInteractable), minRate, 1);
+                                var newPrice = (int)(costCacheComponent.OriginalCost * rate);
+
+                                interactionComponent.cost = newPrice;
+                                interactionComponent.Networkcost = newPrice;
                             }
-
-                            var calculatedCostReductionPercentage = Mathf.Clamp((BasePricePercentageReduction + (AdditionalPricePercentageReduction * (inventoryCount - 1))), BaseMinimumPercentPrice - (AdditionalPricePercentageReduction * (inventoryCount - 1)), float.MaxValue);
-
-                            interactionComponent.cost = (int)(costCacheComponent.OriginalCost * calculatedCostReductionPercentage);
-                            interactionComponent.Networkcost *= (int)(costCacheComponent.OriginalCost * calculatedCostReductionPercentage);
-                        }
-                        else
-                        {
-                            continue;
+                            else
+                            {
+                                continue;
+                            }
                         }
                     }
                 }
             }
-            orig(self, damageReport);
         }
 
         public class MoneyInteractableCostCache : MonoBehaviour
         {
             public int OriginalCost;
+            public int KillsOnThisInteractable;
         }
     }
 }
