@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
@@ -720,6 +723,11 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2.RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
             IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
             IL.EntityStates.Treebot.TreebotFlower.TreebotFlower2Projectile.RootPulse += FireSwordsFromFlower;
@@ -727,6 +735,22 @@ namespace Aetherium.Items
             On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
             On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef BlasterSwordStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * BaseSwordDamageMultiplier + (ctx.Master.GetBody().damage * AdditionalSwordDamageMultiplier * (itemCount - 1)) : 0,
+                        (value, ctx) => $"Sword Beam Damage Multiplier: {value.FormatPercentage()}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, BlasterSwordStatDefs);
         }
 
         private void FireSwordsFromFlower(ILContext il)

@@ -8,6 +8,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Aetherium.Utils;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -244,8 +248,34 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.PurchaseInteraction.OnInteractionBegin += DuplicateDronesAndTurrets;
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef EngineersToolbeltStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (itemCount - 1))),
+                        (value, ctx) => $"Chance To Duplicate Drone/Turret On Purchase: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (itemCount - 1))),
+                        (value, ctx) => $"Chance To Revive Drone/Turret On Death: {value.FormatPercentage()}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, EngineersToolbeltStatDefs);
         }
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
@@ -309,7 +339,7 @@ namespace Aetherium.Items
                                 if (characterBody.name.Contains(droneName))
                                 {
                                     //var reviveAltCalc = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))));
-                                    var shouldWeRevive = Util.CheckRoll((BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (inventoryCount - 1))))*100, self.master.minionOwnership.ownerMaster);
+                                    var shouldWeRevive = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1))))*100, self.master.minionOwnership.ownerMaster);
                                     if (shouldWeRevive)
                                     {
                                         var originalOwner = self.master.minionOwnership.ownerMaster;

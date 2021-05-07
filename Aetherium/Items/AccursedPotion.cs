@@ -9,6 +9,10 @@ using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+using ItemStats.StatModification;
 
 namespace Aetherium.Items
 {
@@ -257,25 +261,32 @@ namespace Aetherium.Items
 
             if (IsItemStatsModInstalled)
             {
-                ItemCatalog.availability.CallWhenAvailable(ItemStatsModCompat);
+                RoR2Application.onLoad += ItemStatsModCompat;
             }
         }
 
-        private void ItemStatsModCompat()
+        public void ItemStatsModCompat()
         {
-            ItemStats.ItemStatDef SipCooldownStatDef = new ItemStats.ItemStatDef
+            ItemStatDef SipCooldownStatDef = new ItemStatDef
             {
 
-                Stats = new List<ItemStats.Stat.ItemStat>()
+                Stats = new List<ItemStat>()
                 {
-                    new ItemStats.Stat.ItemStat(
-
+                    new ItemStat
+                    (
                         (itemCount, ctx) => BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, itemCount - 1),
-                        (value, ctx) => $"Sip Cooldown Duration is: {value} second(s)"
-                        )
+                        (value, ctx) => $"Sip Cooldown Duration: {value} second(s)"
+                    ),
+
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseRadiusGranted + (AdditionalRadiusGranted * (itemCount - 1)),
+                        (value, ctx) => $"Effect Sharing Radius: {value} meter(s)"
+                    )
                 }
             };
-            ItemStats.ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SipCooldownStatDef);
+
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SipCooldownStatDef);
         }
 
         private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)

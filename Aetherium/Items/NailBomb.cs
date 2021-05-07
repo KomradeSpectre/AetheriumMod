@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Aetherium.Utils;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using RoR2.Projectile;
@@ -148,6 +152,11 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             if (UseAlternateImplementation)
             {
                 On.RoR2.CharacterBody.FixedUpdate += FireNailBombFromBody;
@@ -157,6 +166,41 @@ namespace Aetherium.Items
                 On.RoR2.GlobalEventManager.OnHitEnemy += FireNailBomb;
             }
             
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef NailBombStatDefs = new ItemStatDef();
+
+            if (UseAlternateImplementation)
+            {
+                NailBombStatDefs.Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? (ctx.Master.GetBody().damage * (1 + PercentDamageBonusOfAdditionalStacks * itemCount)) * PercentDamagePerNailInNailBomb: 0,
+                        (value, ctx) => $"Current Damage per Nail: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => NailBombDropDelay / (1 + DurationPercentageReducedByWithAdditionalStacks * (itemCount - 1)),
+                        (value, ctx) => $"Current Nail Bomb Cooldown Duration: {value} second(s)"
+                    )
+                };
+            }
+            else
+            {
+                NailBombStatDefs.Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? (ctx.Master.GetBody().damage * (1 + PercentDamageBonusOfAdditionalStacks * itemCount)) * PercentDamagePerNailInNailBomb: 0,
+                        (value, ctx) => $"Current Damage per Nail: {value}"
+                    )
+                };
+            }
+
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, NailBombStatDefs);
         }
 
         private void FireNailBombFromBody(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)

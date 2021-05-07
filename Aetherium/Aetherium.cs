@@ -64,6 +64,9 @@ namespace Aetherium
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
 #endif
 
+            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
+            IsItemStatsModInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
+
             ModLogger = this.Logger;
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
@@ -161,9 +164,6 @@ namespace Aetherium
                 //Blacklist this from TinkerSatchel Mimic
                 TILER2Compat();
             }
-
-            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
-            IsItemStatsModInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)

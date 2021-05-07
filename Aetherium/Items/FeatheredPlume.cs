@@ -3,10 +3,15 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using System.Collections.Generic;
 
 namespace Aetherium.Items
 {
@@ -222,8 +227,34 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.HealthComponent.TakeDamage += CalculateSpeedReward;
             GetStatCoefficients += AddSpeedReward;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef FeatheredPlumeStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => MoveSpeedPercentageBonusPerBuffStack * (BuffStacksPerFeatheredPlume * itemCount),
+                        (value, ctx) => $"Current Max Speed Bonus: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * (itemCount - 1)),
+                        (value, ctx) => $"Current Max Buff Duration: {value} second(s)"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, FeatheredPlumeStatDefs);
         }
 
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

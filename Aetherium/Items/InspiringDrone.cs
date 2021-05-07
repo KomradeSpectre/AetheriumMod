@@ -6,6 +6,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
@@ -282,10 +286,75 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef InspiringDroneStatDefs = new ItemStatDef();
+
+            if (SetAllStatValuesAtOnce)
+            {
+                InspiringDroneStatDefs.Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => AllStatValueGrantedPercentage * itemCount,
+                        (value, ctx) => $"Stats Currently Inherited by Bots: {value.FormatPercentage()}"
+                    )
+                };
+            }
+            else
+            {
+                InspiringDroneStatDefs.Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (DamageGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Damage Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().attackSpeed * (AttackSpeedGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Attack Speed Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().crit * (CritChanceGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Crit Chance Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().maxHealth * (HealthGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Health Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().regen * (RegenGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Regen Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().armor * (ArmorGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Armor Currently Inherited: {value}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().moveSpeed * (MovementSpeedGrantedPercentage * itemCount) : 0,
+                        (value, ctx) => $"Movement Speed Currently Inherited: {value}"
+                    ),
+                };
+            }
+
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, InspiringDroneStatDefs);
         }
 
         private void CharacterBody_onBodyStartGlobal(CharacterBody obj)

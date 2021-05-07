@@ -1,7 +1,10 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
+using ItemStats;
+using ItemStats.Stat;
 using R2API;
 using RoR2;
+using System.Collections.Generic;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
@@ -204,7 +207,28 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef AlienMagnetStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (itemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier),
+                        (value, ctx) => $"Pull Force Multiplier: {value}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, AlienMagnetStatDefs);
         }
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
