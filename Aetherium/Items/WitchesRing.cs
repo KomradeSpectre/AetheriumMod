@@ -4,8 +4,13 @@ using R2API;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using System.Collections.Generic;
 
 namespace Aetherium.Items
 {
@@ -327,7 +332,33 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.GlobalEventManager.OnHitEnemy += GrantOnKillEffectsOnHighDamage;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef WitchesRingStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * WitchesRingTriggerThreshold : 0,
+                        (value, ctx) => $"Single Hit Damage Required To Activate: <style=cIsHealing>{value} Damage</style>"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseCooldownDuration / (1 + AdditionalCooldownReduction * (itemCount - 1)),
+                        (value, ctx) => $"Current Cooldown Duration: <style=cIsHealing>{value} seconds(s)</style>"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, WitchesRingStatDefs);
         }
 
         private void GrantOnKillEffectsOnHighDamage(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject victim)

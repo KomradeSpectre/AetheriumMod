@@ -647,7 +647,7 @@ namespace Aetherium.Items
                     if (!TeleportBody(BotOwnerBody.corePosition, graphType)) return;
                     if (BotMaster.gameObject.name.StartsWith("Turret1Master"))
                     {
-                        BotBody.transform.position += BotBody.transform.up * .9f;
+                        BotBody.transform.position += BotBody.transform.up * .3f;
                     }
                     TeleportTimer = duration;
                 }

@@ -6,10 +6,15 @@ using R2API.Utils;
 using RoR2;
 using System;
 using UnityEngine;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using System.Collections.Generic;
 
 namespace Aetherium.Items
 {
@@ -226,9 +231,30 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2.RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             GetStatCoefficients += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
             GetStatCoefficients += ShieldedCoreArmorCalc;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef ShieldingCoreStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseShieldingCoreArmorGrant + (AdditionalShieldingCoreArmorGrant * (itemCount - 1)),
+                        (value, ctx) => $"Current Armor Bonus Provided: {value.FormatInt(" Armor")}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, ShieldingCoreStatDefs);
         }
 
         private void GrantBaseShield(RoR2.CharacterBody sender, StatHookEventArgs args)

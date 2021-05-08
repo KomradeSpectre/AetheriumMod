@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 
@@ -298,9 +302,40 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
             On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
             On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef UnstableDesignStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => 0.10f * (LunarChimeraBaseDamageBoost + (LunarChimeraAdditionalDamageBoost * (itemCount - 1))),
+                        (value, ctx) => $"Current/Next Unstable Design Damage Boost Percentage: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => 0.10f * (LunarChimeraBaseHPBoost * itemCount),
+                        (value, ctx) => $"Current/Next Unstable Design HP Boost Percentage: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => 0.14f * (LunarChimeraBaseMovementSpeedBoost * itemCount),
+                        (value, ctx) => $"Current/Next Unstable Design Movement Speed Boost Percentage: {value.FormatPercentage()}"
+                    ),
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, UnstableDesignStatDefs);
         }
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)

@@ -34,7 +34,7 @@ namespace Aetherium.Items
         public override string ItemPickupDesc => "Gain a small chance to duplicate drones and turrets on purchase. Drones and turrets have a small chance to revive themselves on death.";
 
         public override string ItemFullDescription => $"You have a <style=cIsUtility>{FloatToPercentageString(BaseRevivalPercentChance)}</style> chance " +
-            $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of 100% chance) to revive drones and turrets when they <style=cDeath>die</style>.";
+            $"<style=cStack>(+{FloatToPercentageString(AdditionalRevivalPercentChance)} hyperbolically up to a maximum of 100% chance)</style> to revive drones and turrets when they <style=cDeath>die</style>.";
 
         public override string ItemLore => OrderManifestLoreFormatter(
             ItemName,

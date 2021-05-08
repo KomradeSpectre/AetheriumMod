@@ -8,6 +8,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
@@ -502,7 +506,7 @@ namespace Aetherium.Items
         {
             LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_NAME", "Weighted Anklet Limiter Release");
             LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_PICKUP", "You feel much lighter, and your senses keener.");
-            LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", $"You gain [x] movement speed (+[x] per stack), [x] attack speed (+[x] per stack), and [x] damage bonus (+[x] per stack). Gain the ability to dodge [x] times out of the way of close ranged attacks and behind the attacker before entering a cooldown period.");
+            LanguageAPI.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", $"You gain <style=cIsUtility>{MovementSpeedGainedPerLimiterRelease}</style> movement speed <style=cStack>(+{MovementSpeedGainedPerLimiterRelease} per stack)</style>, <style=cIsUtility>{AttackSpeedGainedPerLimiterRelease}</style> attack speed <style=cStack>(+{AttackSpeedGainedPerLimiterRelease} per stack)</style>, and <style=cIsDamage>{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)}</style> damage bonus <style=cStack>(+{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} per stack)</style>. Gain the ability to dodge one time per stack out of the way of close ranged attacks and behind the attacker before entering a cooldown period of <style=cIsUtility>{BaseCooldownOfLimiterReleaseDodge}</style> <style=cStack>(+{AdditionalCooldownOfLimiterReleaseDodge} per stack)</style>.");
 
             LimiterReleaseItemDef = ScriptableObject.CreateInstance<ItemDef>();
             LimiterReleaseItemDef.name = "HIDDEN_ITEM_WEIGHTED_ANKLET_LIMITER_RELEASE";
@@ -510,7 +514,6 @@ namespace Aetherium.Items
             LimiterReleaseItemDef.pickupToken = "HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_PICKUP";
             LimiterReleaseItemDef.descriptionToken = "HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION";
             LimiterReleaseItemDef.loreToken = "";
-            LimiterReleaseItemDef.hidden = true;
             LimiterReleaseItemDef.canRemove = false;
             LimiterReleaseItemDef.tier = ItemTier.NoTier;
 
@@ -519,6 +522,11 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveWeightedAnkletAndLimitersFromDeployables;
             GetStatCoefficients += ManageBonusesAndPenalties;
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
@@ -631,6 +639,60 @@ namespace Aetherium.Items
 
             }));
 
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef UnstableDesignStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => Mathf.Min(itemCount * BaseMovementSpeedReductionPercentage, MovementSpeedReductionPercentageCap),
+                        (value, ctx) => $"Weighted Anklet Movement Speed Reduction: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => Mathf.Min(itemCount * BaseAttackSpeedReductionPercentage, AttackSpeedReductionPercentageCap),
+                        (value, ctx) => $"Weighted Anklet Attack Speed Reduction: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseKnockbackReductionPercentage * itemCount,
+                        (value, ctx) => $"Weighted Anklet Knockback Reduction: {value.FormatPercentage()}"
+                    ),
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, UnstableDesignStatDefs);
+
+            ItemStatDef LimiterReleaseStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => itemCount * AttackSpeedGainedPerLimiterRelease,
+                        (value, ctx) => $"Limiter Release Attack Speed Bonus: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => itemCount * MovementSpeedGainedPerLimiterRelease,
+                        (value, ctx) => $"Limiter Release Movement Speed Bonus: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (itemCount * DamagePercentageGainedPerLimiterRelease) : 0,
+                        (value, ctx) => $"Limiter Release Damage Bonus: {value.FormatInt(" Damage")}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (itemCount - 1)),
+                        (value, ctx) => $"Limiter Release Dodge Cooldown Duration: <style=cIsUtility>{value}</style> second(s)"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(LimiterReleaseItemDef.itemIndex, LimiterReleaseStatDefs);
         }
 
         private void RemoveWeightedAnkletAndLimitersFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)

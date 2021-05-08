@@ -3,8 +3,13 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using System.Collections.Generic;
 
 namespace Aetherium.Items
 {
@@ -240,11 +245,42 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef VoidheartStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * VoidImplosionDamageMultiplier : 0,
+                        (value, ctx) => $"Current Void Implosion Damage: {value.FormatInt(" Damage")}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (itemCount - 1)),
+                        (value, ctx) => $"Current Void Implosion Radius: <style=cIsHealing>{value} meter(s)</style>"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * itemCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold),
+                        (value, ctx) => $"Point of No Return (Ticking Timebomb) Healthbar Percentage: {value.FormatPercentage()}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, VoidheartStatDefs);
         }
 
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
@@ -261,7 +297,7 @@ namespace Aetherium.Items
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
         {
             var InventoryCount = GetCount(body);
-            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
+            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff) && body.inventory.GetItemCount(RoR2Content.Items.ExtraLife) <= 0)
             {
                 GameObject explosion = new GameObject();
                 explosion.transform.position = body.transform.position;

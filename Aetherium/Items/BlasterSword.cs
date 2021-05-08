@@ -745,8 +745,13 @@ namespace Aetherium.Items
                 {
                     new ItemStat
                     (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * BaseSwordDamageMultiplier + (ctx.Master.GetBody().damage * AdditionalSwordDamageMultiplier * (itemCount - 1)) : 0,
-                        (value, ctx) => $"Sword Beam Damage Multiplier: {value.FormatPercentage()}"
+                        (itemCount, ctx) => BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (itemCount - 1)),
+                        (value, ctx) => $"Current Sword Beam Damage Multiplier: {value.FormatPercentage()}"
+                    ),
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (itemCount - 1))) : 0,
+                        (value, ctx) => $"Current Sword Beam Damage: {value.FormatInt(" Damage")}"
                     )
                 }
             };
@@ -782,7 +787,7 @@ namespace Aetherium.Items
                                         owner = body.gameObject,
                                         projectilePrefab = SwordProjectile,
                                         speedOverride = 150.0f,
-                                        damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                        damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
                                         damageTypeOverride = null,
                                         damageColorIndex = DamageColorIndex.Default,
                                         procChainMask = default
@@ -836,7 +841,7 @@ namespace Aetherium.Items
                                     owner = body.gameObject,
                                     projectilePrefab = SwordProjectile,
                                     speedOverride = 100.0f,
-                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                    damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
                                     damageTypeOverride = null,
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default
@@ -903,7 +908,7 @@ namespace Aetherium.Items
                                 owner = owner,
                                 projectilePrefab = SwordProjectile,
                                 speedOverride = 100.0f,
-                                damage = ownerBody.damage * BaseSwordDamageMultiplier + (ownerBody.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                damage = ownerBody.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default,
@@ -1033,7 +1038,7 @@ namespace Aetherium.Items
                                     owner = self.inflictor,
                                     projectilePrefab = SwordProjectile,
                                     speedOverride = 100.0f,
-                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                    damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
                                     damageTypeOverride = null,
                                     damageColorIndex = DamageColorIndex.Default,
                                     procChainMask = default,
@@ -1076,7 +1081,7 @@ namespace Aetherium.Items
                                 owner = projectileOwner,
                                 projectilePrefab = SwordProjectile,
                                 speedOverride = 100.0f,
-                                damage = projectileBody.damage * BaseSwordDamageMultiplier + (projectileBody.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
+                                damage = projectileBody.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
                                 damageTypeOverride = null,
                                 damageColorIndex = DamageColorIndex.Default,
                                 procChainMask = default
@@ -1137,7 +1142,7 @@ namespace Aetherium.Items
                                 newProjectileInfo.owner = projectileOwner;
                                 newProjectileInfo.projectilePrefab = SwordProjectile;
                                 newProjectileInfo.speedOverride = 100.0f;
-                                newProjectileInfo.damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1));
+                                newProjectileInfo.damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1)));
                                 newProjectileInfo.damageTypeOverride = null;
                                 newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                                 newProjectileInfo.procChainMask = default;

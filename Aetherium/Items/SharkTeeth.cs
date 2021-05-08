@@ -4,6 +4,10 @@ using R2API;
 using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemStats;
+using ItemStats.Stat;
+using ItemStats.ValueFormatters;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -204,8 +208,29 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
+            if (IsItemStatsModInstalled)
+            {
+                RoR2Application.onLoad += ItemStatsModCompat;
+            }
+
             On.RoR2.HealthComponent.TakeDamage += TakeDamage;
             On.RoR2.CharacterBody.FixedUpdate += TickDamage;
+        }
+
+        private void ItemStatsModCompat()
+        {
+            ItemStatDef SharkTeethStatDefs = new ItemStatDef
+            {
+                Stats = new List<ItemStat>()
+                {
+                    new ItemStat
+                    (
+                        (itemCount, ctx) => BaseDamageSpreadPercentage + (MaxDamageSpreadPercentage - MaxDamageSpreadPercentage / (1 + AdditionalDamageSpreadPercentage * (itemCount - 1))),
+                        (value, ctx) => $"Current Damage Spread Percentage: {value.FormatPercentage()}"
+                    )
+                }
+            };
+            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SharkTeethStatDefs);
         }
 
         private void TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
