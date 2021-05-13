@@ -1,5 +1,6 @@
 ﻿#undef DEBUG
 
+using Aetherium.Artifacts;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
 using Aetherium.Interactables;
@@ -25,7 +26,7 @@ namespace Aetherium
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
@@ -44,11 +45,13 @@ namespace Aetherium
         };
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
+        public List<ArtifactBase> Artifacts = new List<ArtifactBase>();
         public List<ItemBase> Items = new List<ItemBase>();
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
+        public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
@@ -103,6 +106,22 @@ namespace Aetherium
 
             //Achievement
 
+            //Artifact Initialization
+            var ArtifactTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactBase)));
+
+            ModLogger.LogInfo("--------------ARTIFACTS---------------------");
+
+            foreach (var artifactType in ArtifactTypes)
+            {
+                ArtifactBase artifact = (ArtifactBase)Activator.CreateInstance(artifactType);
+                if(ValidateArtifact(artifact, Artifacts))
+                {
+                    artifact.Init(Config);
+
+                    ModLogger.LogInfo("Artifact: " + artifact.ArtifactName + " Initialized!");
+                }
+            }
+
             //Item Initialization
             var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
 
@@ -153,6 +172,7 @@ namespace Aetherium
 
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
+            ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}");
             ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
             ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
             ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
@@ -164,6 +184,19 @@ namespace Aetherium
                 //Blacklist this from TinkerSatchel Mimic
                 TILER2Compat();
             }
+        }
+
+        public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
+        {
+            var enabled = Config.Bind<bool>("Artifact: " + artifact.ArtifactName, "Enable Artifact?", true, "Should this artifact appear for selection?").Value;
+
+            ArtifactStatusDictionary.Add(artifact, enabled);
+
+            if (enabled)
+            {
+                artifactList.Add(artifact);
+            }
+            return enabled;
         }
 
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)

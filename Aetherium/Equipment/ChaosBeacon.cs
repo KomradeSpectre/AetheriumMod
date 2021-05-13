@@ -35,6 +35,11 @@ namespace Aetherium.Equipment
             Hooks();
         }
 
+        public void CreateConfig(ConfigFile config)
+        {
+
+        }
+
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             return new ItemDisplayRuleDict();

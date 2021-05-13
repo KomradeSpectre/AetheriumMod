@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using R2API;
 using System;
+using UnityEngine;
 
 namespace Aetherium.Interactables
 {
@@ -23,7 +24,7 @@ namespace Aetherium.Interactables
 
         public abstract string InteractableLangToken { get; }
 
-        public abstract string InteractableModelPath { get; }
+        public abstract GameObject InteractableModel { get; }
 
         public abstract void Init(ConfigFile config);
 

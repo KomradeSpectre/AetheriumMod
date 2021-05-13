@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.Interactables.BuffBrazier;
 
 namespace Aetherium.Interactables
 {
@@ -30,9 +31,10 @@ namespace Aetherium.Interactables
 
         public override string InteractableLangToken => "BUFF_BRAZIER";
 
-        public override string InteractableModelPath => "@Aetherium:Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab";
+        public override GameObject InteractableModel => MainAssets.LoadAsset<GameObject>("BuffBrazier.prefab");
 
         public static GameObject InteractableBodyModelPrefab;
+        public static GameObject BrazierEffectFieldPrefab;
 
         public static RoR2.InteractableSpawnCard InteractableSpawnCard;
 
@@ -44,6 +46,7 @@ namespace Aetherium.Interactables
             CreateLang();
             CreateInteractablePrefab();
             CreateInteractableSpawnCard();
+            CreateNetworkedPrefab();
             CreateDirectorCard();
             CreateFlameItem();
             Hooks();
@@ -58,7 +61,7 @@ namespace Aetherium.Interactables
 
         private void CreateInteractablePrefab()
         {
-            InteractableBodyModelPrefab = Resources.Load<GameObject>(InteractableModelPath);
+            InteractableBodyModelPrefab = InteractableModel;
 
             InteractableBodyModelPrefab.AddComponent<NetworkIdentity>();
 
@@ -109,6 +112,15 @@ namespace Aetherium.Interactables
             InteractableSpawnCard.skipSpawnWhenSacrificeArtifactEnabled = false;
         }
 
+        private void CreateNetworkedPrefab()
+        {
+            BrazierEffectFieldPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("BuffBrazierActiveField.prefab"), "BuffBrazierIndicatorField", true);
+            BrazierEffectFieldPrefab.AddComponent<NetworkIdentity>();
+
+            PrefabAPI.RegisterNetworkPrefab(BrazierEffectFieldPrefab);
+
+        }
+
         public void CreateDirectorCard()
         {
             RoR2.DirectorCard directorCard = new RoR2.DirectorCard
@@ -125,7 +137,7 @@ namespace Aetherium.Interactables
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_PICKUP", "The sacred flame accepts your plea for help, and will assist your attempt to escape this area.");
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", $"Upon activating the teleporter, the flame will spread out into a radius of {AreaOfEffectRadius} around the teleporter and grant you and your allies aid within the area for {DurationOfEffect} seconds.");
 
-            var flameItemDef = new RoR2.ItemDef
+            FlameItemDef = new RoR2.ItemDef
             {
                 name = "INTERACTABLE_ITEM_SACRED_FLAME",
                 nameToken = "INTERACTABLE_ITEM_SACRED_FLAME_NAME",
@@ -134,9 +146,9 @@ namespace Aetherium.Interactables
                 canRemove = false,
                 tier = ItemTier.NoTier,
                 tags = new ItemTag[] { ItemTag.WorldUnique | ItemTag.AIBlacklist },
-                pickupIconPath = "@Aetherium:Assets/Textures/Icons/Item/Sacred Flame.png"
+                pickupIconSprite = MainAssets.LoadAsset<Sprite>("Sacred Flame.png")
             };
-            FlameItemDef = ItemAPI.Add(new CustomItem(flameItemDef, new RoR2.ItemDisplayRule[] { }));
+            ItemAPI.Add(new CustomItem(FlameItemDef, new RoR2.ItemDisplayRule[] { }));
             
         }
 
@@ -208,239 +220,6 @@ namespace Aetherium.Interactables
             orig(self, activator);
         }
 
-
-
-        public class BuffBrazierManager : MonoBehaviour
-        {
-            public RoR2.Interactor LastInteractor;
-            public CharacterMaster LastInteractorMaster;
-            public RoR2.PurchaseInteraction PurchaseInteraction;
-
-            public float OriginalCost;
-
-            public float DurationOfField = 60f;
-            public float AreaOfEffectRadius = 60f;
-
-            public float Timer;
-            public bool InUse = false;
-
-            public ParticleSystem ParticleSystem;
-
-            public List<BrazierBuffCuratedType> CuratedBuffList = new List<BrazierBuffCuratedType>();
-            public BrazierBuffCuratedType ChosenBrazierBuff;
-
-            public GameObject BrazierAOEIndicator;
-            public Vector3 PositionOfAOE;
-            public float AOEEasingInTimer;
-            public float AOEEasingOutTimer;
-
-            public void CreateCuratedBuffList()
-            {
-                //War Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.WarCryBuff.buffIndex, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1, false));
-
-                //Invisibility Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.Cloak.buffIndex, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f, false));
-
-                //Cripple Debuff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.Cripple.buffIndex, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f, true));
-
-                //Jade Elephant Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.ElephantArmorBoost.buffIndex, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2, false));
-
-                //Super Leech Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2, false));
-
-                //No Cooldown Buff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.NoCooldowns, new Color(142, 30, 161, 255), new Color(70, 30, 79, 255), 4, false));
-
-                //Slowdown Debuff
-                CuratedBuffList.Add(new BrazierBuffCuratedType(BuffIndex.Slow80, new Color(115, 111, 93, 255), new Color(69, 66, 55, 255), 1, true));
-            }
-
-            public BrazierBuffCuratedType ChooseTheBrazierBuff()
-            {
-                return CuratedBuffList[RoR2.Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count)];
-            }
-
-            public void FindParticleSystemAndLightAndSetColor()
-            {
-                var brazierObject = this.gameObject;
-                if (brazierObject)
-                {
-                    var normalizedColorStart = ChosenBrazierBuff.StartColor / 255;
-                    var normalizedColorEnd = ChosenBrazierBuff.EndColor / 255;
-
-                    ParticleSystem = brazierObject.GetComponentInChildren<ParticleSystem>();
-                    if (ParticleSystem)
-                    {
-                        var color = ParticleSystem.colorOverLifetime;
-                        color.color = new ParticleSystem.MinMaxGradient(normalizedColorStart, normalizedColorEnd);
-                    }
-
-                    var particleSystemRenderer = brazierObject.GetComponentInChildren<ParticleSystemRenderer>();
-                    if (particleSystemRenderer)
-                    {
-                        var material = new Material(particleSystemRenderer.material);
-                        //material.SetColor("_Tint", normalizedColorEnd);
-                        particleSystemRenderer.material = material;
-                    }
-
-                    var light = brazierObject.GetComponentInChildren<Light>();
-                    if (light)
-                    {
-                        light.color = normalizedColorEnd;
-                        light.intensity = 5;
-                    }
-                }
-            }
-            public void Start()
-            {
-                PurchaseInteraction.SetAvailableTrue();
-                PurchaseInteraction.onPurchase.AddListener(delegate (RoR2.Interactor interactor)
-                {
-                    this.ShrinePurchaseAttempt(interactor);
-                });
-
-                CreateCuratedBuffList();
-                ChosenBrazierBuff = ChooseTheBrazierBuff();
-                FindParticleSystemAndLightAndSetColor();
-
-                PurchaseInteraction.cost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
-                PurchaseInteraction.Networkcost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
-            }
-
-            public void ShrinePurchaseAttempt(RoR2.Interactor interactor)
-            {
-                LastInteractor = interactor;
-                RoR2.EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new RoR2.EffectData
-                {
-                    origin = this.transform.position,
-                    rotation = Quaternion.identity,
-                    scale = 1
-
-                }, true);
-
-                if (ParticleSystem.isPlaying)
-                {
-                    ParticleSystem.Stop();
-                }
-
-                var body = interactor.GetComponent<RoR2.CharacterBody>();
-                if (body)
-                {
-                    var master = body.master;
-                    if (master)
-                    {
-                        LastInteractorMaster = master;
-                        master.inventory.GiveItem(BuffBrazier.instance.FlameItemDef);
-                        var sacredFlameCache = master.gameObject.AddComponent<BuffBrazierSacredFlameCache>();
-                        sacredFlameCache.BuffBrazierManager = this;
-                    }
-
-                }
-                PurchaseInteraction.SetAvailable(false);
-            }
-
-            public void FixedUpdate()
-            {
-                if (InUse)
-                {
-                    if (!BrazierAOEIndicator)
-                    {
-                        BrazierAOEIndicator = brazie.InstantiateClone();
-
-                        var meshRenderer = BrazierAOEIndicator.GetComponent<MeshRenderer>();
-                        var material = new Material(meshRenderer.material);
-                        material.shader = AetheriumPlugin.IntersectionShader;
-                        material.SetColor("_TintColor", ChosenBrazierBuff.EndColor / 255);
-                        meshRenderer.material = material;
-                        var materialController = BrazierAOEIndicator.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                        materialController.MeshRenderer = meshRenderer;
-
-                        NetworkServer.Spawn(BrazierAOEIndicator);
-                        BrazierAOEIndicator.transform.position = PositionOfAOE;
-                    }
-
-                    AOEEasingInTimer += Time.fixedDeltaTime;
-
-                    if (AOEEasingInTimer <= 1)
-                    {
-                        var easingValue = EasingFunction.EaseInQuad(0, AreaOfEffectRadius, AOEEasingInTimer);
-                        BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
-                    }
-                    else
-                    {
-                        if (ParticleSystem.isStopped)
-                        {
-                            ParticleSystem.Play();
-                        }
-                        Timer -= Time.fixedDeltaTime;
-
-                        if (Timer > 0)
-                        {
-                            List<HurtBox> HurtBoxes = new List<HurtBox>();
-                            if (ChosenBrazierBuff.IsDebuff)
-                            {
-                                RoR2.TeamMask EnemyTeams = RoR2.TeamMask.GetEnemyTeams(LastInteractorMaster.teamIndex);
-                                HurtBoxes = new RoR2.SphereSearch
-                                {
-                                    radius = DurationOfField,
-                                    mask = RoR2.LayerIndex.entityPrecise.mask,
-                                    origin = BrazierAOEIndicator.transform.position
-                                }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(EnemyTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
-                            }
-                            else
-                            {
-                                RoR2.TeamMask AlliedTeams = new TeamMask();
-                                AlliedTeams.AddTeam(LastInteractorMaster.teamIndex);
-
-                                HurtBoxes = new RoR2.SphereSearch
-                                {
-                                    radius = DurationOfField,
-                                    mask = RoR2.LayerIndex.entityPrecise.mask,
-                                    origin = BrazierAOEIndicator.transform.position
-                                }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(AlliedTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
-                            }
-
-                            foreach (RoR2.HurtBox hurtbox in HurtBoxes)
-                            {
-                                var healthComponent = hurtbox.healthComponent;
-                                if (healthComponent)
-                                {
-                                    var body = healthComponent.body;
-                                    if (body)
-                                    {
-                                        body.AddTimedBuff(ChosenBrazierBuff.Index, 1);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (ParticleSystem.isPlaying)
-                            {
-                                ParticleSystem.Stop();
-                            }
-                            AOEEasingOutTimer += Time.fixedDeltaTime;
-                            if(AOEEasingOutTimer <= 1)
-                            {
-                                var easingValue = EasingFunction.EaseOutQuad(DurationOfField, 0, AOEEasingOutTimer);
-                                BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
-                            }
-                            else
-                            { 
-                                Destroy(BrazierAOEIndicator);
-                                Destroy(ParticleSystem);
-                                Destroy(this);
-                            }
-                        }
-                    }
-                    
-                }
-            }
-        }
-
         public class BuffBrazierSacredFlameCache : MonoBehaviour
         {
             public BuffBrazierManager BuffBrazierManager;
@@ -448,19 +227,246 @@ namespace Aetherium.Interactables
 
         public class BrazierBuffCuratedType
         {
-            public BuffIndex Index;
+            public BuffDef BuffDef;
             public Color StartColor;
             public Color EndColor;
             public float CostModifier;
             public bool IsDebuff;
 
-            public BrazierBuffCuratedType(BuffIndex buffIndex, Color startColor, Color endColor, float costModifier, bool isDebuff)
+            public BrazierBuffCuratedType(BuffDef buffDef, Color startColor, Color endColor, float costModifier, bool isDebuff)
             {
-                Index = buffIndex;
+                BuffDef = buffDef;
                 StartColor = startColor;
                 EndColor = endColor;
                 CostModifier = costModifier;
                 IsDebuff = isDebuff;
+            }
+        }
+    }
+
+    public class BuffBrazierManager : NetworkBehaviour
+    {
+        public RoR2.Interactor LastInteractor;
+        public CharacterMaster LastInteractorMaster;
+        public RoR2.PurchaseInteraction PurchaseInteraction;
+
+        public float OriginalCost;
+
+        public float DurationOfField = 60f;
+        public float AreaOfEffectRadius = 60f;
+
+        public float Timer;
+        public bool InUse = false;
+
+        public ParticleSystem ParticleSystem;
+
+        public List<BrazierBuffCuratedType> CuratedBuffList = new List<BrazierBuffCuratedType>();
+
+        [SyncVar]
+        public int ChosenBrazierBuffIndex;
+
+        public BrazierBuffCuratedType ChosenBrazierBuff;
+
+        public GameObject BrazierAOEIndicator;
+        public Vector3 PositionOfAOE;
+        public float AOEEasingInTimer;
+        public float AOEEasingOutTimer;
+
+        public void CreateCuratedBuffList()
+        {
+            //War Buff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.WarCryBuff, new Color(255, 10, 10, 255), new Color(192, 10, 10, 255), 1, false));
+
+            //Invisibility Buff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2.RoR2Content.Buffs.Cloak, new Color(173, 251, 255, 255), new Color(57, 148, 153, 255), 1.5f, false));
+
+            //Cripple Debuff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.Cripple, new Color(99, 188, 255, 255), new Color(61, 118, 161, 255), 1.25f, true));
+
+            //Jade Elephant Buff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.ElephantArmorBoost, new Color(10, 219, 113, 255), new Color(15, 120, 60, 255), 2, false));
+
+            //Super Leech Buff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.LifeSteal, new Color(255, 89, 144, 255), new Color(145, 49, 81, 255), 2, false));
+
+            //No Cooldown Buff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.NoCooldowns, new Color(142, 30, 161, 255), new Color(70, 30, 79, 255), 4, false));
+
+            //Slowdown Debuff
+            CuratedBuffList.Add(new BrazierBuffCuratedType(RoR2Content.Buffs.Slow80, new Color(115, 111, 93, 255), new Color(69, 66, 55, 255), 1, true));
+        }
+
+        public void FindParticleSystemAndLightAndSetColor()
+        {
+            var brazierObject = this.gameObject;
+            if (brazierObject)
+            {
+                var normalizedColorStart = ChosenBrazierBuff.StartColor / 255;
+                var normalizedColorEnd = ChosenBrazierBuff.EndColor / 255;
+
+                ParticleSystem = brazierObject.GetComponentInChildren<ParticleSystem>();
+                if (ParticleSystem)
+                {
+                    var color = ParticleSystem.colorOverLifetime;
+                    color.color = new ParticleSystem.MinMaxGradient(normalizedColorStart, normalizedColorEnd);
+                }
+
+                var particleSystemRenderer = brazierObject.GetComponentInChildren<ParticleSystemRenderer>();
+                if (particleSystemRenderer)
+                {
+                    var material = new Material(particleSystemRenderer.material);
+                    //material.SetColor("_Tint", normalizedColorEnd);
+                    particleSystemRenderer.material = material;
+                }
+
+                var light = brazierObject.GetComponentInChildren<Light>();
+                if (light)
+                {
+                    light.color = normalizedColorEnd;
+                    light.intensity = 5;
+                }
+            }
+        }
+        public void Start()
+        {
+            PurchaseInteraction.SetAvailableTrue();
+            PurchaseInteraction.onPurchase.AddListener(delegate (RoR2.Interactor interactor)
+            {
+                this.ShrinePurchaseAttempt(interactor);
+            });
+
+            CreateCuratedBuffList();
+            ChosenBrazierBuffIndex = RoR2.Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count);
+            ChosenBrazierBuff = CuratedBuffList[ChosenBrazierBuffIndex];
+            FindParticleSystemAndLightAndSetColor();
+
+            PurchaseInteraction.cost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
+            PurchaseInteraction.Networkcost = (int)(OriginalCost * ChosenBrazierBuff.CostModifier);
+        }
+
+        public void ShrinePurchaseAttempt(RoR2.Interactor interactor)
+        {
+            LastInteractor = interactor;
+            RoR2.EffectManager.SpawnEffect(Resources.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new RoR2.EffectData
+            {
+                origin = this.transform.position,
+                rotation = Quaternion.identity,
+                scale = 1
+
+            }, true);
+
+            if (ParticleSystem.isPlaying)
+            {
+                ParticleSystem.Stop();
+            }
+
+            var body = interactor.GetComponent<RoR2.CharacterBody>();
+            if (body)
+            {
+                var master = body.master;
+                if (master)
+                {
+                    LastInteractorMaster = master;
+                    master.inventory.GiveItem(BuffBrazier.instance.FlameItemDef);
+                    var sacredFlameCache = master.gameObject.AddComponent<BuffBrazierSacredFlameCache>();
+                    sacredFlameCache.BuffBrazierManager = this;
+                }
+
+            }
+            PurchaseInteraction.SetAvailable(false);
+        }
+
+        public void FixedUpdate()
+        {
+            if (InUse)
+            {
+                if (!BrazierAOEIndicator)
+                {
+                    BrazierAOEIndicator = UnityEngine.GameObject.Instantiate(BrazierEffectFieldPrefab);
+
+                    var meshRenderer = BrazierAOEIndicator.GetComponent<MeshRenderer>();
+                    var material = new Material(meshRenderer.material);
+                    material.SetColor("_TintColor", ChosenBrazierBuff.EndColor / 255);
+                    meshRenderer.material = material;
+
+                    BrazierAOEIndicator.transform.position = PositionOfAOE;
+                }
+
+                AOEEasingInTimer += Time.fixedDeltaTime;
+
+                if (AOEEasingInTimer <= 1)
+                {
+                    var easingValue = EasingFunction.EaseInQuad(0, AreaOfEffectRadius, AOEEasingInTimer);
+                    BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
+                }
+                else
+                {
+                    if (ParticleSystem.isStopped)
+                    {
+                        ParticleSystem.Play();
+                    }
+                    Timer -= Time.fixedDeltaTime;
+
+                    if (Timer > 0)
+                    {
+                        List<HurtBox> HurtBoxes = new List<HurtBox>();
+                        if (ChosenBrazierBuff.IsDebuff)
+                        {
+                            RoR2.TeamMask EnemyTeams = RoR2.TeamMask.GetEnemyTeams(LastInteractorMaster.teamIndex);
+                            HurtBoxes = new RoR2.SphereSearch
+                            {
+                                radius = DurationOfField,
+                                mask = RoR2.LayerIndex.entityPrecise.mask,
+                                origin = BrazierAOEIndicator.transform.position
+                            }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(EnemyTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
+                        }
+                        else
+                        {
+                            RoR2.TeamMask AlliedTeams = new TeamMask();
+                            AlliedTeams.AddTeam(LastInteractorMaster.teamIndex);
+
+                            HurtBoxes = new RoR2.SphereSearch
+                            {
+                                radius = DurationOfField,
+                                mask = RoR2.LayerIndex.entityPrecise.mask,
+                                origin = BrazierAOEIndicator.transform.position
+                            }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(AlliedTeams).FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
+                        }
+
+                        foreach (RoR2.HurtBox hurtbox in HurtBoxes)
+                        {
+                            var healthComponent = hurtbox.healthComponent;
+                            if (healthComponent)
+                            {
+                                var body = healthComponent.body;
+                                if (body)
+                                {
+                                    body.AddTimedBuff(ChosenBrazierBuff.BuffDef, 1);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (ParticleSystem.isPlaying)
+                        {
+                            ParticleSystem.Stop();
+                        }
+                        AOEEasingOutTimer += Time.fixedDeltaTime;
+                        if (AOEEasingOutTimer <= 1)
+                        {
+                            var easingValue = EasingFunction.EaseOutQuad(DurationOfField, 0, AOEEasingOutTimer);
+                            BrazierAOEIndicator.transform.localScale = new Vector3(easingValue, easingValue, easingValue);
+                        }
+                        else
+                        {
+                            Destroy(BrazierAOEIndicator);
+                            Destroy(ParticleSystem);
+                            Destroy(this);
+                        }
+                    }
+                }
+
             }
         }
     }

@@ -89,7 +89,7 @@ namespace Aetherium.Items
             }
         }
 
-        private static readonly string nameSuffix = "UnstableDesign(Aetherium)";
+        private static readonly string nameSuffix = "UnstableDesignAetherium";
         private static SkillDef _airSkill = null;
 
         public override void Init(ConfigFile config)

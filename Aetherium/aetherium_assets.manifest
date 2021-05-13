@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 927742688
+CRC: 4247834447
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c851d4002b35b6b7ecbf924c98f094bf
+    Hash: 22e9fa6da0475ee7851510c190c6aaa5
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -114,6 +114,7 @@ Assets:
 - Assets/Textures/Material Textures/EmissionTextureCrystal.png
 - Assets/Textures/Material Textures/414-normal.jpg
 - Assets/Models/Prefabs/Item/Voidheart/Voidheart.prefab
+- Assets/Textures/Icons/Artifact/ArtifactOfRegressionDisabledIcon.png
 - Assets/Shaders/3D Shaders/PulseShader.shader
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat
 - Assets/Textures/Icons/Item/BloodSoakedShieldIcon.png
@@ -324,6 +325,7 @@ Assets:
 - Assets/Textures/Material Textures/UnstableDesignBackTexture.png
 - Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClasp.mat
+- Assets/Textures/Icons/Artifact/ArtifactOfRegressionEnabledIcon.png
 - Assets/Textures/Material Textures/MagicCircleEmission.png
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveInner.mat

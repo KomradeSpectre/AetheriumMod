@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Aetherium.Utils
 {
-    public class MiscUtils
+    public static class MiscUtils
     {
         //Sourced from source code, couldn't access because it was private, modified a little
         public static Vector3? RaycastToFloor(Vector3 position, float maxDistance)
@@ -16,6 +16,16 @@ namespace Aetherium.Utils
                 return raycastHit.point;
             }
             return null;
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> toShuffle, Xoroshiro128Plus random)
+        {
+            List<T> shuffled = new List<T>();
+            foreach (T value in toShuffle)
+            {
+                shuffled.Insert(random.RangeInt(0, shuffled.Count + 1), value);
+            }
+            return shuffled;
         }
     }
 }
