@@ -21,9 +21,9 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactDescription => $"When enabled, after every {MeteorShowerInterval} second(s) a meteor shower will occur that contains {WavesPerMeteorStorm} wave(s) of meteors.";
 
-        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
+        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfLeonidsEnabledIcon.png");
 
-        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("NailBombIcon.png");
+        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfLeonidsDisabledIcon.png");
 
         public override void Init(ConfigFile config)
         {

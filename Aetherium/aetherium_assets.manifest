@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4247834447
+CRC: 958267236
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 22e9fa6da0475ee7851510c190c6aaa5
+    Hash: 66812d6e3c2430c96d675c5580037258
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -261,6 +261,7 @@ Assets:
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerPlumes.mat
 - Assets/Shaders/3D Shaders/FireMaskShader.shader
 - Assets/Animations/JarProjectileSawSecondary.controller
+- Assets/Textures/Icons/Artifact/ArtifactOfLeonidsEnabledIcon.png
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Shaders/tests/test.shader
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
@@ -272,6 +273,7 @@ Assets:
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAdditiveParticle.mat
 - Assets/Textures/Material Textures/WhiteToBlackToWhiteRamp.png
 - Assets/Animations/ShieldingCoreCentrifuge.anim
+- Assets/Textures/Icons/Artifact/ArtifactOfLeonidsDisabledIcon.png
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab
 - Assets/Textures/Material Textures/414-bump.jpg
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png

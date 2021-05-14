@@ -169,7 +169,7 @@ namespace Aetherium.Artifacts
                                     rotation = characterBody.transform.rotation,
                                     summonerBodyObject = characterBody.gameObject,
                                     ignoreTeamMemberLimit = true,
-                                    inventoryToCopy = characterBody.inventory ? characterBody.inventory : null
+                                    inventoryToCopy = characterBody.inventory ? characterBody.inventory : null                                    
 
                                 }.Perform();
 
