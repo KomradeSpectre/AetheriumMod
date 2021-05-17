@@ -712,7 +712,13 @@ namespace Aetherium.Items
                     TrackerObject.transform.position = calculatedUpPosition;
                     TrackerArrow.transform.position = ClosestPointOnSphereToPoint(TrackerObject.transform.position, 0.4f, body.transform.position);
                     TrackerArrow.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-                    TrackerArrow.transform.rotation = Quaternion.LookRotation(body.transform.position - TrackerArrow.transform.position);
+
+                    var lookRotation = body.transform.position - TrackerArrow.transform.position;
+
+                    if (lookRotation != Vector3.zero)
+                    {
+                        TrackerArrow.transform.rotation = Quaternion.LookRotation(lookRotation);
+                    }
                 }
             }
             else

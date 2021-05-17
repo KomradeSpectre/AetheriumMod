@@ -265,12 +265,12 @@ namespace Aetherium.Items
                 {
                     new ItemStat
                     (
-                        (itemCount, ctx) => BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (itemCount - 1))),
+                        (itemCount, ctx) => InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, (int)itemCount),
                         (value, ctx) => $"Chance To Duplicate Drone/Turret On Purchase: {value.FormatPercentage()}"
                     ),
                     new ItemStat
                     (
-                        (itemCount, ctx) => BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (itemCount - 1))),
+                        (itemCount, ctx) => InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, (int)itemCount),
                         (value, ctx) => $"Chance To Revive Drone/Turret On Death: {value.FormatPercentage()}"
                     )
                 }
@@ -297,7 +297,7 @@ namespace Aetherium.Items
 
                             if (characterBody && characterBody.master && inventoryCount > 0)
                             {
-                                if (Util.CheckRoll((BaseDuplicationPercentChance + (1 - BaseDuplicationPercentChance) * (1 - 1 / (1 + AdditionalDuplicationPercentChance * (inventoryCount - 1))))*100, characterBody.master))
+                                if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount)*100, characterBody.master))
                                 {
                                     CharacterMaster summonedDrone = new MasterSummon()
                                     {
@@ -337,9 +337,8 @@ namespace Aetherium.Items
                             foreach (string droneName in DronesList)
                             {
                                 if (characterBody.name.Contains(droneName))
-                                {
-                                    //var reviveAltCalc = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1)))));
-                                    var shouldWeRevive = Util.CheckRoll((BaseRevivalPercentChance + (1 - BaseRevivalPercentChance) * (1 - 1 / (1 + AdditionalRevivalPercentChance * (inventoryCount - 1))))*100, self.master.minionOwnership.ownerMaster);
+                                {                                    
+                                    var shouldWeRevive = Util.CheckRoll(InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount)*100, self.master.minionOwnership.ownerMaster);
                                     if (shouldWeRevive)
                                     {
                                         var originalOwner = self.master.minionOwnership.ownerMaster;

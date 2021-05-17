@@ -162,7 +162,7 @@ namespace Aetherium.Equipment
 
             public void Start()
             {
-                ExplosionLight = this.gameObject.AddComponent<Light>();
+                ExplosionLight = gameObject.AddComponent<Light>();
                 ExplosionLight.color = new Color(0.6f, 0.196f, 0.8f);
                 ExplosionLight.range = 1;
                 ExplosionLight.intensity = 1;

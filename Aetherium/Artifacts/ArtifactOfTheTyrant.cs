@@ -23,9 +23,9 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactDescription => $"When enabled, any time Mithrix spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
 
-        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
+        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantEnabledIcon.png");
 
-        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("NailBombIcon.png");
+        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantDisabledIcon.png");
 
         public string[] MithrixNames = new string[] 
         {

@@ -9,6 +9,7 @@ using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.CompatHelpers;
 using ItemStats;
 using ItemStats.Stat;
 using ItemStats.ValueFormatters;
@@ -110,6 +111,14 @@ namespace Aetherium.Items
             AccursedPotionSipCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(AccursedPotionSipCooldownDebuff));
+
+            //BetterUI Buff Description Compat
+            if (IsBetterUIInstalled)
+            {
+                var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
+
+                BetterUI.Buffs.RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

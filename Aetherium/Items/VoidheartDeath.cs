@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 namespace Aetherium.Items
 {
-    internal class VoidheartDeath : NetworkBehaviour
+    public class VoidheartDeath : NetworkBehaviour
     {
         public Transform muzzleTransform;
         public Vector3? portalPosition;
@@ -154,67 +154,80 @@ namespace Aetherium.Items
                 }
             }
         }
+    }
 
-        public class VoidheartDeathCameraController : MonoBehaviour
+    public class VoidheartDeathCameraController : NetworkBehaviour
+    {
+        public CharacterMaster Master;
+        public GameObject DeathObject;
+        public Vector3 DeathPoint;
+        public VoidheartDeath VoidheartDeath;
+
+        [SyncVar]
+        public bool DestroyThisNow = false;
+
+        public CameraRigController Camera;
+        public ForcedCamera ForcedCameraInstance;
+
+        [SyncVar]
+        public double Angle = 0;
+
+        [SyncVar]
+        public float Radius = 0;
+
+        [SyncVar]
+        public float Slide = 0;
+
+        public void FixedUpdate()
         {
-            public CharacterMaster Master;
-            public GameObject DeathObject;
-            public Vector3 DeathPoint;
-            public VoidheartDeath VoidheartDeath;
-
-            public bool DestroyThisNow = false;
-
-            public CameraRigController Camera;
-            public ForcedCamera ForcedCameraInstance;
-
-            public double Angle = 0;
-            public float Radius = 0;
-            public float Slide = 0;
-
-            public void FixedUpdate()
+            if (!Master.preventGameOver || Master.currentLifeStopwatch > 0 || Slide >= 1 || DestroyThisNow)
             {
-                if(!Master.preventGameOver || Master.currentLifeStopwatch > 0 || Slide >= 1 || DestroyThisNow)
+                UnityEngine.Object.Destroy(this);
+            }
+
+            var playerCharacterMasterController = Master.playerCharacterMasterController;
+
+            if (playerCharacterMasterController && playerCharacterMasterController.networkUser && playerCharacterMasterController.networkUser.cameraRigController)
+            {
+                Camera = playerCharacterMasterController.networkUser.cameraRigController;
+
+                if (Camera)
                 {
-                    UnityEngine.Object.Destroy(DeathObject);
-                    UnityEngine.Object.Destroy(this);
-                }
-
-                var playerCharacterMasterController = Master.playerCharacterMasterController;
-
-                if (playerCharacterMasterController && playerCharacterMasterController.networkUser && playerCharacterMasterController.networkUser.cameraRigController)
-                {
-                    Camera = playerCharacterMasterController.networkUser.cameraRigController;
-
-                    if (Camera)
+                    if (!DeathObject)
                     {
-                        if (!DeathObject)
-                        {
-                            DeathObject = new GameObject();
-                            ForcedCameraInstance = DeathObject.AddComponent<ForcedCamera>();
-                            ForcedCameraInstance.fovOverride = 100;
-                            Camera.SetOverrideCam(ForcedCameraInstance, 0);
-                        }
-                        
-                        Angle += Math.PI * Voidheart.VoidImplosionCameraSpinSpeed;
-
-                        if (VoidheartDeath.voidPortalKilledSomething)
-                        {
-                            Slide = Mathf.Clamp((Time.time - VoidheartDeath.ExplosionHappenedAtThisTime) / 2f, 0, 1);
-                            Radius = EasingFunction.EaseInQuad(15, 1, Slide);
-                        }
-                        else
-                        {
-                            Radius = Mathf.Clamp(Radius + 0.1f, 0, 15);
-                            if(Radius >= 15 && VoidheartDeath.fixedAge >= DeathState.duration + 4f) 
-                            {
-                                DestroyThisNow = true;
-                            }
-                        } 
-                        
-                        DeathObject.transform.position = DeathPoint + new Vector3(Radius * (float)Math.Sin(Angle), Radius / 2, Radius * (float)Math.Cos(Angle));
-                        DeathObject.transform.rotation = Util.QuaternionSafeLookRotation(DeathPoint - DeathObject.transform.position);
+                        DeathObject = new GameObject();
+                        ForcedCameraInstance = DeathObject.AddComponent<ForcedCamera>();
+                        ForcedCameraInstance.fovOverride = 100;
+                        Camera.SetOverrideCam(ForcedCameraInstance, 0);
                     }
+
+                    Angle += Math.PI * Voidheart.VoidImplosionCameraSpinSpeed;
+
+                    if (VoidheartDeath.voidPortalKilledSomething)
+                    {
+                        Slide = Mathf.Clamp((Time.time - VoidheartDeath.ExplosionHappenedAtThisTime) / 2f, 0, 1);
+                        Radius = EasingFunction.EaseInQuad(15, 1, Slide);
+                    }
+                    else
+                    {
+                        Radius = Mathf.Clamp(Radius + 0.1f, 0, 15);
+                        if (Radius >= 15 && VoidheartDeath.fixedAge >= DeathState.duration + 4f)
+                        {
+                            DestroyThisNow = true;
+                        }
+                    }
+
+                    DeathObject.transform.position = DeathPoint + new Vector3(Radius * (float)Math.Sin(Angle), Radius / 2, Radius * (float)Math.Cos(Angle));
+                    DeathObject.transform.rotation = Util.QuaternionSafeLookRotation(DeathPoint - DeathObject.transform.position);
                 }
+            }
+        }
+
+        public void OnDestroy()
+        {
+            if (DeathObject)
+            {
+                UnityEngine.Object.Destroy(DeathObject);
             }
         }
     }

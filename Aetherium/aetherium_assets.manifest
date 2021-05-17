@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 958267236
+CRC: 3279428209
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 66812d6e3c2430c96d675c5580037258
+    Hash: 7ce6d92d2a6a1f71ffded71790e20dbe
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -96,6 +96,7 @@ Assets:
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRingCircle.prefab
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeFeather.mat
 - Assets/Textures/Material Textures/EliteRingSunIcon.png
+- Assets/Animations/NailBombNailShrink.anim
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab
 - Assets/Shaders/3D Shaders/StylizedGlass.shader
@@ -158,6 +159,7 @@ Assets:
 - Assets/Shaders/3D Shaders/ToonMetal.shader
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierActiveField.mat
 - Assets/Models/Raw Models/PheromoneSac.blend
+- Assets/Textures/Materials/Item/NailBomb/NailProjectileTrail.mat
 - Assets/Animations/PheromoneSacInner.anim
 - Assets/Animations/InspiringDrone.controller
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltBuckle.mat
@@ -168,6 +170,7 @@ Assets:
 - Assets/Textures/Materials/Item/BloodSoakedShield/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/Item/WeightedAnkletIcon.png
 - Assets/Textures/Material Textures/nailbomb-wick-texture.jpg
+- Assets/753network/Crystallize/Ramp Rainbow.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingMain.mat
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingPowerCore.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
@@ -264,6 +267,7 @@ Assets:
 - Assets/Textures/Icons/Artifact/ArtifactOfLeonidsEnabledIcon.png
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Shaders/tests/test.shader
+- Assets/Models/Prefabs/Item/NailBomb/NailBombSubProjectile.prefab
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Material Textures/HorizontalGradientBW.png
 - Assets/Textures/Material Textures/LabelTextureEmissionMap.png
@@ -315,6 +319,7 @@ Assets:
 - Assets/Textures/Material Textures/BlueToTransparentRampBlinds.png
 - Assets/Textures/Materials/Miscellaneous/BlackHole.mat
 - Assets/Textures/Material Textures/1378-normal.jpg
+- Assets/Textures/Icons/Artifact/ArtifactOfTheTyrantDisabledIcon.png
 - Assets/Textures/Material Textures/BlueToTransparentRampCircular.png
 - Assets/Models/Prefabs/Equipment/PheromoneSac/PheromoneSac.prefab
 - Assets/Textures/Material Textures/FeatheredPlumeNormal.png
@@ -399,6 +404,7 @@ Assets:
 - Assets/Shaders/3D Shaders/LavaShader.shader
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdamagenumber.shader
+- Assets/Textures/Materials/Item/NailBomb/NailProjectileMaterial.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartPlaceholderTexture.mat
 - Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCoreBak.prefab
 - Assets/Textures/Material Textures/Purple Crystal.jpg
@@ -424,11 +430,13 @@ Assets:
 - Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseEyeParticleSystem.mat
 - Assets/Shaders/3D Shaders/FireBallEffect.shader
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletCrystal.mat
+- Assets/Animations/NailBombSubProjectile.controller
 - Assets/Shaders/3D Shaders/DoubleTexGlobalPosition.shader
 - Assets/Textures/Material Textures/7166-bump.jpg
 - Assets/Textures/Material Textures/InspiringDroneHeadsetWireTextureNormalMap.png
 - Assets/Textures/Material Textures/11375-bump.jpg
 - Assets/Textures/Material Textures/WitchesRingHolderEmissionMap.png
+- Assets/Textures/Icons/Artifact/ArtifactOfTheTyrantEnabledIcon.png
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
 - Assets/Textures/Icons/Item/NailBombTier1.png
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png

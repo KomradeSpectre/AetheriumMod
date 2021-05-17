@@ -7,7 +7,6 @@
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
-    <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Interactables\BuffBrazier.cs" />
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
@@ -28,6 +27,9 @@
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>lib\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BetterUI">
+      <HintPath>lib\BetterUI.dll</HintPath>
     </Reference>
     <Reference Include="HGCSharpUtils">
       <HintPath>lib\HGCSharpUtils.dll</HintPath>
@@ -67,6 +69,9 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>lib\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>lib\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>lib\UnityEngine.AssetBundleModule.dll</HintPath>

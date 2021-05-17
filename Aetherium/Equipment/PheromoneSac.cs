@@ -311,6 +311,28 @@ namespace Aetherium.Equipment
                 }
             }
 
+            public void OnDestroy()
+            {
+                if(Master && Body && AI)
+                {
+                    Master.teamIndex = OriginalTeam;
+                    Body.teamComponent.teamIndex = OriginalTeam;
+                    UnityEngine.Object.Destroy(Body.teamComponent.indicator);
+                    Body.teamComponent.SetupIndicator();
+
+                    AI.currentEnemy.Reset();
+                    AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+
+                    Body.AddBuff(StrengthenedMindBuff);
+                }
+
+                if (BrainwashOverlay)
+                {
+                    UnityEngine.Object.Destroy(BrainwashOverlay);
+                }
+
+            }
+
             public void FixedUpdate()
             {
                 if(Master && Body && AI)
@@ -325,21 +347,6 @@ namespace Aetherium.Equipment
                     }
                     else
                     {
-                        Master.teamIndex = OriginalTeam;
-                        Body.teamComponent.teamIndex = OriginalTeam;
-                        UnityEngine.Object.Destroy(Body.teamComponent.indicator);
-                        Body.teamComponent.SetupIndicator();
-
-                        AI.currentEnemy.Reset();
-                        AI.ForceAcquireNearestEnemyIfNoCurrentEnemy();
-
-                        Body.AddBuff(StrengthenedMindBuff);
-
-                        if (BrainwashOverlay)
-                        {
-                            UnityEngine.Object.Destroy(BrainwashOverlay);
-                        }
-
                         UnityEngine.Object.Destroy(this);
                     }
                 }

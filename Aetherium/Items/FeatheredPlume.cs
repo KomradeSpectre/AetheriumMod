@@ -11,6 +11,8 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.CompatHelpers;
+
 using System.Collections.Generic;
 
 namespace Aetherium.Items
@@ -81,6 +83,13 @@ namespace Aetherium.Items
             SpeedBuff.iconSprite = MainAssets.LoadAsset<Sprite>("FeatheredPlumeBuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(SpeedBuff));
+
+            if (IsBetterUIInstalled)
+            {
+                var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
+
+                BetterUI.Buffs.RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -12,8 +12,10 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.CompatHelpers;
 using RoR2.Projectile;
 using UnityEngine.Networking;
+using static Aetherium.Utils.MiscUtils;
 
 namespace Aetherium.Items
 {
@@ -26,6 +28,7 @@ namespace Aetherium.Items
         public ConfigOption<bool> UseAlternateImplementation;
         public ConfigOption<float> NailBombDropDelay;
         public ConfigOption<float> DurationPercentageReducedByWithAdditionalStacks;
+        public ConfigOption<bool> EnableNailSticking;
 
         public override string ItemName => "Nail Bomb";
 
@@ -43,7 +46,7 @@ namespace Aetherium.Items
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("NailBomb.prefab");
 
-        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
+        public override Sprite ItemIcon => UseAlternateImplementation ? MainAssets.LoadAsset<Sprite>("NailBombTier2.png") : MainAssets.LoadAsset<Sprite>("NailBombTier1.png");
 
         public static GameObject NailBombProjectileMain;
         public static GameObject NailBombProjectileSub;
@@ -63,13 +66,13 @@ namespace Aetherium.Items
         private void CreateConfig(ConfigFile config)
         {
             PercentDamageThresholdRequiredToActivate = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Threshold Required to Activate Effect", 3f, "What percentage of damage should we deal in a single hit to activate the effect of this item?");
-            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 15, "How many nails should get released upon explosion of the projectile?");
+            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 20, "How many nails should get released upon explosion of the projectile?");
             PercentDamagePerNailInNailBomb = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage per Nail in Nail Bomb", 0.3f, "What percentage of damage should each nail in the nail bomb deal?");
             PercentDamageBonusOfAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Bonus of Additional Stacks", 0.5f, "What additional percentage of the body's damage should be given per additional stacks of Nail Bomb?");
             UseAlternateImplementation = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternate Item Implementation?", false, "If true, Nail Bomb drops from your position after a delay.");
             NailBombDropDelay = config.ActiveBind<float>("Item: " + ItemName, "Delay Between Nail Bomb Drops in Alternate Implementation", 10, "How many seconds should we wait between Nail Bomb drops for the first stack?");
             DurationPercentageReducedByWithAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Duration Percentage is Reduced By With Additional Stacks", 0.2f, "What percentage should we reduce the cooldown duration of Nail Bomb Alternate Implementation? (hyperbolically).");
-
+            EnableNailSticking = config.ActiveBind<bool>("Item: " + ItemName, "Enable Nail Bomb Nail Sticking?", true, "Should nails be able to stick into enemies and the ground? If false, nails will destroy themselves on collision. This effect has no gameplay benefit, it's purely visual.");
         }
 
         private void CreateBuff()
@@ -82,6 +85,12 @@ namespace Aetherium.Items
             NailBombCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(NailBombCooldownDebuff));
+
+            if (IsBetterUIInstalled)
+            {
+                var bombCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_BOMB_COOLDOWN", NailBombCooldownDebuff.name, "You've run out of materials to create another Nail Bomb, keep looking around!", false);
+                BetterUI.Buffs.RegisterBuffInfo(NailBombCooldownDebuff, bombCooldownDebuffInfo.Item1, bombCooldownDebuffInfo.Item2);
+            }
         }
 
         private void CreateProjectile()
@@ -114,19 +123,38 @@ namespace Aetherium.Items
             var networkIdentitySub = NailBombProjectileSub.GetComponent<NetworkIdentity>();
             if(!networkIdentitySub) { NailBombProjectileSub.AddComponent<NetworkIdentity>(); }
 
+            var subRigidBody = NailBombProjectileSub.GetComponent<Rigidbody>();
+            subRigidBody.mass = 5;
+            subRigidBody.useGravity = true;
+
+            var modelSub = MainAssets.LoadAsset<GameObject>("NailBombSubProjectile.prefab");
+            modelSub.AddComponent<ProjectileGhostController>();
+            modelSub.AddComponent<NetworkIdentity>();
+
             var projectileControllerSub = NailBombProjectileSub.GetComponent<ProjectileController>();
             projectileControllerSub.procCoefficient = UseAlternateImplementation ? 3.5f : 1f;
+            projectileControllerSub.ghostPrefab = modelSub;
 
             var projectileSimple = NailBombProjectileSub.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40;
 
-            var projectileStickOnImpact = NailBombProjectileSub.AddComponent<ProjectileStickOnImpact>();
-            projectileStickOnImpact.alignNormals = true;
+            var rotateTowardsVelocity = NailBombProjectileSub.AddComponent<ProjectileRotateTowardsVelocity>();
+            rotateTowardsVelocity.InvertVelocity = true;
+
+            if (EnableNailSticking)
+            {
+                NailBombProjectileSub.AddComponent<NailBombNailManager>();
+                var stickOnImpact = NailBombProjectileSub.AddComponent<ProjectileStickOnImpact>();
+                stickOnImpact.alignNormals = true;
+                stickOnImpact.ignoreCharacters = false;
+                stickOnImpact.stickSoundString = "Play_treeBot_m1_impact";
+
+                UnityEngine.Object.Destroy(NailBombProjectileSub.GetComponent<ProjectileSingleTargetImpact>());
+            }
 
             var impactExplosion = NailBombProjectileMain.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.childrenProjectilePrefab = NailBombProjectileSub;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
-            //impactExplosion.explosionEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
             impactExplosion.impactEffect = Resources.Load<GameObject>("prefabs/effects/impacteffects/BehemothVFX");
             impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
             impactExplosion.minAngleOffset = new Vector3(-180, -180, -180);
@@ -263,5 +291,56 @@ namespace Aetherium.Items
             orig(self, damageInfo, victim);
         }
 
+        public class NailBombNailManager : MonoBehaviour
+        {
+            private ProjectileStickOnImpact StickOnImpact;
+            private ProjectileGhostController Ghost;
+
+            private TrailRenderer TrailRenderer;
+            private Animator Animator;
+
+            private float Timer = 0;
+
+            public void Start()
+            {
+                StickOnImpact = gameObject.GetComponent<ProjectileStickOnImpact>();
+
+                var projectileController = gameObject.GetComponent<ProjectileController>();
+                if (projectileController)
+                {
+                    Ghost = projectileController.ghost;
+                    if (Ghost)
+                    {
+                        Animator = Ghost.gameObject.GetComponentInChildren<Animator>();
+                        TrailRenderer = Ghost.gameObject.GetComponentInChildren<TrailRenderer>();
+                    }
+                }
+            }
+
+            public void FixedUpdate()
+            {
+                if(StickOnImpact && TrailRenderer)
+                {
+                    if (StickOnImpact.stuck)
+                    {
+                        TrailRenderer.enabled = false;
+                    }
+                    else
+                    {
+                        TrailRenderer.enabled = true;
+                    }
+                }
+
+                if (Ghost && Animator)
+                {
+                    Timer += Time.fixedDeltaTime;
+                    if(Timer >= 4 && !Animator.enabled)
+                    {
+                        Animator.enabled = true;
+                        Animator.Play("Base Layer.NailBombNailShrink", -1, 0);
+                    }
+                }
+            }
+        }
     }
 }

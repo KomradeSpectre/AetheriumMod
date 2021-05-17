@@ -23,6 +23,7 @@ namespace Aetherium
     [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
     [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
@@ -59,6 +60,7 @@ namespace Aetherium
         //Compatability
         public static bool IsArtifactOfTheKingInstalled;
         public static bool IsItemStatsModInstalled;
+        public static bool IsBetterUIInstalled;
 
         private void Awake()
         {
@@ -69,6 +71,7 @@ namespace Aetherium
 
             IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
             IsItemStatsModInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
+            IsBetterUIInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.xoxfaby.BetterUI");
 
             ModLogger = this.Logger;
 

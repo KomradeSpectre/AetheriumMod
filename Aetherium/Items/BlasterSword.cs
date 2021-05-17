@@ -18,6 +18,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.CompatHelpers;
 
 namespace Aetherium.Items
 {
@@ -113,6 +114,13 @@ namespace Aetherium.Items
             BlasterSwordActiveBuff.iconSprite = MainAssets.LoadAsset<Sprite>("BlasterSwordBuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(BlasterSwordActiveBuff));
+
+            if (IsBetterUIInstalled)
+            {
+                var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
+
+                BetterUI.Buffs.RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
+            }
         }
 
         private void CreateProjectile()

@@ -223,7 +223,7 @@ namespace Aetherium.Items
                 {
                     new ItemStat
                     (
-                        (itemCount, ctx) => ShieldPercentageRestoredPerKill + (MaximumPercentageShieldRestoredPerKill - MaximumPercentageShieldRestoredPerKill / (1 + AdditionalShieldPercentageRestoredPerKillDiminishing * (itemCount - 1))),
+                        (itemCount, ctx) => InverseHyperbolicScaling(ShieldPercentageRestoredPerKill, AdditionalShieldPercentageRestoredPerKillDiminishing, MaximumPercentageShieldRestoredPerKill, (int)itemCount),
                         (value, ctx) => $"Shield Restored Per Kill: {value.FormatPercentage()}"
                     ),
                     new ItemStat
@@ -252,7 +252,7 @@ namespace Aetherium.Items
                 int inventoryCount = GetCount(damageReport.attackerBody);
                 if (inventoryCount > 0)
                 {
-                    var percentage = ShieldPercentageRestoredPerKill + (MaximumPercentageShieldRestoredPerKill - MaximumPercentageShieldRestoredPerKill / (1 + AdditionalShieldPercentageRestoredPerKillDiminishing * (inventoryCount - 1)));
+                    var percentage = InverseHyperbolicScaling(ShieldPercentageRestoredPerKill, AdditionalShieldPercentageRestoredPerKillDiminishing, MaximumPercentageShieldRestoredPerKill, inventoryCount);
                     damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);
                 }
             }
