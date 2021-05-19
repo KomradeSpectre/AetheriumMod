@@ -5,6 +5,7 @@ using ItemStats.Stat;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
@@ -216,6 +217,7 @@ namespace Aetherium.Items
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef AlienMagnetStatDefs = new ItemStatDef

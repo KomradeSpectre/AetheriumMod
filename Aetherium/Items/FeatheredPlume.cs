@@ -12,8 +12,10 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -60,6 +62,12 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateItem();
             Hooks();
         }
@@ -84,12 +92,13 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(SpeedBuff));
 
-            if (IsBetterUIInstalled)
-            {
-                var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
+        }
 
-                BetterUI.Buffs.RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
-            }
+        private void CreateBetterUICompat()
+        {
+            var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
+
+            RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -247,6 +256,7 @@ namespace Aetherium.Items
             GetStatCoefficients += AddSpeedReward;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef FeatheredPlumeStatDefs = new ItemStatDef

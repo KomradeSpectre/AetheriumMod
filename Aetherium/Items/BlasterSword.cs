@@ -19,6 +19,9 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -76,6 +79,12 @@ namespace Aetherium.Items
             CreateLang();
             //CreateAchievement();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateProjectile();
             CreateItem();
             Hooks();
@@ -115,12 +124,13 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(BlasterSwordActiveBuff));
 
-            if (IsBetterUIInstalled)
-            {
-                var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
+        }
 
-                BetterUI.Buffs.RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
-            }
+        private void CreateBetterUICompat()
+        {
+            var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
+
+            RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
         }
 
         private void CreateProjectile()
@@ -747,6 +757,7 @@ namespace Aetherium.Items
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef BlasterSwordStatDefs = new ItemStatDef

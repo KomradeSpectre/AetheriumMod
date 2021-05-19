@@ -12,6 +12,7 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -216,6 +217,7 @@ namespace Aetherium.Items
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef BloodSoakedShieldStatDef = new ItemStatDef

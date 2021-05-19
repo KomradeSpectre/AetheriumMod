@@ -10,8 +10,10 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -68,6 +70,12 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateItem();
             Hooks();
         }
@@ -103,14 +111,15 @@ namespace Aetherium.Items
             BuffAPI.Add(new CustomBuff(VoidInstabilityDebuff));
             BuffAPI.Add(new CustomBuff(VoidImmunityBuff));
 
-            if (IsBetterUIInstalled)
-            {
-                var voidInstabilityDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_INSTABILITY_DEBUFF", VoidInstabilityDebuff.name, "You don't feel quite all there. Your molecules are shifting around erratically and it feels like the Heart isn't responding right now.", false);
-                BetterUI.Buffs.RegisterBuffInfo(VoidInstabilityDebuff, voidInstabilityDebuffInfo.Item1, voidInstabilityDebuffInfo.Item2);
+        }
 
-                var voidImmunityBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_IMMUNITY_BUFF", VoidImmunityBuff.name, "In this moment, the Heart almost feels symbiotically integrated into you. It doesn't feel like it'll hurt you for the moment.");
-                BetterUI.Buffs.RegisterBuffInfo(VoidImmunityBuff, voidImmunityBuffInfo.Item1, voidImmunityBuffInfo.Item2);
-            }
+        private void CreateBetterUICompat()
+        {
+            var voidInstabilityDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_INSTABILITY_DEBUFF", VoidInstabilityDebuff.name, "You don't feel quite all there. Your molecules are shifting around erratically and it feels like the Heart isn't responding right now.", false);
+            RegisterBuffInfo(VoidInstabilityDebuff, voidInstabilityDebuffInfo.Item1, voidInstabilityDebuffInfo.Item2);
+
+            var voidImmunityBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_IMMUNITY_BUFF", VoidImmunityBuff.name, "In this moment, the Heart almost feels symbiotically integrated into you. It doesn't feel like it'll hurt you for the moment.");
+            RegisterBuffInfo(VoidImmunityBuff, voidImmunityBuffInfo.Item1, voidImmunityBuffInfo.Item2);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -270,6 +279,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef VoidheartStatDefs = new ItemStatDef

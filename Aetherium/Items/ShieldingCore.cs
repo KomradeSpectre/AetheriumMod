@@ -15,6 +15,7 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -243,6 +244,7 @@ namespace Aetherium.Items
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef ShieldingCoreStatDefs = new ItemStatDef

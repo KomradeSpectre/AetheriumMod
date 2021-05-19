@@ -13,9 +13,12 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+
 using RoR2.Projectile;
 using UnityEngine.Networking;
 using static Aetherium.Utils.MiscUtils;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -58,6 +61,12 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateProjectile();
             CreateItem();
             Hooks();
@@ -86,11 +95,12 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(NailBombCooldownDebuff));
 
-            if (IsBetterUIInstalled)
-            {
-                var bombCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_BOMB_COOLDOWN", NailBombCooldownDebuff.name, "You've run out of materials to create another Nail Bomb, keep looking around!", false);
-                BetterUI.Buffs.RegisterBuffInfo(NailBombCooldownDebuff, bombCooldownDebuffInfo.Item1, bombCooldownDebuffInfo.Item2);
-            }
+        }
+
+        private void CreateBetterUICompat()
+        {
+            var bombCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_BOMB_COOLDOWN", NailBombCooldownDebuff.name, "You've run out of materials to create another Nail Bomb, keep looking around!", false);
+            RegisterBuffInfo(NailBombCooldownDebuff, bombCooldownDebuffInfo.Item1, bombCooldownDebuffInfo.Item2);
         }
 
         private void CreateProjectile()
@@ -196,6 +206,7 @@ namespace Aetherium.Items
             
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef NailBombStatDefs = new ItemStatDef();

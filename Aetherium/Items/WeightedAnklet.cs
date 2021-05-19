@@ -18,6 +18,9 @@ using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -83,6 +86,12 @@ namespace Aetherium.Items
             CreateLang();
             CreateNetworkMessages();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateItem();
             CreatePowerupItem();
             Hooks();
@@ -136,18 +145,18 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(LimiterReleaseDodgeCooldownDebuffDef));
 
-            if (IsBetterUIInstalled)
-            {
-                var limiterReleaseBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_BONUS_BUFF", LimiterReleaseBuffDef.name, "A weight has been lifted from you. Your training has made you much stronger than you once were.");
-                BetterUI.Buffs.RegisterBuffInfo(LimiterReleaseBuffDef, limiterReleaseBuffInfo.Item1, limiterReleaseBuffInfo.Item2);
+        }
 
-                var dodgeBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_BUFF", LimiterReleaseDodgeBuffDef.name, "You can sense certain attacks around you, and move behind the attacker.");
-                BetterUI.Buffs.RegisterBuffInfo(LimiterReleaseDodgeBuffDef, dodgeBuffInfo.Item1, dodgeBuffInfo.Item2);
+        private void CreateBetterUICompat()
+        {
+            var limiterReleaseBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_BONUS_BUFF", LimiterReleaseBuffDef.name, "A weight has been lifted from you. Your training has made you much stronger than you once were.");
+            RegisterBuffInfo(LimiterReleaseBuffDef, limiterReleaseBuffInfo.Item1, limiterReleaseBuffInfo.Item2);
 
-                var dodgeCooldownDebuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_COOLDOWN_DEBUFF", LimiterReleaseDodgeCooldownDebuffDef.name, "For the moment, you can no longer dodge out of the way of certain attacks automatically.", false);
-                BetterUI.Buffs.RegisterBuffInfo(LimiterReleaseDodgeCooldownDebuffDef, dodgeCooldownDebuffInfo.Item1, dodgeCooldownDebuffInfo.Item2);
-            }
+            var dodgeBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_BUFF", LimiterReleaseDodgeBuffDef.name, "You can sense certain attacks around you, and move behind the attacker.");
+            RegisterBuffInfo(LimiterReleaseDodgeBuffDef, dodgeBuffInfo.Item1, dodgeBuffInfo.Item2);
 
+            var dodgeCooldownDebuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_COOLDOWN_DEBUFF", LimiterReleaseDodgeCooldownDebuffDef.name, "For the moment, you can no longer dodge out of the way of certain attacks automatically.", false);
+            RegisterBuffInfo(LimiterReleaseDodgeCooldownDebuffDef, dodgeCooldownDebuffInfo.Item1, dodgeCooldownDebuffInfo.Item2);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -657,6 +666,7 @@ namespace Aetherium.Items
 
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef UnstableDesignStatDefs = new ItemStatDef

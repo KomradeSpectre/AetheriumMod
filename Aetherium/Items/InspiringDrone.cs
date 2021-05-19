@@ -15,6 +15,7 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -299,6 +300,7 @@ namespace Aetherium.Items
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef InspiringDroneStatDefs = new ItemStatDef();

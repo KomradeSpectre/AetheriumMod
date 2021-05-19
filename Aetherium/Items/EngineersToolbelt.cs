@@ -16,6 +16,7 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using RoR2.CharacterAI;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -259,6 +260,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef EngineersToolbeltStatDefs = new ItemStatDef

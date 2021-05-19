@@ -17,6 +17,7 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -314,6 +315,7 @@ namespace Aetherium.Items
             On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef UnstableDesignStatDefs = new ItemStatDef

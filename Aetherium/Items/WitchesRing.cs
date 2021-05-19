@@ -11,7 +11,10 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -53,6 +56,12 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateItem();
             Hooks();
         }
@@ -75,19 +84,19 @@ namespace Aetherium.Items
             WitchesRingImmunityBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WitchesRingBuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(WitchesRingImmunityBuffDef));
+        }
 
-            if (IsBetterUIInstalled)
+        private void CreateBetterUICompat()
+        {
+            if (GlobalCooldownOnUse)
             {
-                if (GlobalCooldownOnUse)
-                {
-                    var globalCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_GLOBAL_COOLDOWN_DEBUFF", WitchesRingImmunityBuffDef.name, "The ring's power isn't currently responding to your attempts to activate it.", false);
-                    BetterUI.Buffs.RegisterBuffInfo(WitchesRingImmunityBuffDef, globalCooldownDebuffInfo.Item1, globalCooldownDebuffInfo.Item2);
-                }
-                else
-                {
-                    var victimImmunityInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_VICTIM_IMMUNITY_BUFF", WitchesRingImmunityBuffDef.name, "You dampen the power of any Witches' Ring your foes have. For the moment, it will no longer work on you!");
-                    BetterUI.Buffs.RegisterBuffInfo(WitchesRingImmunityBuffDef, victimImmunityInfo.Item1, victimImmunityInfo.Item2);
-                }
+                var globalCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_GLOBAL_COOLDOWN_DEBUFF", WitchesRingImmunityBuffDef.name, "The ring's power isn't currently responding to your attempts to activate it.", false);
+                RegisterBuffInfo(WitchesRingImmunityBuffDef, globalCooldownDebuffInfo.Item1, globalCooldownDebuffInfo.Item2);
+            }
+            else
+            {
+                var victimImmunityInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_VICTIM_IMMUNITY_BUFF", WitchesRingImmunityBuffDef.name, "You dampen the power of any Witches' Ring your foes have. For the moment, it will no longer work on you!");
+                RegisterBuffInfo(WitchesRingImmunityBuffDef, victimImmunityInfo.Item1, victimImmunityInfo.Item2);
             }
         }
 
@@ -357,6 +366,7 @@ namespace Aetherium.Items
             On.RoR2.GlobalEventManager.OnHitEnemy += GrantOnKillEffectsOnHighDamage;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef WitchesRingStatDefs = new ItemStatDef

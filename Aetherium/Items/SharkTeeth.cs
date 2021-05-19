@@ -11,6 +11,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -219,6 +220,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.FixedUpdate += TickDamage;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
             ItemStatDef SharkTeethStatDefs = new ItemStatDef

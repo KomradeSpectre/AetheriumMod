@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
-using ItemStats;
+
+using System.Runtime.CompilerServices;
 using ItemStats.Stat;
-using ItemStats.ValueFormatters;
-using ItemStats.StatModification;
+using ItemStats;
 
 namespace Aetherium.Items
 {
@@ -84,8 +85,22 @@ namespace Aetherium.Items
             CreateConfig(config);
             CreateLang();
             CreateBuff();
+
+            if (IsBetterUIInstalled)
+            {
+                CreateBetterUICompat();
+            }
+
             CreateItem();
             Hooks();
+        }
+
+        private void CreateBetterUICompat()
+        {
+            //BetterUI Buff Description Compat
+            var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
+
+            RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
         }
 
         private void CreateConfig(ConfigFile config)
@@ -111,14 +126,6 @@ namespace Aetherium.Items
             AccursedPotionSipCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(AccursedPotionSipCooldownDebuff));
-
-            //BetterUI Buff Description Compat
-            if (IsBetterUIInstalled)
-            {
-                var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
-
-                BetterUI.Buffs.RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
-            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -274,9 +281,10 @@ namespace Aetherium.Items
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void ItemStatsModCompat()
         {
-            ItemStatDef SipCooldownStatDef = new ItemStatDef
+            ItemStats.ItemStatDef SipCooldownStatDef = new ItemStats.ItemStatDef
             {
 
                 Stats = new List<ItemStat>()
