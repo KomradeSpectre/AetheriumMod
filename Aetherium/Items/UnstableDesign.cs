@@ -17,6 +17,7 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
@@ -315,31 +316,9 @@ namespace Aetherium.Items
             On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef UnstableDesignStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => 0.10f * (LunarChimeraBaseDamageBoost + (LunarChimeraAdditionalDamageBoost * (itemCount - 1))),
-                        (value, ctx) => $"Current/Next Unstable Design Damage Boost Percentage: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => 0.10f * (LunarChimeraBaseHPBoost * itemCount),
-                        (value, ctx) => $"Current/Next Unstable Design HP Boost Percentage: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => 0.14f * (LunarChimeraBaseMovementSpeedBoost * itemCount),
-                        (value, ctx) => $"Current/Next Unstable Design Movement Speed Boost Percentage: {value.FormatPercentage()}"
-                    ),
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, UnstableDesignStatDefs);
+            CreateUnstableDesignStatDef();
         }
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)

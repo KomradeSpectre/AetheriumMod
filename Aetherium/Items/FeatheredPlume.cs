@@ -13,6 +13,7 @@ using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -256,26 +257,9 @@ namespace Aetherium.Items
             GetStatCoefficients += AddSpeedReward;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef FeatheredPlumeStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => MoveSpeedPercentageBonusPerBuffStack * (BuffStacksPerFeatheredPlume * itemCount),
-                        (value, ctx) => $"Current Max Speed Bonus: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * (itemCount - 1)),
-                        (value, ctx) => $"Current Max Buff Duration: {value} second(s)"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, FeatheredPlumeStatDefs);
+            CreateFeatheredPlumeStatDef();
         }
 
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

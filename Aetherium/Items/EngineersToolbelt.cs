@@ -15,6 +15,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using RoR2.CharacterAI;
 using System.Runtime.CompilerServices;
 
@@ -22,11 +23,11 @@ namespace Aetherium.Items
 {
     public class EngineersToolbelt : ItemBase<EngineersToolbelt>
     {
-        public ConfigOption<float> BaseDuplicationPercentChance;
-        public ConfigOption<float> AdditionalDuplicationPercentChance;
+        public static ConfigOption<float> BaseDuplicationPercentChance;
+        public static ConfigOption<float> AdditionalDuplicationPercentChance;
 
-        public ConfigOption<float> BaseRevivalPercentChance;
-        public ConfigOption<float> AdditionalRevivalPercentChance;
+        public static ConfigOption<float> BaseRevivalPercentChance;
+        public static ConfigOption<float> AdditionalRevivalPercentChance;
 
         public override string ItemName => "Engineers Toolbelt";
 
@@ -260,26 +261,9 @@ namespace Aetherium.Items
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef EngineersToolbeltStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, (int)itemCount),
-                        (value, ctx) => $"Chance To Duplicate Drone/Turret On Purchase: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, (int)itemCount),
-                        (value, ctx) => $"Chance To Revive Drone/Turret On Death: {value.FormatPercentage()}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, EngineersToolbeltStatDefs);
+            CreateEngineersToolbeltStatDef();
         }
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)

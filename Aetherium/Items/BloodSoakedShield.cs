@@ -11,6 +11,7 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -217,26 +218,9 @@ namespace Aetherium.Items
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef BloodSoakedShieldStatDef = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => InverseHyperbolicScaling(ShieldPercentageRestoredPerKill, AdditionalShieldPercentageRestoredPerKillDiminishing, MaximumPercentageShieldRestoredPerKill, (int)itemCount),
-                        (value, ctx) => $"Shield Restored Per Kill: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().healthComponent.fullHealth * BaseGrantShieldMultiplier: 0,
-                        (value, ctx) => $"Base Shield Granted By Item: {value.FormatInt(" Shield")}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, BloodSoakedShieldStatDef);
+            CreateBloodSoakedShieldStatDef();
         }
 
         private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)

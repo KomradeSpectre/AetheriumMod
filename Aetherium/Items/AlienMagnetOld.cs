@@ -9,15 +9,16 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
-        public float StartingForceMultiplier;
-        public float AdditionalForceMultiplier;
-        public float MinimumForceMultiplier;
-        public float MaximumForceMultiplier;
+        public static float StartingForceMultiplier;
+        public static float AdditionalForceMultiplier;
+        public static float MinimumForceMultiplier;
+        public static float MaximumForceMultiplier;
 
         public override string ItemName => "Alien Magnet";
         public override string ItemLangTokenName => "ALIEN_MAGNET";
@@ -217,21 +218,9 @@ namespace Aetherium.Items
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef AlienMagnetStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (itemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier),
-                        (value, ctx) => $"Pull Force Multiplier: {value}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, AlienMagnetStatDefs);
+            CreateAlienMagnetStatDef();
         }
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

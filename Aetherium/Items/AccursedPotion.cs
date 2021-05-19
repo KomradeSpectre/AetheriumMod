@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
@@ -21,12 +22,12 @@ namespace Aetherium.Items
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
         //Config
-        public ConfigOption<float> BaseSipCooldownDuration;
-        public ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
-        public ConfigOption<float> BaseRadiusGranted;
-        public ConfigOption<float> AdditionalRadiusGranted;
-        public ConfigOption<int> MaxEffectsAccrued;
-        public ConfigOption<string> BlacklistedBuffsAndDebuffsString;
+        public static ConfigOption<float> BaseSipCooldownDuration;
+        public static ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
+        public static ConfigOption<float> BaseRadiusGranted;
+        public static ConfigOption<float> AdditionalRadiusGranted;
+        public static ConfigOption<int> MaxEffectsAccrued;
+        public static ConfigOption<string> BlacklistedBuffsAndDebuffsString;
 
         //Lang
 
@@ -281,29 +282,9 @@ namespace Aetherium.Items
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public void ItemStatsModCompat()
         {
-            ItemStats.ItemStatDef SipCooldownStatDef = new ItemStats.ItemStatDef
-            {
-
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, itemCount - 1),
-                        (value, ctx) => $"Sip Cooldown Duration: {value} second(s)"
-                    ),
-
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseRadiusGranted + (AdditionalRadiusGranted * (itemCount - 1)),
-                        (value, ctx) => $"Effect Sharing Radius: {value} meter(s)"
-                    )
-                }
-            };
-
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SipCooldownStatDef);
+            CreateAccursedPotionStatDef();
         }
 
         private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)

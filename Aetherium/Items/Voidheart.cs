@@ -11,6 +11,7 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -279,31 +280,9 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef VoidheartStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * VoidImplosionDamageMultiplier : 0,
-                        (value, ctx) => $"Current Void Implosion Damage: {value.FormatInt(" Damage")}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (itemCount - 1)),
-                        (value, ctx) => $"Current Void Implosion Radius: <style=cIsHealing>{value} meter(s)</style>"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * itemCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold),
-                        (value, ctx) => $"Point of No Return (Ticking Timebomb) Healthbar Percentage: {value.FormatPercentage()}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, VoidheartStatDefs);
+            CreateVoidheartStatDef();
         }
 
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)

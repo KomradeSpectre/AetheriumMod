@@ -15,6 +15,7 @@ using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
@@ -300,65 +301,9 @@ namespace Aetherium.Items
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef InspiringDroneStatDefs = new ItemStatDef();
-
-            if (SetAllStatValuesAtOnce)
-            {
-                InspiringDroneStatDefs.Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => AllStatValueGrantedPercentage * itemCount,
-                        (value, ctx) => $"Stats Currently Inherited by Bots: {value.FormatPercentage()}"
-                    )
-                };
-            }
-            else
-            {
-                InspiringDroneStatDefs.Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (DamageGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Damage Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().attackSpeed * (AttackSpeedGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Attack Speed Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().crit * (CritChanceGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Crit Chance Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().maxHealth * (HealthGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Health Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().regen * (RegenGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Regen Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().armor * (ArmorGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Armor Currently Inherited: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().moveSpeed * (MovementSpeedGrantedPercentage * itemCount) : 0,
-                        (value, ctx) => $"Movement Speed Currently Inherited: {value}"
-                    ),
-                };
-            }
-
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, InspiringDroneStatDefs);
+            CreateInspiringDroneStatDef();
         }
 
         private void CharacterBody_onBodyStartGlobal(CharacterBody obj)

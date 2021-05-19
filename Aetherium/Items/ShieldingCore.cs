@@ -14,6 +14,7 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -244,21 +245,9 @@ namespace Aetherium.Items
             GetStatCoefficients += ShieldedCoreArmorCalc;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef ShieldingCoreStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseShieldingCoreArmorGrant + (AdditionalShieldingCoreArmorGrant * (itemCount - 1)),
-                        (value, ctx) => $"Current Armor Bonus Provided: {value.FormatInt(" Armor")}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, ShieldingCoreStatDefs);
+            CreateShieldingCoreStatDef();
         }
 
         private void GrantBaseShield(RoR2.CharacterBody sender, StatHookEventArgs args)

@@ -11,13 +11,15 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
+
 using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
     public class SharkTeeth : ItemBase<SharkTeeth>
     {
-        public ConfigOption<bool> UseNewIcons;
+        public static ConfigOption<bool> UseNewIcons;
         //public static bool UseNewIcons;
         public static ConfigOption<float> BaseDamageSpreadPercentage;
         public static ConfigOption<float> AdditionalDamageSpreadPercentage;
@@ -220,21 +222,9 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.FixedUpdate += TickDamage;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef SharkTeethStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseDamageSpreadPercentage + (MaxDamageSpreadPercentage - MaxDamageSpreadPercentage / (1 + AdditionalDamageSpreadPercentage * (itemCount - 1))),
-                        (value, ctx) => $"Current Damage Spread Percentage: {value.FormatPercentage()}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, SharkTeethStatDefs);
+            CreateSharkTeethStatDef();
         }
 
         private void TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

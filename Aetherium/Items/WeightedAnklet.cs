@@ -19,6 +19,7 @@ using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Runtime.CompilerServices;
 
@@ -666,59 +667,9 @@ namespace Aetherium.Items
 
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef UnstableDesignStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => Mathf.Min(itemCount * BaseMovementSpeedReductionPercentage, MovementSpeedReductionPercentageCap),
-                        (value, ctx) => $"Weighted Anklet Movement Speed Reduction: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => Mathf.Min(itemCount * BaseAttackSpeedReductionPercentage, AttackSpeedReductionPercentageCap),
-                        (value, ctx) => $"Weighted Anklet Attack Speed Reduction: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseKnockbackReductionPercentage * itemCount,
-                        (value, ctx) => $"Weighted Anklet Knockback Reduction: {value.FormatPercentage()}"
-                    ),
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, UnstableDesignStatDefs);
-
-            ItemStatDef LimiterReleaseStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => itemCount * AttackSpeedGainedPerLimiterRelease,
-                        (value, ctx) => $"Limiter Release Attack Speed Bonus: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => itemCount * MovementSpeedGainedPerLimiterRelease,
-                        (value, ctx) => $"Limiter Release Movement Speed Bonus: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (itemCount * DamagePercentageGainedPerLimiterRelease) : 0,
-                        (value, ctx) => $"Limiter Release Damage Bonus: {value.FormatInt(" Damage")}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (itemCount - 1)),
-                        (value, ctx) => $"Limiter Release Dodge Cooldown Duration: <style=cIsUtility>{value}</style> second(s)"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(LimiterReleaseItemDef.itemIndex, LimiterReleaseStatDefs);
+            CreateWeightedAnkletStatDef();
         }
 
         private void RemoveWeightedAnkletAndLimitersFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)

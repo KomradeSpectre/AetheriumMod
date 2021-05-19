@@ -14,6 +14,7 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using RoR2.Projectile;
 using UnityEngine.Networking;
@@ -24,14 +25,14 @@ namespace Aetherium.Items
 {
     public class NailBomb : ItemBase<NailBomb>
     {
-        public ConfigOption<float> PercentDamageThresholdRequiredToActivate;
-        public ConfigOption<int> AmountOfNailsPerNailBomb;
-        public ConfigOption<float> PercentDamagePerNailInNailBomb;
-        public ConfigOption<float> PercentDamageBonusOfAdditionalStacks;
-        public ConfigOption<bool> UseAlternateImplementation;
-        public ConfigOption<float> NailBombDropDelay;
-        public ConfigOption<float> DurationPercentageReducedByWithAdditionalStacks;
-        public ConfigOption<bool> EnableNailSticking;
+        public static ConfigOption<float> PercentDamageThresholdRequiredToActivate;
+        public static ConfigOption<int> AmountOfNailsPerNailBomb;
+        public static ConfigOption<float> PercentDamagePerNailInNailBomb;
+        public static ConfigOption<float> PercentDamageBonusOfAdditionalStacks;
+        public static ConfigOption<bool> UseAlternateImplementation;
+        public static ConfigOption<float> NailBombDropDelay;
+        public static ConfigOption<float> DurationPercentageReducedByWithAdditionalStacks;
+        public static ConfigOption<bool> EnableNailSticking;
 
         public override string ItemName => "Nail Bomb";
 
@@ -206,40 +207,9 @@ namespace Aetherium.Items
             
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef NailBombStatDefs = new ItemStatDef();
-
-            if (UseAlternateImplementation)
-            {
-                NailBombStatDefs.Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? (ctx.Master.GetBody().damage * (1 + PercentDamageBonusOfAdditionalStacks * itemCount)) * PercentDamagePerNailInNailBomb: 0,
-                        (value, ctx) => $"Current Damage per Nail: {value}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => NailBombDropDelay / (1 + DurationPercentageReducedByWithAdditionalStacks * (itemCount - 1)),
-                        (value, ctx) => $"Current Nail Bomb Cooldown Duration: {value} second(s)"
-                    )
-                };
-            }
-            else
-            {
-                NailBombStatDefs.Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? (ctx.Master.GetBody().damage * (1 + PercentDamageBonusOfAdditionalStacks * itemCount)) * PercentDamagePerNailInNailBomb: 0,
-                        (value, ctx) => $"Current Damage per Nail: {value}"
-                    )
-                };
-            }
-
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, NailBombStatDefs);
+            CreateNailBombStatDef();
         }
 
         private void FireNailBombFromBody(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)

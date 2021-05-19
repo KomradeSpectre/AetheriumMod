@@ -13,6 +13,7 @@
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />
+    <Compile Remove="Items\NailBomb.cs" />
   </ItemGroup>
 
   <ItemGroup>

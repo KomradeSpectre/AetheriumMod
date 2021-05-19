@@ -20,6 +20,7 @@ using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Runtime.CompilerServices;
 
@@ -29,11 +30,11 @@ namespace Aetherium.Items
     {
         public static ConfigOption<bool> UseAlternateModel;
         public static ConfigOption<bool> EnableParticleEffects;
-        public ConfigOption<bool> UseImpaleProjectile;
-        public ConfigOption<float> BaseSwordDamageMultiplier;
-        public ConfigOption<float> AdditionalSwordDamageMultiplier;
-        public ConfigOption<bool> HomingProjectiles;
-        public ConfigOption<bool> AnyBarrierGrantsActivationBuff;
+        public static ConfigOption<bool> UseImpaleProjectile;
+        public static ConfigOption<float> BaseSwordDamageMultiplier;
+        public static ConfigOption<float> AdditionalSwordDamageMultiplier;
+        public static ConfigOption<bool> HomingProjectiles;
+        public static ConfigOption<bool> AnyBarrierGrantsActivationBuff;
 
         public override string ItemName => "Blaster Sword";
         public override string ItemLangTokenName => "BLASTER_SWORD";
@@ -757,26 +758,9 @@ namespace Aetherium.Items
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ItemStatsModCompat()
         {
-            ItemStatDef BlasterSwordStatDefs = new ItemStatDef
-            {
-                Stats = new List<ItemStat>()
-                {
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (itemCount - 1)),
-                        (value, ctx) => $"Current Sword Beam Damage Multiplier: {value.FormatPercentage()}"
-                    ),
-                    new ItemStat
-                    (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (itemCount - 1))) : 0,
-                        (value, ctx) => $"Current Sword Beam Damage: {value.FormatInt(" Damage")}"
-                    )
-                }
-            };
-            ItemStatsMod.AddCustomItemStatDef(ItemDef.itemIndex, BlasterSwordStatDefs);
+            CreateBlasterSwordStatDef();
         }
 
         private void FireSwordsFromFlower(ILContext il)
