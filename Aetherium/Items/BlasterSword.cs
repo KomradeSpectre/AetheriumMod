@@ -209,7 +209,8 @@ namespace Aetherium.Items
 
             if (EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
 
-            ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict();
+            rulesNormal.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {
@@ -468,7 +469,8 @@ namespace Aetherium.Items
                 }
             });
 
-            ItemDisplayRuleDict rulesAlt = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rulesAlt = new ItemDisplayRuleDict();
+            rulesAlt.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
             {
                new RoR2.ItemDisplayRule
                {

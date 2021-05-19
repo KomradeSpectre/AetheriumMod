@@ -102,7 +102,9 @@ namespace Aetherium.Items
             CircleBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             CircleBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(CircleBodyModelPrefab);
 
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
+
+            rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {

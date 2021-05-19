@@ -94,7 +94,9 @@ namespace Aetherium.Items
             if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
+
+            rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {

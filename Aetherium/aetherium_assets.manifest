@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3279428209
+CRC: 1213785215
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7ce6d92d2a6a1f71ffded71790e20dbe
+    Hash: 07782655e1d3b93864dfbf1a54b35578
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -234,6 +234,7 @@ Assets:
 - Assets/Textures/Material Textures/WeirdPurpleRamp.png
 - Assets/Animations/AlienMagnetMain.anim
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreGlass.mat
+- Assets/Textures/Material Textures/TwoToneRamp.png
 - Assets/Textures/Material Textures/SnowGradient.PNG
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneScreenGlass.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTapeOuterRoll.mat
@@ -437,6 +438,7 @@ Assets:
 - Assets/Textures/Material Textures/11375-bump.jpg
 - Assets/Textures/Material Textures/WitchesRingHolderEmissionMap.png
 - Assets/Textures/Icons/Artifact/ArtifactOfTheTyrantEnabledIcon.png
+- Assets/Textures/Materials/Item/NailBomb/CoolMaterial.mat
 - Assets/Textures/Icons/Buff/AccursedPotionSipCooldownDebuffIcon.png
 - Assets/Textures/Icons/Item/NailBombTier1.png
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeBuffIcon.png

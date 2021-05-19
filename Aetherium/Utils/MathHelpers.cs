@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using R2API;
+using RoR2;
 
 namespace Aetherium.Utils
 {
@@ -30,6 +34,30 @@ namespace Aetherium.Utils
             differenceVector *= radius;
 
             return origin + differenceVector;
+        }
+
+        public static List<Vector3> DistributePointsEvenlyAroundSphere(int points, float radius, Vector3 origin)
+        {
+            List<Vector3> pointArray = new List<Vector3>();
+
+            var phi = Math.PI * (3 - Math.Sqrt(5));
+
+            for (int i = 0; i < points; i++)
+            {
+                var yCoord = 1 - (i / (points - 1)) * 2;
+                var radiusCoord = Math.Sqrt(1 - yCoord * yCoord);
+                var theta = phi * i;
+
+                var xCoord = (float)(Math.Cos(theta) * radiusCoord);
+                var zCoord = (float)(Math.Sin(theta) * radiusCoord);
+
+                var calculatedPoint = origin + new Vector3(xCoord, yCoord, zCoord);
+
+                pointArray.Add(calculatedPoint * radius);
+            }
+
+            return pointArray;
+
         }
 
         /// <summary>

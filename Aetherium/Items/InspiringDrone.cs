@@ -148,7 +148,9 @@ namespace Aetherium.Items
             ItemFollower.distanceMaxSpeed = 100;
             ItemFollower.SmoothingNumber = 0.25f;
 
-            ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
+
+            rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
                 {

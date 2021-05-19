@@ -13,6 +13,7 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |:-|-|------|-|-|
 |![](https://i.imgur.com/0utgQzB.png) | **Feathered Plume** | Gain a temporary `7%` speed boost upon taking damage that stacks `3` times for `5 seconds`. (`+3` stacks and `+0.5` second duration per additional Feathered Plume.) | White | Ajarl |
 |![](https://i.imgur.com/Q6gtbBS.png) | **Blood Soaked Shield** |  Killing an enemy restores `10%` max shield (`+10%` per stack hyperbolically.) The first of the stack of this item will grant `8%` of your max health as shield on pickup. | Green | Kaboose |
+|![](https://i.imgur.com/ip04Lin.png) | **Engineers Toolbelt** | You have a `20%` chance (`+20%` hyperbolically up to a maximum of `100%` chance) to duplicate drones and turrets on purchase. Additionally, you have a `10%` chance (`+10%` hyperbolically up to a maximum of `100%` chance) to revive drones and turrets when they die. | Green | Insane (originally) Me (Modified) |
 |![](https://i.imgur.com/b5QsaP1.png) | **Shark Teeth** | `25%` of damage taken (`+25%` per stack hyperbolically) is distributed to you over `5` seconds as `bleed damage.` | Green | FancyFrenc |
 |![](https://i.imgur.com/dIRNo04.png) | **Shielding Core** | You gain `10`  (`+5` per stack) armor while `BLUE shields` are active. The first stack of this item will grant `4%` of your max health as shield on pickup. |  Green | NepNep |
 |![](https://i.imgur.com/5aCDrfv.png)|  **Blaster Sword** |  At `full health`, most attacks will `fire out a sword beam` that has `200%` of your damage (`+50%` per stack) when it explodes after having impaled an enemy for a short duration. | Red | Bord |
@@ -41,21 +42,26 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 - Will be adding more custom VFX/SFX to the Jar of Reshaping now that I'm more familiar with effect networking.  
 
+- Implement Active Dodging for Weighted Anklet.
+
 ----
 
 ## Changelog
 ----
 [0.5.5]
++ Added ItemStatsMod support.
 + Added a homing swords configuration option for Blaster Sword, disabled by default.
 + Added a config option to allow Blaster Sword to be used with any level of Barrier, disabled by default.
 + Added a config option to stop Shark Teeth from being able to kill you, disabled by default.
-+ Added Nail Bomb, a new Item.
-+ Added two implementations of the Nail Bomb item : One emits from the enemy if you pass a damage threshold, the other emits from you after a delay. The first one is a white, the second is a green. Config togglable.
 + Added Engineers Toolbelt, a new Green Item. With it, you have a small chance to duplicate drones or turrets on purchase, and a small chance for them to revive themselves on death.
 + Added a Targeting Indicator config option to Unstable Design. If there is an unstable design out, it places one of these above whatever it is targeting's head. An arrow on it points to the one targeting you.
 + Added an Aggression Pulling config option to Unstable Design. If it is targeting any AI, it will draw their aggression until it loses sight of them, changes target, or either party dies.
-
-
++ Fixed a Heart of the Void bug where Dios would activate during heart of the void, and lead to a game over regardless of living status. Now, dios get used first before Heart of the Void activates.
++ Fixed a Heart of the Void bug where the forced camera sometimes would not delete and kept spinning.
++ Added Artifact of the Tyrant, when enabled, any time Mithrix spawns, they will have a random elite affix (how many they have is configurable).
++ Added Artifact of Leonids, when enabled, after a duration a meteor shower will occur.
++ Added Artifact of Regression, when enabled, any enemy monster that is in an evolved form will split into a group of its lesser form on death. E.g. Beetle Queen into 2 Beetle Guards into 5 Beetles each Guard.
+- Removed all item display default rules. Any more reports of big item displays will be ignored.
 
 [0.5.4]
 + Jar of Reshaping now fires the original projectiles it absorbed out. If it cannot find the original projectile it absorbed in the catalog, it fires my crystal jar bullet instead. This is config toggleable, but is now the default functionality.
