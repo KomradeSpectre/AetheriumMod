@@ -16,9 +16,13 @@ namespace Aetherium.CoreModules
     public class StatHooks : CoreModule
     {
         public override string Name => "StatHooks (from TILER2 originally)";
+
         public override void Init()
         {
-            IL.RoR2.CharacterBody.RecalculateStats += IL_CBRecalcStats;
+            if (!AetheriumPlugin.IsTiler2Installed)
+            {
+                IL.RoR2.CharacterBody.RecalculateStats += IL_CBRecalcStats;
+            }
         }
 
         /// <summary>

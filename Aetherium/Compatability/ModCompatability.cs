@@ -3,9 +3,8 @@ using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using static Aetherium.Utils.MathHelpers;
-using System.Text;
 using UnityEngine;
+using static Aetherium.Utils.MathHelpers;
 
 namespace Aetherium.Compatability
 {
@@ -26,7 +25,6 @@ namespace Aetherium.Compatability
             {
                 ItemStats.ItemStatDef SipCooldownStatDef = new ItemStats.ItemStatDef
                 {
-
                     Stats = new List<ItemStats.Stat.ItemStat>()
                 {
                     new ItemStats.Stat.ItemStat
@@ -411,6 +409,39 @@ namespace Aetherium.Compatability
                 }
                 };
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(WitchesRing.instance.ItemDef.itemIndex, WitchesRingStatDefs);
+            }
+        }
+
+        internal static class Tiler2Compat
+        {
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            public static void Tiler2GetStatsCoefficient(Action<CharacterBody, TILER2.StatHooks.StatHookEventArgs> action)
+            {
+                TILER2.StatHooks.GetStatCoefficients += (sender, args) =>
+                {
+                    action(sender, args);
+                };
+            }
+
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            public static void Tiler2ShieldingCoreSupport()
+            {
+                Tiler2GetStatsCoefficient((sender, args) =>
+                {
+                    if (ShieldingCore.instance.GetCount(sender) > 0)
+                    {
+                        RoR2.HealthComponent healthC = sender.GetComponent<RoR2.HealthComponent>();
+                        args.baseShieldAdd += healthC.fullHealth * ShieldingCore.BaseGrantShieldMultiplier;
+                    }
+                });
+                Tiler2GetStatsCoefficient((sender, args) =>
+                {
+                    var ShieldedCoreComponent = sender.GetComponent<ShieldingCore.ShieldedCoreComponent>();
+                    if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
+                    {
+                        args.armorAdd += ShieldingCore.BaseShieldingCoreArmorGrant + (ShieldingCore.AdditionalShieldingCoreArmorGrant * (ShieldedCoreComponent.cachedInventoryCount - 1));
+                    }
+                });
             }
         }
     }

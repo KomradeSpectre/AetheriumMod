@@ -6,11 +6,9 @@ using Aetherium.Equipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
 using BepInEx;
-using InLobbyConfig.Fields;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
-using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +22,7 @@ namespace Aetherium
     [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.ThinkInvisible.TILER2", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
@@ -52,15 +51,18 @@ namespace Aetherium
         public List<InteractableBase> Interactables = new List<InteractableBase>();
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
+
         public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
         //Compatability
+
         public static bool IsArtifactOfTheKingInstalled;
         public static bool IsItemStatsModInstalled;
         public static bool IsBetterUIInstalled;
+        public static bool IsTiler2Installed;
 
         private void Awake()
         {
@@ -72,6 +74,7 @@ namespace Aetherium
             IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
             IsItemStatsModInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
             IsBetterUIInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.xoxfaby.BetterUI");
+            IsTiler2Installed = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.ThinkInvisible.TILER2");
 
             ModLogger = this.Logger;
 
@@ -83,15 +86,13 @@ namespace Aetherium
             //Material shader autoconversion
             var materialAssets = MainAssets.LoadAllAssets<Material>();
 
-            foreach(Material material in materialAssets)
+            foreach (Material material in materialAssets)
             {
                 if (!material.shader.name.StartsWith("Fake RoR")) { continue; }
 
                 var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
                 if (replacementShader) { material.shader = replacementShader; }
-
             }
-
 
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
@@ -117,7 +118,7 @@ namespace Aetherium
             foreach (var artifactType in ArtifactTypes)
             {
                 ArtifactBase artifact = (ArtifactBase)Activator.CreateInstance(artifactType);
-                if(ValidateArtifact(artifact, Artifacts))
+                if (ValidateArtifact(artifact, Artifacts))
                 {
                     artifact.Init(Config);
 
@@ -141,7 +142,6 @@ namespace Aetherium
                 }
             }
 
-
             //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
 
@@ -163,10 +163,10 @@ namespace Aetherium
 
             ModLogger.LogInfo("-----------------INTERACTABLES---------------------");
 
-            foreach(var interactableType in InteractableTypes)
+            foreach (var interactableType in InteractableTypes)
             {
                 InteractableBase interactable = (InteractableBase)System.Activator.CreateInstance(interactableType);
-                if(ValidateInteractable(interactable, Interactables))
+                if (ValidateInteractable(interactable, Interactables))
                 {
                     interactable.Init(Config);
                     ModLogger.LogInfo("Interactable: " + interactable.InteractableName + " Initialized!");
