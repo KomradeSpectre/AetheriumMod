@@ -2,21 +2,14 @@
 using BepInEx.Configuration;
 using On.RoR2;
 using R2API;
-using R2API.Utils;
 using RoR2;
-using System;
 using UnityEngine;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
-
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
+using static Aetherium.Compatability.ModCompatability.Tiler2Compat;
 using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items
 {
@@ -240,9 +233,16 @@ namespace Aetherium.Items
                 RoR2.RoR2Application.onLoad += ItemStatsModCompat;
             }
 
-            GetStatCoefficients += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
-            GetStatCoefficients += ShieldedCoreArmorCalc;
+            if (IsTiler2Installed)
+            {
+                Tiler2ShieldingCoreSupport();
+            }
+            else
+            {
+                GetStatCoefficients += GrantBaseShield;
+                GetStatCoefficients += ShieldedCoreArmorCalc;
+            }
         }
 
         private void ItemStatsModCompat()
@@ -331,9 +331,9 @@ namespace Aetherium.Items
             public ParticleSystem[] ParticleSystem;
             public RoR2.CharacterMaster OwnerMaster;
             public RoR2.CharacterBody OwnerBody;
+
             public void FixedUpdate()
             {
-
                 if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 3)
                 {
                     ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
@@ -365,7 +365,7 @@ namespace Aetherium.Items
                     {
                         if (ParticleSystem.Length == 3)
                         {
-                            for(int i = 0; i < ParticleSystem.Length; i++)
+                            for (int i = 0; i < ParticleSystem.Length; i++)
                             {
                                 UnityEngine.Object.Destroy(ParticleSystem[i]);
                             }
