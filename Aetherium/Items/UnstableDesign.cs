@@ -154,6 +154,36 @@ namespace Aetherium.Items
             RoR2.CharacterMaster masterPrefab = LunarChimeraMasterPrefab.GetComponent<RoR2.CharacterMaster>();
             LunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
             LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}");
+
+            if (LunarChimeraBodyPrefab)
+            {
+                var skinnedMeshRenderer = LunarChimeraBodyPrefab.GetComponentInChildren<SkinnedMeshRenderer>();
+
+                if (skinnedMeshRenderer)
+                {
+                    skinnedMeshRenderer.sharedMesh = MainAssets.LoadAsset<Mesh>("Body_low_0");
+                    skinnedMeshRenderer.material = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
+                }
+
+                var modelLocator = LunarChimeraBodyPrefab.GetComponent<ModelLocator>();
+
+                if (modelLocator)
+                {
+                    var modelTransform = modelLocator.modelTransform;
+
+                    if (modelTransform)
+                    {
+                        var characterModel = modelTransform.GetComponent<CharacterModel>();
+
+                        if (characterModel)
+                        {
+                            characterModel.baseRendererInfos[0].defaultMaterial = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
+                        }
+                    }
+                }
+            }
+
+
             masterPrefab.bodyPrefab = LunarChimeraBodyPrefab;
             LunarChimeraSpawnCard.prefab = LunarChimeraMasterPrefab;
             RoR2.MasterCatalog.getAdditionalEntries += list => list.Add(LunarChimeraMasterPrefab);

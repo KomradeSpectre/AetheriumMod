@@ -1,0 +1,23 @@
+ManifestFileVersion: 0
+CRC: 1051665027
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: bbc81ab751c1acfd8560ad2f881c889a
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8cfd36d84ed37a63bcb3c7ce96d93f72
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/OBJExport/Documentation/docs/intro.html
+- Assets/OBJExport/Documentation/index.html
+- Assets/OBJExport/Documentation/docs/troubleshooting.html
+- Assets/OBJExport/Documentation/docs/export.html
+- Assets/OBJExport/Documentation/docs/export_a.html
+- Assets/OBJExport/Documentation/imgs/d_be.png
+Dependencies: []
