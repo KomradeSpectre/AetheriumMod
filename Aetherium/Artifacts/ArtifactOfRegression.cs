@@ -51,7 +51,7 @@ namespace Aetherium.Artifacts
 
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionDisabledIcon.png");
 
-        public Dictionary<string, Tuple<string, ConfigOption<int>>> RegressionLookup;
+        public Dictionary<string, (string, ConfigOption<int>)> RegressionLookup;
 
         public override void Init(ConfigFile config)
         {
@@ -96,41 +96,41 @@ namespace Aetherium.Artifacts
 
         private void CreateRegressionLookup()
         {
-            RegressionLookup = new Dictionary<string, Tuple<string, ConfigOption<int>>>()
+            RegressionLookup = new Dictionary<string, (string, ConfigOption<int>)>()
             {
-                {"BeetleQueenMaster", Tuple.Create("BeetleGuardMaster", QueenToGuardSplitNumber)},
-                {"BeetleGuardMaster", Tuple.Create("BeetleMaster", GuardToBeetleSplitNumber)},
-                {"BeetleGuardMasterCrystal", Tuple.Create("BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber)},
+                {"BeetleQueenMaster", ("BeetleGuardMaster", QueenToGuardSplitNumber)},
+                {"BeetleGuardMaster", ("BeetleMaster", GuardToBeetleSplitNumber)},
+                {"BeetleGuardMasterCrystal", ("BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber)},
 
-                {"AncientWispMaster", Tuple.Create("ArchWispMaster", AncientWispToArchWispSplitNumber)},
-                {"GravekeeperMaster", Tuple.Create("GreaterWispMaster", ArchWispToGreaterWispSplitNumber)},
-                {"ArchWispMaster", Tuple.Create("GreaterWispMaster", GrovetenderToGreaterWispSplitNumber)},
-                {"GreaterWispMaster", Tuple.Create("WispMaster", GreaterWispToWispSplitNumber)},
+                {"AncientWispMaster", ("ArchWispMaster", AncientWispToArchWispSplitNumber)},
+                {"GravekeeperMaster", ("GreaterWispMaster", ArchWispToGreaterWispSplitNumber)},
+                {"ArchWispMaster", ("GreaterWispMaster", GrovetenderToGreaterWispSplitNumber)},
+                {"GreaterWispMaster", ("WispMaster", GreaterWispToWispSplitNumber)},
 
-                {"VagrantMaster", Tuple.Create("JellyfishMaster", VagrantToJellyfishSplitNumber)},
+                {"VagrantMaster", ("JellyfishMaster", VagrantToJellyfishSplitNumber)},
 
-                {"LemurianBruiserMaster", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterFire", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterHaunted", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterIce", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterPoison", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+                {"LemurianBruiserMaster", ("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+                {"LemurianBruiserMasterFire", ("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+                {"LemurianBruiserMasterHaunted", ("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+                {"LemurianBruiserMasterIce", ("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+                {"LemurianBruiserMasterPoison", ("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
 
-                {"LunarWispMaster", Tuple.Create("LunarGolemMaster", LunarWispToLunarGolemSplitNumber)},
-                {"LunarGolemMaster", Tuple.Create("LunarExploderMaster", LunarGolemToLunarExploderSplitNumber)},
+                {"LunarWispMaster", ("LunarGolemMaster", LunarWispToLunarGolemSplitNumber)},
+                {"LunarGolemMaster", ("LunarExploderMaster", LunarGolemToLunarExploderSplitNumber)},
 
-                {"TitanMaster", Tuple.Create("GolemMaster", TitanToGolemSplitNumber)},
+                {"TitanMaster", ("GolemMaster", TitanToGolemSplitNumber)},
 
-                {"GrandparentMaster", Tuple.Create("ParentMaster", GrandparentToParentSplitNumber)},
+                {"GrandparentMaster", ("ParentMaster", GrandparentToParentSplitNumber)},
 
-                {"SuperRoboBallBossMaster", Tuple.Create("VultureMaster", AlloyWorshipUnitToVultureSplitNumber)},
+                {"SuperRoboBallBossMaster", ("VultureMaster", AlloyWorshipUnitToVultureSplitNumber)},
 
-                {"RoboBallBossMaster", Tuple.Create("RoboBallMiniMaster", SolusControlUnitToSolusProbeSplitNumber)},
+                {"RoboBallBossMaster", ("RoboBallMiniMaster", SolusControlUnitToSolusProbeSplitNumber)},
 
-                {"ClayBossMaster", Tuple.Create("ClayBruiserMaster", ClayDunestriderToClayTemplarSplitNumber)},
+                {"ClayBossMaster", ("ClayBruiserMaster", ClayDunestriderToClayTemplarSplitNumber)},
 
-                {"ImpBossMaster", Tuple.Create("ImpMaster", ImpOverlordToImpSplitNumber)},
+                {"ImpBossMaster", ("ImpMaster", ImpOverlordToImpSplitNumber)},
 
-                {"NullifierMaster", Tuple.Create("HermitCrabMaster", VoidReaverToHermitCrabSplitNumber)}
+                {"NullifierMaster", ("HermitCrabMaster", VoidReaverToHermitCrabSplitNumber)}
             };
         }
 

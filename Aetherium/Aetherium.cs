@@ -20,14 +20,14 @@ using UnityEngine;
 namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
-    [BepInDependency(R2API.R2API.PluginGUID, R2API.R2API.PluginVersion)]
+    [BepInDependency("com.bepis.r2api")]
     [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";

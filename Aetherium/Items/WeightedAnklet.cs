@@ -13,7 +13,6 @@ using ItemStats.Stat;
 using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
-using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -22,6 +21,7 @@ using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Runtime.CompilerServices;
+using static R2API.RecalculateStatsAPI;
 
 namespace Aetherium.Items
 {
@@ -554,7 +554,7 @@ namespace Aetherium.Items
             }
 
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveWeightedAnkletAndLimitersFromDeployables;
-            GetStatCoefficients += ManageBonusesAndPenalties;
+            R2API.RecalculateStatsAPI.GetStatCoefficients += ManageBonusesAndPenalties;
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;

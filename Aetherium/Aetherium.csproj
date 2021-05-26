@@ -6,10 +6,10 @@
 
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
+    <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
-    <Compile Remove="Interactables\BuffBrazier.cs" />
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />

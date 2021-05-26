@@ -123,7 +123,7 @@ namespace Aetherium.Items
 
         private void CreateTargetingPrefabs()
         {
-            TargetingIndicatorSphere = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingSphere"), "Unstable Design Targeting Indicator");
+            TargetingIndicatorSphere = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingSphere"), "Unstable Design Targeting Indicator", true);
             TargetingIndicatorSphere.AddComponent<NetworkIdentity>();
             TargetingIndicatorSphere.AddComponent<UnstableDesignPinpointerDestroyer>();
 
@@ -133,7 +133,7 @@ namespace Aetherium.Items
 
             PrefabAPI.RegisterNetworkPrefab(TargetingIndicatorSphere);
 
-            TargetingIndicatorArrow = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingIndicator"), "Unstable Design Targeting Arrow");
+            TargetingIndicatorArrow = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("UnstableDesignTargetingIndicator"), "Unstable Design Targeting Arrow", true);
             TargetingIndicatorArrow.AddComponent<NetworkIdentity>();
             TargetingIndicatorArrow.AddComponent<UnstableDesignPinpointerDestroyer>();
 
@@ -149,11 +149,11 @@ namespace Aetherium.Items
             LunarChimeraSpawnCard = Resources.Load<RoR2.SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
             LunarChimeraSpawnCard = UnityEngine.Object.Instantiate(LunarChimeraSpawnCard);
             LunarChimeraMasterPrefab = LunarChimeraSpawnCard.prefab;
-            LunarChimeraMasterPrefab = LunarChimeraMasterPrefab.InstantiateClone($"{LunarChimeraMasterPrefab.name}{nameSuffix}");
+            LunarChimeraMasterPrefab = LunarChimeraMasterPrefab.InstantiateClone($"{LunarChimeraMasterPrefab.name}{nameSuffix}", true);
             LunarChimeraMasterPrefab.AddComponent<UnstableDesignPinpointComponent>();
             RoR2.CharacterMaster masterPrefab = LunarChimeraMasterPrefab.GetComponent<RoR2.CharacterMaster>();
             LunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
-            LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}");
+            LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}", true);
 
             if (LunarChimeraBodyPrefab)
             {

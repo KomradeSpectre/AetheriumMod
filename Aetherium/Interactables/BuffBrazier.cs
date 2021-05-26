@@ -76,6 +76,9 @@ namespace Aetherium.Interactables
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
 
+            var genericNameDisplay = InteractableBodyModelPrefab.AddComponent<GenericDisplayNameProvider>();
+            genericNameDisplay.displayToken = "INTERACTABLE_" + InteractableLangToken + "_NAME";
+
             var swordBuffBrazierComponent = InteractableBodyModelPrefab.AddComponent<BuffBrazierManager>();
             swordBuffBrazierComponent.PurchaseInteraction = purchaseInteraction;
             swordBuffBrazierComponent.OriginalCost = BaseCostForBuffBrazier;
@@ -93,6 +96,13 @@ namespace Aetherium.Interactables
             var hologramController = InteractableBodyModelPrefab.AddComponent<HologramProjector>();
             hologramController.hologramPivot = InteractableBodyModelPrefab.transform.GetChild(2);
             hologramController.displayDistance = 10;
+
+            var availabilityIndicator = InteractableBodyModelPrefab.transform.GetChild(4).gameObject;
+            availabilityIndicator.AddComponent<Billboard>();
+
+            var availabilityIndicatorComponent = InteractableBodyModelPrefab.AddComponent<PurchaseAvailabilityIndicator>();
+            availabilityIndicatorComponent.indicatorObject = availabilityIndicator;
+
 
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
