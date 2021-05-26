@@ -8,7 +8,6 @@ using ItemStats.Stat;
 using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
-using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.CompatHelpers;
@@ -17,6 +16,7 @@ using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using static R2API.RecalculateStatsAPI;
 
 namespace Aetherium.Items
 {

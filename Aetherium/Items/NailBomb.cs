@@ -106,7 +106,7 @@ namespace Aetherium.Items
 
         private void CreateProjectile()
         {
-            NailBombProjectileMain = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile");
+            NailBombProjectileMain = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile", true);
 
             var networkIdentityMain = NailBombProjectileMain.GetComponent<NetworkIdentity>();
             if (!networkIdentityMain) { NailBombProjectileMain.AddComponent<NetworkIdentity>(); }
@@ -129,7 +129,7 @@ namespace Aetherium.Items
             velocityRandom.minSpeed = 15;
             velocityRandom.maxSpeed = 20;
 
-            NailBombProjectileSub = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/SyringeProjectile"), "NailBombProjectileSub");
+            NailBombProjectileSub = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/SyringeProjectile"), "NailBombProjectileSub", true);
 
             var networkIdentitySub = NailBombProjectileSub.GetComponent<NetworkIdentity>();
             if(!networkIdentitySub) { NailBombProjectileSub.AddComponent<NetworkIdentity>(); }

@@ -11,12 +11,12 @@ using ItemStats.Stat;
 using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
-using static Aetherium.CoreModules.StatHooks;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
+using static R2API.RecalculateStatsAPI;
 
 namespace Aetherium.Items
 {
@@ -295,7 +295,7 @@ namespace Aetherium.Items
                 RoR2Application.onLoad += ItemStatsModCompat;
             }
 
-            GetStatCoefficients += AddBoostsToBot;
+            R2API.RecalculateStatsAPI.GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;

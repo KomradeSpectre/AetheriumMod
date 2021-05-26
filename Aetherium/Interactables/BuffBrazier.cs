@@ -76,6 +76,9 @@ namespace Aetherium.Interactables
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
 
+            var genericNameDisplay = InteractableBodyModelPrefab.AddComponent<GenericDisplayNameProvider>();
+            genericNameDisplay.displayToken = "INTERACTABLE_" + InteractableLangToken + "_NAME";
+
             var swordBuffBrazierComponent = InteractableBodyModelPrefab.AddComponent<BuffBrazierManager>();
             swordBuffBrazierComponent.PurchaseInteraction = purchaseInteraction;
             swordBuffBrazierComponent.OriginalCost = BaseCostForBuffBrazier;
@@ -93,6 +96,13 @@ namespace Aetherium.Interactables
             var hologramController = InteractableBodyModelPrefab.AddComponent<HologramProjector>();
             hologramController.hologramPivot = InteractableBodyModelPrefab.transform.GetChild(2);
             hologramController.displayDistance = 10;
+
+            var availabilityIndicator = InteractableBodyModelPrefab.transform.GetChild(4).gameObject;
+            availabilityIndicator.AddComponent<Billboard>();
+
+            var availabilityIndicatorComponent = InteractableBodyModelPrefab.AddComponent<PurchaseAvailabilityIndicator>();
+            availabilityIndicatorComponent.indicatorObject = availabilityIndicator;
+
 
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
@@ -137,19 +147,17 @@ namespace Aetherium.Interactables
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_PICKUP", "The sacred flame accepts your plea for help, and will assist your attempt to escape this area.");
             LanguageAPI.Add("INTERACTABLE_ITEM_SACRED_FLAME_DESC", $"Upon activating the teleporter, the flame will spread out into a radius of {AreaOfEffectRadius} around the teleporter and grant you and your allies aid within the area for {DurationOfEffect} seconds.");
 
-            FlameItemDef = new RoR2.ItemDef
-            {
-                name = "INTERACTABLE_ITEM_SACRED_FLAME",
-                nameToken = "INTERACTABLE_ITEM_SACRED_FLAME_NAME",
-                pickupToken = "INTERACTABLE_ITEM_SACRED_FLAME_PICKUP",
-                descriptionToken = "INTERACTABLE_ITEM_SACRED_FLAME_DESC",
-                canRemove = false,
-                tier = ItemTier.NoTier,
-                tags = new ItemTag[] { ItemTag.WorldUnique | ItemTag.AIBlacklist },
-                pickupIconSprite = MainAssets.LoadAsset<Sprite>("Sacred Flame.png")
-            };
-            ItemAPI.Add(new CustomItem(FlameItemDef, new RoR2.ItemDisplayRule[] { }));
-            
+            FlameItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            FlameItemDef.name = "INTERACTABLE_ITEM_SACRED_FLAME";
+            FlameItemDef.nameToken = "INTERACTABLE_ITEM_SACRED_FLAME_NAME";
+            FlameItemDef.pickupToken = "INTERACTABLE_ITEM_SACRED_FLAME_PICKUP";
+            FlameItemDef.descriptionToken = "INTERACTABLE_ITEM_SACRED_FLAME_DESC";
+            FlameItemDef.canRemove = false;
+            FlameItemDef.tier = ItemTier.NoTier;
+            FlameItemDef.tags = new ItemTag[] { ItemTag.WorldUnique | ItemTag.AIBlacklist };
+            FlameItemDef.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Sacred Flame.png");
+
+            ItemAPI.Add(new CustomItem(FlameItemDef, new ItemDisplayRule[] { }));            
         }
 
         public void Hooks()

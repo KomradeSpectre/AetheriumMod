@@ -66,13 +66,18 @@ namespace Aetherium.Artifacts
             {
                 if (MithrixNames.Any(x => body.name.Contains(x)))
                 {
-                    var affixBuffs = BuffCatalog.buffDefs.Where(x => x.name.Contains("Affix") && !BlacklistedAffixes.Contains(x.name)).ToList();
+                    var eliteDefs = EliteCatalog.eliteDefs.Where(x => x.eliteEquipmentDef && x.eliteEquipmentDef.passiveBuffDef && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.name));
 
-                    var selectedBuffs = affixBuffs.Where(x => !body.HasBuff(x)).Shuffle(Run.instance.stageRng).Take(NumberOfEliteAffixesToGiveMithrix);
+                    var selectedEliteDefs = eliteDefs.Where(x => !body.HasBuff(x.eliteEquipmentDef.passiveBuffDef)).Shuffle(Run.instance.stageRng).Take(NumberOfEliteAffixesToGiveMithrix);
 
-                    foreach (BuffDef affixBuff in selectedBuffs)
+                    if (selectedEliteDefs.Any())
                     {
-                        body.AddBuff(affixBuff);
+                        body.inventory.GiveEquipmentString(selectedEliteDefs.First().eliteEquipmentDef.name);
+
+                        foreach (EliteDef eliteDef in selectedEliteDefs.Skip(1))
+                        {
+                            body.AddBuff(eliteDef.eliteEquipmentDef.passiveBuffDef);
+                        }
                     }
                 }
             }
