@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using RoR2;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
@@ -51,7 +50,7 @@ namespace Aetherium.Artifacts
 
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionDisabledIcon.png");
 
-        public Dictionary<string, Tuple<string, ConfigOption<int>>> RegressionLookup;
+        internal Dictionary<string, RegressData> RegressionLookup = new Dictionary<string, RegressData>();
 
         public override void Init(ConfigFile config)
         {
@@ -96,42 +95,50 @@ namespace Aetherium.Artifacts
 
         private void CreateRegressionLookup()
         {
-            RegressionLookup = new Dictionary<string, Tuple<string, ConfigOption<int>>>()
-            {
-                {"BeetleQueenMaster", Tuple.Create("BeetleGuardMaster", QueenToGuardSplitNumber)},
-                {"BeetleGuardMaster", Tuple.Create("BeetleMaster", GuardToBeetleSplitNumber)},
-                {"BeetleGuardMasterCrystal", Tuple.Create("BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber)},
+            new RegressData("BeetleQueenMaster", "BeetleGuardMaster", QueenToGuardSplitNumber).Register();
+            new RegressData("BeetleGuardMaster", "BeetleMaster", GuardToBeetleSplitNumber).Register();
+            new RegressData("BeetleGuardMasterCrystal", "BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber).Register();
 
-                {"AncientWispMaster", Tuple.Create("ArchWispMaster", AncientWispToArchWispSplitNumber)},
-                {"GravekeeperMaster", Tuple.Create("GreaterWispMaster", ArchWispToGreaterWispSplitNumber)},
-                {"ArchWispMaster", Tuple.Create("GreaterWispMaster", GrovetenderToGreaterWispSplitNumber)},
-                {"GreaterWispMaster", Tuple.Create("WispMaster", GreaterWispToWispSplitNumber)},
+            new RegressData("AncientWispMaster", "ArchWispMaster", AncientWispToArchWispSplitNumber).Register();
+            new RegressData("GravekeeperMaster", "GreaterWispMaster", GrovetenderToGreaterWispSplitNumber).Register();
+            new RegressData("ArchWispMaster", "GreaterWispMaster", ArchWispToGreaterWispSplitNumber).Register();
+            new RegressData("GreaterWispMaster", "WispMaster", GreaterWispToWispSplitNumber).Register();
 
-                {"VagrantMaster", Tuple.Create("JellyfishMaster", VagrantToJellyfishSplitNumber)},
+            new RegressData("VagrantMaster", "JellyfishMaster", VagrantToJellyfishSplitNumber).Register();
 
-                {"LemurianBruiserMaster", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterFire", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterHaunted", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterIce", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
-                {"LemurianBruiserMasterPoison", Tuple.Create("LemurianMaster", ElderLemurianToLemurianSplitNumber)},
+            new RegressData("LemurianBruiserMaster", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
+            new RegressData("LemurianBruiserMasterFire", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
+            new RegressData("LemurianBruiserMasterHaunted", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
+            new RegressData("LemurianBruiserMasterIce", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
+            new RegressData("LemurianBruiserMasterPoison", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
 
-                {"LunarWispMaster", Tuple.Create("LunarGolemMaster", LunarWispToLunarGolemSplitNumber)},
-                {"LunarGolemMaster", Tuple.Create("LunarExploderMaster", LunarGolemToLunarExploderSplitNumber)},
+            new RegressData("LunarWispMaster", "LunarGolemMaster", LunarWispToLunarGolemSplitNumber).Register();
+            new RegressData("LunarGolemMaster", "LunarExploderMaster", LunarGolemToLunarExploderSplitNumber).Register();
 
-                {"TitanMaster", Tuple.Create("GolemMaster", TitanToGolemSplitNumber)},
+            new RegressData("TitanMaster", "GolemMaster", TitanToGolemSplitNumber).Register();
 
-                {"GrandparentMaster", Tuple.Create("ParentMaster", GrandparentToParentSplitNumber)},
+            new RegressData("GrandparentMaster", "ParentMaster", GrandparentToParentSplitNumber).Register();
 
-                {"SuperRoboBallBossMaster", Tuple.Create("VultureMaster", AlloyWorshipUnitToVultureSplitNumber)},
+            new RegressData("SuperRoboBallBossMaster", "VultureMaster", GrandparentToParentSplitNumber).Register();
 
-                {"RoboBallBossMaster", Tuple.Create("RoboBallMiniMaster", SolusControlUnitToSolusProbeSplitNumber)},
+            new RegressData("RoboBallBossMaster", "RoboBallMiniMaster", SolusControlUnitToSolusProbeSplitNumber).Register();
 
-                {"ClayBossMaster", Tuple.Create("ClayBruiserMaster", ClayDunestriderToClayTemplarSplitNumber)},
+            new RegressData("ClayBossMaster", "ClayBruiserMaster", ClayDunestriderToClayTemplarSplitNumber).Register();
 
-                {"ImpBossMaster", Tuple.Create("ImpMaster", ImpOverlordToImpSplitNumber)},
+            new RegressData("ImpBossMaster", "ImpMaster", ImpOverlordToImpSplitNumber).Register();
 
-                {"NullifierMaster", Tuple.Create("HermitCrabMaster", VoidReaverToHermitCrabSplitNumber)}
-            };
+            new RegressData("NullifierMaster", "HermitCrabMaster", VoidReaverToHermitCrabSplitNumber).Register();
+
+            //Sample Registration of multiple children.
+            //RegressData beetleQueenRegression = new RegressData("BeetleQueenMaster");
+            //beetleQueenRegression.Store("BeetleGuardMaster", QueenToGuardSplitNumber / 2);
+            //beetleQueenRegression.Store("BeetleMaster", QueenToGuardSplitNumber / 2);
+            //beetleQueenRegression.Register();
+
+            //Sample modded registration.
+            //new RegressData("ParentMaster", "ModdedChildMaster", myConfigSpawnAmount, myBundle.LoadAsset<GameObject>("my/modded/path.prefab"));
+
+            LogRegisteredRegressions();
         }
 
         public override void Hooks()
@@ -141,36 +148,44 @@ namespace Aetherium.Artifacts
 
         private void RegressAIToLowerForm(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
         {
-            if (NetworkServer.active && ArtifactEnabled)
+            CharacterMaster master = self.master;
+            if (ArtifactEnabled && NetworkServer.active && IsExisting(master) && IsAnEnemy(master))
             {
-                if (self.master && self.master.IsDeadAndOutOfLivesServer() && (self.master.teamIndex == TeamIndex.Monster || self.master.teamIndex == TeamIndex.Lunar))
+                var masterName = master.name.Replace("(Clone)", "");
+                if (RegressionLookup.ContainsKey(masterName))
                 {
-                    var masterName = self.name.Replace("(Clone)", "");
-                    if (RegressionLookup.ContainsKey(masterName))
+                    foreach (var children in RegressionLookup[masterName].children)
                     {
-                        var regressionMasterName = RegressionLookup[masterName].Item1;
-                        var regressionSpawnAmount = RegressionLookup[masterName].Item2;
-
-                        var masterPrefab = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{regressionMasterName}");
-
-                        if (masterPrefab)
+                        GameObject childMasterPrefab;
+                        string childName = children.Key;
+                        RegressData.ChildData childData = children.Value;
+                        if (childData.resource)
                         {
-                            for(int i = 0; i < regressionSpawnAmount; i++)
+                            childMasterPrefab = childData.resource;
+                        }
+                        else
+                        {
+                            childMasterPrefab = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
+                        }
+                        if (childMasterPrefab)
+                        {
+                            for (int i = 0; i < childData.count; i++)
                             {
-                                var theta = (Math.PI * 2) / regressionSpawnAmount;
+                                var theta = (Math.PI * 2) / childData.count;
                                 var angle = theta * i;
-                                var radius = regressionSpawnAmount;
-                                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x), characterBody.corePosition.y + 2f, (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
+                                var radius = childData.count;
+                                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
+                                                                 characterBody.corePosition.y + 2f,
+                                                                 (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
 
                                 CharacterMaster summonedThing = new MasterSummon()
                                 {
-                                    masterPrefab = masterPrefab,
+                                    masterPrefab = childMasterPrefab,
                                     position = positionChosen,
                                     rotation = characterBody.transform.rotation,
                                     summonerBodyObject = characterBody.gameObject,
                                     ignoreTeamMemberLimit = true,
-                                    inventoryToCopy = characterBody.inventory ? characterBody.inventory : null                                    
-
+                                    inventoryToCopy = characterBody.inventory ? characterBody.inventory : null
                                 }.Perform();
 
                                 if (summonedThing)
@@ -183,6 +198,109 @@ namespace Aetherium.Artifacts
                 }
             }
             orig(self, characterBody);
+        }
+
+        private bool IsExisting(CharacterMaster master)
+        {
+            return master && master.IsDeadAndOutOfLivesServer();
+        }
+
+        private bool IsAnEnemy(CharacterMaster master)
+        {
+            return master.teamIndex == TeamIndex.Monster || master.teamIndex == TeamIndex.Lunar;
+        }
+
+        private void LogRegisteredRegressions()
+        {
+            ModLogger.LogMessage("Artifact of Regression Lookup Table:");
+            foreach (var pair in RegressionLookup)
+            {
+                ModLogger.LogMessage($"-> {pair.Key}");
+                foreach (var childPair in pair.Value.children)
+                {
+                    ModLogger.LogMessage($"  -> {childPair.Value.count} {childPair.Key}");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// A data structure useful for storing children data of a parent and registering them.
+    /// </summary>
+    public struct RegressData
+    {
+        private readonly string parentName;
+        internal Dictionary<string, ChildData> children;
+
+        /// <summary>
+        /// Constructor with no children assigned.
+        /// </summary>
+        /// <param name="parentName">Parent's master name</param>
+        public RegressData(string parentName)
+        {
+            this.parentName = parentName;
+            children = new Dictionary<string, ChildData>();
+        }
+
+        /// <summary>
+        /// Constructor with an assignment of one child while specifying a resource.
+        /// </summary>
+        /// <param name="parentName">Parent's master name</param>
+        /// <param name="childName">Child's master name</param>
+        /// <param name="count">Children amount to be produced by regression</param>
+        /// <param name="resource">Prefab of the child object</param>
+        public RegressData(string parentName, string childName, int count, GameObject resource) : this(parentName)
+        {
+            Store(childName, count, resource);
+        }
+
+        /// <summary>
+        /// Constructor with an assignment of one child without specifying a resource, which means it will use a vanilla resource.
+        /// </summary>
+        /// <param name="parentName">Parent's master name</param>
+        /// <param name="childName">Child's master name</param>
+        /// <param name="count">Children amount to be produced by regression</param>
+        public RegressData(string parentName, string childName, int count) : this(parentName, childName, count, null) { }
+
+        /// <summary>
+        /// Add or Modify a child for the parent specified within the data structure without specifying a resource, which means it will use a vanilla resource.
+        /// </summary>
+        /// <param name="childName">Child's master name</param>
+        /// <param name="count">Amount to be produced by regression</param>
+        public void Store(string childName, int count)
+        {
+            Store(childName, count, null);
+        }
+
+        /// <summary>
+        /// Add or Modify a child for the parent specified within the data structure while specifying a resource.
+        /// </summary>
+        /// <param name="childName">Child's master name</param>
+        /// <param name="count">Amount to be produced by regression</param>
+        /// <param name="resource">Resource prefab of the child</param>
+        public void Store(string childName, int count, GameObject resource)
+        {
+            children[childName] = new ChildData(count, resource);
+        }
+
+        /// <summary>
+        /// Registers the regression data of the parent and children into the Regression Lookup used for implementing regression behavior.
+        /// </summary>
+        public void Register()
+        {
+            ArtifactOfRegression.instance.RegressionLookup[parentName] = this;
+        }
+
+        internal struct ChildData
+        {
+            public int count;
+            public GameObject resource;
+
+            public ChildData(int count, GameObject resource)
+            {
+                this.count = count;
+                this.resource = resource;
+            }
         }
     }
 }
