@@ -12,7 +12,6 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
@@ -20,6 +19,7 @@ using RoR2.Projectile;
 using UnityEngine.Networking;
 using static Aetherium.Utils.MiscUtils;
 using System.Runtime.CompilerServices;
+using Aetherium.Utils.Components;
 
 namespace Aetherium.Items
 {

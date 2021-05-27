@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.CoreModules.ItemHelperModule;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 
 namespace Aetherium.Equipment
@@ -42,7 +43,7 @@ namespace Aetherium.Equipment
 
             }
 
-            //CreateProjectile();
+            CreateProjectile();
 
             CreateEquipment();
             Hooks();
@@ -64,15 +65,17 @@ namespace Aetherium.Equipment
         {
             SoulConversionProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/projectiles/Fireball"), "SoulConversionProjectile", true);
 
-            var fireballGhostClone = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/projectileghosts/FireballGhost"), "SoulConversionProjectileGhost", true);
+            var projectileController = SoulConversionProjectile.GetComponent<ProjectileController>();
+            var ghost = projectileController.ghostPrefab;
 
-            //var fireballGhostParticlesColor = fireballGhostClone.GetComponentInChildren<ParticleSystem>().colorOverLifetime;
-            //fireballGhostParticlesColor.color = new ParticleSystem.MinMaxGradient(new Color(45, 255, 45, 255), new Color(45, 255, 45, 0));
+            var fireballGhostClone = PrefabAPI.InstantiateClone(ghost, "SoulConversionProjectileGhost", true);
+
+            var fireballGhostParticlesColor = fireballGhostClone.GetComponentInChildren<ParticleSystem>().colorOverLifetime;
+            fireballGhostParticlesColor.color = new ParticleSystem.MinMaxGradient(new Color(45, 255, 45, 255), new Color(10, 128, 10, 255));
 
             var fireballGhostLight = fireballGhostClone.GetComponentInChildren<Light>();
-            fireballGhostLight.color = new Color(45, 255, 45);
+            fireballGhostLight.color = new Color(0.18f, 1, 0.18f);
 
-            var projectileController = fireballGhostClone.GetComponent<ProjectileController>();
             projectileController.ghostPrefab = fireballGhostClone;
 
             var projectileDamage = SoulConversionProjectile.GetComponent<ProjectileDamage>();
@@ -115,7 +118,7 @@ namespace Aetherium.Equipment
                 {
                     var victimEquipmentDef = EquipmentCatalog.GetEquipmentDef(damageReport.victimBody.inventory.GetEquipmentIndex());
 
-                    if (victimEquipmentDef && victimEquipmentDef.name.Contains("Affix"))
+                    if (victimEquipmentDef && EliteEquipmentDefs.Any(x => x == victimEquipmentDef))
                     {
                         damageReport.attackerMaster.inventory.GiveEquipmentString(victimEquipmentDef.name);
                     }
@@ -145,18 +148,6 @@ namespace Aetherium.Equipment
             ProjectileManager.instance.FireProjectile(SoulConversionInfo);
 
             return true;
-        }
-
-        public bool ApplySoulConversion(ref BulletAttack.BulletHit hitResult)
-        {
-            var body = Util.HurtBoxColliderToBody(hitResult.collider);
-            if (body && !body.HasBuff(SoulConversionDebuff))
-            {
-                body.AddBuff(SoulConversionDebuff);
-                return true;
-            }
-
-            return false;
         }
     }
 }

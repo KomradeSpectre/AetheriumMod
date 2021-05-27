@@ -68,28 +68,22 @@ namespace Aetherium.Artifacts
 
             public void FixedUpdate()
             {
+                if (Stage.instance.sceneDef.cachedName == "Bazaar")
+                {
+                    return;
+                }
                 var currentTime = Run.GetRunStopwatch();
 
                 if (currentTime > NextShapeshiftTime)
                 {
                     if (NetworkServer.active)
                     {
-                        var enemyTeamMask = RoR2.TeamMask.GetEnemyTeams(TeamIndex.Player);
-                        List<HurtBox> AIHurtboxes = new SphereSearch()
+                        var mastersToTransform = CharacterMaster.readOnlyInstancesList.Where(x => !x.GetComponent<PlayerCharacterMasterController>() && x.GetBody() && x.teamIndex != TeamIndex.Player && !x.isBoss).ToList();
+
+                        foreach(CharacterMaster master in mastersToTransform)
                         {
-                            radius = 100000,
-                            mask = LayerIndex.enemyBody.mask,
-                            origin = new Vector3(0, 0, 0)
-
-                        }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeamMask).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().ToList();
-
-                        foreach(HurtBox hurtbox in AIHurtboxes)
-                        {
-                            var body = hurtbox.healthComponent.body;
-
-                            if (body)
-                            {
-                            }
+                            var bodyString = BodyCatalog.bodyPrefabs[Run.instance.stageRng.RangeInt(0, BodyCatalog.bodyPrefabs.Length)].name;
+                            master.TransformBody(bodyString);
                         }
                     }
 

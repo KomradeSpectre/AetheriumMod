@@ -51,7 +51,7 @@ namespace Aetherium.Artifacts
 
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionDisabledIcon.png");
 
-        public Dictionary<string, (string, ConfigOption<int>)> RegressionLookup;
+        public static Dictionary<string, (string, ConfigOption<int>)> RegressionLookup;
 
         public override void Init(ConfigFile config)
         {

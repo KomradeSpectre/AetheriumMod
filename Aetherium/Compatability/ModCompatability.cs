@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using static Aetherium.Utils.MathHelpers;
 using System.Text;
 using UnityEngine;
+using R2API;
 
 namespace Aetherium.Compatability
 {
@@ -13,6 +14,17 @@ namespace Aetherium.Compatability
     {
         internal static class BetterAPICompat
         {
+            public static Tuple<string, string> CreateBetterUIBuffInformation(string langTokenName, string name, string description, bool isBuff = true)
+            {
+                string nameToken = isBuff ? $"BUFF_{langTokenName}_NAME" : $"DEBUFF_{langTokenName}_NAME";
+                string descToken = isBuff ? $"BUFF_{langTokenName}_DESC" : $"DEBUFF_{langTokenName}_DESC";
+
+                LanguageAPI.Add(nameToken, name);
+                LanguageAPI.Add(descToken, description);
+
+                return Tuple.Create(nameToken, descToken);
+            }
+
             public static void RegisterBuffInfo(BuffDef buffDef, string nameToken, string descriptionToken)
             {
                 BetterUI.Buffs.RegisterBuffInfo(buffDef, nameToken, descriptionToken);
