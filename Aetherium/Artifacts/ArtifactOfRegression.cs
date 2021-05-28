@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
@@ -151,21 +152,24 @@ namespace Aetherium.Artifacts
             CharacterMaster master = self.master;
             if (ArtifactEnabled && NetworkServer.active && IsExisting(master) && IsAnEnemy(master))
             {
-                var masterName = master.name.Replace("(Clone)", "");
+                string masterName = master.name.Replace("(Clone)", "");
                 if (RegressionLookup.ContainsKey(masterName))
                 {
+                    List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;
+                    int totalChildrenCount = childrenList.Sum(child => child.count);
+                    float theta = (float)Math.PI * 2 / totalChildrenCount;
+                    int radius = totalChildrenCount;
+                    int angleCounter = 0;
                     foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
                     {
                         if (child.resource)
                         {
                             for (int i = 0; i < child.count; i++)
                             {
-                                var theta = (Math.PI * 2) / child.count;
-                                var angle = theta * i;
-                                var radius = child.count;
-                                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
-                                                                 characterBody.corePosition.y + 2f,
-                                                                 (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
+                                float angle = theta * ++angleCounter;
+                                Vector3 positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
+                                                                     characterBody.corePosition.y + 2f,
+                                                                     (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
 
                                 CharacterMaster summonedThing = new MasterSummon()
                                 {
