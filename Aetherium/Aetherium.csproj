@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
+    <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />

@@ -18,7 +18,6 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Utils.CompatHelpers;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
