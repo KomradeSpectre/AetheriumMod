@@ -154,33 +154,22 @@ namespace Aetherium.Artifacts
                 var masterName = master.name.Replace("(Clone)", "");
                 if (RegressionLookup.ContainsKey(masterName))
                 {
-                    foreach (var children in RegressionLookup[masterName].children)
+                    foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
                     {
-                        GameObject childMasterPrefab;
-                        string childName = children.Key;
-                        RegressData.ChildData childData = children.Value;
-                        if (childData.resource)
+                        if (child.resource)
                         {
-                            childMasterPrefab = childData.resource;
-                        }
-                        else
-                        {
-                            childMasterPrefab = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
-                        }
-                        if (childMasterPrefab)
-                        {
-                            for (int i = 0; i < childData.count; i++)
+                            for (int i = 0; i < child.count; i++)
                             {
-                                var theta = (Math.PI * 2) / childData.count;
+                                var theta = (Math.PI * 2) / child.count;
                                 var angle = theta * i;
-                                var radius = childData.count;
+                                var radius = child.count;
                                 var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
                                                                  characterBody.corePosition.y + 2f,
                                                                  (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
 
                                 CharacterMaster summonedThing = new MasterSummon()
                                 {
-                                    masterPrefab = childMasterPrefab,
+                                    masterPrefab = child.resource,
                                     position = positionChosen,
                                     rotation = characterBody.transform.rotation,
                                     summonerBodyObject = characterBody.gameObject,
@@ -216,9 +205,9 @@ namespace Aetherium.Artifacts
             foreach (var pair in RegressionLookup)
             {
                 ModLogger.LogMessage($"-> {pair.Key}");
-                foreach (var childPair in pair.Value.children)
+                foreach (RegressData.ChildData child in pair.Value.children)
                 {
-                    ModLogger.LogMessage($"  -> {childPair.Value.count} {childPair.Key}");
+                    ModLogger.LogMessage($"  -> {child.count} {child.name}");
                 }
             }
         }
@@ -230,7 +219,7 @@ namespace Aetherium.Artifacts
     public struct RegressData
     {
         private readonly string parentName;
-        internal Dictionary<string, ChildData> children;
+        internal List<ChildData> children;
 
         /// <summary>
         /// Constructor with no children assigned.
@@ -239,11 +228,13 @@ namespace Aetherium.Artifacts
         public RegressData(string parentName)
         {
             this.parentName = parentName;
-            children = new Dictionary<string, ChildData>();
+            children = new List<ChildData>();
         }
 
         /// <summary>
         /// Constructor with an assignment of one child while specifying a resource.
+        /// Pass null in resource to specify a vanilla resource.
+        /// If it is a custom resource, load it from the bundle.
         /// </summary>
         /// <param name="parentName">Parent's master name</param>
         /// <param name="childName">Child's master name</param>
@@ -263,24 +254,20 @@ namespace Aetherium.Artifacts
         public RegressData(string parentName, string childName, int count) : this(parentName, childName, count, null) { }
 
         /// <summary>
-        /// Add or Modify a child for the parent specified within the data structure without specifying a resource, which means it will use a vanilla resource.
-        /// </summary>
-        /// <param name="childName">Child's master name</param>
-        /// <param name="count">Amount to be produced by regression</param>
-        public void Store(string childName, int count)
-        {
-            Store(childName, count, null);
-        }
-
-        /// <summary>
-        /// Add or Modify a child for the parent specified within the data structure while specifying a resource.
+        /// Add or Modify a child for the parent specified within the data structure.
+        /// Pass null in resource to specify a vanilla resource.
+        /// If it is a custom resource, load it from the bundle.
         /// </summary>
         /// <param name="childName">Child's master name</param>
         /// <param name="count">Amount to be produced by regression</param>
         /// <param name="resource">Resource prefab of the child</param>
         public void Store(string childName, int count, GameObject resource)
         {
-            children[childName] = new ChildData(count, resource);
+            if (!resource)
+            {
+                resource = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
+            }
+            children.Add(new ChildData(childName, count, resource));
         }
 
         /// <summary>
@@ -293,11 +280,13 @@ namespace Aetherium.Artifacts
 
         internal struct ChildData
         {
+            public string name;
             public int count;
             public GameObject resource;
 
-            public ChildData(int count, GameObject resource)
+            public ChildData(string name, int count, GameObject resource)
             {
+                this.name = name;
                 this.count = count;
                 this.resource = resource;
             }
