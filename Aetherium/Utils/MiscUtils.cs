@@ -1,7 +1,9 @@
 ﻿using RoR2;
+using RoR2.Navigation;
 using RoR2.Projectile;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -27,6 +29,24 @@ namespace Aetherium.Utils
                 shuffled.Insert(random.RangeInt(0, shuffled.Count + 1), value);
             }
             return shuffled;
+        }
+
+        public static Vector3 FindClosestGroundNodeToPosition(Vector3 position, HullClassification hullClassification)
+        {
+            Vector3 ResultPosition;
+
+            NodeGraph groundNodes = SceneInfo.instance.groundNodes;
+
+            var closestNode = groundNodes.FindClosestNode(position, hullClassification);
+
+            if(closestNode != NodeGraph.NodeIndex.invalid)
+            {
+                groundNodes.GetNodePosition(closestNode, out ResultPosition);
+                return ResultPosition;
+            }
+
+            Debug.LogWarning($"No closest node to be found for XYZ: {position}, returning 0,0,0");
+            return Vector3.zero;
         }
 
     }

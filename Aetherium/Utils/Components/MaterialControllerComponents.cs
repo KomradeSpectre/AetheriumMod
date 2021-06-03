@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -7,6 +8,30 @@ namespace Aetherium.Utils
 {
     public class MaterialControllerComponents
     {
+        public static void SetShaderKeywordBasedOnBool(bool enabled, Material material, string keyword)
+        {
+            if (!material)
+            {
+                AetheriumPlugin.ModLogger.LogError($"Material field was null, cannot run shader keyword method.");
+                return;
+            }
+
+            if (enabled)
+            {
+                if (!material.IsKeywordEnabled(keyword))
+                {
+                    material.EnableKeyword(keyword);
+                }
+            }
+            else
+            {
+                if (material.IsKeywordEnabled(keyword))
+                {
+                    material.DisableKeyword(keyword);
+                }
+            }
+        }
+
         /// <summary>
         /// Attach this component to a gameObject and pass a meshrenderer in. It'll attempt to find the correct shader controller from the meshrenderer material, attach it if it finds it, and destroy itself.
         /// </summary>
@@ -236,7 +261,7 @@ namespace Aetherium.Utils
             {
                 if (Material)
                 {
-                    _EnableCutout = Convert.ToBoolean(Material.GetFloat("_EnableCutout"));
+                    _EnableCutout = Material.IsKeywordEnabled("CUTOUT");
                     _Color = Material.GetColor("_Color");
                     _MainTex = Material.GetTexture("_MainTex");
                     _MainTexScale = Material.GetTextureScale("_MainTex");
@@ -249,20 +274,20 @@ namespace Aetherium.Utils
                     _EmTex = Material.GetTexture("_EmTex");
                     _EmPower = Material.GetFloat("_EmPower");
                     _Smoothness = Material.GetFloat("_Smoothness");
-                    _IgnoreDiffuseAlphaForSpeculars = Convert.ToBoolean(Material.GetFloat("_ForceSpecOn"));
+                    _IgnoreDiffuseAlphaForSpeculars = Material.IsKeywordEnabled("FORCE_SPEC");
                     _RampChoice = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
                     _DecalLayer = (_DecalLayerEnum)(int)Material.GetFloat("_DecalLayer");
                     _SpecularStrength = Material.GetFloat("_SpecularStrength");
                     _SpecularExponent = Material.GetFloat("_SpecularExponent");
                     _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _EnableDither = Convert.ToBoolean(Material.GetFloat("_DitherOn"));
+                    _EnableDither = Material.IsKeywordEnabled("DITHER");
                     _FadeBias = Material.GetFloat("_FadeBias");
-                    _EnableFresnelEmission = Convert.ToBoolean(Material.GetFloat("_FEON"));
+                    _EnableFresnelEmission = Material.IsKeywordEnabled("FRESNEL_EMISSION");
                     _FresnelRamp = Material.GetTexture("_FresnelRamp");
                     _FresnelPower = Material.GetFloat("_FresnelPower");
                     _FresnelMask = Material.GetTexture("_FresnelMask");
                     _FresnelBoost = Material.GetFloat("_FresnelBoost");
-                    _EnablePrinting = Convert.ToBoolean(Material.GetFloat("_PrintOn"));
+                    _EnablePrinting = Material.IsKeywordEnabled("PRINT_CUTOFF");
                     _SliceHeight = Material.GetFloat("_SliceHeight");
                     _PrintBandHeight = Material.GetFloat("_SliceBandHeight");
                     _PrintAlphaDepth = Material.GetFloat("_SliceAlphaDepth");
@@ -276,8 +301,8 @@ namespace Aetherium.Utils
                     _PrintRamp = Material.GetTexture("_PrintRamp");
                     _EliteBrightnessMin = Material.GetFloat("_EliteBrightnessMin");
                     _EliteBrightnessMax = Material.GetFloat("_EliteBrightnessMax");
-                    _EnableSplatmap = Convert.ToBoolean(Material.GetFloat("_SplatmapOn"));
-                    _UseVertexColorsInstead = Convert.ToBoolean(Material.GetFloat("_ColorsOn"));
+                    _EnableSplatmap = Material.IsKeywordEnabled("SPLATMAP");
+                    _UseVertexColorsInstead = Material.IsKeywordEnabled("USE_VERTEX_COLORS");
                     _BlendDepth = Material.GetFloat("_Depth");
                     _SplatmapTex = Material.GetTexture("_SplatmapTex");
                     _SplatmapTexScale = Material.GetTextureScale("_SplatmapTex");
@@ -291,7 +316,7 @@ namespace Aetherium.Utils
                     _BlueChannelNormalTex = Material.GetTexture("_BlueChannelNormalTex");
                     _BlueChannelSmoothness = Material.GetFloat("_BlueChannelSmoothness");
                     _BlueChannelBias = Material.GetFloat("_BlueChannelBias");
-                    _EnableFlowmap = Convert.ToBoolean(Material.GetFloat("_FlowmapOn"));
+                    _EnableFlowmap = Material.IsKeywordEnabled("FLOWMAP");
                     _FlowTexture = Material.GetTexture("_FlowTex");
                     _FlowHeightmap = Material.GetTexture("_FlowHeightmap");
                     _FlowHeightmapScale = Material.GetTextureScale("_FlowHeightmap");
@@ -306,7 +331,7 @@ namespace Aetherium.Utils
                     _MaskFlowStrength = Material.GetFloat("_FlowMaskStrength");
                     _NormalFlowStrength = Material.GetFloat("_FlowNormalStrength");
                     _FlowTextureScaleFactor = Material.GetFloat("_FlowTextureScaleFactor");
-                    _EnableLimbRemoval = Convert.ToBoolean(Material.GetFloat("_LimbRemovalOn"));
+                    _EnableLimbRemoval = Material.IsKeywordEnabled("LIMBREMOVAL");
                     MaterialName = Material.name;
                 }
             }
@@ -329,7 +354,8 @@ namespace Aetherium.Utils
                         PutMaterialIntoMeshRenderer(MeshRenderer);
                     }
 
-                    Material.SetFloat("_EnableCutout", Convert.ToSingle(_EnableCutout));
+                    SetShaderKeywordBasedOnBool(_EnableCutout, Material, "CUTOUT");
+
                     Material.SetColor("_Color", _Color);
 
                     if (_MainTex)
@@ -369,15 +395,20 @@ namespace Aetherium.Utils
 
                     Material.SetFloat("_EmPower", _EmPower);
                     Material.SetFloat("_Smoothness", _Smoothness);
-                    Material.SetFloat("_ForceSpecOn", Convert.ToSingle(_IgnoreDiffuseAlphaForSpeculars));
+
+                    SetShaderKeywordBasedOnBool(_IgnoreDiffuseAlphaForSpeculars, Material, "FORCE_SPEC");
+
                     Material.SetFloat("_RampInfo", Convert.ToSingle(_RampChoice));
                     Material.SetFloat("_DecalLayer", Convert.ToSingle(_DecalLayer));
                     Material.SetFloat("_SpecularStrength", _SpecularStrength);
                     Material.SetFloat("_SpecularExponent", _SpecularExponent);
                     Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
-                    Material.SetFloat("_DitherOn", Convert.ToSingle(_EnableDither));
+
+                    SetShaderKeywordBasedOnBool(_EnableDither, Material, "DITHER");
+
                     Material.SetFloat("_FadeBias", _FadeBias);
-                    Material.SetFloat("_FEON", Convert.ToSingle(_EnableFresnelEmission));
+
+                    SetShaderKeywordBasedOnBool(_EnableFresnelEmission, Material, "FRESNEL_EMISSION");
 
                     if (_FresnelRamp)
                     {
@@ -400,7 +431,9 @@ namespace Aetherium.Utils
                     }
 
                     Material.SetFloat("_FresnelBoost", _FresnelBoost);
-                    Material.SetFloat("_PrintOn", Convert.ToSingle(_EnablePrinting));
+
+                    SetShaderKeywordBasedOnBool(_EnablePrinting, Material, "PRINT_CUTOFF");
+
                     Material.SetFloat("_SliceHeight", _SliceHeight);
                     Material.SetFloat("_SliceBandHeight", _PrintBandHeight);
                     Material.SetFloat("_SliceAlphaDepth", _PrintAlphaDepth);
@@ -432,8 +465,10 @@ namespace Aetherium.Utils
 
                     Material.SetFloat("_EliteBrightnessMin", _EliteBrightnessMin);
                     Material.SetFloat("_EliteBrightnessMax", _EliteBrightnessMax);
-                    Material.SetFloat("_SplatmapOn", Convert.ToSingle(_EnableSplatmap));
-                    Material.SetFloat("_ColorsOn", Convert.ToSingle(_UseVertexColorsInstead));
+
+                    SetShaderKeywordBasedOnBool(_EnableSplatmap, Material, "SPLATMAP");
+                    SetShaderKeywordBasedOnBool(_UseVertexColorsInstead, Material, "USE_VERTEX_COLORS");
+
                     Material.SetFloat("_Depth", _BlendDepth);
 
                     if (_SplatmapTex)
@@ -491,7 +526,7 @@ namespace Aetherium.Utils
                     Material.SetFloat("_BlueChannelSmoothness", _BlueChannelSmoothness);
                     Material.SetFloat("_BlueChannelBias", _BlueChannelBias);
 
-                    Material.SetFloat("_FlowmapOn", Convert.ToSingle(_EnableFlowmap));
+                    SetShaderKeywordBasedOnBool(_EnableFlowmap, Material, "FLOWMAP");
 
                     if (_FlowTexture)
                     {
@@ -531,7 +566,8 @@ namespace Aetherium.Utils
                     Material.SetFloat("_FlowMaskStrength", _MaskFlowStrength);
                     Material.SetFloat("_FlowNormalStrength", _NormalFlowStrength);
                     Material.SetFloat("_FlowTextureScaleFactor", _FlowTextureScaleFactor);
-                    Material.SetFloat("_LimbRemovalOn", Convert.ToSingle(_EnableLimbRemoval));
+
+                    SetShaderKeywordBasedOnBool(_EnableLimbRemoval, Material, "LIMBREMOVAL");
                 }
             }
 
@@ -635,7 +671,7 @@ namespace Aetherium.Utils
                 if (Material)
                 {
                     _Tint = Material.GetColor("_TintColor");
-                    _DisableRemapping = Convert.ToBoolean(Material.GetFloat("_DisableRemapOn"));
+                    _DisableRemapping = Material.IsKeywordEnabled("DISABLEREMAP");
                     _MainTex = Material.GetTexture("_MainTex");
                     _MainTexScale = Material.GetTextureScale("_MainTex");
                     _MainTexOffset = Material.GetTextureOffset("_MainTex");
@@ -646,14 +682,14 @@ namespace Aetherium.Utils
                     _BrightnessBoost = Material.GetFloat("_Boost");
                     _AlphaBoost = Material.GetFloat("_AlphaBoost");
                     _AlphaBias = Material.GetFloat("_AlphaBias");
-                    _UseUV1 = Convert.ToBoolean(Material.GetFloat("_UseUV1On"));
-                    _FadeWhenNearCamera = Convert.ToBoolean(Material.GetFloat("_FadeCloseOn"));
+                    _UseUV1 = Material.IsKeywordEnabled("USE_UV1");
+                    _FadeWhenNearCamera = Material.IsKeywordEnabled("FADECLOSE");
                     _FadeCloseDistance = Material.GetFloat("_FadeCloseDistance");
                     _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
                     _ZTest_Mode = (_ZTestEnum)(int)Material.GetFloat("_ZTest");
                     _DepthOffset = Material.GetFloat("_DepthOffset");
-                    _CloudRemapping = Convert.ToBoolean(Material.GetFloat("_CloudsOn"));
-                    _DistortionClouds = Convert.ToBoolean(Material.GetFloat("_CloudOffsetOn"));
+                    _CloudRemapping = Material.IsKeywordEnabled("USE_CLOUDS");
+                    _DistortionClouds = Material.IsKeywordEnabled("CLOUDOFFSET");
                     _DistortionStrength = Material.GetFloat("_DistortionStrength");
                     _Cloud1Tex = Material.GetTexture("_Cloud1Tex");
                     _Cloud1TexScale = Material.GetTextureScale("_Cloud1Tex");
@@ -662,12 +698,12 @@ namespace Aetherium.Utils
                     _Cloud2TexScale = Material.GetTextureScale("_Cloud2Tex");
                     _Cloud2TexOffset = Material.GetTextureOffset("_Cloud2Tex");
                     _CutoffScroll = Material.GetVector("_CutoffScroll");
-                    _VertexColors = Convert.ToBoolean(Material.GetFloat("_VertexColorOn"));
-                    _LuminanceForVertexAlpha = Convert.ToBoolean(Material.GetFloat("_VertexAlphaOn"));
-                    _LuminanceForTextureAlpha = Convert.ToBoolean(Material.GetFloat("_CalcTextureAlphaOn"));
-                    _VertexOffset = Convert.ToBoolean(Material.GetFloat("_VertexOffsetOn"));
-                    _FresnelFade = Convert.ToBoolean(Material.GetFloat("_FresnelOn"));
-                    _SkyboxOnly = Convert.ToBoolean(Material.GetFloat("_SkyboxOnly"));
+                    _VertexColors = Material.IsKeywordEnabled("VERTEXCOLOR");
+                    _LuminanceForVertexAlpha = Material.IsKeywordEnabled("VERTEXALPHA");
+                    _LuminanceForTextureAlpha = Material.IsKeywordEnabled("CALCTEXTUREALPHA");
+                    _VertexOffset = Material.IsKeywordEnabled("VERTEXOFFSET");
+                    _FresnelFade = Material.IsKeywordEnabled("FRESNEL");
+                    _SkyboxOnly = Material.IsKeywordEnabled("SKYBOX_ONLY");
                     _FresnelPower = Material.GetFloat("_FresnelPower");
                     _VertexOffsetAmount = Material.GetFloat("_OffsetAmount");
                     MaterialName = Material.name;
@@ -693,7 +729,8 @@ namespace Aetherium.Utils
                         PutMaterialIntoMeshRenderer(MeshRenderer);
                     }
                     Material.SetColor("_TintColor", _Tint);
-                    Material.SetFloat("_DisableRemapOn", Convert.ToSingle(_DisableRemapping));
+
+                    SetShaderKeywordBasedOnBool(_DisableRemapping, Material, "DISABLEREMAP");
 
                     if (_MainTex)
                     {
@@ -721,14 +758,18 @@ namespace Aetherium.Utils
                     Material.SetFloat("_Boost", _BrightnessBoost);
                     Material.SetFloat("_AlphaBoost", _AlphaBoost);
                     Material.SetFloat("_AlphaBias", _AlphaBias);
-                    Material.SetFloat("_UseUV1On", Convert.ToSingle(_UseUV1));
-                    Material.SetFloat("_FadeCloseOn", Convert.ToSingle(_FadeWhenNearCamera));
+
+                    SetShaderKeywordBasedOnBool(_UseUV1, Material, "USE_UV1");
+                    SetShaderKeywordBasedOnBool(_FadeWhenNearCamera, Material, "FADECLOSE");
+
                     Material.SetFloat("_FadeCloseDistance", _FadeCloseDistance);
                     Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
                     Material.SetFloat("_ZTest", Convert.ToSingle(_ZTest_Mode));
                     Material.SetFloat("_DepthOffset", _DepthOffset);
-                    Material.SetFloat("_CloudsOn", Convert.ToSingle(_CloudRemapping));
-                    Material.SetFloat("_CloudOffsetOn", Convert.ToSingle(_DistortionClouds));
+
+                    SetShaderKeywordBasedOnBool(_CloudRemapping, Material, "USE_CLOUDS");
+                    SetShaderKeywordBasedOnBool(_DistortionClouds, Material, "CLOUDOFFSET");
+
                     Material.SetFloat("_DistortionStrength", _DistortionStrength);
 
                     if (_Cloud1Tex)
@@ -754,12 +795,14 @@ namespace Aetherium.Utils
                     }
 
                     Material.SetVector("_CutoffScroll", _CutoffScroll);
-                    Material.SetFloat("_VertexColorOn", Convert.ToSingle(_VertexColors));
-                    Material.SetFloat("_VertexAlphaOn", Convert.ToSingle(_LuminanceForVertexAlpha));
-                    Material.SetFloat("_CalcTextureAlphaOn", Convert.ToSingle(_LuminanceForTextureAlpha));
-                    Material.SetFloat("_VertexOffsetOn", Convert.ToSingle(_VertexOffset));
-                    Material.SetFloat("_FresnelOn", Convert.ToSingle(_FresnelFade));
-                    Material.SetFloat("_SkyboxOnly", Convert.ToSingle(_SkyboxOnly));
+
+                    SetShaderKeywordBasedOnBool(_VertexColors, Material, "VERTEXCOLOR");
+                    SetShaderKeywordBasedOnBool(_LuminanceForVertexAlpha, Material, "VERTEXALPHA");
+                    SetShaderKeywordBasedOnBool(_LuminanceForTextureAlpha, Material, "CALCTEXTUREALPHA");
+                    SetShaderKeywordBasedOnBool(_VertexOffset, Material, "VERTEXOFFSET");
+                    SetShaderKeywordBasedOnBool(_FresnelFade, Material, "FRESNEL");
+                    SetShaderKeywordBasedOnBool(_SkyboxOnly, Material, "SKYBOX_ONLY");
+
                     Material.SetFloat("_FresnelPower", _FresnelPower);
                     Material.SetFloat("_OffsetAmount", _VertexOffsetAmount);
                 }
@@ -851,7 +894,7 @@ namespace Aetherium.Utils
             }
             public _CullEnum _Cull_Mode;
 
-            public bool _IgnoreVertexColors;
+            public bool _FadeFromVertexColorsOn;
             public bool _EnableTriplanarProjectionsForClouds;
 
             public void Start()
@@ -887,8 +930,8 @@ namespace Aetherium.Utils
                     _AlphaBoost = Material.GetFloat("_AlphaBoost");
                     _IntersectionStrength = Material.GetFloat("_IntersectionStrength");
                     _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _IgnoreVertexColors = Convert.ToBoolean(Material.GetFloat("_VertexColorsOn"));
-                    _EnableTriplanarProjectionsForClouds = Convert.ToBoolean(Material.GetFloat("_TriplanarOn"));
+                    _FadeFromVertexColorsOn = Material.IsKeywordEnabled("FADE_FROM_VERTEX_COLORS");
+                    _EnableTriplanarProjectionsForClouds = Material.IsKeywordEnabled("TRIPLANAR");
                     MaterialName = Material.name;
                 }
             }
@@ -967,8 +1010,9 @@ namespace Aetherium.Utils
                     Material.SetFloat("_AlphaBoost", _AlphaBoost);
                     Material.SetFloat("_IntersectionStrength", _IntersectionStrength);
                     Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
-                    Material.SetFloat("_VertexColorsOn", Convert.ToSingle(_IgnoreVertexColors));
-                    Material.SetFloat("_TriplanarOn", Convert.ToSingle(_EnableTriplanarProjectionsForClouds));
+
+                    SetShaderKeywordBasedOnBool(_FadeFromVertexColorsOn, Material, "FADE_FROM_VERTEX_COLORS");
+                    SetShaderKeywordBasedOnBool(_EnableTriplanarProjectionsForClouds, Material, "TRIPLANAR");
                 }
             }
         }

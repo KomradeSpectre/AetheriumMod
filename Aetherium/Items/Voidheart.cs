@@ -98,7 +98,7 @@ namespace Aetherium.Items
             VoidInstabilityDebuff.name = "Aetherium: Void Instability Debuff";
             VoidInstabilityDebuff.buffColor = Color.magenta;
             VoidInstabilityDebuff.canStack = false;
-            VoidInstabilityDebuff.isDebuff = true;
+            VoidInstabilityDebuff.isDebuff = false;
             VoidInstabilityDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("VoidInstabilityDebuffIcon.png");
 
             VoidImmunityBuff = ScriptableObject.CreateInstance<BuffDef>();

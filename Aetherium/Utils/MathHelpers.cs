@@ -60,6 +60,26 @@ namespace Aetherium.Utils
 
         }
 
+        public static List<Vector3> DistributePointsEvenlyAroundCircle(int points, float radius, Vector3 origin)
+        {
+            List<Vector3> pointsList = new List<Vector3>();
+            for(int i = 0; i < points; i++)
+            {
+                var theta = (Math.PI * 2) / points;
+                var angle = theta * i;
+                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + origin.x), origin.y, (float)(radius * Math.Sin(angle) + origin.z));
+                pointsList.Add(positionChosen);
+            }
+
+            return pointsList;
+        }
+
+        public static Vector3 RandomPointOnCircle(Vector3 origin, float radius, Xoroshiro128Plus random)
+        {
+            float angle = random.RangeFloat(0, 2f * Mathf.PI);
+            return origin + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+        }
+
         /// <summary>
         /// Calculates inverse hyperbolic scaling (diminishing) for the parameters passed in, and returns the result.
         /// <para>Uses the formula: baseValue + (maxValue - baseValue) * (1 - 1 / (1 + additionalValue * (itemCount - 1)))</para>

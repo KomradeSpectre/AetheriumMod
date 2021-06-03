@@ -6,6 +6,7 @@ using UnityEngine;
 using ItemStats;
 using ItemStats.Stat;
 using ItemStats.ValueFormatters;
+using System.Linq;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
@@ -38,7 +39,7 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Healing };
 
-        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("BloodSoakedShield.prefab");
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("BloodthirstyShield.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIconAlt.png") : MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
@@ -67,6 +68,13 @@ namespace Aetherium.Items
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = ItemModel;
+
+            var itemModelMeshes = ItemModel.GetComponentsInChildren<MeshRenderer>();
+            var energyMesh = itemModelMeshes.First(mesh => mesh.gameObject.name == "Energy");
+
+            var finder = ItemModel.AddComponent<MaterialControllerComponents.HGControllerFinder>();
+            finder.MeshRenderer = energyMesh;
+
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 

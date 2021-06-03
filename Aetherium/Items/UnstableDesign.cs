@@ -157,6 +157,11 @@ namespace Aetherium.Items
 
             if (LunarChimeraBodyPrefab)
             {
+                LanguageAPI.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"UES G-013X \"Hunter\"");
+
+                var body = LunarChimeraBodyPrefab.GetComponent<CharacterBody>();
+                body.baseNameToken = "AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME";
+
                 var skinnedMeshRenderer = LunarChimeraBodyPrefab.GetComponentInChildren<SkinnedMeshRenderer>();
 
                 if (skinnedMeshRenderer)
@@ -398,14 +403,14 @@ namespace Aetherium.Items
                                     cBody.gameObject.AddComponent<LunarChimeraRetargetComponent>();
                                     lcComponent.LastChimeraSpawned = cBody;
                                     RoR2.DeathRewards deathRewards = cBody.GetComponent<RoR2.DeathRewards>();
-                                    UnityEngine.Object.Destroy(deathRewards);
                                     
-                                    /*if (deathRewards)
+                                    if (deathRewards)
                                     {
+                                        deathRewards.logUnlockableDef = null;
                                         //RoR2.Chat.AddMessage($"DeathRewards Found: {component5}");
                                         deathRewards.goldReward = 0;
                                         deathRewards.expReward = 0;
-                                    }*/
+                                    }
 
                                     NetworkIdentity bodyNet = cBody.GetComponent<NetworkIdentity>();
                                     if (bodyNet)
@@ -589,6 +594,17 @@ namespace Aetherium.Items
                                 {
                                     baseAIComponent.currentEnemy.Reset();
                                     baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
+
+                                    if (baseAIComponent.currentEnemy != null && !baseAIComponent.currentEnemy.hasLoS)
+                                    {
+                                        AkSoundEngine.PostEvent(3906026136, body.gameObject);
+                                    }
+
+                                    if (baseAIComponent.currentEnemy == null)
+                                    {
+                                        AkSoundEngine.PostEvent(4013028197, body.gameObject);
+                                    }
+
                                     SetCooldown();
                                 }
                             }

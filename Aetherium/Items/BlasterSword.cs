@@ -80,11 +80,6 @@ namespace Aetherium.Items
             //CreateAchievement();
             CreateBuff();
 
-            if (IsBetterUIInstalled)
-            {
-                CreateBetterUICompat();
-            }
-
             CreateProjectile();
             CreateItem();
             Hooks();
@@ -124,13 +119,6 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(BlasterSwordActiveBuff));
 
-        }
-
-        private void CreateBetterUICompat()
-        {
-            var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
-
-            RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
         }
 
         private void CreateProjectile()
@@ -743,10 +731,7 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2.RoR2Application.onLoad += ItemStatsModCompat;
-            }
+            RoR2.RoR2Application.onLoad += OnLoadModCompat;
 
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
             IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
@@ -757,9 +742,18 @@ namespace Aetherium.Items
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateBlasterSwordStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateBlasterSwordStatDef();
+            }
+            if (IsBetterUIInstalled)
+            {
+                var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
+
+                RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
+            }
         }
 
         private void FireSwordsFromFlower(ILContext il)

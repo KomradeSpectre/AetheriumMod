@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using RoR2.Navigation;
+using static Aetherium.Utils.MiscUtils;
 using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Artifacts
@@ -97,7 +99,12 @@ namespace Aetherium.Artifacts
         private void CreateRegressionLookup()
         {
             new RegressData("BeetleQueenMaster", "BeetleGuardMaster", QueenToGuardSplitNumber).Register();
-            new RegressData("BeetleGuardMaster", "BeetleMaster", GuardToBeetleSplitNumber).Register();
+            //new RegressData("BeetleGuardMaster", "BeetleMaster", GuardToBeetleSplitNumber).Register();            
+            RegressData beetleGuardRegression = new RegressData("BeetleGuardMaster");
+            beetleGuardRegression.Store("BeetleMaster", 5, null);
+            beetleGuardRegression.Store("BeetleCrystalMaster", 5, null);
+            beetleGuardRegression.Register();
+
             new RegressData("BeetleGuardMasterCrystal", "BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber).Register();
 
             new RegressData("AncientWispMaster", "ArchWispMaster", AncientWispToArchWispSplitNumber).Register();
@@ -171,6 +178,7 @@ namespace Aetherium.Artifacts
                                                                      characterBody.corePosition.y + 2f,
                                                                      (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
 
+
                                 CharacterMaster summonedThing = new MasterSummon()
                                 {
                                     masterPrefab = child.resource,
@@ -184,6 +192,12 @@ namespace Aetherium.Artifacts
                                 if (summonedThing)
                                 {
                                     EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
+
+                                    var summonBody = summonedThing.GetBody();
+                                    if (summonBody)
+                                    {
+                                        summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
+                                    }
                                 }
                             }
                         }

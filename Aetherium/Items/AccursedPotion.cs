@@ -12,16 +12,13 @@ using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 
-using System.Runtime.CompilerServices;
-using ItemStats.Stat;
-using ItemStats;
-
 namespace Aetherium.Items
 {
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
         //Config
         public static ConfigOption<float> BaseSipCooldownDuration;
+
         public static ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
         public static ConfigOption<float> BaseRadiusGranted;
         public static ConfigOption<float> AdditionalRadiusGranted;
@@ -38,18 +35,7 @@ namespace Aetherium.Items
                 $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{BaseRadiusGranted}m radius</style> <style=cStack>(+{AdditionalRadiusGranted}m per stack)</style> around you.</style>" +
                 $" Max: {MaxEffectsAccrued} buffs or debuffs can be applied at any time.";
 
-        public override string ItemLore => OrderManifestLoreFormatter(
-                ItemName,
-
-                "9/29/3065",
-
-                "Bepsi Coler Corp\nNeo California, Rex Federation\nTerra",
-
-                "8011*******",
-
-                ItemPickupDesc,
-
-                "Fragile / Hypnohazard / Quasi-Liquid Containment Procedures",
+        public override string ItemLore =>
 
                 "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
                 "---------------------------------\n" +
@@ -60,7 +46,7 @@ namespace Aetherium.Items
                 "<indent=5%>1/4th teaspoon of salt, for taste.</indent>\n" +
                 "\n---------------------------------\n" +
                 "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated." +
-                "\nRemote extraction of contents recommended due to hypnohazard.");
+                "\nRemote extraction of contents recommended due to hypnohazard.";
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
@@ -74,33 +60,14 @@ namespace Aetherium.Items
 
         public List<BuffDef> BlacklistedBuffsAndDebuffs = new List<BuffDef>();
 
-
-
-        public AccursedPotion()
-        {
-        }
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
             CreateBuff();
 
-            if (IsBetterUIInstalled)
-            {
-                CreateBetterUICompat();
-            }
-
             CreateItem();
             Hooks();
-        }
-
-        private void CreateBetterUICompat()
-        {
-            //BetterUI Buff Description Compat
-            var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
-
-            RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
         }
 
         private void CreateConfig(ConfigFile config)
@@ -111,10 +78,7 @@ namespace Aetherium.Items
             AdditionalRadiusGranted = config.ActiveBind("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
             MaxEffectsAccrued = config.ActiveBind("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
             BlacklistedBuffsAndDebuffsString = config.ActiveBind("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?");
-
-
         }
-
 
         private void CreateBuff()
         {
@@ -274,16 +238,23 @@ namespace Aetherium.Items
         {
             On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
-
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
+            RoR2Application.onLoad += OnLoadModCompatability;
         }
 
-        public void ItemStatsModCompat()
+        public void OnLoadModCompatability()
         {
-            CreateAccursedPotionStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateAccursedPotionStatDef();
+            }
+
+            if (IsBetterUIInstalled)
+            {
+                //BetterUI Buff Description Compat
+                var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
+
+                RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
+            }
         }
 
         private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)
@@ -306,6 +277,7 @@ namespace Aetherium.Items
 
         private void ForceFeedPotion(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
+            bool drankPotion = false;
             if (NetworkServer.active)
             {
                 var InventoryCount = GetCount(self);
@@ -343,9 +315,14 @@ namespace Aetherium.Items
                             }
                             AddBuffAndDot(AccursedPotionSipCooldownDebuff, BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, InventoryCount - 1), 1, self);
                             AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, self);
+                            drankPotion = true;
                         }
                     }
                 }
+            }
+            if (drankPotion)
+            {
+                AkSoundEngine.PostEvent(722511457, self.gameObject);
             }
             orig(self);
         }

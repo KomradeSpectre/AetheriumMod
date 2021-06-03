@@ -24,7 +24,24 @@ namespace Aetherium.Items
         public override string ItemLangTokenName => "ALIEN_MAGNET";
         public override string ItemPickupDesc => "Your attacks pull enemies towards you.";
         public override string ItemFullDescription => $"Enemies hit by your attacks will be pulled towards you, starting at {StartingForceMultiplier}x force <style=cStack>(+{AdditionalForceMultiplier}x force multiplier, up to {MaximumForceMultiplier}x total force. The effect is more noticeable on higher health enemies.)</style>";
-        public override string ItemLore => "A strange pylon that seems to bring enemies towards the wielder when their attacks hit. Only the truly brave or insane bring the fight to themselves.";
+        public override string ItemLore => 
+
+            "[BEGINNING LOG]\n\n" +
+
+            "Experiment Log #476951-b\n" +
+            "Subject Matter: Unknown Omni-Magnetic Xenomineral" +
+
+            "\n<indent=5%>I'm recoding this video log in complete awe of the discovery before us. What we understood about magnetic properties of minerals had generally revealed to us that there a variety" +
+            "of materials that were not able to be affected in any large scale manner by standard magnetics. One of these would be flesh. If I drop this neodymium magnet on my arm like so...You notice that" +
+            "nothing of note happens. The magnet just falls right onto the table. This is what we've known as our normal for magnetics, but this mineral seems to rewrite that constant.\n" +
+
+            "\n<indent=5%>Now we'll repeat our last test, but using a chunk of this mineral. I've been reassured that it is completely safe to test on us, and has no radioactive properties to it. So here we" +
+            "go. We just drop this right past the arm like so...*THUNK* *CRACK* *SQUELCH*\n" +
+
+            "AAAAAAAAAAAAGH!!! AAAAAAAAAAAAAAA!!!\n" +
+            "[END OF LOG]" +
+
+            "[TRAUMA TEAM HAS BEEN DISPATCHED TO LAB 5]";
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };

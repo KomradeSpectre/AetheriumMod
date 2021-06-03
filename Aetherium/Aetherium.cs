@@ -80,6 +80,13 @@ namespace Aetherium
                 MainAssets = AssetBundle.LoadFromStream(stream);
             }
 
+            using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.AetheriumSounds.bnk"))
+            {
+                var bytes = new byte[bankStream.Length];
+                bankStream.Read(bytes, 0, bytes.Length);
+                SoundAPI.SoundBanks.Add(bytes);
+            }
+
             //Material shader autoconversion
             var materialAssets = MainAssets.LoadAllAssets<Material>();
 

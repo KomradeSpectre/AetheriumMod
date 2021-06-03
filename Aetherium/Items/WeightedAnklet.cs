@@ -120,7 +120,7 @@ namespace Aetherium.Items
         {
             LimiterReleaseBuffDef = ScriptableObject.CreateInstance<BuffDef>();
             LimiterReleaseBuffDef.name = "Aetherium: Limiter Release";
-            LimiterReleaseBuffDef.buffColor = new Color(48, 255, 48);
+            LimiterReleaseBuffDef.buffColor = new Color(255, 255, 255);
             LimiterReleaseBuffDef.canStack = true;
             LimiterReleaseBuffDef.isDebuff = false;
             LimiterReleaseBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseBuffIcon.png");

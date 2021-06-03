@@ -7,9 +7,12 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using AK.Wwise;
+
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.ItemHelperModule;
 using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using UnityEngine.Networking;
 
 namespace Aetherium.Equipment
 {
@@ -19,7 +22,7 @@ namespace Aetherium.Equipment
 
         public override string EquipmentLangTokenName => "SOUL_EXTRACTION_CIRCLE";
 
-        public override string EquipmentPickupDesc => "On use, you can mark an elite enemy. If that elite enemy dies to you, this equipment transforms into its Aspect.";
+        public override string EquipmentPickupDesc => "On use, fire a projectile that marks an elite enemy. If that elite enemy dies to you, this equipment transforms into its Aspect.";
 
         public override string EquipmentFullDescription => "On use, you can mark an elite enemy. If that elite enemy dies to you, this equipment transforms into its Aspect.";
 
@@ -69,6 +72,7 @@ namespace Aetherium.Equipment
             var ghost = projectileController.ghostPrefab;
 
             var fireballGhostClone = PrefabAPI.InstantiateClone(ghost, "SoulConversionProjectileGhost", true);
+            fireballGhostClone.AddComponent<NetworkIdentity>();
 
             var fireballGhostParticlesColor = fireballGhostClone.GetComponentInChildren<ParticleSystem>().colorOverLifetime;
             fireballGhostParticlesColor.color = new ParticleSystem.MinMaxGradient(new Color(45, 255, 45, 255), new Color(10, 128, 10, 255));
@@ -85,8 +89,8 @@ namespace Aetherium.Equipment
             projectileInflictDebuff.buffDef = SoulConversionDebuff;
             projectileInflictDebuff.duration = 60;
 
-            SoulConversionProjectile.RegisterNetworkPrefab();
-            fireballGhostClone.RegisterNetworkPrefab();
+            PrefabAPI.RegisterNetworkPrefab(SoulConversionProjectile);
+            ProjectileAPI.Add(SoulConversionProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -11,10 +11,12 @@ using Aetherium.Utils;
 using ItemStats;
 using ItemStats.Stat;
 using ItemStats.ValueFormatters;
+using AK.Wwise;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Utils.MiscUtils;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using RoR2.CharacterAI;
 using System.Runtime.CompilerServices;
@@ -268,6 +270,8 @@ namespace Aetherium.Items
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
         {
+            GameObject duplicatedDrone = null;
+
             if (NetworkServer.active)
             {
                 if (self.name.Contains("Drone") || self.name.Contains("Turret"))
@@ -287,10 +291,22 @@ namespace Aetherium.Items
                             {
                                 if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount)*100, characterBody.master))
                                 {
+                                    Vector3 chosenPosition = Vector3.zero;
+
+                                    var masterPrefabMaster = masterPrefab.GetComponent<CharacterMaster>();
+                                    if(masterPrefabMaster && masterPrefabMaster.bodyPrefab)
+                                    {
+                                        var duplicationBody = masterPrefabMaster.bodyPrefab.GetComponent<CharacterBody>();
+                                        if (duplicationBody)
+                                        {
+                                            chosenPosition = FindClosestGroundNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
+                                        }
+                                    }
+
                                     CharacterMaster summonedDrone = new MasterSummon()
                                     {
                                         masterPrefab = masterPrefab,
-                                        position = self.transform.position,
+                                        position = chosenPosition != Vector3.zero ? chosenPosition : self.transform.position,
                                         rotation = self.transform.rotation,
                                         summonerBodyObject = activator.gameObject,
                                         ignoreTeamMemberLimit = true,
@@ -301,12 +317,20 @@ namespace Aetherium.Items
                                     {
                                         summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
                                     }
+
+                                    duplicatedDrone = summonedDrone.gameObject;
                                 }
                             }
                         }
                     }
                 }
             }
+
+            if (duplicatedDrone)
+            {
+                AkSoundEngine.PostEvent(2596808706, duplicatedDrone);
+            }
+
             orig(self, activator);
         }
 
