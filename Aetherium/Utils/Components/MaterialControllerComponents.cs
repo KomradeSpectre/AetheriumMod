@@ -32,21 +32,46 @@ namespace Aetherium.Utils
             }
         }
 
+        public static void PutMaterialIntoMeshRenderer(Renderer meshRenderer, Material material)
+        {
+            if (material && meshRenderer)
+            {
+                if(meshRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
+                {
+                    skinnedMeshRenderer.sharedMaterials = new Material[] { material };
+                }
+
+                if(meshRenderer is MeshRenderer meshRendererType)
+                {
+                    meshRendererType.material = material;
+                }
+            }
+        }
+
         /// <summary>
         /// Attach this component to a gameObject and pass a meshrenderer in. It'll attempt to find the correct shader controller from the meshrenderer material, attach it if it finds it, and destroy itself.
         /// </summary>
         public class HGControllerFinder : MonoBehaviour
         {
-            public MeshRenderer MeshRenderer;
+            public Renderer MeshRenderer;
             public Material Material;
 
             public void Start()
             {
                 if (MeshRenderer)
                 {
-                    Material = MeshRenderer.material;
+                    if(MeshRenderer is MeshRenderer meshRendererType)
+                    {
+                        Material = meshRendererType.material;
+                    }
+                    if(MeshRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
+                    {
+                        Material = skinnedMeshRenderer.sharedMaterials[0];
+                    }
+
                     if (Material)
                     {
+
                         switch (Material.shader.name)
                         {
                             case "Hopoo Games/Deferred/Standard":
@@ -74,7 +99,7 @@ namespace Aetherium.Utils
         public class HGStandardController : MonoBehaviour
         {
             public Material Material;
-            public MeshRenderer MeshRenderer;
+            public Renderer MeshRenderer;
             public string MaterialName;
 
             public bool _EnableCutout;
@@ -102,20 +127,20 @@ namespace Aetherium.Utils
 
             public enum _RampInfoEnum
             {
-                TwoTone,
-                SmoothedTwoTone,
-                Unlitish,
-                Subsurface,
-                Grass
+                TwoTone = 0,
+                SmoothedTwoTone = 1,
+                Unlitish = 3,
+                Subsurface = 4,
+                Grass = 5
             }
             public _RampInfoEnum _RampChoice;
 
             public enum _DecalLayerEnum
             {
-                Default,
-                Environment,
-                Character,
-                Misc
+                Default = 0,
+                Environment = 1,
+                Character = 2,
+                Misc = 3
             }
             public _DecalLayerEnum _DecalLayer;
 
@@ -127,9 +152,9 @@ namespace Aetherium.Utils
 
             public enum _CullEnum
             {
-                Off,
-                Front,
-                Back
+                Off = 0,
+                Front = 1,
+                Back = 2
             }
             public _CullEnum _Cull_Mode;
 
@@ -176,9 +201,9 @@ namespace Aetherium.Utils
 
             public enum _PrintDirectionEnum
             {
-                BottomUp,
-                TopDown,
-                BackToFront
+                BottomUp = 0,
+                TopDown = 1,
+                BackToFront = 3
             }
             public _PrintDirectionEnum _PrintDirection;
 
@@ -336,14 +361,6 @@ namespace Aetherium.Utils
                 }
             }
 
-            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
-            {
-                if (Material && meshRenderer)
-                {
-                    meshRenderer.material = Material;
-                }
-            }
-
             public void Update()
             {
                 if (Material)
@@ -351,7 +368,7 @@ namespace Aetherium.Utils
                     if (Material.name != MaterialName && MeshRenderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
                     }
 
                     SetShaderKeywordBasedOnBool(_EnableCutout, Material, "CUTOUT");
@@ -580,7 +597,7 @@ namespace Aetherium.Utils
         public class HGCloudRemapController : MonoBehaviour
         {
             public Material Material;
-            public MeshRenderer MeshRenderer;
+            public Renderer MeshRenderer;
             public string MaterialName;
 
             public Color _Tint;
@@ -612,23 +629,23 @@ namespace Aetherium.Utils
 
             public enum _CullEnum
             {
-                Off,
-                Front,
-                Back
+                Off = 0,
+                Front = 1,
+                Back = 2
             }
             public _CullEnum _Cull_Mode;
 
             public enum _ZTestEnum
             {
-                Disabled,
-                Never,
-                Less,
-                Equal,
-                LessEqual,
-                Greater,
-                NotEqual,
-                GreaterEqual,
-                Always
+                Disabled = 0,
+                Never = 1,
+                Less = 2,
+                Equal = 3,
+                LessEqual = 4,
+                Greater = 5,
+                NotEqual = 6,
+                GreaterEqual = 7,
+                Always = 8
             }
             public _ZTestEnum _ZTest_Mode;
 
@@ -710,13 +727,7 @@ namespace Aetherium.Utils
                 }
             }
 
-            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
-            {
-                if (Material && meshRenderer)
-                {
-                    meshRenderer.material = Material;
-                }
-            }
+
 
             public void Update()
             {
@@ -726,7 +737,7 @@ namespace Aetherium.Utils
                     if (Material.name != MaterialName && MeshRenderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
                     }
                     Material.SetColor("_TintColor", _Tint);
 
@@ -816,36 +827,36 @@ namespace Aetherium.Utils
         public class HGIntersectionController : MonoBehaviour
         {
             public Material Material;
-            public MeshRenderer MeshRenderer;
+            public Renderer MeshRenderer;
             public string MaterialName;
 
             public enum _SrcBlendFloatEnum
             {
-                Zero,
-                One,
-                DstColor,
-                SrcColor,
-                OneMinusDstColor,
-                SrcAlpha,
-                OneMinusSrcColor,
-                DstAlpha,
-                OneMinusDstAlpha,
-                SrcAlphaSaturate,
-                OneMinusSrcAlpha
+                Zero = 0,
+                One = 1,
+                DstColor = 2,
+                SrcColor = 3,
+                OneMinusDstColor = 4,
+                SrcAlpha = 5,
+                OneMinusSrcColor = 6,
+                DstAlpha = 7,
+                OneMinusDstAlpha = 8,
+                SrcAlphaSaturate = 9,
+                OneMinusSrcAlpha = 10
             }
             public enum _DstBlendFloatEnum
             {
-                Zero,
-                One,
-                DstColor,
-                SrcColor,
-                OneMinusDstColor,
-                SrcAlpha,
-                OneMinusSrcColor,
-                DstAlpha,
-                OneMinusDstAlpha,
-                SrcAlphaSaturate,
-                OneMinusSrcAlpha
+                Zero = 0,
+                One = 1,
+                DstColor = 2,
+                SrcColor = 3,
+                OneMinusDstColor = 4,
+                SrcAlpha = 5,
+                OneMinusSrcColor = 6,
+                DstAlpha = 7,
+                OneMinusDstAlpha = 8,
+                SrcAlphaSaturate = 9,
+                OneMinusSrcAlpha = 10
             }
             public _SrcBlendFloatEnum _Source_Blend_Mode;
             public _DstBlendFloatEnum _Destination_Blend_Mode;
@@ -888,9 +899,9 @@ namespace Aetherium.Utils
 
             public enum _CullEnum
             {
-                Off,
-                Front,
-                Back
+                Off = 0,
+                Front = 1,
+                Back = 2
             }
             public _CullEnum _Cull_Mode;
 
@@ -936,14 +947,6 @@ namespace Aetherium.Utils
                 }
             }
 
-            public void PutMaterialIntoMeshRenderer(MeshRenderer meshRenderer)
-            {
-                if (Material && meshRenderer)
-                {
-                    meshRenderer.material = Material;
-                }
-            }
-
             public void Update()
             {
 
@@ -952,7 +955,7 @@ namespace Aetherium.Utils
                     if (Material.name != MaterialName && MeshRenderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer);
+                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
                     }
                     Material.SetFloat("_SrcBlendFloat", Convert.ToSingle(_Source_Blend_Mode));
                     Material.SetFloat("_DstBlendFloat", Convert.ToSingle(_Destination_Blend_Mode));

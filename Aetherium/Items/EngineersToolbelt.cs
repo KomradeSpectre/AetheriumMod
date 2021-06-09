@@ -72,6 +72,8 @@ namespace Aetherium.Items
 
         public override ItemTier Tier => ItemTier.Tier2;
 
+        public override bool AIBlacklisted => true;
+
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("EngineersToolbelt.prefab");
 
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("EngineersToolbeltIcon.png");

@@ -106,17 +106,17 @@ namespace Aetherium.Compatability
                 {
                     new ItemStats.Stat.ItemStat
                     (
-                        (itemCount, ctx) => InverseHyperbolicScaling(BloodSoakedShield.ShieldPercentageRestoredPerKill, BloodSoakedShield.AdditionalShieldPercentageRestoredPerKillDiminishing, BloodSoakedShield.MaximumPercentageShieldRestoredPerKill, (int)itemCount),
+                        (itemCount, ctx) => InverseHyperbolicScaling(BloodthirstyShield.ShieldPercentageRestoredPerKill, BloodthirstyShield.AdditionalShieldPercentageRestoredPerKillDiminishing, BloodthirstyShield.MaximumPercentageShieldRestoredPerKill, (int)itemCount),
                         (value, ctx) => $"Shield Restored Per Kill: {ItemStats.ValueFormatters.Extensions.FormatPercentage(value)}"
                     ),
                     new ItemStats.Stat.ItemStat
                     (
-                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().healthComponent.fullHealth * BloodSoakedShield.BaseGrantShieldMultiplier: 0,
+                        (itemCount, ctx) => (ctx.Master != null && ctx.Master.GetBody()) ? ctx.Master.GetBody().healthComponent.fullHealth * BloodthirstyShield.BaseGrantShieldMultiplier: 0,
                         (value, ctx) => $"Base Shield Granted By Item: {ItemStats.ValueFormatters.Extensions.FormatInt(value, " Shield")}"
                     )
                 }
                 };
-                ItemStats.ItemStatsMod.AddCustomItemStatDef(BloodSoakedShield.instance.ItemDef.itemIndex, BloodSoakedShieldStatDef);
+                ItemStats.ItemStatsMod.AddCustomItemStatDef(BloodthirstyShield.instance.ItemDef.itemIndex, BloodSoakedShieldStatDef);
             }
 
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]

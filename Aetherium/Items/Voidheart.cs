@@ -62,6 +62,8 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+        public RoR2.UI.HealthBarStyle HealthBarStyle;
+
         public static BuffDef VoidInstabilityDebuff { get; private set; }
         public static BuffDef VoidImmunityBuff { get; private set; }
 

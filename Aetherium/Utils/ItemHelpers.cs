@@ -22,7 +22,7 @@ namespace Aetherium.Utils
                 if (debugmode)
                 {
                     var controller = meshes[i].gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                    controller.Material = meshes[i].material;
+                    controller.MeshRenderer = meshes[i];
                 }
                 renderInfos[i] = new CharacterModel.RendererInfo
                 {

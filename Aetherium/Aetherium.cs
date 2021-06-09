@@ -42,7 +42,8 @@ namespace Aetherium
         {
             {"fake ror/hopoo games/deferred/hgstandard", "shaders/deferred/hgstandard"},
             {"fake ror/hopoo games/fx/hgcloud intersection remap", "shaders/fx/hgintersectioncloudremap" },
-            {"fake ror/hopoo games/fx/hgcloud remap", "shaders/fx/hgcloudremap" }
+            {"fake ror/hopoo games/fx/hgcloud remap", "shaders/fx/hgcloudremap" },
+            {"fake ror/hopoo games/fx/hgdistortion", "shaders/fx/hgdistortion" }
         };
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
@@ -88,17 +89,7 @@ namespace Aetherium
             }
 
             //Material shader autoconversion
-            var materialAssets = MainAssets.LoadAllAssets<Material>();
-
-            foreach(Material material in materialAssets)
-            {
-                if (!material.shader.name.StartsWith("Fake RoR")) { continue; }
-
-                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
-                if (replacementShader) { material.shader = replacementShader; }
-
-            }
-
+            ShaderConversion(MainAssets);
 
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
@@ -147,7 +138,6 @@ namespace Aetherium
                     ModLogger.LogInfo("Item: " + item.ItemName + " Initialized!");
                 }
             }
-
 
             //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
@@ -253,6 +243,20 @@ namespace Aetherium
                 return true;
             }
             return false;
+        }
+
+        public static void ShaderConversion(AssetBundle assets)
+        {
+            var materialAssets = assets.LoadAllAssets<Material>();
+
+            foreach (Material material in materialAssets)
+            {
+                if (!material.shader.name.StartsWith("Fake RoR")) { continue; }
+
+                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
+                if (replacementShader) { material.shader = replacementShader; }
+
+            }
         }
 
         public void TILER2Compat()

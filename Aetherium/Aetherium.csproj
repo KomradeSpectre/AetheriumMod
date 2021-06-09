@@ -63,6 +63,9 @@
     <Reference Include="R2API">
       <HintPath>lib\R2API.dll</HintPath>
     </Reference>
+    <Reference Include="Rewired_Core">
+      <HintPath>lib\Rewired_Core.dll</HintPath>
+    </Reference>
     <Reference Include="TILER2">
       <HintPath>lib\TILER2.dll</HintPath>
     </Reference>

@@ -183,6 +183,9 @@ namespace Aetherium.Items
                         if (characterModel)
                         {
                             characterModel.baseRendererInfos[0].defaultMaterial = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
+
+                            var controllerFinder = characterModel.baseRendererInfos[0].renderer.gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
+                            controllerFinder.MeshRenderer = characterModel.baseRendererInfos[0].renderer;
                         }
                     }
                 }
