@@ -63,6 +63,7 @@ namespace Aetherium.Items
             CreateLang();
             CreateBuff();
 
+
             if (IsBetterUIInstalled)
             {
                 CreateBetterUICompat();

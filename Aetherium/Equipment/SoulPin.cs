@@ -251,6 +251,20 @@ namespace Aetherium.Equipment
         {
             On.RoR2.CharacterBody.OnBuffFirstStackGained += RemoveBuffFromNonElites;
             On.RoR2.GlobalEventManager.OnCharacterDeath += MorphEquipmentIntoAffix;
+            On.RoR2.EquipmentSlot.Update += RemoveNonElitesFromTargeting;
+        }
+
+        private void RemoveNonElitesFromTargeting(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
+        {
+            orig(self);
+            if(self.equipmentIndex == EquipmentDef.equipmentIndex)
+            {
+                var targetingComponent = self.GetComponent<TargetingControllerComponent>();
+                if (targetingComponent)
+                {
+                    targetingComponent.AdditionalBullseyeFunctionality = (bullseyeSearch) => bullseyeSearch.FilterElites();
+                }
+            }
         }
 
         private void RemoveBuffFromNonElites(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)

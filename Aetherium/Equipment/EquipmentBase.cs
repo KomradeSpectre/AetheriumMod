@@ -153,6 +153,7 @@ namespace Aetherium.Equipment
             public GameObject VisualizerPrefab;
             public Indicator Indicator;
             public BullseyeSearch TargetFinder;
+            public Action<BullseyeSearch> AdditionalBullseyeFunctionality = (search) => { };
 
             public void Awake()
             {
@@ -191,6 +192,7 @@ namespace Aetherium.Equipment
                 TargetFinder.teamMaskFilter = TeamMask.GetUnprotectedTeams(self.characterBody.teamComponent.teamIndex);
                 TargetFinder.RefreshCandidates();
                 TargetFinder.FilterOutGameObject(self.gameObject);
+                AdditionalBullseyeFunctionality(TargetFinder);
                 PlaceTargetingIndicator(TargetFinder.GetResults());
             }
 
@@ -201,6 +203,7 @@ namespace Aetherium.Equipment
                 TargetFinder.teamMaskFilter.AddTeam(self.characterBody.teamComponent.teamIndex);
                 TargetFinder.RefreshCandidates();
                 TargetFinder.FilterOutGameObject(self.gameObject);
+                AdditionalBullseyeFunctionality(TargetFinder);
                 PlaceTargetingIndicator(TargetFinder.GetResults());
 
             }
