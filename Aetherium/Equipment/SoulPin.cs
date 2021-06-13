@@ -101,6 +101,11 @@ namespace Aetherium.Equipment
             projectileStickOnImpact.ignoreWorld = true;
             projectileStickOnImpact.stickSoundString = "Play_treeBot_m1_impact";
 
+            var projectileSimple = SoulConversionProjectile.GetComponent<ProjectileSimple>();
+            projectileSimple.enableVelocityOverLifetime = true;
+            projectileSimple.updateAfterFiring = true;
+            projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(2, 70) });
+
             var projectileSteerTowardsTarget = SoulConversionProjectile.GetComponent<ProjectileSteerTowardTarget>();
             projectileSteerTowardsTarget.rotationSpeed = 50;
 
@@ -305,17 +310,18 @@ namespace Aetherium.Equipment
 
             if (targetComponent && targetComponent.TargetObject)
             {
-                var aimray = slot.characterBody.inputBank.GetAimRay();
+                var chosenHurtbox = targetComponent.TargetFinder.GetResults().First();
+                var closestPoint = chosenHurtbox.collider.ClosestPointOnBounds(targetComponent.TargetObject.transform.position + Vector3.up * 100);
+                closestPoint += Vector3.up * 8;
 
                 FireProjectileInfo SoulConversionInfo = new FireProjectileInfo()
                 {
                     owner = slot.characterBody.gameObject,
-                    position = displayTransform ? displayTransform.position : aimray.origin,
-                    rotation = aimray.direction == Vector3.zero ? Quaternion.identity : Quaternion.LookRotation(aimray.direction),
+                    position = closestPoint,
+                    rotation = Util.QuaternionSafeLookRotation(-Vector3.up),
                     target = targetComponent.TargetObject,
-                    damage = slot.characterBody.damage,
+                    damage = slot.characterBody.damage,                    
                     projectilePrefab = SoulConversionProjectile,
-                    speedOverride = 100,
                     procChainMask = default(ProcChainMask),
                 };
                 ProjectileManager.instance.FireProjectile(SoulConversionInfo);
