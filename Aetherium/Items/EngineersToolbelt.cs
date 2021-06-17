@@ -2,7 +2,6 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
-using RoR2.CharacterAI;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -22,7 +21,7 @@ namespace Aetherium.Items
         public static ConfigOption<float> BaseRevivalPercentChance;
         public static ConfigOption<float> AdditionalRevivalPercentChance;
 
-        public override string ItemName => "Engineer's Toolbelt";
+        public override string ItemName => "Engineers Toolbelt";
 
         public override string ItemLangTokenName => "ENGINEERS_TOOLBELT";
 
@@ -279,6 +278,10 @@ namespace Aetherium.Items
                                 //engineerRevivalComponent.Master = self.master;
 
                                 master.inventory.GiveItem(RoR2Content.Items.ExtraLife);
+                                if (!characterBody.GetComponent<EngineersToolbeltRevivalFlag>())
+                                {
+                                    characterBody.gameObject.AddComponent<EngineersToolbeltRevivalFlag>();
+                                }
                             }
                         }
                     }
@@ -432,5 +435,24 @@ namespace Aetherium.Items
         //        }
         //    }
         //}
+
+        /// <summary>
+        /// A component flag for checking if the drone is revived by means of the effect of Engineer's Toolbelt.
+        /// </summary>
+        public class EngineersToolbeltRevivalFlag : MonoBehaviour
+        {
+            public CharacterMaster ownerMaster;
+            public CharacterMaster droneMaster;
+            public CharacterBody droneBody;
+            public CharacterBody ownerBody;
+
+            private void Awake()
+            {
+                droneBody = gameObject.GetComponent<CharacterBody>();
+                droneMaster = droneBody.master;
+                ownerMaster = droneMaster.minionOwnership.ownerMaster;
+                ownerBody = ownerMaster.GetBody();
+            }
+        }
     }
 }
