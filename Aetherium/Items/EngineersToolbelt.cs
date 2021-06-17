@@ -46,15 +46,15 @@ namespace Aetherium.Items
             ItemName,
 
             "9/9/2079",
-            
+
             "UES Safe Travels/Unmarked Sector/Outer Rim",
 
             "667********",
-            
+
             ItemPickupDesc,
-            
+
             "Next Day Delivery / Common Industrial / Small",
-            
+
             "Hey Pal,\n" +
             "\nJust got your delivery request for a replacement toolbelt. Couldn't believe that the Safe Travels doesn't have a single one of them on board. " +
             "We've been running low on some supplies here so all this stuff is what I had on hand. Included in the belt there's everything your standard Drone and Turret repair technician would need." +
@@ -108,7 +108,6 @@ namespace Aetherium.Items
 
             BaseRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death with the first stack of this?");
             AdditionalRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death per additional stack?");
-
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -291,12 +290,12 @@ namespace Aetherium.Items
 
                             if (characterBody && characterBody.master && inventoryCount > 0)
                             {
-                                if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount)*100, characterBody.master))
+                                if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
                                 {
                                     Vector3 chosenPosition = Vector3.zero;
 
                                     var masterPrefabMaster = masterPrefab.GetComponent<CharacterMaster>();
-                                    if(masterPrefabMaster && masterPrefabMaster.bodyPrefab)
+                                    if (masterPrefabMaster && masterPrefabMaster.bodyPrefab)
                                     {
                                         var duplicationBody = masterPrefabMaster.bodyPrefab.GetComponent<CharacterBody>();
                                         if (duplicationBody)
@@ -312,7 +311,6 @@ namespace Aetherium.Items
                                         rotation = self.transform.rotation,
                                         summonerBodyObject = activator.gameObject,
                                         ignoreTeamMemberLimit = true,
-
                                     }.Perform();
 
                                     if (droneName == "EquipmentDroneMaster")
@@ -351,8 +349,8 @@ namespace Aetherium.Items
                             foreach (string droneName in DronesList)
                             {
                                 if (characterBody.name.Contains(droneName))
-                                {                                    
-                                    var shouldWeRevive = Util.CheckRoll(InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount)*100, self.master.minionOwnership.ownerMaster);
+                                {
+                                    var shouldWeRevive = Util.CheckRoll(InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount) * 100, self.master.minionOwnership.ownerMaster);
                                     if (shouldWeRevive)
                                     {
                                         var originalOwner = self.master.minionOwnership.ownerMaster;
@@ -377,6 +375,18 @@ namespace Aetherium.Items
             orig(self, characterBody);
         }
 
+        /// <summary>
+        /// Allows a custom drone to be revived by Engineer's Toolbelt.
+        /// </summary>
+        /// <param name="bodyName">The CharacterBody name of the custom drone.</param>
+        /// <returns>True if the custom drone is now supported. False if the custom drone is already supported.</returns>
+        public bool AddCustomDrone(string bodyName)
+        {
+            if (DronesList.Exists(item => item == bodyName)) return false;
+            DronesList.Add(bodyName);
+            return true;
+        }
+
         public class EngineersToolbeltRevivalComponent : MonoBehaviour
         {
             public CharacterMaster Owner;
@@ -384,11 +394,11 @@ namespace Aetherium.Items
 
             public void FixedUpdate()
             {
-                if(Master && Master.hasBody && Master.GetBody().healthComponent.alive)
+                if (Master && Master.hasBody && Master.GetBody().healthComponent.alive)
                 {
                     Master.destroyOnBodyDeath = true;
 
-                    foreach(BaseAI ai in Master.aiComponents)
+                    foreach (BaseAI ai in Master.aiComponents)
                     {
                         ai.leader.gameObject = Owner.gameObject;
                     }
