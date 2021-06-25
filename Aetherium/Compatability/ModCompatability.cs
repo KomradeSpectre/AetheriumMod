@@ -12,8 +12,16 @@ namespace Aetherium.Compatability
 {
     internal static class ModCompatability
     {
-        internal static class BetterAPICompat
+
+        internal static class ArtifactOfTheKingCompat
         {
+            public static bool IsArtifactOfTheKingInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
+        }
+
+        internal static class BetterUICompat
+        {
+            public static bool IsBetterUIInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.xoxfaby.BetterUI");
+
             public static Tuple<string, string> CreateBetterUIBuffInformation(string langTokenName, string name, string description, bool isBuff = true)
             {
                 string nameToken = isBuff ? $"BUFF_{langTokenName}_NAME" : $"DEBUFF_{langTokenName}_NAME";
@@ -33,6 +41,8 @@ namespace Aetherium.Compatability
 
         internal static class ItemStatsModCompat
         {
+            public static bool IsItemStatsModInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
+
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void CreateAccursedPotionStatDef()
             {
@@ -423,6 +433,22 @@ namespace Aetherium.Compatability
                 }
                 };
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(WitchesRing.instance.ItemDef.itemIndex, WitchesRingStatDefs);
+            }
+        }
+
+        internal static class TILER2Compat
+        {
+            public static bool IsTILER2Installed => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.ThinkInvisible.TILER2");
+
+            public static void BlacklistItemFromFakeInventory(ItemDef itemDef)
+            {
+                if (TILER2.FakeInventory.blacklist.Contains(itemDef)) 
+                { 
+                    AetheriumPlugin.ModLogger.LogError($"Item Definition: \"{itemDef}\" already exists in the TILER2 FakeInventory blacklist!"); 
+                    return;
+                }
+
+                TILER2.FakeInventory.blacklist.Add(itemDef);
             }
         }
     }

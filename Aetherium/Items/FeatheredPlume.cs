@@ -10,7 +10,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Collections.Generic;
@@ -53,21 +53,11 @@ namespace Aetherium.Items
 
         public BuffDef SpeedBuff { get; private set; }
 
-        public FeatheredPlume()
-        {
-        }
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
             CreateBuff();
-
-            if (IsBetterUIInstalled)
-            {
-                CreateBetterUICompat();
-            }
-
             CreateItem();
             Hooks();
         }
@@ -92,13 +82,6 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(SpeedBuff));
 
-        }
-
-        private void CreateBetterUICompat()
-        {
-            var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
-
-            RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -247,18 +230,24 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.HealthComponent.TakeDamage += CalculateSpeedReward;
             GetStatCoefficients += AddSpeedReward;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateFeatheredPlumeStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateFeatheredPlumeStatDef();
+            }
+
+            if (IsBetterUIInstalled)
+            {
+                var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
+
+                RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
+            }
         }
 
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

@@ -11,6 +11,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Runtime.CompilerServices;
@@ -213,18 +214,17 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.HealthComponent.TakeDamage += TakeDamage;
             On.RoR2.CharacterBody.FixedUpdate += TickDamage;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateSharkTeethStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateSharkTeethStatDef();
+            }
         }
 
         private void TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

@@ -1,10 +1,7 @@
 ManifestFileVersion: 0
-CRC: 2448976829
+CRC: 3565269640
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: aetherium_assets
-      Dependencies: {}
-    Info_1:
-      Name: objexporter
       Dependencies: {}

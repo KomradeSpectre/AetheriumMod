@@ -256,18 +256,17 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.PurchaseInteraction.OnInteractionBegin += DuplicateDronesAndTurrets;
             On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurrets;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateEngineersToolbeltStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateEngineersToolbeltStatDef();
+            }
         }
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)

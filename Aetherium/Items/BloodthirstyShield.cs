@@ -52,10 +52,6 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
-        public BloodthirstyShield()
-        {
-        }
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -219,18 +215,17 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             GetStatCoefficients += GrantBaseShield;
             On.RoR2.GlobalEventManager.OnCharacterDeath += GrantShieldReward;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateBloodSoakedShieldStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateBloodSoakedShieldStatDef();
+            }
         }
 
         private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)

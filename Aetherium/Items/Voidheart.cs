@@ -9,11 +9,12 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Aetherium.Items
 {
@@ -71,13 +72,8 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateMaterialControllerForModel();
             CreateBuff();
-
-            if (IsBetterUIInstalled)
-            {
-                CreateBetterUICompat();
-            }
-
             CreateItem();
             Hooks();
         }
@@ -92,6 +88,11 @@ namespace Aetherium.Items
             VoidHeartAdditionalTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
             VoidHeartMaxTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
             VoidHeartCooldownDebuffDuration = config.ActiveBind("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
+        }
+
+        private void CreateMaterialControllerForModel()
+        {
+            ItemModel.AddComponent<VoidheartMaterialController>();
         }
 
         private void CreateBuff()
@@ -115,20 +116,11 @@ namespace Aetherium.Items
 
         }
 
-        private void CreateBetterUICompat()
-        {
-            var voidInstabilityDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_INSTABILITY_DEBUFF", VoidInstabilityDebuff.name, "You don't feel quite all there. Your molecules are shifting around erratically and it feels like the Heart isn't responding right now.", false);
-            RegisterBuffInfo(VoidInstabilityDebuff, voidInstabilityDebuffInfo.Item1, voidInstabilityDebuffInfo.Item2);
-
-            var voidImmunityBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_IMMUNITY_BUFF", VoidImmunityBuff.name, "In this moment, the Heart almost feels symbiotically integrated into you. It doesn't feel like it'll hurt you for the moment.");
-            RegisterBuffInfo(VoidImmunityBuff, voidImmunityBuffInfo.Item1, voidImmunityBuffInfo.Item2);
-        }
-
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab, true);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
 
@@ -269,21 +261,29 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.CharacterMaster.OnBodyDeath += VoidheartDeathInteraction;
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateVoidheartStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateVoidheartStatDef();
+            }
+
+            if (IsBetterUIInstalled)
+            {
+                var voidInstabilityDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_INSTABILITY_DEBUFF", VoidInstabilityDebuff.name, "You don't feel quite all there. Your molecules are shifting around erratically and it feels like the Heart isn't responding right now.", false);
+                RegisterBuffInfo(VoidInstabilityDebuff, voidInstabilityDebuffInfo.Item1, voidInstabilityDebuffInfo.Item2);
+
+                var voidImmunityBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_IMMUNITY_BUFF", VoidImmunityBuff.name, "In this moment, the Heart almost feels symbiotically integrated into you. It doesn't feel like it'll hurt you for the moment.");
+                RegisterBuffInfo(VoidImmunityBuff, voidImmunityBuffInfo.Item1, voidImmunityBuffInfo.Item2);
+            }
         }
 
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
@@ -389,6 +389,15 @@ namespace Aetherium.Items
             public RoR2.TemporaryOverlay Overlay;
             public RoR2.CharacterBody Body;
 
+            /public void Start()
+            {
+                if (!gameObject.GetComponent<VoidheartMaterialController>())
+                {
+                    var materialController = gameObject.AddComponent<VoidheartMaterialController>();
+                    materialController.Material = Overlay.materialInstance;
+                }
+            }
+
             public void FixedUpdate()
             {
                 if (!Body.HasBuff(VoidInstabilityDebuff))
@@ -396,6 +405,44 @@ namespace Aetherium.Items
                     UnityEngine.Object.Destroy(Overlay);
                     UnityEngine.Object.Destroy(this);
                 }
+            }
+        }
+
+        public class VoidheartMaterialController : MonoBehaviour
+        {
+            public Material Material;
+            public Camera Camera;
+            public float BlobScale;
+
+            public void Start()
+            {
+                if (!Material)
+                {
+                    var meshRenderer = gameObject.GetComponentsInChildren<MeshRenderer>().Where(x => x.gameObject.name == "Plane").First();
+                    if (meshRenderer)
+                    {
+                        Material = meshRenderer.material;
+                    }
+                }
+                SceneCamera.onSceneCameraPreRender += DoCameraMagic;
+            }
+
+            private void DoCameraMagic(SceneCamera sceneCamera)
+            {
+                if (!Material)
+                {
+                    Destroy(this);
+                }
+                if (sceneCamera && Material)
+                {
+                    BlobScale = Mathf.Clamp(Vector3.Distance(gameObject.transform.position, sceneCamera.transform.position), 3.16f, 8);
+                    Material.SetFloat("_BlobScale", BlobScale);
+                }
+            }
+
+            public void OnDestroy()
+            {
+                SceneCamera.onSceneCameraPreRender -= DoCameraMagic;
             }
         }
 

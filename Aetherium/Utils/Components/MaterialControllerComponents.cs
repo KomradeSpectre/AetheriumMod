@@ -53,18 +53,18 @@ namespace Aetherium.Utils
         /// </summary>
         public class HGControllerFinder : MonoBehaviour
         {
-            public Renderer MeshRenderer;
+            public Renderer Renderer;
             public Material Material;
 
             public void Start()
             {
-                if (MeshRenderer)
+                if (Renderer)
                 {
-                    if(MeshRenderer is MeshRenderer meshRendererType)
+                    if(Renderer is MeshRenderer meshRendererType)
                     {
                         Material = meshRendererType.material;
                     }
-                    if(MeshRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
+                    if(Renderer is SkinnedMeshRenderer skinnedMeshRenderer)
                     {
                         Material = skinnedMeshRenderer.sharedMaterials[0];
                     }
@@ -77,17 +77,17 @@ namespace Aetherium.Utils
                             case "Hopoo Games/Deferred/Standard":
                                 var standardController = gameObject.AddComponent<HGStandardController>();
                                 standardController.Material = Material;
-                                standardController.MeshRenderer = MeshRenderer;
+                                standardController.Renderer = Renderer;
                                 break;
                             case "Hopoo Games/FX/Cloud Remap":
                                 var cloudController = gameObject.AddComponent<HGCloudRemapController>();
                                 cloudController.Material = Material;
-                                cloudController.MeshRenderer = MeshRenderer;
+                                cloudController.Renderer = Renderer;
                                 break;
                             case "Hopoo Games/FX/Cloud Intersection Remap":
                                 var intersectionController = gameObject.AddComponent<HGIntersectionController>();
                                 intersectionController.Material = Material;
-                                intersectionController.MeshRenderer = MeshRenderer;
+                                intersectionController.Renderer = Renderer;
                                 break;
                         }
                     }
@@ -99,7 +99,7 @@ namespace Aetherium.Utils
         public class HGStandardController : MonoBehaviour
         {
             public Material Material;
-            public Renderer MeshRenderer;
+            public Renderer Renderer;
             public string MaterialName;
 
             public bool _EnableCutout;
@@ -365,10 +365,10 @@ namespace Aetherium.Utils
             {
                 if (Material)
                 {
-                    if (Material.name != MaterialName && MeshRenderer)
+                    if (Material.name != MaterialName && Renderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
+                        PutMaterialIntoMeshRenderer(Renderer, Material);
                     }
 
                     SetShaderKeywordBasedOnBool(_EnableCutout, Material, "CUTOUT");
@@ -597,7 +597,7 @@ namespace Aetherium.Utils
         public class HGCloudRemapController : MonoBehaviour
         {
             public Material Material;
-            public Renderer MeshRenderer;
+            public Renderer Renderer;
             public string MaterialName;
 
             public Color _Tint;
@@ -734,10 +734,10 @@ namespace Aetherium.Utils
 
                 if (Material)
                 {
-                    if (Material.name != MaterialName && MeshRenderer)
+                    if (Material.name != MaterialName && Renderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
+                        PutMaterialIntoMeshRenderer(Renderer, Material);
                     }
                     Material.SetColor("_TintColor", _Tint);
 
@@ -827,7 +827,7 @@ namespace Aetherium.Utils
         public class HGIntersectionController : MonoBehaviour
         {
             public Material Material;
-            public Renderer MeshRenderer;
+            public Renderer Renderer;
             public string MaterialName;
 
             public enum _SrcBlendFloatEnum
@@ -952,10 +952,10 @@ namespace Aetherium.Utils
 
                 if (Material)
                 {
-                    if (Material.name != MaterialName && MeshRenderer)
+                    if (Material.name != MaterialName && Renderer)
                     {
                         GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(MeshRenderer, Material);
+                        PutMaterialIntoMeshRenderer(Renderer, Material);
                     }
                     Material.SetFloat("_SrcBlendFloat", Convert.ToSingle(_Source_Blend_Mode));
                     Material.SetFloat("_DstBlendFloat", Convert.ToSingle(_Destination_Blend_Mode));

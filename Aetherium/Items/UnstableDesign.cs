@@ -17,6 +17,7 @@ using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability.ArtifactOfTheKingCompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
 
@@ -185,7 +186,7 @@ namespace Aetherium.Items
                             characterModel.baseRendererInfos[0].defaultMaterial = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
 
                             var controllerFinder = characterModel.baseRendererInfos[0].renderer.gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                            controllerFinder.MeshRenderer = characterModel.baseRendererInfos[0].renderer;
+                            controllerFinder.Renderer = characterModel.baseRendererInfos[0].renderer;
                         }
                     }
                 }
@@ -344,19 +345,18 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;
             On.RoR2.MapZone.TryZoneStart += LunarChimeraFall;
             On.RoR2.DeathRewards.OnKilledServer += RewardPlayerHalf;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateUnstableDesignStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateUnstableDesignStatDef();
+            }
         }
 
         private void SummonLunarChimera(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)

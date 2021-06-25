@@ -163,15 +163,15 @@ namespace Aetherium.Artifacts
                 if (RegressionLookup.ContainsKey(masterName))
                 {
                     List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;
-                    int totalChildrenCount = childrenList.Sum(child => child.count);
+                    int totalChildrenCount = childrenList.Sum(child => child.Count);
                     float theta = (float)Math.PI * 2 / totalChildrenCount;
                     int radius = totalChildrenCount;
                     int angleCounter = 0;
                     foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
                     {
-                        if (child.resource)
+                        if (child.Resource)
                         {
-                            for (int i = 0; i < child.count; i++)
+                            for (int i = 0; i < child.Count; i++)
                             {
                                 float angle = theta * ++angleCounter;
                                 Vector3 positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
@@ -181,7 +181,7 @@ namespace Aetherium.Artifacts
 
                                 CharacterMaster summonedThing = new MasterSummon()
                                 {
-                                    masterPrefab = child.resource,
+                                    masterPrefab = child.Resource,
                                     position = positionChosen,
                                     rotation = characterBody.transform.rotation,
                                     summonerBodyObject = characterBody.gameObject,
@@ -225,7 +225,7 @@ namespace Aetherium.Artifacts
                 ModLogger.LogMessage($"-> {pair.Key}");
                 foreach (RegressData.ChildData child in pair.Value.children)
                 {
-                    ModLogger.LogMessage($"  -> {child.count} {child.name}");
+                    ModLogger.LogMessage($"  -> {child.Count} {child.Name}");
                 }
             }
         }
@@ -298,15 +298,15 @@ namespace Aetherium.Artifacts
 
         internal struct ChildData
         {
-            public string name;
-            public int count;
-            public GameObject resource;
+            public string Name;
+            public int Count;
+            public GameObject Resource;
 
             public ChildData(string name, int count, GameObject resource)
             {
-                this.name = name;
-                this.count = count;
-                this.resource = resource;
+                Name = name;
+                Count = count;
+                Resource = resource;
             }
         }
     }

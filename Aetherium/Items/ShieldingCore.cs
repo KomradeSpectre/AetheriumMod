@@ -13,6 +13,7 @@ using ItemStats.ValueFormatters;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
+using static Aetherium.Compatability.ModCompatability;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -235,19 +236,18 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2.RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             GetStatCoefficients += GrantBaseShield;
             On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
             GetStatCoefficients += ShieldedCoreArmorCalc;
+            RoR2.RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateShieldingCoreStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateShieldingCoreStatDef();
+            }
         }
 
         private void GrantBaseShield(RoR2.CharacterBody sender, StatHookEventArgs args)

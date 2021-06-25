@@ -54,10 +54,6 @@ namespace Aetherium.Items
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
 
-        public AlienMagnet()
-        {
-        }
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -76,17 +72,21 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("AlienMagnetTracker.prefab");
+            ItemModel.AddComponent<AlienMagnetAnimationController>();
+            ItemBodyModelPrefab = ItemModel;
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
+            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            /*ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("AlienMagnetTracker.prefab");
             ItemFollowerPrefab = ItemModel;
 
             var ItemFollower = ItemBodyModelPrefab.AddComponent<ItemFollowerSmooth>();
             ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            ItemFollower.itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
+            ItemFollower.itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
             ItemFollower.followerPrefab = ItemFollowerPrefab;
             ItemFollower.targetObject = ItemBodyModelPrefab;
             ItemFollower.distanceDampTime = 0.10f;
             ItemFollower.distanceMaxSpeed = 100;
-            ItemFollower.SmoothingNumber = 0.25f;
+            ItemFollower.SmoothingNumber = 0.25f;*/
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
@@ -97,7 +97,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -227,17 +227,16 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.HealthComponent.TakeDamage += GetOverHere;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateAlienMagnetStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateAlienMagnetStatDef();
+            }
         }
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
@@ -262,6 +261,29 @@ namespace Aetherium.Items
                 }
             }
             orig(self, damageInfo);
+        }
+
+        public class AlienMagnetAnimationController : MonoBehaviour
+        {
+            public void Start()
+            {
+                var animators = gameObject.GetComponentsInChildren<Animator>();
+                foreach(Animator animator in animators)
+                {
+                    switch (animator.gameObject.name)
+                    {
+                        case ("AnimationControl"):
+                            animator.Play("BaseLayer.AlienMagnetMain");
+                            break;
+                        case ("Torus.002"):
+                            animator.Play("BaseLayer.AlienMagnetBlueTorus");
+                            break;
+                        case ("Torus.003"):
+                            animator.Play("BaseLayer.AlienMagnetRedTorus");
+                            break;
+                    }
+                }
+            }
         }
     }
 }

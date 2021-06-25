@@ -101,11 +101,6 @@ namespace Aetherium.Items
         };
 
         private static readonly List<string> BannedTeleportDrones = new List<string>();
-
-        public InspiringDrone()
-        {
-        }
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -290,20 +285,19 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             R2API.RecalculateStatsAPI.GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateInspiringDroneStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateInspiringDroneStatDef();
+            }
         }
 
         private void CharacterBody_onBodyStartGlobal(CharacterBody obj)

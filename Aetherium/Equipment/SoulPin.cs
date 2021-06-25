@@ -11,7 +11,7 @@ using AK.Wwise;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.CoreModules.ItemHelperModule;
-using static Aetherium.Compatability.ModCompatability.BetterAPICompat;
+using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using UnityEngine.Networking;
 using Aetherium.Utils;
 

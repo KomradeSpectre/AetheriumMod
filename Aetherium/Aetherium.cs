@@ -58,21 +58,12 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
-        //Compatability
-        public static bool IsArtifactOfTheKingInstalled;
-        public static bool IsItemStatsModInstalled;
-        public static bool IsBetterUIInstalled;
-
         private void Awake()
         {
 #if DEBUG
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
 #endif
-
-            IsArtifactOfTheKingInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
-            IsItemStatsModInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
-            IsBetterUIInstalled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.xoxfaby.BetterUI");
 
             ModLogger = this.Logger;
 
@@ -178,12 +169,7 @@ namespace Aetherium
             ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
 
-            //Compatability
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(TILER2.TILER2Plugin.ModGuid) && Items.Any(x => x is WeightedAnklet))
-            {
-                //Blacklist this from TinkerSatchel Mimic
-                TILER2Compat();
-            }
+
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
@@ -247,21 +233,14 @@ namespace Aetherium
 
         public static void ShaderConversion(AssetBundle assets)
         {
-            var materialAssets = assets.LoadAllAssets<Material>();
+            var materialAssets = assets.LoadAllAssets<Material>().Where(material => material.shader.name.StartsWith("Fake RoR"));
 
             foreach (Material material in materialAssets)
             {
-                if (!material.shader.name.StartsWith("Fake RoR")) { continue; }
-
                 var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
                 if (replacementShader) { material.shader = replacementShader; }
 
             }
-        }
-
-        public void TILER2Compat()
-        {
-            TILER2.FakeInventory.blacklist.Add(WeightedAnklet.instance.ItemDef);
         }
     }
 }
