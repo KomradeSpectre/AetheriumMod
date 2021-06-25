@@ -72,7 +72,6 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateMaterialControllerForModel();
             CreateBuff();
             CreateItem();
             Hooks();
@@ -88,11 +87,6 @@ namespace Aetherium.Items
             VoidHeartAdditionalTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
             VoidHeartMaxTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
             VoidHeartCooldownDebuffDuration = config.ActiveBind("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
-        }
-
-        private void CreateMaterialControllerForModel()
-        {
-            ItemModel.AddComponent<VoidheartMaterialController>();
         }
 
         private void CreateBuff()
@@ -389,15 +383,6 @@ namespace Aetherium.Items
             public RoR2.TemporaryOverlay Overlay;
             public RoR2.CharacterBody Body;
 
-            /public void Start()
-            {
-                if (!gameObject.GetComponent<VoidheartMaterialController>())
-                {
-                    var materialController = gameObject.AddComponent<VoidheartMaterialController>();
-                    materialController.Material = Overlay.materialInstance;
-                }
-            }
-
             public void FixedUpdate()
             {
                 if (!Body.HasBuff(VoidInstabilityDebuff))
@@ -405,44 +390,6 @@ namespace Aetherium.Items
                     UnityEngine.Object.Destroy(Overlay);
                     UnityEngine.Object.Destroy(this);
                 }
-            }
-        }
-
-        public class VoidheartMaterialController : MonoBehaviour
-        {
-            public Material Material;
-            public Camera Camera;
-            public float BlobScale;
-
-            public void Start()
-            {
-                if (!Material)
-                {
-                    var meshRenderer = gameObject.GetComponentsInChildren<MeshRenderer>().Where(x => x.gameObject.name == "Plane").First();
-                    if (meshRenderer)
-                    {
-                        Material = meshRenderer.material;
-                    }
-                }
-                SceneCamera.onSceneCameraPreRender += DoCameraMagic;
-            }
-
-            private void DoCameraMagic(SceneCamera sceneCamera)
-            {
-                if (!Material)
-                {
-                    Destroy(this);
-                }
-                if (sceneCamera && Material)
-                {
-                    BlobScale = Mathf.Clamp(Vector3.Distance(gameObject.transform.position, sceneCamera.transform.position), 3.16f, 8);
-                    Material.SetFloat("_BlobScale", BlobScale);
-                }
-            }
-
-            public void OnDestroy()
-            {
-                SceneCamera.onSceneCameraPreRender -= DoCameraMagic;
             }
         }
 
