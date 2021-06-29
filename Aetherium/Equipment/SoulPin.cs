@@ -79,7 +79,7 @@ namespace Aetherium.Equipment
 
         private void CreateProjectile()
         {
-            SoulConversionProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/projectiles/LunarShardProjectile"), "SoulConversionProjectile", true);
+            SoulConversionProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/projectiles/MageIceboltExpanded"), "SoulConversionProjectile", true);
 
             var model = MainAssets.LoadAsset<GameObject>("SoulPinProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
@@ -95,21 +95,21 @@ namespace Aetherium.Equipment
             projectileInflictDebuff.buffDef = SoulConversionDebuff;
             projectileInflictDebuff.duration = 60;
 
-            var projectileStickOnImpact = SoulConversionProjectile.AddComponent<ProjectileStickOnImpact>();
+            /*var projectileStickOnImpact = SoulConversionProjectile.AddComponent<ProjectileStickOnImpact>();
             projectileStickOnImpact.alignNormals = false;
             projectileStickOnImpact.ignoreCharacters = false;
             projectileStickOnImpact.ignoreWorld = true;
-            projectileStickOnImpact.stickSoundString = "Play_treeBot_m1_impact";
+            projectileStickOnImpact.stickSoundString = "Play_treeBot_m1_impact";*/
 
             var projectileSimple = SoulConversionProjectile.GetComponent<ProjectileSimple>();
             projectileSimple.enableVelocityOverLifetime = true;
             projectileSimple.updateAfterFiring = true;
-            projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(2, 70) });
+            projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(1, 70) });
 
-            var projectileSteerTowardsTarget = SoulConversionProjectile.GetComponent<ProjectileSteerTowardTarget>();
-            projectileSteerTowardsTarget.rotationSpeed = 50;
+            var projectileOverlap = SoulConversionProjectile.GetComponent<ProjectileOverlapAttack>();
 
-            UnityEngine.Object.Destroy(SoulConversionProjectile.GetComponent<ProjectileImpactExplosion>());
+            /*var projectileSteerTowardsTarget = SoulConversionProjectile.GetComponent<ProjectileSteerTowardTarget>();
+            projectileSteerTowardsTarget.rotationSpeed = 50;*/
 
             PrefabAPI.RegisterNetworkPrefab(SoulConversionProjectile);
             ProjectileAPI.Add(SoulConversionProjectile);
@@ -314,18 +314,61 @@ namespace Aetherium.Equipment
                 var closestPoint = chosenHurtbox.collider.ClosestPointOnBounds(targetComponent.TargetObject.transform.position + Vector3.up * 100);
                 closestPoint += Vector3.up * 8;
 
-                FireProjectileInfo SoulConversionInfo = new FireProjectileInfo()
+                BlastAttack blastAttack = new BlastAttack()
+                {
+
+                };
+
+                BulletAttack bulletAttack = new BulletAttack()
                 {
                     owner = slot.characterBody.gameObject,
-                    position = closestPoint,
-                    rotation = Util.QuaternionSafeLookRotation(-Vector3.up),
-                    target = targetComponent.TargetObject,
-                    damage = slot.characterBody.damage,                    
-                    projectilePrefab = SoulConversionProjectile,
-                    procChainMask = default(ProcChainMask),
+                    origin = closestPoint,
+                    aimVector = -Vector3.up,
+                    filterCallback = HitOnlyElites,
+                    hitCallback = ApplySoulConversionDebuffOnHit,
+                    tracerEffectPrefab = Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotRebar.prefab")
                 };
-                ProjectileManager.instance.FireProjectile(SoulConversionInfo);
+
+                bulletAttack.Fire();
+
                 return true;
+            }
+            return false;
+        }
+
+        private bool HitOnlyElites(ref BulletAttack.BulletHit hitInfo)
+        {
+            var hurtbox = hitInfo.hitHurtBox;
+            if (hurtbox)
+            {
+                var healthComponent = hurtbox.healthComponent;
+                if (healthComponent)
+                {
+                    var body = healthComponent.body;
+                    if (body && body.isElite)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool ApplySoulConversionDebuffOnHit(ref BulletAttack.BulletHit hitInfo)
+        {
+            var hurtbox = hitInfo.hitHurtBox;
+            if (hurtbox)
+            {
+                var healthComponent = hurtbox.healthComponent;
+                if (healthComponent)
+                {
+                    var body = healthComponent.body;
+                    if (body)
+                    {
+                        body.AddTimedBuff(SoulConversionDebuff, 60);
+                        return true;
+                    }
+                }
             }
             return false;
         }

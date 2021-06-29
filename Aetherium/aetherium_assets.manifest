@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3342682916
+CRC: 530583553
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a3ef1ae31c005200de34b456cf957d9f
+    Hash: 4fda16011a686728651d543f965f66ed
   TypeTreeHash:
     serializedVersion: 2
     Hash: 22f997aec4c23ec0f98bf9a23b8b3ee3
@@ -95,6 +95,7 @@ Assets:
 - Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png
 - Assets/Shaders/3D Shaders/CelShader.shader
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltMetal.mat
+- Assets/Textures/Material Textures/RadialFlowMap.png
 - Assets/Textures/Material Textures/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab
@@ -227,6 +228,7 @@ Assets:
 - Assets/Textures/Material Textures/AlienMagnetGemNormal.png
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
 - Assets/Textures/Icons/Item/SharkTeethIconAlt.png
+- Assets/Textures/Material Textures/RadialFlowMap.jpg
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothTop.mat
 - Assets/Textures/Material Textures/UnstableDesignChimeraNormal.png
 - Assets/Textures/Icons/Item/WitchesRingIcon.png
@@ -328,6 +330,7 @@ Assets:
 - Assets/Textures/Material Textures/WhiteToBlackToWhiteRamp.png
 - Assets/Textures/Material Textures/AccursedPotionRamp.png
 - Assets/Textures/Materials/Item/AlienMagnet/AlienMagnetRing.mat
+- Assets/Shaders/FlowMap.shader
 - Assets/Animations/ShieldingCoreCentrifuge.anim
 - Assets/Textures/Icons/Artifact/ArtifactOfLeonidsDisabledIcon.png
 - Assets/Textures/Material Textures/plume normal.png
@@ -445,6 +448,7 @@ Assets:
 - Assets/Textures/Icons/Item/EngineersToolbeltIcon.png
 - Assets/Textures/Material Textures/soulpinrodnormal.png
 - Assets/Models/Raw Models/By Others/Ragon/plume.obj
+- Assets/Textures/Material Textures/RadialFlowMapnormal.jpg
 - Assets/Models/Raw Models/NailBombSubProjectile.blend
 - Assets/Textures/Material Textures/SoulExtractionCircleDiffuse.png
 - Assets/Textures/Material Textures/AccursedPotionShellDiffuse.png
@@ -472,6 +476,7 @@ Assets:
 - Assets/Textures/Material Textures/BlasterSwordTexture.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltBladeSharp.mat
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat
+- Assets/Textures/Material Textures/spiralnormal.jpg
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinRods.mat
 - Assets/Textures/Material Textures/bloodthirstyshieldhandlesdiffuse.png
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinCylinder.mat

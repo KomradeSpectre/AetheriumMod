@@ -17,6 +17,8 @@ using static RoR2.Navigation.MapNodeGroup;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
 using static R2API.RecalculateStatsAPI;
+using System.Linq;
+using static Aetherium.Utils.MaterialControllerComponents;
 
 namespace Aetherium.Items
 {
@@ -133,6 +135,13 @@ namespace Aetherium.Items
             //I mean that's not all they have on them, but that's the main purposes.
             //The ItemFollower component I reference here is a slightly modified version of the base one.
             //Since the base one has no virtuals on their methods, couldn't override it.
+
+            var meshes = ItemModel.GetComponentsInChildren<MeshRenderer>().Where(mesh => mesh.material && mesh.material.shader.name.Contains("Hopoo"));            
+            foreach(MeshRenderer mesh in meshes)
+            {
+                var finder = mesh.gameObject.AddComponent<HGControllerFinder>();
+                finder.Renderer = mesh;
+            }
 
             ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("InspiringDroneTracker.prefab");
             ItemFollowerPrefab = ItemModel;

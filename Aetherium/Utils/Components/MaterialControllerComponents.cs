@@ -1019,6 +1019,5 @@ namespace Aetherium.Utils
                 }
             }
         }
-
     }
 }

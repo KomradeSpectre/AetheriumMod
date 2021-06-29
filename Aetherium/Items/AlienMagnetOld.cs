@@ -109,7 +109,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -122,7 +122,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(-4f, -2f, 5f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -134,7 +134,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -146,7 +146,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -158,7 +158,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -170,7 +170,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -182,7 +182,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -194,7 +194,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(5f, 0f, 10f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.2f, 0.2f, 0.2f)
                 }
             });
@@ -206,7 +206,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.5f, 0f, -1f),
-                    localAngles = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(-90f, 0f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
             });
@@ -218,7 +218,7 @@ namespace Aetherium.Items
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
                     localPos = new Vector3(0.039F, -0.8778F, -0.5109F),
-                    localAngles = new Vector3(0F, 0F, 0F),
+                    localAngles = new Vector3(-90f, 0F, 0F),
                     localScale = new Vector3(0.1F, 0.1F, 0.1F)
                 }
             });

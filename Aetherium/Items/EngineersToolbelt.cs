@@ -245,14 +245,10 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            if (IsItemStatsModInstalled)
-            {
-                RoR2Application.onLoad += ItemStatsModCompat;
-            }
-
             On.RoR2.PurchaseInteraction.OnInteractionBegin += DuplicateDronesAndTurrets;
             //On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurretsOld;
             On.RoR2.CharacterMaster.OnBodyDeath += ReviveDronesAndTurrets;
+            RoR2Application.onLoad += OnLoadModCompat;
         }
 
         private void ReviveDronesAndTurrets(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, CharacterMaster master, CharacterBody characterBody)
@@ -290,63 +286,84 @@ namespace Aetherium.Items
             orig(master, characterBody);
         }
 
-        private void ItemStatsModCompat()
+        private void OnLoadModCompat()
         {
-            CreateEngineersToolbeltStatDef();
+            if (IsItemStatsModInstalled)
+            {
+                CreateEngineersToolbeltStatDef();
+            }
         }
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
         {
-            orig(self, activator);
-            if (!NetworkServer.active || !activator || !activator.gameObject || self.GetInteractability(activator) != Interactability.Available) return;
-
-            CharacterBody characterBody = activator.gameObject.GetComponent<CharacterBody>();
-            if (!characterBody) return;
-
-            int inventoryCount = GetCount(characterBody);
-            if (inventoryCount <= 0) return;
-
-            CharacterMaster characterMaster = characterBody.master;
-            if (!characterMaster) return;
-
-            SummonMasterBehavior summonMasterBehavior = self.gameObject.GetComponent<SummonMasterBehavior>();
-            if (!summonMasterBehavior) return;
-
-            GameObject masterPrefab = summonMasterBehavior.masterPrefab;
-            if (!masterPrefab) return;
-
-            CharacterMaster masterPrefabMaster = masterPrefab.GetComponent<CharacterMaster>();
-            if (!masterPrefabMaster || !IsDroneSupported(masterPrefabMaster)) return;
-
-            GameObject masterPrefabBodyPrefab = masterPrefabMaster.bodyPrefab;
-            if (!masterPrefabBodyPrefab) return;
-
-            CharacterBody duplicationBody = masterPrefabBodyPrefab.GetComponent<CharacterBody>();
-            if (!duplicationBody) return;
-
-            if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
+            if(NetworkServer.active && activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
             {
-                Vector3 chosenPosition = FindClosestGroundNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
+                var characterBody = activator.gameObject.GetComponent<CharacterBody>();
 
-                CharacterMaster summonedDrone = new MasterSummon()
+                if (characterBody)
                 {
-                    masterPrefab = masterPrefab,
-                    position = chosenPosition,
-                    rotation = self.transform.rotation,
-                    summonerBodyObject = activator.gameObject,
-                    ignoreTeamMemberLimit = true,
-                }.Perform();
+                    var inventoryCount = GetCount(characterBody);
 
-                if (summonedDrone)
-                {
-                    if (masterPrefab.name.Contains("EquipmentDrone"))
+                    if(inventoryCount > 0)
                     {
-                        summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
-                    }
+                        var characterMaster = characterBody.master;
 
-                    AkSoundEngine.PostEvent(2596808706, summonedDrone.gameObject);
+                        if (characterMaster)
+                        {
+                            var summonMasterBehavior = self.gameObject.GetComponent<SummonMasterBehavior>();
+
+                            if (summonMasterBehavior)
+                            {
+                                var masterPrefab = summonMasterBehavior.masterPrefab;
+
+                                if (masterPrefab)
+                                {
+                                    var masterPrefabMaster = masterPrefab.GetComponent<CharacterMaster>();
+
+                                    if (masterPrefabMaster && IsDroneSupported(masterPrefabMaster.name))
+                                    {
+                                        var masterPrefabBodyPrefab = masterPrefabMaster.bodyPrefab;
+
+                                        if (masterPrefabBodyPrefab)
+                                        {
+                                            var duplicationBody = masterPrefabBodyPrefab.GetComponent<CharacterBody>();
+
+                                            if (duplicationBody)
+                                            {
+                                                if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
+                                                {
+                                                    Vector3 chosenPosition = FindClosestGroundNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
+
+                                                    CharacterMaster summonedDrone = new MasterSummon()
+                                                    {
+                                                        masterPrefab = masterPrefab,
+                                                        position = chosenPosition,
+                                                        rotation = self.transform.rotation,
+                                                        summonerBodyObject = activator.gameObject,
+                                                        ignoreTeamMemberLimit = true,
+                                                    }.Perform();
+
+                                                    if (summonedDrone)
+                                                    {
+                                                        if (masterPrefab.name.Contains("EquipmentDrone"))
+                                                        {
+                                                            summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
+                                                        }
+
+                                                        AkSoundEngine.PostEvent(2596808706, summonedDrone.gameObject);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
+            orig(self, activator);
         }
 
         //private void ReviveDronesAndTurretsOld(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
