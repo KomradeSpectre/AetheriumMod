@@ -59,7 +59,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", false, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
             BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
             AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
             MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
@@ -72,7 +72,7 @@ namespace Aetherium.Items
         {
             ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
 

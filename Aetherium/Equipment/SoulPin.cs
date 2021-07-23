@@ -32,7 +32,7 @@ namespace Aetherium.Equipment
             $"Found on a scrap of paper in an ornate case along with the device: \"[...] at that point, the binding process will become automatic, " +
             $"and all the user needs to do is sever the specimen's connection to its soul.\"";
 
-        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("SoulPin.prefab");
+        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("SoulPinMagicCircle.prefab");
 
         public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
 
@@ -124,7 +124,7 @@ namespace Aetherium.Equipment
         {
             ItemBodyModelPrefab = EquipmentModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab, true);
+            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             ItemBodyModelPrefab.AddComponent<SoulPinDisplayHandler>();
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
@@ -316,7 +316,7 @@ namespace Aetherium.Equipment
 
                 BlastAttack blastAttack = new BlastAttack()
                 {
-
+                    
                 };
 
                 BulletAttack bulletAttack = new BulletAttack()

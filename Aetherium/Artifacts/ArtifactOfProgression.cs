@@ -18,9 +18,9 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactDescription => "When enabled, most enemies will evolve into stronger versions of themselves after a duration.";
 
-        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionEnabledIcon.png");
+        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfProgressionEnabledIcon.png");
 
-        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionDisabledIcon.png");
+        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfProgressionDisabledIcon.png");
 
         internal Dictionary<string, EvolutionData> ProgressionLookup = new Dictionary<string, EvolutionData>();
 

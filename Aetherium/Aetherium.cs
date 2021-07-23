@@ -1,10 +1,12 @@
 ﻿#undef DEBUG
+#define DEBUGMATERIALS
 
 using Aetherium.Artifacts;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
+using Aetherium.Utils;
 using BepInEx;
 using InLobbyConfig.Fields;
 using R2API;
@@ -43,7 +45,8 @@ namespace Aetherium
             {"fake ror/hopoo games/deferred/hgstandard", "shaders/deferred/hgstandard"},
             {"fake ror/hopoo games/fx/hgcloud intersection remap", "shaders/fx/hgintersectioncloudremap" },
             {"fake ror/hopoo games/fx/hgcloud remap", "shaders/fx/hgcloudremap" },
-            {"fake ror/hopoo games/fx/hgdistortion", "shaders/fx/hgdistortion" }
+            {"fake ror/hopoo games/fx/hgdistortion", "shaders/fx/hgdistortion" },
+            {"fake ror/hopoo games/deferred/hgsnow topped", "shaders/deferred/hgsnowtopped" }
         };
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
@@ -81,6 +84,12 @@ namespace Aetherium
 
             //Material shader autoconversion
             ShaderConversion(MainAssets);
+
+#if DEBUGMATERIALS
+
+            AttachControllerFinderToObjects(MainAssets);
+
+#endif
 
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
@@ -241,6 +250,26 @@ namespace Aetherium
                 if (replacementShader) { material.shader = replacementShader; }
 
             }
+        }
+
+        public static void AttachControllerFinderToObjects(AssetBundle assetbundle)
+        {
+            if (!assetbundle) { return; }
+
+            var gameObjects = assetbundle.LoadAllAssets<GameObject>();
+
+            foreach (GameObject gameObject in gameObjects)
+            {
+                var foundRenderers = gameObject.GetComponentsInChildren<Renderer>().Where(x => x.sharedMaterial && x.sharedMaterial.shader.name.StartsWith("Hopoo Games"));
+
+                foreach (Renderer renderer in foundRenderers)
+                {
+                    var controller = renderer.gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
+                    controller.Renderer = renderer;
+                }
+            }
+
+            gameObjects = null;
         }
     }
 }

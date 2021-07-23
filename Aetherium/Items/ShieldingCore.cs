@@ -38,21 +38,10 @@ namespace Aetherium.Items
         public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
             $" The first stack of this item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier)}</style> of your max health as shield on pickup.";
 
-        public override string ItemLore => OrderManifestLoreFormatter(
-
-            ItemName,
-
-            "7/4/2091",
-
-            "UES Backlight/Sector 667/Outer Rim",
-
-            "667********",
-
-            ItemPickupDesc,
-
-            "Light / Liquid-Seal / DO NOT DRINK FROM EXHAUST",
+        public override string ItemLore => 
 
             "\nEngineer's report:\n\n" +
+
             "   Let me preface this with a bit of honesty, I do not know what the green goo inside my little turbine is. " +
             "I bought an aftermarket resonator from one of the junk dealers our ship passed, because I was running low on parts to repair our shield generators. " +
             "As soon as I slotted this thing in, I'm covered in this gross liquid that seems to dissipate into these sparkly crystals when exposed to air. " +
@@ -60,7 +49,7 @@ namespace Aetherium.Items
             "That's when my suit diagnostics alarmed me that my shield's efficacy hit the roof.\n\n" +
             "Eureka moment, and a few design drafts later.\n" +
             "Now I'm selling these things like hotcakes and making a profit. So here's one for you.\n\n" +
-            "P.S. Don't expose your skin to this stuff, it may cause over 200 known forms of cancer. That's our secret though, right?");
+            "P.S. Don't expose your skin to this stuff, it may cause over 200 known forms of cancer. That's our secret though, right?";
 
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
@@ -93,7 +82,7 @@ namespace Aetherium.Items
         {
             ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab, true);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);

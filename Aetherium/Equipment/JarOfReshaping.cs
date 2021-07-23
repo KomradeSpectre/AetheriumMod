@@ -178,7 +178,7 @@ namespace Aetherium.Equipment
         {
             ItemBodyModelPrefab = EquipmentModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab, true);
+            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
 

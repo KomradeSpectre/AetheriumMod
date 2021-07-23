@@ -198,8 +198,14 @@ namespace Aetherium.Items
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = UseAlternateModel ? MainAssets.LoadAsset<GameObject>("BlasterSwordAlt.prefab") : MainAssets.LoadAsset<GameObject>("BlasterSword.prefab");
+
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
+
+            if (!UseAlternateModel)
+            {
+                ItemBodyModelPrefab.AddComponent<SwordEnergyMaterialManipulator>();
+            }
 
             if (EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
 
@@ -1179,6 +1185,76 @@ namespace Aetherium.Items
                     }
                 }
             }
+        }
+
+        public class SwordEnergyMaterialManipulator : MonoBehaviour
+        {
+            public RoR2.ItemDisplay ItemDisplay;
+            public Renderer Renderer;
+            public RoR2.CharacterMaster OwnerMaster;
+            public RoR2.CharacterBody OwnerBody;
+            public float BandHeight;
+
+            public void FixedUpdate()
+            {
+                if(!OwnerMaster || !ItemDisplay || !Renderer)
+                {
+                    ItemDisplay = GetComponentInParent<RoR2.ItemDisplay>();
+                    if (ItemDisplay)
+                    {
+                        Renderer = ItemDisplay.rendererInfos.Where(rendererInfo => rendererInfo.renderer.gameObject.name == "EnergyBlade").First().renderer;
+
+                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
+                        if (characterModel)
+                        {
+                            var body = characterModel.body;
+                            if (body)
+                            {
+                                OwnerMaster = body.master;
+                            }
+                        }
+                    }
+                }
+
+                if (OwnerMaster && !OwnerBody)
+                {
+                    var body = OwnerMaster.GetBody();
+                    if (body)
+                    {
+                        OwnerBody = body;
+                    }
+                    if (!body)
+                    {
+                        UnityEngine.Object.Destroy(this);
+                    }
+                }
+
+                if(OwnerBody && Renderer)
+                {
+                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    {
+                        if(BandHeight < 10)
+                        {
+                            BandHeight += Time.fixedDeltaTime;
+                        }
+                    }
+                    else
+                    {
+                        if(BandHeight > 0)
+                        {
+                            BandHeight -= Time.fixedDeltaTime;
+                        }
+                    }
+
+                    var material = Renderer.material;
+                    if (material)
+                    {
+                        material.SetFloat("_SliceBandHeight", BandHeight);
+                        Renderer.material = material;
+                    }
+                }
+            }
+
         }
 
         public class SwordGlowHandler : MonoBehaviour

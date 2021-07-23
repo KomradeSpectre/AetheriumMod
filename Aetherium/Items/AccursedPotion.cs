@@ -37,16 +37,18 @@ namespace Aetherium.Items
 
         public override string ItemLore =>
 
-                "A strange bottle filled with an ever shifting liquid. Upon closer inspection there is a label for the ingredients, the label reads as follows:\n" +
-                "---------------------------------\n" +
-                "\n<indent=5%>1 Eye of Darkness, medium well.</indent>\n" +
-                "<indent=5%>15 Scalangs, preferably non-endangered.</indent>\n" +
-                "<indent=5%>400 Neutron Star Cores, crushed into a fine paste with a simple glass mortar and pestle.</indent>\n" +
-                "<indent=5%>7 Essence of Luck, filter through a coffee press to remove bad luck from it before adding.</indent>\n" +
-                "<indent=5%>1/4th teaspoon of salt, for taste.</indent>\n" +
-                "\n---------------------------------\n" +
-                "\nThe label's ingredients panel seems to go on forever, changing as the bottle is rotated." +
-                "\nRemote extraction of contents recommended due to hypnohazard.";
+            "A dim light fills the shack. The figure cackles as they stir the bubbling cauldron before them.\n" +
+            "\"There is no such thing as an elixir of immortality.\", they bellow, \"At least not in a static conventional sense. To create it, one must surrender to the unpredictability of chaos.\"\n\n" +
+
+            "The figure rolls a crude bauble on the damp wooden table and takes a moment to observe it before adding another ingredient to the brew. " +
+            "\"For it is in that chaos that we are granted a random possibility that we may near such a concoction, if the wheel of fate decides it so. Ah, perhaps this will do.\", they say before taking a sip from the cauldron.\n\n" +
+
+            "For just a moment, there can be seen an expression of absolute joy on the figure's visage before it disappears and they begin letting off a faint glow. \"Alas, it does not seem the universe has seen it fit to grant me the gift I seek, but the one it deems I deserve. " +
+            "Let us hope it may smile upon you where it has refused to do so for me.\"\n\n" +
+
+            "The shack fills with light. When it begins to dim, the figure can no longer be seen and a thought starts to burrow its way into your mind, \"I know what they forgot, I can succeed where they had failed.\" Confident, you begin adding ingredients to the brew.\n\n" +
+
+            "The work must be completed, there is much to do before the cycle begins anew.";
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
@@ -96,7 +98,7 @@ namespace Aetherium.Items
         {
             ItemBodyModelPrefab = ItemModel;
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
@@ -106,9 +108,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighL",
-                    localPos = new Vector3(0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
+                    localPos = new Vector3(0.14626F, 0.09623F, 0.05736F),
+                    localAngles = new Vector3(0F, 237.9584F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -118,9 +120,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighR",
-                    localPos = new Vector3(-0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    localPos = new Vector3(-0.13893F, 0.1018F, 0.05313F),
+                    localAngles = new Vector3(355.1616F, 81.55997F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
@@ -130,9 +132,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Hip",
-                    localPos = new Vector3(0f, -0.3f, 1.6f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(4f, 4f, 4f)
+                    localPos = new Vector3(-0.93095F, 1.78192F, 1.16654F),
+                    localAngles = new Vector3(4.23772F, 103.3654F, 181.0058F),
+                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -141,10 +143,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ThighL",
-                    localPos = new Vector3(0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.25473F, 0.13682F, 0.02785F),
+                    localAngles = new Vector3(6.06942F, 86.23837F, 170.9439F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
@@ -153,10 +155,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ThighL",
-                    localPos = new Vector3(0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.17959F, 0.02055F, -0.07736F),
+                    localAngles = new Vector3(4.91717F, 72.05508F, 179.4397F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
@@ -166,9 +168,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighR",
-                    localPos = new Vector3(-0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    localPos = new Vector3(-0.14068F, 0.09356F, 0.04851F),
+                    localAngles = new Vector3(353.4428F, 85.47656F, 180.9776F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -178,9 +180,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "FlowerBase",
-                    localPos = new Vector3(-0.7f, -0.7f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(2f, 2f, 2f)
+                    localPos = new Vector3(-0.5854F, -0.70073F, -0.27005F),
+                    localAngles = new Vector3(357.1272F, 53.86685F, 346.9289F),
+                    localScale = new Vector3(0.1F, 0.1F, 0.1F)
                 }
             });
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
@@ -190,9 +192,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighL",
-                    localPos = new Vector3(0.16f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    localPos = new Vector3(0.13296F, 0.14329F, 0.04933F),
+                    localAngles = new Vector3(0F, 266.8607F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
@@ -202,9 +204,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighL",
-                    localPos = new Vector3(1.6f, 0.4f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(5f, 5f, 5f)
+                    localPos = new Vector3(1.47838F, 0.85703F, -0.58499F),
+                    localAngles = new Vector3(1.77184F, 278.9485F, 211.384F),
+                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -214,9 +216,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighR",
-                    localPos = new Vector3(-0.1f, 0.1f, 0.05f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    localPos = new Vector3(-0.11077F, 0.1393F, 0.05012F),
+                    localAngles = new Vector3(0F, 90.62645F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
@@ -225,10 +227,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0.184F, -0.0816F, 0.0971F),
-                    localAngles = new Vector3(356.2966F, 206.9181F, 7.7223F),
-                    localScale = new Vector3(0.417F, 0.417F, 0.417F)
+                    childName = "Pelvis",
+                    localPos = new Vector3(0.22591F, 0.0032F, 0.0343F),
+                    localAngles = new Vector3(351.5648F, 261.5977F, 172.71F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             return rules;

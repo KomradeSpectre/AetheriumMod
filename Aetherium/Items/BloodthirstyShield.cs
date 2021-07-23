@@ -48,7 +48,7 @@ namespace Aetherium.Items
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Healing };
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("BloodthirstyShield.prefab");
-        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIconAlt.png") : MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIcon.png");
+        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIconAlt.png") : MainAssets.LoadAsset<Sprite>("BloodthirstyShieldIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -62,7 +62,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", true, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
+            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", false, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
             ShieldPercentageRestoredPerKill = config.ActiveBind<float>("Item: " + ItemName, "Percentage of Shield Restored per Kill", 0.1f, "How much shield in percentage should be restored per kill? 0.1 = 10%");
             AdditionalShieldPercentageRestoredPerKillDiminishing = config.ActiveBind<float>("Item: " + ItemName, "Additional Shield Restoration Percentage per Additional BSS Stack (Diminishing)", 0.1f, "How much additional shield per kill should be granted with diminishing returns (hyperbolic scaling) on additional stacks? 0.1 = 10%");
             MaximumPercentageShieldRestoredPerKill = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Shield Restored per Kill", 0.5f, "What should our maximum percentage shield restored per kill be? 0.5 = 50%");
@@ -74,7 +74,7 @@ namespace Aetherium.Items
             ItemBodyModelPrefab = ItemModel;
 
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
             Vector3 generalScale = new Vector3(0.3f, 0.3f, 0.3f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();

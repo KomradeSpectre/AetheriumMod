@@ -75,7 +75,7 @@ namespace Aetherium.Items
             ItemModel.AddComponent<AlienMagnetAnimationController>();
             ItemBodyModelPrefab = ItemModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
-            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
             /*ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("AlienMagnetTracker.prefab");
             ItemFollowerPrefab = ItemModel;
 

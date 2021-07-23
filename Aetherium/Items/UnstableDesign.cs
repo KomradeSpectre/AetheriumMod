@@ -158,7 +158,7 @@ namespace Aetherium.Items
 
             if (LunarChimeraBodyPrefab)
             {
-                LanguageAPI.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"UES G-013X \"Hunter\"");
+                LanguageAPI.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"The Hunter");
 
                 var body = LunarChimeraBodyPrefab.GetComponent<CharacterBody>();
                 body.baseNameToken = "AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME";
@@ -168,27 +168,6 @@ namespace Aetherium.Items
                 if (skinnedMeshRenderer)
                 {
                     skinnedMeshRenderer.sharedMesh = MainAssets.LoadAsset<Mesh>("Body_low_0");
-                    skinnedMeshRenderer.material = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
-                }
-
-                var modelLocator = LunarChimeraBodyPrefab.GetComponent<ModelLocator>();
-
-                if (modelLocator)
-                {
-                    var modelTransform = modelLocator.modelTransform;
-
-                    if (modelTransform)
-                    {
-                        var characterModel = modelTransform.GetComponent<CharacterModel>();
-
-                        if (characterModel)
-                        {
-                            characterModel.baseRendererInfos[0].defaultMaterial = MainAssets.LoadAsset<Material>("UnstableDesignChimera.mat");
-
-                            var controllerFinder = characterModel.baseRendererInfos[0].renderer.gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                            controllerFinder.Renderer = characterModel.baseRendererInfos[0].renderer;
-                        }
-                    }
                 }
             }
 
