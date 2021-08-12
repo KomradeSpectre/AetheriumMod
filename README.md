@@ -44,11 +44,33 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 - Implement Active Dodging for Weighted Anklet.
 
+- Version 0.5.10 will be next and it will be for adding a configurable cap to Artifact of Regression and Networking the new sounds.
+
 ----
 
 ## Changelog
 ----
-[0.5.5]
+
+
+[0.5.9]
++ New Models and Textures for quite a handful of Items/Equipment by Ragon.
++ Added Artifact of the Nightmare. Upon spawn, non-boss enemies are granted 1-4 lunar heresy items.
++ Added Artifact of Progression, a contrast to Regression, enemies evolve into stronger forms over time.
++ Added sounds for Accursed Potion, Unstable Design, Artifact of Progression, and Engineers Toolbelt. These still need networked, which I will do next version.
++ Remade Accursed Potion Lore.
++ Changed the mesh of the Lunar Chimera spawned by Unstable Design. It is now the old mesh before Hopoo Games changed it.
++ Various Bug Fixes and feature Improvements that I forgot to record on the changelog.
+- Removed Blaster Sword Particle System Glow, Added Blaster Sword Material controlled glow instead
+- Removed the Stathooks module from this mod. I now use the one bundled into R2API.
+
+[0.5.8]
++ Fixed Giganto Toolbelt, the Engineers Toolbelt should now be a normal size as a drop.
+- Removed my sanity, and sleep today.
+
+[0.5.7]
++ Fixed stupid classloading errors with ItemStatsMod and BetterUI.
+
+[0.5.6]
 + Added ItemStatsMod support.
 + Added a homing swords configuration option for Blaster Sword, disabled by default.
 + Added a config option to allow Blaster Sword to be used with any level of Barrier, disabled by default.
@@ -100,17 +122,10 @@ Discord: https://www.discord.gg/WNap5qcPf6
 [0.4.7]
 + GRRRR, thunderstore markdown.
 
-[0.4.6]
-+ Added configs to enable/disable items and equipment.
-+ Added configs to allow blacklisting items so AI may never use/acquire them.
-+ Retouched icons for buffs.
-+ Made this readme more legible.
-+ Made preparations for Pheromone Sac (0.5.0), will be releasing with another item.
-- Removed obscure feature.
-
 ----
 
 ## Special Thanks  
+**Ragon** - Overhauled quite a few of my models to be awesome looking. Provided Models and Textures for them that allow them to shine visually. They also participate in development talks about Aetherium, and provide some quality ideas for new mechanics.
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod. Thanks to them for authorizing me to use TILER2's stathooks in my itembase, it was integral in getting it off the ground.  
 **Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  
 **KingEnderBrine** - Helping out with some questions regarding Item Displays, and providing a useful helper mod to speed up my IDRS creation.  
