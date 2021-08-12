@@ -189,9 +189,9 @@ namespace Aetherium.Equipment
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(-1f, 0, -1f),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(0.1f, 0.1f, 0.1f)
+                    localPos = new Vector3(-1F, 0F, -1F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.1F, 0.1F, 0.1F)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -285,9 +285,9 @@ namespace Aetherium.Equipment
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(-8f, 0, 8f),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(0.8f, 0.8f, 0.8f)
+                    localPos = new Vector3(-8F, 0F, 8F),
+                    localAngles = new Vector3(0F, 0F, 180F),
+                    localScale = new Vector3(0.8F, 0.8F, 0.8F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]

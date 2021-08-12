@@ -19,9 +19,9 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactDescription => "When enabled, non-boss enemies are granted 1-4 of the Lunar Heresy items when they spawn.";
 
-        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantEnabledIcon.png");
+        public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheNightmareEnabledIcon.png");
 
-        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantDisabledIcon.png");
+        public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheNightmareDisabledIcon.png");
 
         public List<ItemDef> HeresyItemList = new List<ItemDef>()
         {

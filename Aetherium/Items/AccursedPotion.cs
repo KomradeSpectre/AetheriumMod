@@ -131,9 +131,9 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Hip",
-                    localPos = new Vector3(-0.93095F, 1.78192F, 1.16654F),
-                    localAngles = new Vector3(4.23772F, 103.3654F, 181.0058F),
+                    childName = "ThighR",
+                    localPos = new Vector3(0.12508F, 0.52882F, 1.05645F),
+                    localAngles = new Vector3(2.58644F, 15.4937F, 144.3143F),
                     localScale = new Vector3(0.5F, 0.5F, 0.5F)
                 }
             });
@@ -204,7 +204,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "ThighL",
-                    localPos = new Vector3(1.47838F, 0.85703F, -0.58499F),
+                    localPos = new Vector3(1.55242F, 0.82693F, -0.12087F),
                     localAngles = new Vector3(1.77184F, 278.9485F, 211.384F),
                     localScale = new Vector3(0.5F, 0.5F, 0.5F)
                 }

@@ -193,9 +193,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "CalfL",
-                    localPos = new Vector3(0f, 0.25f, 0f),
-                    localAngles = new Vector3(-19f, 0f, -4f),
-                    localScale = new Vector3(0.28f, 0.28f, 0.28f)
+                    localPos = new Vector3(-0.00222F, 0.22734F, 0.03177F),
+                    localAngles = new Vector3(349.1283F, 359.4232F, 356.149F),
+                    localScale = new Vector3(0.28F, 0.28F, 0.28F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]

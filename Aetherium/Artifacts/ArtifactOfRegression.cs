@@ -160,6 +160,7 @@ namespace Aetherium.Artifacts
             if (ArtifactEnabled && NetworkServer.active && IsExisting(master) && IsAnEnemy(master))
             {
                 string masterName = master.name.Replace("(Clone)", "");
+
                 if (RegressionLookup.ContainsKey(masterName))
                 {
                     List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;

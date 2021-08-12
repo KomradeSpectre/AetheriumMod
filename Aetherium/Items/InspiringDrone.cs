@@ -188,9 +188,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(-8f, -4f, 5f),
-                    localAngles = new Vector3(-90f, -180f, 0f),
-                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                    localPos = new Vector3(12.83323F, -4F, 5.00022F),
+                    localAngles = new Vector3(270F, 180F, 0F),
+                    localScale = new Vector3(0.15F, 0.15F, 0.15F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -200,9 +200,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(1.5f, -0.5f, -1f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
-                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                    localPos = new Vector3(-1.35723F, -1.219F, -1.00013F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.15F, 0.15F, 0.15F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
@@ -236,9 +236,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Base",
-                    localPos = new Vector3(1.5f, -0.5f, -1f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
-                    localScale = new Vector3(0.15f, 0.15f, 0.15f)
+                    localPos = new Vector3(2.25616F, -0.5F, -0.99996F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.15F, 0.15F, 0.15F)
                 }
             });
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]

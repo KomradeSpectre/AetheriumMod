@@ -119,9 +119,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 2.5f, -2.5f),
-                    localAngles = new Vector3(0f, -180f, 0f),
-                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
+                    localPos = new Vector3(0.00002F, 2.19732F, -2.74712F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(1.5F, 1.5F, 1.5F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -247,30 +247,6 @@ namespace Aetherium.Items
                 args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
             }
         }
-
-        //private void GrantBaseShield(ILContext il)
-        //{
-        //    //Provided by Harb from their HarbCrate mod. Thanks Harb!
-        //    ILCursor c = new ILCursor(il);
-        //    int shieldsLoc = 33;
-        //    c.GotoNext(
-        //        MoveType.Before,
-        //        x => x.MatchLdloc(out shieldsLoc),
-        //        x => x.MatchCallvirt<CharacterBody>("set_maxShield")
-        //    );
-        //    c.Emit(OpCodes.Ldloc, shieldsLoc);
-        //    c.EmitDelegate<Func<CharacterBody, float, float>>((self, shields) =>
-        //    {
-        //        var InventoryCount = GetCount(self);
-        //        if (InventoryCount > 0)
-        //        {
-        //            shields += self.maxHealth * 0.04f;
-        //        }
-        //        return shields;
-        //    });
-        //    c.Emit(OpCodes.Stloc, shieldsLoc);
-        //    c.Emit(OpCodes.Ldarg_0);
-        //}
 
         private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {

@@ -202,11 +202,6 @@ namespace Aetherium.Items
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
-            if (!UseAlternateModel)
-            {
-                ItemBodyModelPrefab.AddComponent<SwordEnergyMaterialManipulator>();
-            }
-
             if (EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
 
             ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict();
@@ -239,9 +234,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Arrow",
-                    localPos = new Vector3(0.3f, 0f, 0f),
-                    localAngles = new Vector3(90f, 270f, 0f),
-                    localScale = new Vector3(0.08f, 0.045f, 0.1f)
+                    localPos = new Vector3(0.35491F, 0F, -0.01299F),
+                    localAngles = new Vector3(90F, 270F, 0F),
+                    localScale = new Vector3(0.0436F, 0.0356F, 0.05146F)
                 }
             });
             rulesNormal.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
@@ -251,27 +246,27 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleNailgun",
-                    localPos = new Vector3(-2.6f, 0.8f, 1.3f),
-                    localAngles = new Vector3(60f, 0.8f, -90f),
-                    localScale = new Vector3(1f, 1f, 1f)
+                    localPos = new Vector3(-2.62379F, 0.84595F, 1.41736F),
+                    localAngles = new Vector3(60F, 0.8F, 270F),
+                    localScale = new Vector3(1F, 1F, 1F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleNailgun",
-                    localPos = new Vector3(-2.6f, 0.8f, -1.3f),
-                    localAngles = new Vector3(-60f, 0f, -90f),
-                    localScale = new Vector3(1f, 1f, 1f)
+                    localPos = new Vector3(-2.58983F, 0.77911F, -1.3535F),
+                    localAngles = new Vector3(300F, 0F, 270F),
+                    localScale = new Vector3(1F, 1F, 1F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleNailgun",
-                    localPos = new Vector3(-2.6f, -1.5f, 0f),
-                    localAngles = new Vector3(0f, 0f, -90f),
-                    localScale = new Vector3(1f, 1f, 1f)
+                    localPos = new Vector3(-2.60018F, -1.62175F, -0.00003F),
+                    localAngles = new Vector3(0F, 0F, 270F),
+                    localScale = new Vector3(1F, 1F, 1F)
                 },
                 new RoR2.ItemDisplayRule
                 {
@@ -308,7 +303,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "CannonHeadL",
-                    localPos = new Vector3(0f, 1.2f, 0f),
+                    localPos = new Vector3(0f, 1.04975f, 0f),
                     localAngles = new Vector3(-180f, 45f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 },
@@ -318,7 +313,7 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "CannonHeadR",
-                    localPos = new Vector3(0f, 1.2f, 0f),
+                    localPos = new Vector3(0f, 1.04975f, 0f),
                     localAngles = new Vector3(-180f, -45f, 0f),
                     localScale = new Vector3(0.15f, 0.15f, 0.15f)
                 }
@@ -352,9 +347,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "HandR",
-                    localPos = new Vector3(0.67f, 0.28f, 0.01f),
-                    localAngles = new Vector3(0f, 0f, 100f),
-                    localScale = new Vector3(0.11f, 0.11f, 0.11f)
+                    localPos = new Vector3(0.52334F, 0.27322F, 0.02221F),
+                    localAngles = new Vector3(0F, 0F, 99.99999F),
+                    localScale = new Vector3(0.11F, 0.11F, 0.11F)
                 }
             });
             rulesNormal.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -398,9 +393,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MouthMuzzle",
-                    localPos = new Vector3(-9.2f, 2f, 3f),
-                    localAngles = new Vector3(90f, 90f, 0f),
-                    localScale = new Vector3(1.5f, 1.5f, 1.5f)
+                    localPos = new Vector3(-8.05507F, 2.0004F, 2.99987F),
+                    localAngles = new Vector3(73.66542F, 0F, 270F),
+                    localScale = new Vector3(1.5F, 1.60597F, 1.5F)
                 }
             });
             rulesNormal.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -410,9 +405,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MuzzleGun",
-                    localPos = new Vector3(0f, 0f, 0.65f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
-                    localScale = new Vector3(0.12f, 0.12f, 0.12f)
+                    localPos = new Vector3(-0.00001F, 0F, 0.6046F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.12F, 0.12F, 0.12F)
                 }
             });
             rulesNormal.Add("mdlBrother", new RoR2.ItemDisplayRule[]
@@ -1187,103 +1182,74 @@ namespace Aetherium.Items
             }
         }
 
-        public class SwordEnergyMaterialManipulator : MonoBehaviour
+        public class SwordGlowHandler : NetworkBehaviour
         {
             public RoR2.ItemDisplay ItemDisplay;
+            public List<ParticleSystemHandler> ParticleSystems = new List<ParticleSystemHandler>();
             public Renderer Renderer;
+
+            [SyncVar]
+            public float GlowCounter;
+
             public RoR2.CharacterMaster OwnerMaster;
             public RoR2.CharacterBody OwnerBody;
-            public float BandHeight;
 
-            public void FixedUpdate()
+            public class ParticleSystemHandler
             {
-                if(!OwnerMaster || !ItemDisplay || !Renderer)
-                {
-                    ItemDisplay = GetComponentInParent<RoR2.ItemDisplay>();
-                    if (ItemDisplay)
-                    {
-                        Renderer = ItemDisplay.rendererInfos.Where(rendererInfo => rendererInfo.renderer.gameObject.name == "EnergyBlade").First().renderer;
+                public ParticleSystem ParticleSystem;
+                public bool HasPlayed;
 
-                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
-                        if (characterModel)
-                        {
-                            var body = characterModel.body;
-                            if (body)
-                            {
-                                OwnerMaster = body.master;
-                            }
-                        }
-                    }
+                public ParticleSystemHandler(ParticleSystem particleSystem, bool hasPlayed)
+                {
+                    ParticleSystem = particleSystem;
+                    HasPlayed = hasPlayed;
                 }
+            }
 
-                if (OwnerMaster && !OwnerBody)
+            public void SetupFields()
+            {
+                ItemDisplay = GetComponentInParent<RoR2.ItemDisplay>();
+                if (ItemDisplay)
                 {
-                    var body = OwnerMaster.GetBody();
-                    if (body)
+                    var tempParticleSystems = GetComponentsInChildren<ParticleSystem>();
+
+                    foreach(ParticleSystem particleSystem in tempParticleSystems)
                     {
-                        OwnerBody = body;
+                        ParticleSystems.Add(new ParticleSystemHandler(particleSystem, false));
                     }
-                    if (!body)
+
+                    var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
+
+                    if (characterModel)
                     {
-                        UnityEngine.Object.Destroy(this);
+                        var body = characterModel.body;
+                        if (body)
+                        {
+                            OwnerMaster = body.master;
+                        }
                     }
+
+                    Renderer = GetComponentsInChildren<Renderer>().Where(x => x.gameObject.name.Contains("Blade") && (x.material.name.Contains("BlasterSwordBladeMain") || x.material.name.Contains("BlasterSwordAltBladeSharp"))).FirstOrDefault();
                 }
+            }
 
-                if(OwnerBody && Renderer)
+            public void OnDestroy()
+            {
+                if (ParticleSystems.Any())
                 {
-                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    foreach (ParticleSystemHandler particleSystemHandler in ParticleSystems)
                     {
-                        if(BandHeight < 10)
-                        {
-                            BandHeight += Time.fixedDeltaTime;
-                        }
-                    }
-                    else
-                    {
-                        if(BandHeight > 0)
-                        {
-                            BandHeight -= Time.fixedDeltaTime;
-                        }
-                    }
-
-                    var material = Renderer.material;
-                    if (material)
-                    {
-                        material.SetFloat("_SliceBandHeight", BandHeight);
-                        Renderer.material = material;
+                        UnityEngine.Object.Destroy(particleSystemHandler.ParticleSystem);
                     }
                 }
             }
 
-        }
-
-        public class SwordGlowHandler : MonoBehaviour
-        {
-            public RoR2.ItemDisplay ItemDisplay;
-            public ParticleSystem ParticleSystem;
-            public RoR2.CharacterMaster OwnerMaster;
-            public RoR2.CharacterBody OwnerBody;
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || !ParticleSystem)
+                if (!OwnerMaster || !ItemDisplay || !ParticleSystems.Any() || !Renderer)
                 {
-                    ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
-                    if (ItemDisplay)
-                    {
-                        ParticleSystem = ItemDisplay.GetComponent<ParticleSystem>();
-                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
-                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
-
-                        if (characterModel)
-                        {
-                            var body = characterModel.body;
-                            if (body)
-                            {
-                                OwnerMaster = body.master;
-                            }
-                        }
-                    }
+                    SetupFields();
                 }
 
                 if (OwnerMaster && !OwnerBody)
@@ -1293,40 +1259,61 @@ namespace Aetherium.Items
                     {
                         OwnerBody = body;
                     }
-                    if (!body)
+                    else
                     {
-                        if (ParticleSystem)
-                        {
-                            UnityEngine.Object.Destroy(ParticleSystem);
-                        }
                         UnityEngine.Object.Destroy(this);
                     }
                 }
 
-                if (OwnerBody && ParticleSystem)
+                if (OwnerBody && ParticleSystems.Any())
                 {
-                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    foreach(ParticleSystemHandler particleSystemHandler in ParticleSystems)
                     {
-                        if (!ParticleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                        var particleSystem = particleSystemHandler.ParticleSystem;
+
+                        if (particleSystem)
                         {
-                            ParticleSystem.Play();
-                        }
-                        else
-                        {
-                            if(ParticleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                            if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
                             {
-                                ParticleSystem.Stop();
-                                ParticleSystem.Clear();
+                                if (!particleSystem.isPlaying && !particleSystemHandler.HasPlayed && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                                {
+                                    particleSystem.Play();
+                                    particleSystemHandler.HasPlayed = true;
+                                }
+                                else
+                                {
+                                    if (particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                                    {
+                                        particleSystem.Stop();
+                                        particleSystem.Clear();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (particleSystem.isPlaying)
+                                {
+                                    particleSystem.Stop();
+                                }
+                                particleSystemHandler.HasPlayed = false;
                             }
                         }
                     }
+                }
+
+                if(OwnerBody && Renderer != null)
+                {
+                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    {
+                        GlowCounter += Time.fixedDeltaTime * 8;
+                    }
                     else
                     {
-                        if (ParticleSystem.isPlaying)
-                        {
-                            ParticleSystem.Stop();
-                        }
+                        GlowCounter -= Time.fixedDeltaTime * 8;
                     }
+                    GlowCounter = Mathf.Clamp(GlowCounter, 0, Renderer.materials[0].name.Contains("BlasterSwordBladeMain") ? 6 : 5);
+
+                    Renderer.materials[0].SetFloat("_EmPower", GlowCounter);
                 }
 
             }

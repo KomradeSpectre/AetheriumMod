@@ -121,9 +121,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "LowerArmR",
-                    localPos = new Vector3(-0.014f, 0.127f, -0.08f),
-                    localAngles = new Vector3(0, 160, 180),
-                    localScale = new Vector3(0.3f, 0.3f, 0.3f)
+                    localPos = new Vector3(-0.01392F, 0.15062F, -0.07997F),
+                    localAngles = new Vector3(0.00001F, 160F, 270.2119F),
+                    localScale = new Vector3(0.3F, 0.3F, 0.3F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
@@ -133,9 +133,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "LowerArmR",
-                    localPos = new Vector3(0f, 0.15f, 0.07f),
-                    localAngles = new Vector3(0, 0, 180),
-                    localScale = new Vector3(0.32f, 0.32f, 0.32f)
+                    localPos = new Vector3(0.00001F, 0.20747F, 0.09967F),
+                    localAngles = new Vector3(0F, 0F, 263.2974F),
+                    localScale = new Vector3(0.15937F, 0.15937F, 0.15937F)
                 }
             });
             rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
@@ -145,9 +145,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "LowerArmL",
-                    localPos = new Vector3(-0.036f, 0.21f, -0.041f),
-                    localAngles = new Vector3(350, 180, 90),
-                    localScale = generalScale
+                    localPos = new Vector3(-0.01003F, 0.13759F, -0.07581F),
+                    localAngles = new Vector3(357.1992F, 180F, 90.00002F),
+                    localScale = new Vector3(0.22186F, 0.22186F, 0.22324F)
                 }
             });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -169,9 +169,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "MechLowerArmL",
-                    localPos = new Vector3(0, 0.2f, -0.09f),
-                    localAngles = new Vector3(0, 180, 90),
-                    localScale = new Vector3(0.32f, 0.32f, 0.32f)
+                    localPos = new Vector3(0F, 0.2F, -0.11967F),
+                    localAngles = new Vector3(0F, 180F, 90F),
+                    localScale = new Vector3(0.32F, 0.32F, 0.32F)
                 }
             });
             rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
@@ -181,9 +181,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "LowerArmR",
-                    localPos = new Vector3(0.7f, 3, 0.7f),
-                    localAngles = new Vector3(0, 45, 270),
-                    localScale = new Vector3(2, 2, 2)
+                    localPos = new Vector3(0.7F, 3F, 0.7F),
+                    localAngles = new Vector3(-0.00001F, 45F, 14.43579F),
+                    localScale = new Vector3(2F, 2F, 2F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -192,10 +192,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "LowerArmL",
-                    localPos = new Vector3(-0.058f, 0.23f, 0),
-                    localAngles = new Vector3(10, -90, 90),
-                    localScale = new Vector3(0.3f, 0.3f, 0.3f)
+                    childName = "MuzzleGun",
+                    localPos = new Vector3(-0.02823F, 0.06544F, -0.10462F),
+                    localAngles = new Vector3(282.3442F, 270F, 0F),
+                    localScale = new Vector3(0.19405F, 0.19405F, 0.19405F)
                 }
             });
             rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]

@@ -7,11 +7,14 @@ using RoR2;
 using R2API;
 using static Aetherium.AetheriumPlugin;
 using UnityEngine.Networking;
+using Aetherium.Utils;
 
 namespace Aetherium.Artifacts
 {
     public class ArtifactOfProgression : ArtifactBase<ArtifactOfProgression>
     {
+        public ConfigOption<float> ProgressionInterval;
+        public ConfigOption<bool> EnableSounds;
         public override string ArtifactName => "Artifact of Progression";
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_PROGRESSION";
@@ -31,11 +34,18 @@ namespace Aetherium.Artifacts
 
         public override void Init(ConfigFile config)
         {
+            CreateConfig(config);
             CreateProgressionLookup();
             CreateLang();
             CreateBuff();
             CreateArtifact();
             Hooks();
+        }
+
+        private void CreateConfig(ConfigFile config)
+        {
+            ProgressionInterval = config.ActiveBind<float>("Artifact: " + ArtifactName, "Interval Between Each Progression", 60, "How long until a monster progresses to the next progression state if they have one?");
+            EnableSounds = config.ActiveBind<bool>("Artifact:" + ArtifactName, "Enable Progression Sounds?", true, "Should a sound play each time a monster reaches a progression checkpoint?");
         }
 
         private void CreateBuff()
@@ -75,31 +85,31 @@ namespace Aetherium.Artifacts
 
         private void CreateProgressionLookup()
         {
-            new EvolutionData("BeetleBody", "BeetleGuardBody").Register();
-            new EvolutionData("BeetleGuardBody", "BeetleQueen2Body").Register();
+            new EvolutionData("BeetleMaster", "BeetleGuardMaster").Register();
+            new EvolutionData("BeetleGuardMaster", "BeetleQueenMaster").Register();
 
-            new EvolutionData("ImpBody", "ImpBossBody").Register();
+            new EvolutionData("ImpMaster", "ImpBossMaster").Register();
 
-            new EvolutionData("JellyfishBody", "VagrantBody").Register();
+            new EvolutionData("JellyfishMaster", "VagrantMaster").Register();
 
-            new EvolutionData("LemurianBody", "LemurianBruiserBody").Register();
+            new EvolutionData("LemurianMaster", "LemurianBruiserMaster").Register();
 
-            new EvolutionData("WispBody", "GreaterWispBody").Register();
+            new EvolutionData("WispMaster", "GreaterWispMaster").Register();
 
-            new EvolutionData("ParentBody", "GrandparentBody").Register();
+            new EvolutionData("ParentMaster", "GrandparentMaster").Register();
 
-            new EvolutionData("ClayBruiserBody", "ClayBossBody").Register();
+            new EvolutionData("ClayBruiserMaster", "ClayBossMaster").Register();
 
-            new EvolutionData("GolemBody", "TitanBody").Register();
+            new EvolutionData("GolemMaster", "TitanMaster").Register();
 
-            new EvolutionData("VultureBody", "SuperRoboBallBossBody").Register();
+            new EvolutionData("VultureMaster", "SuperRoboBallBossMaster").Register();
 
-            new EvolutionData("RoboBallMiniBody", "RoboBallBossBody").Register();
+            new EvolutionData("RoboBallMiniMaster", "RoboBallBossMaster").Register();
 
-            new EvolutionData("LunarExploderBody", "LunarGolemBody").Register();
-            new EvolutionData("LunarGolemBody", "LunarWispBody").Register();
+            new EvolutionData("LunarExploderMaster", "LunarGolemMaster").Register();
+            new EvolutionData("LunarGolemMaster", "LunarWispMaster").Register();
 
-            new EvolutionData("HermitCrabBody", "NullifierBody").Register();
+            new EvolutionData("HermitCrabMaster", "NullifierMaster").Register();
         }
 
         public override void Hooks()
@@ -114,10 +124,10 @@ namespace Aetherium.Artifacts
             {
                 if (self.master && self.master.teamIndex != TeamIndex.Player && newBody && !newBody.isBoss)
                 {
-                    var bodyName = self.body.name.Replace("(Clone)", "");
-                    if (ProgressionLookup.ContainsKey(bodyName))
+                    var masterName = self.master.name.Replace("(Clone)", "");
+                    if (ProgressionLookup.ContainsKey(masterName))
                     {
-                        List<EvolutionData.EvolvedStateData> evolutionData = ProgressionLookup[bodyName].PossibleNextEvolutions;
+                        List<EvolutionData.EvolvedStateData> evolutionData = ProgressionLookup[masterName].PossibleNextEvolutions;
 
                         GameObject choice;
 
@@ -140,22 +150,30 @@ namespace Aetherium.Artifacts
                         if (!evolutionManagerComponent)
                         {
                             evolutionManagerComponent = newBody.gameObject.AddComponent<EvolutionManagerComponent>();
-                            evolutionManagerComponent.EvolutionInterval = 30;
-                            evolutionManagerComponent.EvolutionBodyName = choice.name;
+                            evolutionManagerComponent.EvolutionInterval = ProgressionInterval;
+                            evolutionManagerComponent.EvolutionMasterPrefab = choice;
                         }
                     }
                 }
             }
         }
 
-        public class EvolutionManagerComponent : MonoBehaviour
+        public class EvolutionManagerComponent : NetworkBehaviour
         {
+            private bool EvolvedThisCycle;
+
             private CharacterBody Body;
-            public string EvolutionBodyName;
+
+            [SyncVar]
+            public GameObject EvolutionMasterPrefab;
+
+            public List<Material> MaterialsOfBody;
 
             private CharacterMaster Master;
 
+            [SyncVar]
             public float Timer;
+
             public float EvolutionInterval;
 
             public void Start()
@@ -166,13 +184,14 @@ namespace Aetherium.Artifacts
                 if (NetworkServer.active)
                 {
                     Body.AddBuff(ProgressionStartBuff);
-                    PlayEvolutionaryStepVFX(1);
+                    PlayEvolutionaryStepVFX(1, Color.red);
                 }
-                
             }
 
             public void FixedUpdate()
             {
+                EvolvedThisCycle = false;
+
                 Timer += Time.fixedDeltaTime;
 
                 if (NetworkServer.active)
@@ -181,47 +200,65 @@ namespace Aetherium.Artifacts
                     {
                         if (Body.HasBuff(ProgressionStartBuff)) { Body.RemoveBuff(ProgressionStartBuff); }
                         Body.AddBuff(ProgressionQuarterBuff);
-                        PlayEvolutionaryStepVFX(2);
+                        PlayEvolutionaryStepVFX(2, Color.yellow);
                     }
 
                     if (Timer > EvolutionInterval * 0.5f && Timer <= EvolutionInterval * 0.75f && !Body.HasBuff(ProgressionHalfBuff))
                     {
                         if (Body.HasBuff(ProgressionQuarterBuff)) { Body.RemoveBuff(ProgressionQuarterBuff); }
                         Body.AddBuff(ProgressionHalfBuff);
-                        PlayEvolutionaryStepVFX(3);
+                        PlayEvolutionaryStepVFX(3, Color.green);
                     }
 
                     if (Timer > EvolutionInterval * 0.75f && Timer <= EvolutionInterval && !Body.HasBuff(ProgressionThreeQuartersBuff))
                     {
                         if (Body.HasBuff(ProgressionHalfBuff)) { Body.RemoveBuff(ProgressionHalfBuff); }
                         Body.AddBuff(ProgressionThreeQuartersBuff);
-                        PlayEvolutionaryStepVFX(4);
+                        PlayEvolutionaryStepVFX(4, Color.white);
+                    }
+
+                    if (Timer > EvolutionInterval && Master)
+                    {
+                        Destroy(this);
+
+                        CharacterMaster summonedThing = new MasterSummon()
+                        {
+                            masterPrefab = EvolutionMasterPrefab,
+                            position = Body.corePosition,
+                            rotation = Body.transform.rotation,
+                            summonerBodyObject = Body.gameObject,
+                            ignoreTeamMemberLimit = true,
+                            inventoryToCopy = Body.inventory ? Body.inventory : null
+                        }.Perform();
+
+                        Master.TrueKill();
                     }
                 }
 
-                if (Timer > EvolutionInterval && Master)
+                if (EvolvedThisCycle && ArtifactOfProgression.instance.EnableSounds)
                 {
-                    Destroy(this);
-                    Master.TransformBody(EvolutionBodyName);
+                    AkSoundEngine.PostEvent(2977168664, Body.gameObject);
                 }
             }
 
-            private void PlayEvolutionaryStepVFX(float scale)
+            private void PlayEvolutionaryStepVFX(float scale, Color color)
             {
                 EffectData effectData = new EffectData()
                 {
+                    color = color,
                     origin = Body.transform.position,
                     rotation = Body.transform.rotation,
-                    scale = scale
+                    scale = scale                    
                 };
 
-                EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/ShrineUseEffect"), effectData, true);
+                EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
+                EvolvedThisCycle = true;
             }
         }
     }
 
     /// <summary>
-    /// A data structure useful for storing next evolution data of a body and registering them.
+    /// A data structure useful for storing next evolution data of a master and registering them.
     /// </summary>
     public struct EvolutionData
     {
@@ -231,7 +268,7 @@ namespace Aetherium.Artifacts
         /// <summary>
         /// Constructor with no next evolutions assigned.
         /// </summary>
-        /// <param name="currentEvolutionName">Name of the current evolution State. In other words, the current body name.</param>
+        /// <param name="currentEvolutionName">Name of the current evolution State. In other words, the current master name.</param>
         public EvolutionData(string currentEvolutionName)
         {
             CurrentEvolutionName = currentEvolutionName;
@@ -243,8 +280,8 @@ namespace Aetherium.Artifacts
         /// Pass null in resource to specify a vanilla resource.
         /// If it is a custom resource, load it from the bundle.
         /// </summary>
-        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current body name.</param>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next body name.</param>
+        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current master name.</param>
+        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
         /// <param name="resource">Prefab of the next body state.</param>
         public EvolutionData(string currentEvolutionName, string nextEvolutionName, GameObject resource) : this(currentEvolutionName)
         {
@@ -254,8 +291,8 @@ namespace Aetherium.Artifacts
         /// <summary>
         /// Constructor with an assignment of one next evolution without specifying a resource, which means it will use a vanilla resource.
         /// </summary>
-        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current body name.</param>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next body name.</param>
+        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current master name.</param>
+        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
         public EvolutionData(string currentEvolutionName, string nextEvolutionName) : this(currentEvolutionName, nextEvolutionName, null) { }
 
         /// <summary>
@@ -263,13 +300,13 @@ namespace Aetherium.Artifacts
         /// Pass null in resource to specify a vanilla resource.
         /// If it is a custom resource, load it from the bundle.
         /// </summary>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next body name.</param>
-        /// <param name="resource">Prefab of the next body state.</param>
+        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
+        /// <param name="resource">Prefab of the next master state.</param>
         public void Store(string nextEvolutionName, GameObject resource)
         {
             if (!resource)
             {
-                resource = Resources.Load<GameObject>($"Prefabs/characterbodies/{nextEvolutionName}");
+                resource = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{nextEvolutionName}");
             }
             PossibleNextEvolutions.Add(new EvolvedStateData(nextEvolutionName, resource));
         }
