@@ -20,11 +20,13 @@ using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Compatability.ModCompatability.ArtifactOfTheKingCompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Runtime.CompilerServices;
+using RoR2.Audio;
 
 namespace Aetherium.Items
 {
     public class UnstableDesign : ItemBase<UnstableDesign>
     {
+        public static ConfigOption<bool> EnableSounds;
         public static ConfigOption<float> SecondsBeforeFirstLunarChimeraSpawn;
         public static ConfigOption<float> LunarChimeraResummonCooldownDuration;
         public static ConfigOption<float> LunarChimeraRetargetingCooldown;
@@ -72,6 +74,10 @@ namespace Aetherium.Items
         public static GameObject TargetingIndicatorSphere;
         public static GameObject TargetingIndicatorArrow;
 
+        public static NetworkSoundEventDef LostTargetSound;
+        public static NetworkSoundEventDef SearchCrySound;
+
+
         public static SkillDef airSkill
         {
             get
@@ -99,6 +105,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateSound();
             CreateTargetingPrefabs();
             CreateSpawncard();
             CreateItem();
@@ -107,6 +114,8 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+
             SecondsBeforeFirstLunarChimeraSpawn = config.ActiveBind<float>("Item: " + ItemName, "Seconds Before First Lunar Chimera Spawn", 15f, "How many seconds into a stage/life before the Lunar Chimera can spawn for the first time?");
             LunarChimeraResummonCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?");
             LunarChimeraRetargetingCooldown = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Retargeting Cooldown", 10f, "If the Lunar Chimera has lost line of sight, what should the cooldown be between checking for targets?");
@@ -120,6 +129,18 @@ namespace Aetherium.Items
             EnableTargetingIndicator = config.ActiveBind<bool>("Item: " + ItemName, "Enable Targeting Indicator?", true, "Should a targeting indicator appear over things targeted by the Unstable Design?");
             ShouldUnstableDesignPullAggroOnTargets = config.ActiveBind<bool>("Item: " + ItemName, "Should Unstable Design Pull Aggression From Its Targets?", true, "Should Unstable Design Pull Aggro? If true, anything targeted by the Unstable Design (outside of players) will start attacking it.");
             ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled = config.ActiveBind<bool>("Item: " + ItemName, "Replace Unstable Design Air Skill if AOTK is Installed", false, "Should the default primary (Lunar Sprint Shards) be replaced with the Lunar Exploder's Primary (Tri-Orb Shot) if Artifact of the King is installed?");
+        }
+
+        private void CreateSound()
+        {
+            LostTargetSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            LostTargetSound.eventName = "Aetherium_Lost_Target";
+            SoundAPI.AddNetworkedSoundEvent(LostTargetSound);
+
+            SearchCrySound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            SearchCrySound.eventName = "Aetherium_Search_Cry";
+            SoundAPI.AddNetworkedSoundEvent(SearchCrySound);
+
         }
 
         private void CreateTargetingPrefabs()
@@ -384,6 +405,7 @@ namespace Aetherium.Items
                                     cBody.teamComponent.teamIndex = TeamIndex.Neutral;
                                     cBody.gameObject.AddComponent<LunarChimeraRetargetComponent>();
                                     lcComponent.LastChimeraSpawned = cBody;
+
                                     RoR2.DeathRewards deathRewards = cBody.GetComponent<RoR2.DeathRewards>();
                                     
                                     if (deathRewards)
@@ -577,14 +599,14 @@ namespace Aetherium.Items
                                     baseAIComponent.currentEnemy.Reset();
                                     baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
 
-                                    if (baseAIComponent.currentEnemy != null && !baseAIComponent.currentEnemy.hasLoS)
+                                    if (baseAIComponent.currentEnemy != null && !baseAIComponent.currentEnemy.hasLoS && EnableSounds)
                                     {
-                                        AkSoundEngine.PostEvent(3906026136, body.gameObject);
+                                        EntitySoundManager.EmitSoundServer(LostTargetSound.akId, body.gameObject);
                                     }
 
-                                    if (baseAIComponent.currentEnemy == null)
+                                    if (baseAIComponent.currentEnemy == null && EnableSounds)
                                     {
-                                        AkSoundEngine.PostEvent(4013028197, body.gameObject);
+                                        EntitySoundManager.EmitSoundServer(SearchCrySound.akId, body.gameObject);
                                     }
 
                                     SetCooldown();

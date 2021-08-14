@@ -2,6 +2,7 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
+using RoR2.Audio;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,8 +18,9 @@ namespace Aetherium.Items
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
         //Config
-        public static ConfigOption<float> BaseSipCooldownDuration;
+        public static ConfigOption<bool> EnableSounds;
 
+        public static ConfigOption<float> BaseSipCooldownDuration;
         public static ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
         public static ConfigOption<float> BaseRadiusGranted;
         public static ConfigOption<float> AdditionalRadiusGranted;
@@ -60,26 +62,37 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+        public static NetworkSoundEventDef AccursedPotionGulp;
+
         public List<BuffDef> BlacklistedBuffsAndDebuffs = new List<BuffDef>();
 
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateLang();
+            CreateSound();
             CreateBuff();
-
             CreateItem();
             Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
+            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+
             BaseSipCooldownDuration = config.ActiveBind("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
             AdditionalStackSipCooldownReductionPercentage = config.ActiveBind("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
             BaseRadiusGranted = config.ActiveBind("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
             AdditionalRadiusGranted = config.ActiveBind("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
             MaxEffectsAccrued = config.ActiveBind("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
             BlacklistedBuffsAndDebuffsString = config.ActiveBind("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?");
+        }
+
+        private void CreateSound()
+        {
+            AccursedPotionGulp = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            AccursedPotionGulp.eventName = "Aetherium_Gulp";
+            SoundAPI.AddNetworkedSoundEvent(AccursedPotionGulp);
         }
 
         private void CreateBuff()
@@ -279,7 +292,6 @@ namespace Aetherium.Items
 
         private void ForceFeedPotion(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
-            bool drankPotion = false;
             if (NetworkServer.active)
             {
                 var InventoryCount = GetCount(self);
@@ -317,14 +329,14 @@ namespace Aetherium.Items
                             }
                             AddBuffAndDot(AccursedPotionSipCooldownDebuff, BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, InventoryCount - 1), 1, self);
                             AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, self);
-                            drankPotion = true;
+
+                            if (EnableSounds)
+                            {
+                                EntitySoundManager.EmitSoundServer(AccursedPotionGulp.akId, self.gameObject);
+                            }
                         }
                     }
                 }
-            }
-            if (drankPotion)
-            {
-                AkSoundEngine.PostEvent(722511457, self.gameObject);
             }
             orig(self);
         }

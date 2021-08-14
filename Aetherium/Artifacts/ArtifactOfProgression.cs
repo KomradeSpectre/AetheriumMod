@@ -5,16 +5,20 @@ using System.Text;
 using UnityEngine;
 using RoR2;
 using R2API;
+using static Aetherium.Utils.MiscUtils;
 using static Aetherium.AetheriumPlugin;
 using UnityEngine.Networking;
 using Aetherium.Utils;
+using RoR2.Audio;
 
 namespace Aetherium.Artifacts
 {
     public class ArtifactOfProgression : ArtifactBase<ArtifactOfProgression>
     {
-        public ConfigOption<float> ProgressionInterval;
-        public ConfigOption<bool> EnableSounds;
+        public static ConfigOption<float> ProgressionInterval;
+        public static ConfigOption<bool> EnableSounds;
+        public static ConfigOption<bool> DoubleGoldAndExpOfProgressions;
+
         public override string ArtifactName => "Artifact of Progression";
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_PROGRESSION";
@@ -32,11 +36,16 @@ namespace Aetherium.Artifacts
         public static BuffDef ProgressionHalfBuff;
         public static BuffDef ProgressionThreeQuartersBuff;
 
+        public static GameObject ProgressionSoundEffectHolder;
+
+        public static NetworkSoundEventDef ProgressionSquelchEvent;
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
             CreateProgressionLookup();
             CreateLang();
+            CreateSound();
             CreateBuff();
             CreateArtifact();
             Hooks();
@@ -46,6 +55,15 @@ namespace Aetherium.Artifacts
         {
             ProgressionInterval = config.ActiveBind<float>("Artifact: " + ArtifactName, "Interval Between Each Progression", 60, "How long until a monster progresses to the next progression state if they have one?");
             EnableSounds = config.ActiveBind<bool>("Artifact:" + ArtifactName, "Enable Progression Sounds?", true, "Should a sound play each time a monster reaches a progression checkpoint?");
+            DoubleGoldAndExpOfProgressions = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Double Gold and Exp Reward of Progressions", true, "Should progressions spawned by the Progression effect have doubled money and exp?");
+        }
+
+        private void CreateSound()
+        {
+            ProgressionSquelchEvent = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            ProgressionSquelchEvent.eventName = "Aetherium_Progression_Squelch";
+
+            SoundAPI.AddNetworkedSoundEvent(ProgressionSquelchEvent);
         }
 
         private void CreateBuff()
@@ -160,8 +178,6 @@ namespace Aetherium.Artifacts
 
         public class EvolutionManagerComponent : NetworkBehaviour
         {
-            private bool EvolvedThisCycle;
-
             private CharacterBody Body;
 
             [SyncVar]
@@ -190,8 +206,6 @@ namespace Aetherium.Artifacts
 
             public void FixedUpdate()
             {
-                EvolvedThisCycle = false;
-
                 Timer += Time.fixedDeltaTime;
 
                 if (NetworkServer.active)
@@ -231,13 +245,22 @@ namespace Aetherium.Artifacts
                             inventoryToCopy = Body.inventory ? Body.inventory : null
                         }.Perform();
 
+                        var summonBody = summonedThing.GetBody();
+                        if (summonBody)
+                        {
+                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
+                            var summonDeathRewards = summonBody.GetComponent<DeathRewards>();
+                            var originalBodyDeathRewards = Body.GetComponent<DeathRewards>();
+
+                            if (summonDeathRewards && originalBodyDeathRewards)
+                            {
+                                summonDeathRewards.expReward = DoubleGoldAndExpOfProgressions ? originalBodyDeathRewards.expReward * 2 : originalBodyDeathRewards.expReward;
+                                summonDeathRewards.goldReward = DoubleGoldAndExpOfProgressions ? originalBodyDeathRewards.goldReward * 2 : originalBodyDeathRewards.goldReward;
+                            }
+                        }
+
                         Master.TrueKill();
                     }
-                }
-
-                if (EvolvedThisCycle && ArtifactOfProgression.instance.EnableSounds)
-                {
-                    AkSoundEngine.PostEvent(2977168664, Body.gameObject);
                 }
             }
 
@@ -252,7 +275,7 @@ namespace Aetherium.Artifacts
                 };
 
                 EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
-                EvolvedThisCycle = true;
+                EntitySoundManager.EmitSoundServer(ProgressionSquelchEvent.akId, Body.gameObject);
             }
         }
     }

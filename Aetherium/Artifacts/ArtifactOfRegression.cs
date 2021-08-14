@@ -9,11 +9,15 @@ using UnityEngine.Networking;
 using RoR2.Navigation;
 using static Aetherium.Utils.MiscUtils;
 using static Aetherium.AetheriumPlugin;
+using R2API;
 
 namespace Aetherium.Artifacts
 {
     public class ArtifactOfRegression : ArtifactBase<ArtifactOfRegression>
     {
+        public ConfigOption<int> RegressionSplitMonsterCap;
+        public ConfigOption<bool> ReduceGoldAndExpOfChildren;
+
         public ConfigOption<int> QueenToGuardSplitNumber;
         public ConfigOption<int> GuardToBeetleSplitNumber;
         public ConfigOption<int> CrystalGuardToCrystalBeetleSplitNumber;
@@ -66,6 +70,10 @@ namespace Aetherium.Artifacts
 
         private void CreateConfig(ConfigFile config)
         {
+            RegressionSplitMonsterCap = config.ActiveBind<int>("Artifact: " + ArtifactName, "Regression Split Monster Cap", 48, "At what monster population should we not be able to split anymore?");
+
+            ReduceGoldAndExpOfChildren = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Reduce Gold and Exp Reward of Children", true, "Should children spawned by the Regression effect have halved money and exp?");
+
             QueenToGuardSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Queen to Guard Split Amount", 2, "How many Beetle Guards should appear when the Beetle Queen has regressed?");
             GuardToBeetleSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Guard to Beetle Split Amount", 4, "How many Beetles should appear when the Beetle Guard has regressed?");
             CrystalGuardToCrystalBeetleSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Crystal Guard to Crystal Beetle Split Amount", 4, "How many Crystal Beetles should appear when the Crystal Beetle Guard has regressed?");
@@ -157,47 +165,62 @@ namespace Aetherium.Artifacts
         private void RegressAIToLowerForm(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
         {
             CharacterMaster master = self.master;
+
             if (ArtifactEnabled && NetworkServer.active && IsExisting(master) && IsAnEnemy(master))
             {
-                string masterName = master.name.Replace("(Clone)", "");
+                var monsterPopulation = RoR2.TeamComponent.GetTeamMembers(TeamIndex.Monster).Count + RoR2.TeamComponent.GetTeamMembers(TeamIndex.Lunar).Count;
 
-                if (RegressionLookup.ContainsKey(masterName))
+                if(monsterPopulation < RegressionSplitMonsterCap)
                 {
-                    List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;
-                    int totalChildrenCount = childrenList.Sum(child => child.Count);
-                    float theta = (float)Math.PI * 2 / totalChildrenCount;
-                    int radius = totalChildrenCount;
-                    int angleCounter = 0;
-                    foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
+                    string masterName = master.name.Replace("(Clone)", "");
+
+                    if (RegressionLookup.ContainsKey(masterName))
                     {
-                        if (child.Resource)
+                        List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;
+                        int totalChildrenCount = childrenList.Sum(child => child.Count);
+                        float theta = (float)Math.PI * 2 / totalChildrenCount;
+                        int radius = totalChildrenCount;
+                        int angleCounter = 0;
+                        foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
                         {
-                            for (int i = 0; i < child.Count; i++)
+                            if (child.Resource)
                             {
-                                float angle = theta * ++angleCounter;
-                                Vector3 positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
-                                                                     characterBody.corePosition.y + 2f,
-                                                                     (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
-
-
-                                CharacterMaster summonedThing = new MasterSummon()
+                                for (int i = 0; i < child.Count; i++)
                                 {
-                                    masterPrefab = child.Resource,
-                                    position = positionChosen,
-                                    rotation = characterBody.transform.rotation,
-                                    summonerBodyObject = characterBody.gameObject,
-                                    ignoreTeamMemberLimit = true,
-                                    inventoryToCopy = characterBody.inventory ? characterBody.inventory : null
-                                }.Perform();
+                                    float angle = theta * ++angleCounter;
+                                    Vector3 positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
+                                                                         characterBody.corePosition.y + 2f,
+                                                                         (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
 
-                                if (summonedThing)
-                                {
-                                    EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
 
-                                    var summonBody = summonedThing.GetBody();
-                                    if (summonBody)
+                                    CharacterMaster summonedThing = new MasterSummon()
                                     {
-                                        summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
+                                        masterPrefab = child.Resource,
+                                        position = positionChosen,
+                                        rotation = characterBody.transform.rotation,
+                                        summonerBodyObject = characterBody.gameObject,
+                                        ignoreTeamMemberLimit = true,
+                                        inventoryToCopy = characterBody.inventory ? characterBody.inventory : null,
+                                        useAmbientLevel = true,
+                                    }.Perform();
+
+                                    if (summonedThing)
+                                    {
+                                        EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
+
+                                        var summonBody = summonedThing.GetBody();
+                                        if (summonBody)
+                                        {
+                                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
+                                            var summonDeathRewards = summonBody.GetComponent<DeathRewards>();
+                                            var originalBodyDeathRewards = characterBody.GetComponent<DeathRewards>();
+
+                                            if (summonDeathRewards && originalBodyDeathRewards)
+                                            {
+                                                summonDeathRewards.expReward = ReduceGoldAndExpOfChildren ? originalBodyDeathRewards.expReward / 2 : originalBodyDeathRewards.expReward;
+                                                summonDeathRewards.goldReward = ReduceGoldAndExpOfChildren ? originalBodyDeathRewards.goldReward / 2 : originalBodyDeathRewards.goldReward;
+                                            }
+                                        }
                                     }
                                 }
                             }

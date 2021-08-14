@@ -49,7 +49,9 @@ namespace Aetherium.Artifacts
 
             if (NetworkServer.active && ArtifactEnabled)
             {
-                if (!self.isBoss && self.teamIndex != TeamIndex.Player && self.inventory)
+                var hereticCacheComponent = self.GetComponent<NightmareHereticCache>();
+
+                if (!self.isBoss && self.teamIndex != TeamIndex.Player && self.inventory && !hereticCacheComponent)
                 {
                     var itemsToGiveEnemy = HeresyItemList.Where(x => body.inventory.GetItemCount(x) <= 0).Shuffle(Run.instance.stageRng).Take(Run.instance.stageRng.RangeInt(1, 5));
 
@@ -57,8 +59,52 @@ namespace Aetherium.Artifacts
                     {
                         self.inventory.GiveItem(item);
                     }
+
+                    var uniqueHeresyItemCount = 0;
+
+                    foreach(ItemDef itemDef in HeresyItemList)
+                    {
+                        var count = body.inventory.GetItemCount(itemDef);
+                        if(count > 0)
+                        {
+                            uniqueHeresyItemCount++;
+                            continue;
+                        }
+                    }
+
+                    if(uniqueHeresyItemCount >= 4)
+                    {
+                        var hereticCache = self.gameObject.AddComponent<NightmareHereticCache>();
+
+                        var originalBodyDeathRewards = body.GetComponent<DeathRewards>();
+                        if (originalBodyDeathRewards)
+                        {
+                            hereticCache.GoldReward = originalBodyDeathRewards.goldReward;
+                            hereticCache.ExpReward = originalBodyDeathRewards.expReward;
+                        }
+                    }
+                }
+
+                if (hereticCacheComponent)
+                {
+                    var deathRewards = body.GetComponent<DeathRewards>();
+
+                    if (!deathRewards)
+                    {
+                        deathRewards = body.gameObject.AddComponent<DeathRewards>();
+                    }
+
+                    deathRewards.characterBody = body;
+                    deathRewards.goldReward = hereticCacheComponent.GoldReward;
+                    deathRewards.expReward = hereticCacheComponent.ExpReward;
                 }
             }
+        }
+
+        public class NightmareHereticCache : MonoBehaviour
+        {
+            public uint GoldReward;
+            public uint ExpReward;
         }
     }
 }

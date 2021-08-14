@@ -2,6 +2,7 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
+using RoR2.Audio;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,6 +16,8 @@ namespace Aetherium.Items
 {
     public class EngineersToolbelt : ItemBase<EngineersToolbelt>
     {
+        public static ConfigOption<bool> EnableSounds;
+
         public static ConfigOption<float> BaseDuplicationPercentChance;
         public static ConfigOption<float> AdditionalDuplicationPercentChance;
 
@@ -70,6 +73,8 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
 
+        public static NetworkSoundEventDef ToolbeltRepairSound;
+
         private static readonly List<string> DronesList = new List<string>
         {
             "DroneBackup",
@@ -87,17 +92,28 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateSound();
             CreateItem();
             Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
+            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+
             BaseDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Duplication Percent Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase with the first stack of this?");
             AdditionalDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Duplication Percentage Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase per additional stack? (hyperbolically)");
 
             BaseRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death with the first stack of this?");
             AdditionalRevivalPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Revival Percentage Chance", 0.1f, "What chance in percentage should a drone or turret have of reviving on death per additional stack?");
+        }
+
+        private void CreateSound()
+        {
+            ToolbeltRepairSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            ToolbeltRepairSound.eventName = "Aetherium_Duplicate_Bot";
+
+            SoundAPI.AddNetworkedSoundEvent(ToolbeltRepairSound);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -350,7 +366,10 @@ namespace Aetherium.Items
                                                             summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
                                                         }
 
-                                                        AkSoundEngine.PostEvent(2596808706, summonedDrone.gameObject);
+                                                        if (EnableSounds)
+                                                        {
+                                                            EntitySoundManager.EmitSoundServer(ToolbeltRepairSound.akId, summonedDrone.gameObject);
+                                                        }
                                                     }
                                                 }
                                             }
