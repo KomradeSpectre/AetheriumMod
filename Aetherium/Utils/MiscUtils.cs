@@ -51,5 +51,35 @@ namespace Aetherium.Utils
             Debug.LogWarning($"No closest node to be found for XYZ: {position}, returning 0,0,0");
             return Vector3.zero;
         }
+
+        public static Vector3? AboveTargetVectorFromDamageInfo(DamageInfo damageInfo, float distanceAboveTarget)
+        {
+            if (damageInfo.rejected || !damageInfo.attacker) { return null; }
+
+            var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
+
+            if (attackerBody)
+            {
+                RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(attackerBody.teamComponent.teamIndex);
+                HurtBox hurtBox = new RoR2.SphereSearch
+                {
+                    radius = 1,
+                    mask = RoR2.LayerIndex.entityPrecise.mask,
+                    origin = damageInfo.position
+                }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeams).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().FirstOrDefault();
+
+                if (hurtBox)
+                {
+                    if(hurtBox.healthComponent && hurtBox.healthComponent.body)
+                    {
+                        var body = hurtBox.healthComponent.body;
+                        return body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * distanceAboveTarget);
+                    }
+                    
+                }
+            }
+
+            return null;
+        }
     }
 }

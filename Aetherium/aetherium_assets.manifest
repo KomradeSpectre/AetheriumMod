@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2200470264
+CRC: 3007108895
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 3e65c3e8149a35906799ee6abefcb971
+    Hash: 7d2771f91b69c7d8d094c2cea7b3e0e1
   TypeTreeHash:
     serializedVersion: 2
     Hash: 0e13e2d6fb7340e39ccffbc36e8951dc
@@ -299,7 +299,7 @@ Assets:
 - Assets/Textures/Material Textures/10587.jpg
 - Assets/Textures/Material Textures/GenericDustRamp.png
 - Assets/Shaders/3D Shaders/Iridescent.shader
-- Assets/Models/Prefabs/Item/NailBomb/NailBombProjectile.prefab
+- Assets/Models/Prefabs/Item/NailBomb/NailBomb.prefab
 - Assets/Models/Raw Models/JarOfReshaping.blend
 - Assets/Textures/Material Textures/11375-bump1.jpg
 - Assets/Models/Prefabs/Item/EngineersToolbelt/EngineersToolbelt.prefab
@@ -322,6 +322,7 @@ Assets:
 - Assets/Textures/Material Textures/testcolorrampforintersectionshader.png
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerPlumes.mat
 - Assets/Textures/Material Textures/plume.png
+- Assets/Models/Prefabs/Item/NailBomb/NailBombProjectile.prefab
 - Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBone.mat
 - Assets/Shaders/3D Shaders/FireMaskShader.shader
 - Assets/Textures/Material Textures/index - Copy.png

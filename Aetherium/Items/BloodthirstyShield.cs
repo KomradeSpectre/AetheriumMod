@@ -39,7 +39,7 @@ namespace Aetherium.Items
             "Ballad of Letheseus, Hero of the Isles - Act II, Scene III\n\n" +
 
             "The sound of metal tearing flesh ripples through the air; the soldiers within seemingly unaffected by the macabre orchestra around them. " +
-            "All that matters to them is their own survival, regardless of whose blood that survival costs.One after another, the Xiphos meets its mark until there is only one man left.\n\n" +
+            "All that matters to them is their own survival, regardless of whose blood that survival costs. One after another, the Xiphos meets its mark until there is only one man left.\n\n" +
 
             "The sound dies down. Letheseus kneels upon the crimson soil, worn out from his deadly dance. His Xiphos shall serve him no longer. " +
             "His Aspis, albeit cracked, shall continue to protect him as long as he is able to pay it a tribute he can only find in the fury of battle.";

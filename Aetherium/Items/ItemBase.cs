@@ -43,6 +43,8 @@ namespace Aetherium.Items
 
         public virtual bool AIBlacklisted { get; set; } = false;
 
+        public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
+
         public abstract void Init(ConfigFile config);
 
         protected void CreateLang()
@@ -73,6 +75,7 @@ namespace Aetherium.Items
             ItemDef.hidden = false;
             ItemDef.canRemove = CanRemove;
             ItemDef.tier = Tier;
+            ItemDef.unlockableDef = ItemUnlockableDef;
 
             if(ItemTags.Length > 0) { ItemDef.tags = ItemTags; }
 

@@ -24,6 +24,7 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : ItemBase<InspiringDrone>
     {
+        public static ConfigOption<bool> RequireUnlock;
         public static ConfigOption<bool> IsGreenRarity;
         public static ConfigOption<bool> SetAllStatValuesAtOnce;
         public static ConfigOption<float> AllStatValueGrantedPercentage;
@@ -113,6 +114,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            RequireUnlock = config.ActiveBind<bool>("Item: " + ItemName, "Should the Inspiring Drone be required to be unlocked?", true, "Should you have to go through the process of unlocking the inspiring drone?");
             IsGreenRarity = config.ActiveBind<bool>("Item: " + ItemName, "Should the Inspiring Drone be Green Rarity instead of Red Rarity?", false, "Should the Inspiring Drone show up in the Tier2 (Green Rarity) item pool instead of the Tier3 (Red Rarity) item pool?");
             SetAllStatValuesAtOnce = config.ActiveBind<bool>("Item: " + ItemName, "Set All Stat Gain Percentages at Once?", true, "Do you want to set all the values of the Drone's stats at once? If false, prepare for a long description.");
             AllStatValueGrantedPercentage = config.ActiveBind<float>("Item: " + ItemName, "Stat Gain Percentage (All)", 0.5f, "What percentage of stats from the drone's owner do we transfer over to the drones per stack? 0.5 = 50%");
