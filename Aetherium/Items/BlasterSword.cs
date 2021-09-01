@@ -64,7 +64,8 @@ namespace Aetherium.Items
         {
             "LightningStake",
             "StickyBomb",
-            "FireworkProjectile"
+            "FireworkProjectile",
+            "NailBombProjectile"
         };
 
         public static RoR2.BuffDef BlasterSwordActiveBuff;

@@ -78,7 +78,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+            EnableSounds = config.ActiveBind<bool>("Item: " + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
 
             BaseSipCooldownDuration = config.ActiveBind("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
             AdditionalStackSipCooldownReductionPercentage = config.ActiveBind("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");

@@ -114,7 +114,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+            EnableSounds = config.ActiveBind<bool>("Item: " + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
 
             SecondsBeforeFirstLunarChimeraSpawn = config.ActiveBind<float>("Item: " + ItemName, "Seconds Before First Lunar Chimera Spawn", 15f, "How many seconds into a stage/life before the Lunar Chimera can spawn for the first time?");
             LunarChimeraResummonCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Duration of Chimera Resummoning Cooldown", 30f, "What should be our duration between summoning the Lunar Chimera?");

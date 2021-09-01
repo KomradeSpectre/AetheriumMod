@@ -8,25 +8,25 @@ namespace Aetherium.Utils.Components
 {
     public class ProjectileVelocityDetonate : MonoBehaviour
     {
-        public ProjectileImpactExplosion ProjectileImpactExplosion;
+        public ProjectileFixedImpactExplosion ProjectileFixedImpactExplosion;
         public ProjectileController ProjectileController;
         public void Start()
         {
-            var impactExplosion = GetComponent<ProjectileImpactExplosion>();
+            var impactExplosion = GetComponent<ProjectileFixedImpactExplosion>();
             if (impactExplosion)
             {
-                ProjectileImpactExplosion = impactExplosion;
+                ProjectileFixedImpactExplosion = impactExplosion;
                 ProjectileController = impactExplosion.projectileController;
             }
         }
 
         public void FixedUpdate()
         {
-            if(ProjectileController && ProjectileImpactExplosion)
+            if(ProjectileController && ProjectileFixedImpactExplosion)
             {
                 if(ProjectileController.rigidbody && ProjectileController.rigidbody.velocity.y < 0)
                 {
-                    ProjectileImpactExplosion.Detonate();
+                    ProjectileFixedImpactExplosion.Detonate();
                 }
             }
             else

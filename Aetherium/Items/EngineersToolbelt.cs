@@ -99,7 +99,7 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            EnableSounds = config.ActiveBind<bool>("Item:" + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
+            EnableSounds = config.ActiveBind<bool>("Item: " + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
 
             BaseDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Base Duplication Percent Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase with the first stack of this?");
             AdditionalDuplicationPercentChance = config.ActiveBind<float>("Item: " + ItemName, "Additional Duplication Percentage Chance", 0.2f, "What chance in percentage should a drone or turret have of duplicating on purchase per additional stack? (hyperbolically)");

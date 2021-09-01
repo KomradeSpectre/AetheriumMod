@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3007108895
+CRC: 829374408
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7d2771f91b69c7d8d094c2cea7b3e0e1
+    Hash: 423ab1e9f30b477c8711880919543d64
   TypeTreeHash:
     serializedVersion: 2
     Hash: 0e13e2d6fb7340e39ccffbc36e8951dc
@@ -591,6 +591,7 @@ Assets:
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab
 - Assets/Animations/ThrusterLAfterburner.anim
 - Assets/Textures/Materials/Item/HexPendulum/HexTotemTextureEye.mat
+- Assets/Textures/Icons/Buff/NailBombNailCooldownIcon.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldMain.mat
 - Assets/Textures/Material Textures/14601-normal.jpg
 - Assets/Textures/Material Textures/LightningRamp1.png

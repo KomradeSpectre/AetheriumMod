@@ -22,7 +22,7 @@ namespace Aetherium.Equipment
 
         public override string EquipmentLangTokenName => "NANOWEAVE_CAPSULE";
 
-        public override string EquipmentPickupDesc => "On use, for a short duration gain  and begin channeling damage taken into a blast.";
+        public override string EquipmentPickupDesc => "On use, for a short duration gain armor and begin channeling damage taken into a blast.";
 
         public override string EquipmentFullDescription => "";
 

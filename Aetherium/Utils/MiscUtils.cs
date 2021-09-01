@@ -15,9 +15,9 @@ namespace Aetherium.Utils
     public static class MiscUtils
     {
         //Sourced from source code, couldn't access because it was private, modified a little
-        public static Vector3? RaycastToFloor(Vector3 position, float maxDistance)
+        public static Vector3? RaycastToDirection(Vector3 position, float maxDistance, Vector3 direction)
         {
-            if (Physics.Raycast(new Ray(position, Vector3.down), out RaycastHit raycastHit, maxDistance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(new Ray(position, direction), out RaycastHit raycastHit, maxDistance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
             {
                 return raycastHit.point;
             }
@@ -73,13 +73,41 @@ namespace Aetherium.Utils
                     if(hurtBox.healthComponent && hurtBox.healthComponent.body)
                     {
                         var body = hurtBox.healthComponent.body;
-                        return body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * distanceAboveTarget);
+
+                        var closestPointOnBounds = body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0));
+
+                        var raycastPoint = RaycastToDirection(closestPointOnBounds, distanceAboveTarget, Vector3.up);
+                        if (raycastPoint.HasValue)
+                        {
+                            return raycastPoint.Value;
+                        }
+                        else
+                        {
+                            return closestPointOnBounds + (Vector3.up * distanceAboveTarget);
+                        }
                     }
                     
                 }
             }
 
             return null;
+        }
+
+        public static Vector3? AboveTargetBody(CharacterBody body, float distanceAbove)
+        {
+            if (!body) { return null; }
+
+            var closestPointOnBounds = body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0));
+
+            var raycastPoint = RaycastToDirection(closestPointOnBounds, distanceAbove, Vector3.up);
+            if (raycastPoint.HasValue)
+            {
+                return raycastPoint.Value;
+            }
+            else
+            {
+                return closestPointOnBounds + (Vector3.up * distanceAbove);
+            }
         }
     }
 }
