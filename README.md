@@ -12,6 +12,7 @@ Discord: https://www.discord.gg/WNap5qcPf6
 | Icon | Item | Description | Rarity | Original Idea by |
 |:-|-|------|-|-|
 |![](https://i.imgur.com/0utgQzB.png) | **Feathered Plume** | Gain a temporary `7%` speed boost upon taking damage that stacks `3` times for `5 seconds`. (`+3` stacks and `+0.5` second duration per additional Feathered Plume.) | White | Ajarl |
+|![](https://i.imgur.com/k5argMT.png) | **Nail Bomb** | Attacks that deal `120%` damage or more release a shrapnel grenade that explodes for `20x30%` of your damage (`+50%` more per stack). Enemies hit that launched a nail bomb are granted `2` second(s) of immunity to the effect. | White | Zeddy |  
 |![](https://i.imgur.com/Q6gtbBS.png) | **Blood Soaked Shield** |  Killing an enemy restores `10%` max shield (`+10%` per stack hyperbolically.) The first of the stack of this item will grant `8%` of your max health as shield on pickup. | Green | Kaboose |
 |![](https://i.imgur.com/ip04Lin.png) | **Engineers Toolbelt** | You have a `20%` chance (`+20%` hyperbolically up to a maximum of `100%` chance) to duplicate drones and turrets on purchase. Additionally, you have a `10%` chance (`+10%` hyperbolically up to a maximum of `100%` chance) to revive drones and turrets when they die. | Green | Insane (originally) Me (Modified) |
 |![](https://i.imgur.com/b5QsaP1.png) | **Shark Teeth** | `25%` of damage taken (`+25%` per stack hyperbolically) is distributed to you over `5` seconds as `bleed damage.` | Green | FancyFrenc |
@@ -34,6 +35,17 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |![](https://i.imgur.com/RUky7N5.png)| **Jar of Reshaping** | On activation, `absorb projectiles` in a `20m` radius for `3` second(s). Upon success, `fire all of the projectiles` out of the jar upon next activation. The damage traits of each projectiles fired from the jar `depends on the bullets you absorbed`. After all the projectiles have been fired from the jar, it will need to cool down. | Normal | Me |
 
 ----
+## Artifacts (so far):
+----
+| Icon | Artifact | Description | Original Idea by |
+|:-|-|------|-|
+|![](https://i.imgur.com/FxvUnX6.png)| **Artifact of Leonids** | When enabled, after every `60` seconds a meteor shower will occur that contains `6` wave(s) of meteors. | Bord |  
+|![](https://i.imgur.com/u9OFBut.png)| **Artifact of Progression** | When enabled, most enemies will evolve into stronger versions of themselves after a duration. | Chen, Me |  
+|![](https://i.imgur.com/tEYWscl.png)| **Artifact of Regression** | When enabled, if a monster is in an evolved form, it will split into a group of its lesser form when it dies. | Me |  
+|![](https://i.imgur.com/syskO36.png)| **Artifact of the Nightmare** | When enabled, non-boss enemies are granted 1-4 of the Lunar Heresy items when they spawn. | Inspired by Hyperion_21 |  
+|![](https://i.imgur.com/WdXKlSZ.png)| **Artifact of the Tyrant** | When enabled, any time Mithrix spawns they will be given `1` random elite modifier. | Me |  
+
+----
 ## Upcoming
 ----
 - Version 0.6.0 or 0.7.0 will include a new survivor, we're building up to that.  
@@ -44,13 +56,27 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 - Implement Active Dodging for Weighted Anklet.
 
-- Version 0.5.10 will be next and it will be for adding a configurable cap to Artifact of Regression and Networking the new sounds.
-
 ----
 
 ## Changelog
 ----
 
+[0.6.1]
++ Fixed odd infinicombo Nail Bombing. It can no longer proc from a hit with 0 proc coefficient.
++ Fixed readme.
+
+[0.6.0]
++ Added Nail Bomb.
++ Added sounds for Nail Bomb.
++ Switched Nail Bomb from Projectile to Bullet Attack.
+- Fixed weird config naming issue with the enable sounds options on some configs.
+
+[0.5.10]
++ Gave death rewards to Artifact of Progression and Artifact of Regression spawned enemies.
++ Gave death rewards to Artifact of the Nightmare full enemies.
++ Networked sounds introduced in 0.5.9.
++ Updated Mod Icon
+- Removed Brushed Metal Texture on some models. It made them look weird in engine.
 
 [0.5.9]
 + New Models and Textures for quite a handful of Items/Equipment by Ragon.
@@ -85,47 +111,12 @@ Discord: https://www.discord.gg/WNap5qcPf6
 + Added Artifact of Regression, when enabled, any enemy monster that is in an evolved form will split into a group of its lesser form on death. E.g. Beetle Queen into 2 Beetle Guards into 5 Beetles each Guard.
 - Removed all item display default rules. Any more reports of big item displays will be ignored.
 
-[0.5.4]
-+ Jar of Reshaping now fires the original projectiles it absorbed out. If it cannot find the original projectile it absorbed in the catalog, it fires my crystal jar bullet instead. This is config toggleable, but is now the default functionality.
-+ The voidheart camera spin bug has been now truly defeated. It should never happen again.
 
-[0.5.3]
-+ Fixed Heart of the Void cinematic spinning endlessly
-+ Heart of the Void will now no longer leave a used dio in your inventory. It gets removed when the instability debuff is added.
-+ Fixed a longstanding bug with Heart of the Void where having a huge health change happen would kill you instantly.
-+ Added compatibility for Tinkers Satchel, whenever it updates. The mimic should no longer grant free Limiter Releases.
-+ Witches Ring Global Cooldown option now actually works. Before, I never actually checked for the buff on the person's body while its enabled.
-+ Unstable Design now has a config option to replace its primary if Artifact of the King is installed. It's false by default.
-- Remove Weighted Anklet and Limiter Releases from Deployables until they fix turrets just ignoring gravity. I can't be bothered to patch this every single time.
-
-[0.5.2]
-+ Added more visual touches to items in the mod.
-+ Added a Cinematic Heart of the Void revival.
-+ Added ItemDisplayRules for Bandit.
-+ Updated to make everything work for post-anniversary update changes.
-+ Added Knockback Resistance back to the Weighted Anklet, this goes away when you remove them and get a limiter release instead.
-+ Other changes that I forgot to document.
-
-[0.5.0]
-+ Massive visuals update for the mod. Can't list every change here, but I have converted a great deal of it to the Hopoo Games shader and redesigned the look of some items.
-+ Added some nice particle effects for a few items.
-+ Weighted Anklet Redux: The previously worthless Lunar is probably now one of my strongest items.
-+ Added an alternate model for the Blaster Sword. I based it loosely off of Kusanagi-no-Tsurugi.
-+ Added a config to turn Inspiring Drone into a Green instead of a Red. Icon and all.
-+ Made Unstable Design give half of gold and xp from its kills to its user. It gains the full value of both, but directly this time instead of pumping it into the Neutral team.
-+ Fixed Blaster Sword dealing 2x the damage it should.
-+ Buffed Shielding Core's default first armor stack to be 15, with additional stacks giving 10.
-+ Buffed Shielding Core's base shield grant to be 8 percent, as opposed to 4 percent.
-- Removed the DOT from Blaster Sword's projectile. It wasn't supposed to be there in the first place.
-- Removed the knockback reduction from Weighted Anklet for the redesign.
-
-[0.4.7]
-+ GRRRR, thunderstore markdown.
 
 ----
 
 ## Special Thanks  
-**Ragon** - Overhauled quite a few of my models to be awesome looking. Provided Models and Textures for them that allow them to shine visually. They also participate in development talks about Aetherium, and provide some quality ideas for new mechanics.
+**Ragon** - Overhauled quite a few of my models to be awesome looking. Provided Models and Textures for them that allow them to shine visually. They also participate in development talks about Aetherium, and provide some quality ideas for new mechanics.  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod. Thanks to them for authorizing me to use TILER2's stathooks in my itembase, it was integral in getting it off the ground.  
 **Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  
 **KingEnderBrine** - Helping out with some questions regarding Item Displays, and providing a useful helper mod to speed up my IDRS creation.  
@@ -141,4 +132,4 @@ Discord: https://www.discord.gg/WNap5qcPf6
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **753** - Providing a crystallization shader for me to use in the future.  
 **Lorc (Https://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
-**FilterForge (Https://www.filterforge.com/)** - For providing a good deal of the base for my normals. Awesome plugin library, I recommend it.
+**FilterForge (Https://www.filterforge.com/)** - For providing a good deal of the base for my normals. Awesome plugin library, I recommend it.  
