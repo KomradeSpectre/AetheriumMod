@@ -260,6 +260,7 @@ namespace Aetherium.Utils.Components
                     maxSpread = 0,
                     isCrit = projectileDamage.crit,
                     procCoefficient = childBulletAttackProcCoefficient,
+                    procChainMask = projectileController.procChainMask,
                     damage = projectileDamage.damage,
                     tracerEffectPrefab = childTracerPrefab,
                     hitEffectPrefab = childHitEffectPrefab,

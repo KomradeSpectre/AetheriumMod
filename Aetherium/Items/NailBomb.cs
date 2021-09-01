@@ -71,6 +71,8 @@ namespace Aetherium.Items
 
         public override Sprite ItemIcon => UseAlternateImplementation ? MainAssets.LoadAsset<Sprite>("NailBombTier2.png") : MainAssets.LoadAsset<Sprite>("NailBombTier1.png");
 
+        public static GameObject ItemBodyModelPrefab;
+
         public static GameObject NailBombProjectileMain;
 
         public static GameObject NailBombNailEffect;
@@ -200,7 +202,144 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            return new ItemDisplayRuleDict();
+            ItemBodyModelPrefab = ItemModel;
+            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
+            rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.16759F, -0.07591F, 0.06936F),
+                    localAngles = new Vector3(343.2889F, 299.2036F, 176.8172F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.14431F, -0.06466F, -0.03696F),
+                    localAngles = new Vector3(355.1616F, 81.55997F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "ThighR",
+                    localPos = new Vector3(0.08787F, 0.07478F, 1.04472F),
+                    localAngles = new Vector3(354.9749F, 182.8028F, 237.0256F),
+                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
+                }
+            });
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.20102F, 0.09445F, 0.16025F),
+                    localAngles = new Vector3(15.50638F, 144.8099F, 180.4037F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.17241F, -0.0089F, 0.02642F),
+                    localAngles = new Vector3(5.28933F, 111.5028F, 190.532F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(0.16832F, 0.04282F, 0.06368F),
+                    localAngles = new Vector3(355.8307F, 42.81982F, 185.1587F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "FlowerBase",
+                    localPos = new Vector3(-0.6845F, -0.60707F, -0.05308F),
+                    localAngles = new Vector3(349.4037F, 73.89225F, 346.442F),
+                    localScale = new Vector3(0.1F, 0.1F, 0.1F)
+                }
+            });
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.2442F, 0.04122F, 0.01506F),
+                    localAngles = new Vector3(22.73106F, 289.1799F, 159.5365F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Hip",
+                    localPos = new Vector3(-2.2536F, 1.10779F, 0.45293F),
+                    localAngles = new Vector3(1.77184F, 278.9485F, 190.4101F),
+                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
+                }
+            });
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.21004F, -0.09095F, -0.09165F),
+                    localAngles = new Vector3(0F, 60.43688F, 180F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(0.17925F, -0.02363F, -0.11047F),
+                    localAngles = new Vector3(359.353F, 299.9855F, 169.6378F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                }
+            });
+            return rules;
         }
 
         public override void Hooks()
@@ -261,6 +400,12 @@ namespace Aetherium.Items
 
         private void FireNailBomb(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject victim)
         {
+            if (damageInfo.rejected || damageInfo.procCoefficient <= 0)
+            {
+                orig(self, damageInfo, victim);
+                return;
+            }
+
             var attacker = damageInfo.attacker;
             if (attacker)
             {

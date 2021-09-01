@@ -146,7 +146,7 @@ namespace Aetherium.Items
                 var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
                 impactExplosion.impactEffect = impactEffect;
                 impactExplosion.blastRadius = 2;
-                impactExplosion.blastProcCoefficient = 0.2f;
+                impactExplosion.blastProcCoefficient = 0f;
                 impactExplosion.lifetimeAfterImpact = 1.5f;
                 impactExplosion.timerAfterImpact = true;
                 impactExplosion.blastDamageCoefficient = 1;
