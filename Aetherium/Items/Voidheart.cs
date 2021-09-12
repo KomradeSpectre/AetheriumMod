@@ -375,7 +375,7 @@ namespace Aetherium.Items
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;
-                overlay.originalMaterial = Meshes[0].material;
+                overlay.originalMaterial = Meshes[1].material;
                 overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
                 var VoidheartCooldownTracker = self.gameObject.AddComponent<Voidheart.VoidheartCooldown>();
                 VoidheartCooldownTracker.Overlay = overlay;

@@ -1,9 +1,10 @@
 ﻿#undef DEBUG
-#define DEBUGMATERIALS
+#undef DEBUGMATERIALS
 
 using Aetherium.Artifacts;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
+using Aetherium.Equipment.EliteEquipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
 using Aetherium.Utils;
@@ -29,12 +30,12 @@ namespace Aetherium
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.1";
+        public const string ModVer = "0.6.2";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -53,12 +54,14 @@ namespace Aetherium
         public List<ArtifactBase> Artifacts = new List<ArtifactBase>();
         public List<ItemBase> Items = new List<ItemBase>();
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
+        public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
         public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
+        public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
         private void Awake()
@@ -85,11 +88,11 @@ namespace Aetherium
             //Material shader autoconversion
             ShaderConversion(MainAssets);
 
-#if DEBUGMATERIALS
+            #if DEBUGMATERIALS
 
             AttachControllerFinderToObjects(MainAssets);
 
-#endif
+            #endif
 
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
@@ -152,6 +155,22 @@ namespace Aetherium
                     equipment.Init(Config);
 
                     ModLogger.LogInfo("Equipment: " + equipment.EquipmentName + " Initialized!");
+                }
+            }
+
+            //Equipment Initialization
+            var EliteEquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EliteEquipmentBase)));
+
+            ModLogger.LogInfo("-------------ELITE EQUIPMENT---------------------");
+
+            foreach (var eliteEquipmentType in EliteEquipmentTypes)
+            {
+                EliteEquipmentBase eliteEquipment = (EliteEquipmentBase)System.Activator.CreateInstance(eliteEquipmentType);
+                if (ValidateEliteEquipment(eliteEquipment, EliteEquipments))
+                {
+                    eliteEquipment.Init(Config);
+
+                    ModLogger.LogInfo("Elite Equipment: " + eliteEquipment.EliteEquipmentName + " Initialized!");
                 }
             }
 
@@ -226,6 +245,20 @@ namespace Aetherium
             return false;
         }
 
+        public bool ValidateEliteEquipment(EliteEquipmentBase eliteEquipment, List<EliteEquipmentBase> eliteEquipmentList)
+        {
+            var enabled = Config.Bind<bool>("Equipment: " + eliteEquipment.EliteEquipmentName, "Enable Elite Equipment?", true, "Should this elite equipment appear in runs? If disabled, the associated elite will not appear in runs either.").Value;
+
+            EliteEquipmentStatusDictionary.Add(eliteEquipment, enabled);
+
+            if (enabled)
+            {
+                eliteEquipmentList.Add(eliteEquipment);
+                return true;
+            }
+            return false;
+        }
+
         public bool ValidateInteractable(InteractableBase interactable, List<InteractableBase> interactableList)
         {
             var enabled = Config.Bind<bool>("Interactable: " + interactable.InteractableName, "Enable Interactable?", true, "Should this interactable appear in runs?").Value;
@@ -246,9 +279,8 @@ namespace Aetherium
 
             foreach (Material material in materialAssets)
             {
-                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLower()]);
+                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLowerInvariant()]);
                 if (replacementShader) { material.shader = replacementShader; }
-
             }
         }
 

@@ -108,6 +108,7 @@
 
   <ItemGroup>
     <Folder Include="Achievements\" />
+    <Folder Include="Elites\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
   </ItemGroup>

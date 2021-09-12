@@ -20,6 +20,7 @@ using UnityEngine.Networking;
 using static Aetherium.Utils.MiscUtils;
 using System.Runtime.CompilerServices;
 using Aetherium.Utils.Components;
+using System.Linq;
 
 namespace Aetherium.Items
 {
@@ -76,6 +77,7 @@ namespace Aetherium.Items
         public static GameObject NailBombProjectileMain;
 
         public static GameObject NailBombNailEffect;
+        public static GameObject NailBombNailTracerEffect;
 
         public static BuffDef NailBombCooldownDebuff;
         public static BuffDef NailBombImmunityBuff;
@@ -180,7 +182,7 @@ namespace Aetherium.Items
 
             var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileFixedImpactExplosion>();
             impactExplosion.ChildBulletAttack = true;
-            impactExplosion.childTracerPrefab = Resources.Load<GameObject>("Prefabs/effects/tracers/TracerToolbotNails");
+            impactExplosion.childTracerPrefab = Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotRebar");
             impactExplosion.childHitEffectPrefab = NailBombNailEffect;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
             impactExplosion.explosionEffect = Resources.Load<GameObject>("Prefabs/effects/Omnieffect/OmniExplosionVFXCommandoGrenade");

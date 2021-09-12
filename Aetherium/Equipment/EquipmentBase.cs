@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static RoR2.CombatDirector;
 
 namespace Aetherium.Equipment
 {
@@ -44,23 +45,14 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
-        //Targeting Support
-        public virtual bool UseTargeting { get; } = false;
-        public GameObject TargetingIndicatorPrefabBase = null;
-        public enum TargetingType
-        {
-            Enemies,
-            Friendlies,
-        }
-        public virtual TargetingType TargetingTypeEnum { get; } = TargetingType.Enemies;
-
-
         public EquipmentDef EquipmentDef;
 
         public abstract void Init(ConfigFile config);
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
 
+
+        #region Normal Equipment Setup
         protected void CreateLang()
         {
             LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
@@ -96,7 +88,7 @@ namespace Aetherium.Equipment
             }
         }
 
-        private bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
+        protected bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
         {
             if (equipmentDef == EquipmentDef)
             {
@@ -111,10 +103,21 @@ namespace Aetherium.Equipment
         protected abstract bool ActivateEquipment(EquipmentSlot slot);
 
         public abstract void Hooks();
+        #endregion Normal Equipment Setup
 
+        #region Targeting Setup
+        //Targeting Support
+        public virtual bool UseTargeting { get; } = false;
+        public GameObject TargetingIndicatorPrefabBase = null;
+        public enum TargetingType
+        {
+            Enemies,
+            Friendlies,
+        }
+        public virtual TargetingType TargetingTypeEnum { get; } = TargetingType.Enemies;
 
         //Based on MysticItem's targeting code.
-        private void UpdateTargeting(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
+        protected void UpdateTargeting(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
         {
             orig(self);
 
@@ -225,5 +228,7 @@ namespace Aetherium.Equipment
                 Indicator.active = hurtbox;
             }
         }
+
+        #endregion Targeting Setup
     }
 }
