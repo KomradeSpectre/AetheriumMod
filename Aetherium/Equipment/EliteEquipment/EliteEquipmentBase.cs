@@ -52,14 +52,16 @@ namespace Aetherium.Equipment.EliteEquipment
         /// <summary>
         /// Implement before calling CreateEliteEquipment.
         /// </summary>
-        public abstract BuffDef EliteBuffDef { get; set; }
+        public BuffDef EliteBuffDef;
+
+        public abstract Sprite EliteBuffIcon { get; }
 
         /// <summary>
         /// If not overriden, the elite can spawn in all tiers defined.
         /// </summary>
         public virtual EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
 
-        public virtual Material EliteMaterial { get; set; } = null;
+        public virtual Material EliteMaterial { get; set;} = null;
 
         public EliteDef EliteDef;
 
@@ -78,6 +80,11 @@ namespace Aetherium.Equipment.EliteEquipment
 
         protected void CreateEquipment()
         {
+            EliteBuffDef = ScriptableObject.CreateInstance<BuffDef>();
+            EliteBuffDef.name = EliteAffixToken;
+            EliteBuffDef.buffColor = new Color32(255, 255, 255, byte.MaxValue);
+            EliteBuffDef.canStack = false;
+
             EliteEquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
             EliteEquipmentDef.name = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken;
             EliteEquipmentDef.nameToken = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_NAME";
@@ -160,13 +167,25 @@ namespace Aetherium.Equipment.EliteEquipment
 
                 foreach (EliteTierDef eliteTierDef in distinctEliteTierDefs)
                 {
-                    EliteAPI.AddCustomEliteTier(eliteTierDef);
-                    HG.ArrayUtils.ArrayAppend<EliteTierDef>(ref baseEliteTierDefs, eliteTierDef);
+                    var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= eliteTierDef.costMultiplier);
+                    if (indexToInsertAt >= 0)
+                    {
+                        EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
+                        baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+                    }
+                    else
+                    {
+                        EliteAPI.AddCustomEliteTier(eliteTierDef);
+                        //HG.ArrayUtils.ArrayAppend<EliteTierDef>(ref baseEliteTierDefs, eliteTierDef);
+                    }
                 }
                 EliteAPI.OverrideCombatDirectorEliteTiers(baseEliteTierDefs);
             }
 
             EliteAPI.Add(new CustomElite(EliteDef, CanAppearInEliteTiers));
+
+            EliteBuffDef.eliteDef = EliteDef;
+            BuffAPI.Add(new CustomBuff(EliteBuffDef));
         }
 
 

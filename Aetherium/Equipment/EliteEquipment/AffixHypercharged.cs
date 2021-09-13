@@ -2,6 +2,7 @@
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
+using RoR2.CharacterAI;
 using RoR2.Projectile;
 using System;
 using System.Collections.Generic;
@@ -29,17 +30,17 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override string EliteEquipmentLore => "";
 
-        public override string EliteModifier => "Hypercharged";
+        public override string EliteModifier => "Hypercharged {0}";
 
         public override GameObject EliteEquipmentModel => new GameObject();
 
         public override Sprite EliteEquipmentIcon => null;
 
-        public override Material EliteMaterial => MainAssets.LoadAsset<Material>("BlackHole.mat");
+        public override Sprite EliteBuffIcon => null;
+
+        public override Material EliteMaterial => MainAssets.LoadAsset<Material>("Distortion.mat");
 
         public override CombatDirector.EliteTierDef[] CanAppearInEliteTiers { get; set; }
-
-        public override BuffDef EliteBuffDef { get; set; }
 
         public BuffDef LightningStormBuff;
 
@@ -66,13 +67,6 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public void CreateBuff()
         {
-            EliteBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            EliteBuffDef.name = "Affix_Hypercharged";
-            EliteBuffDef.buffColor = new Color32(255, 255, 255, byte.MaxValue);
-            EliteBuffDef.canStack = false;
-
-            BuffAPI.Add(new CustomBuff(EliteBuffDef));
-
             LightningStormBuff = ScriptableObject.CreateInstance<BuffDef>();
             LightningStormBuff.name = "Hypercharged Lightning Storm";
             LightningStormBuff.buffColor = new Color32(255, 255, 255, byte.MaxValue);
@@ -89,6 +83,7 @@ namespace Aetherium.Equipment.EliteEquipment
             controller.startSound = "Play_titanboss_shift_shoot";
 
             var impactExplosion = HyperchargedProjectile.GetComponent<ProjectileImpactExplosion>();
+            impactExplosion.blastProcCoefficient = 0;
             impactExplosion.lifetime = 0.5f;
             impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact");
             impactExplosion.blastRadius = 7f;
@@ -110,38 +105,71 @@ namespace Aetherium.Equipment.EliteEquipment
         {
             CanAppearInEliteTiers = new CombatDirector.EliteTierDef[]
             {
-                EliteAPI.VanillaEliteOnlyFirstTierDef
+                new CombatDirector.EliteTierDef()
+                {
+                    //costMultiplier = CombatDirector.baseEliteCostMultiplier * 6,
+                    costMultiplier = 1,
+                    damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * 3,
+                    healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * 4.5f,
+                    eliteTypes = Array.Empty<EliteDef>(),
+                    //isAvailable = SetAvailability
+                }
             };
+        }
+
+        private bool SetAvailability(SpawnCard.EliteRules arg)
+        {
+            return Run.instance.loopClearCount > 0 && arg == SpawnCard.EliteRules.Default;
         }
 
         public override void Hooks()
         {
+            RecalculateStatsAPI.GetStatCoefficients += CalculateStatsForAffix;
             On.RoR2.CharacterBody.FixedUpdate += ManageLightningStrikes;
-            //On.RoR2.GlobalEventManager.OnHitAll += SpawnLightning;
+            On.RoR2.GlobalEventManager.OnHitAll += SpawnLightning;
+            On.RoR2.EquipmentSlot.FixedUpdate += TeachAIToUseAffixItem;
+        }
+
+        private void TeachAIToUseAffixItem(On.RoR2.EquipmentSlot.orig_FixedUpdate orig, EquipmentSlot self)
+        {
+            orig(self);
+            if(self.equipmentIndex == EliteEquipmentDef.equipmentIndex && self.cooldownTimer <= 0)
+            {
+                var body = self.characterBody;
+                if (body)
+                {
+                    var master = self.characterBody.master;
+                    if (master && master.GetComponent<BaseAI>())
+                    {
+                        self.PerformEquipmentAction(EliteEquipmentDef);
+                    }
+                }
+            }         
+        }
+
+        private void CalculateStatsForAffix(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
+        {
+            if (sender.HasBuff(EliteBuffDef))
+            {
+                args.baseShieldAdd += sender.healthComponent.fullHealth * 0.5f;
+            }
         }
 
         private void SpawnLightning(On.RoR2.GlobalEventManager.orig_OnHitAll orig, GlobalEventManager self, DamageInfo damageInfo, GameObject hitObject)
         {
-            if (damageInfo.attacker && damageInfo.inflictor != HyperchargedProjectile)
+            if (damageInfo.attacker && damageInfo.procCoefficient > 0)
             {
                 var body = damageInfo.attacker.GetComponent<CharacterBody>();
                 if (body)
                 {
                     if (body.HasBuff(EliteBuffDef))
                     {
-                        var newProjectileInfo = new FireProjectileInfo
-                        {
-                            owner = body.gameObject,                            
-                            projectilePrefab = HyperchargedProjectile,
-                            speedOverride = 150.0f,
-                            damage = body.damage,
-                            damageTypeOverride = null,
-                            damageColorIndex = DamageColorIndex.Default,
-                            procChainMask = default,
-                            position = damageInfo.position,
-                        };
 
-                        ProjectileManager.instance.FireProjectile(newProjectileInfo);
+                        float damageCoefficient2 = 0.5f;
+                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, damageCoefficient2);
+                        float force = 0f;
+                        Vector3 position = damageInfo.position;
+                        ProjectileManager.instance.FireProjectile(HyperchargedProjectile, position, Quaternion.identity, damageInfo.attacker, damage, force, damageInfo.crit, DamageColorIndex.Item);
                     }
                 }
             }
