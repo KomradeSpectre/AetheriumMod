@@ -133,17 +133,6 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            //ItemFollowers are for creating itemdisplays you want to lag behind or have a tether.
-            //I mean that's not all they have on them, but that's the main purposes.
-            //The ItemFollower component I reference here is a slightly modified version of the base one.
-            //Since the base one has no virtuals on their methods, couldn't override it.
-
-            var meshes = ItemModel.GetComponentsInChildren<MeshRenderer>().Where(mesh => mesh.material && mesh.material.shader.name.Contains("Hopoo"));            
-            foreach(MeshRenderer mesh in meshes)
-            {
-                var finder = mesh.gameObject.AddComponent<HGControllerFinder>();
-                finder.Renderer = mesh;
-            }
 
             ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("InspiringDroneTracker.prefab");
             ItemFollowerPrefab = ItemModel;

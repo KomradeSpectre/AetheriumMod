@@ -65,6 +65,12 @@ namespace Aetherium.Items
             "LightningStake",
             "StickyBomb",
             "FireworkProjectile",
+            "NailBombProjectile",
+
+        };
+
+        public static HashSet<string> BlacklistedBulletAttackWeapons = new HashSet<string>()
+        {
             "NailBombProjectile"
         };
 
@@ -1061,6 +1067,12 @@ namespace Aetherium.Items
 
         private void FireTheSwordOnBulletAttack(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
         {
+            if(self.weapon && BlacklistedBulletAttackWeapons.Contains(self.weapon.name.Replace("(Clone)", "")))
+            {
+                orig(self);
+                return;
+            }
+
             var projectileOwner = self.owner;
             if (projectileOwner)
             {

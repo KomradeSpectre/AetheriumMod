@@ -36,20 +36,12 @@ namespace Aetherium.Utils
         {
             if (material && meshRenderer)
             {
-                if(meshRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
-                {
-                    skinnedMeshRenderer.sharedMaterials = new Material[] { material };
-                }
-
-                if(meshRenderer is MeshRenderer meshRendererType)
-                {
-                    meshRendererType.material = material;
-                }
+                meshRenderer.materials[0] = material;
             }
         }
 
         /// <summary>
-        /// Attach this component to a gameObject and pass a meshrenderer in. It'll attempt to find the correct shader controller from the meshrenderer material, attach it if it finds it, and destroy itself.
+        /// Attach this component to a gameObject and pass a renderer in. It'll attempt to find the correct shader controller from the meshrenderer material, attach it if it finds it, and destroy itself.
         /// </summary>
         public class HGControllerFinder : MonoBehaviour
         {
@@ -60,14 +52,7 @@ namespace Aetherium.Utils
             {
                 if (Renderer)
                 {
-                    if(Renderer is MeshRenderer meshRendererType)
-                    {
-                        Material = meshRendererType.material;
-                    }
-                    if(Renderer is SkinnedMeshRenderer skinnedMeshRenderer)
-                    {
-                        Material = skinnedMeshRenderer.sharedMaterials[0];
-                    }
+                    Material = Renderer.materials[0];
 
                     if (Material)
                     {
@@ -89,6 +74,12 @@ namespace Aetherium.Utils
                                 intersectionController.Material = Material;
                                 intersectionController.Renderer = Renderer;
                                 break;
+                            case "Hopoo Games/Deferred/Snow Topped":
+                                var snowToppedController = gameObject.AddComponent<HGSnowToppedController>();
+                                snowToppedController.Material = Material;
+                                snowToppedController.Renderer = Renderer;
+                                snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
+                                break;
                         }
                     }
                 }
@@ -96,6 +87,10 @@ namespace Aetherium.Utils
             }
         }
 
+        /// <summary>
+        /// Attach to anything, and feed in a material that has the hgstandard shader.
+        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// </summary>
         public class HGStandardController : MonoBehaviour
         {
             public Material Material;
@@ -591,6 +586,283 @@ namespace Aetherium.Utils
         }
 
         /// <summary>
+        /// Developed by Vale-X. Attach to anything, and feed in a material that has the hgsnowtopped shader.
+        /// You then gain access to manipulate this in any Runtime Inspector of your choice.
+        /// </summary>
+        public class HGSnowToppedController : MonoBehaviour
+        {
+            public Material Material;
+            public Renderer Renderer;
+            public string MaterialName;
+
+            public Color _Color;
+            public Texture _MainTex;
+            public Vector2 _MainTexScale;
+            public Vector2 _MainTexOffset;
+
+            [Range(0f, 5f)]
+            public float _NormalStrength;
+
+            public Texture _NormalTex;
+            public Vector2 _NormalTexScale;
+            public Vector2 _NormalTexOffset;
+
+            public Texture _SnowTex;
+            public Vector2 _SnowTexScale;
+            public Vector2 _SnowTexOffset;
+
+            public Texture _SnowNormalTex;
+            public Vector2 _SnowNormalTexScale;
+            public Vector2 _SnowNormalTexOffset;
+
+            [Range(-1f, 1f)]
+            public float _SnowBias;
+
+            [Range(0f, 1f)]
+            public float _Depth;
+
+            public bool _IgnoreAlphaWeights;
+            public bool _BlendWeightsBinarily;
+
+            public enum _RampInfoEnum
+            {
+                TwoTone = 0,
+                SmoothedTwoTone = 1,
+                Unlitish = 3,
+                Subsurface = 4,
+                Grass = 5
+            }
+            public _RampInfoEnum _RampChoice;
+
+            public bool _IgnoreDiffuseAlphaForSpeculars;
+
+            [Range(0f, 1f)]
+            public float _SpecularStrength;
+
+            [Range(0.1f, 20f)]
+            public float _SpecularExponent;
+
+            [Range(0f, 1f)]
+            public float _Smoothness;
+
+            [Range(0f, 1f)]
+            public float _SnowSpecularStrength;
+
+            [Range(0.1f, 20f)]
+            public float _SnowSpecularExponent;
+
+            [Range(0f, 1f)]
+            public float _SnowSmoothness;
+
+            public bool _DitherOn;
+
+            public bool _TriplanarOn;
+
+            [Range(0f, 1f)]
+            public float _TriplanarTextureFactor;
+
+            public bool _SnowOn;
+
+            public bool _GradientBiasOn;
+
+            public Vector4 _GradientBiasVector;
+
+            public bool _DirtOn;
+
+            public Texture _DirtTex;
+            public Vector2 _DirtTexScale;
+            public Vector2 _DirtTexOffset;
+
+            public Texture _DirtNormalTex;
+            public Vector2 _DirtNormalTexScale;
+            public Vector2 _DirtNormalTexOffset;
+
+            [Range(-2f, 2f)]
+            public float _DirtBias;
+
+            [Range(0f, 1f)]
+            public float _DirtSpecularStrength;
+
+            [Range(0f, 20f)]
+            public float _DirtSpecularExponent;
+
+            [Range(0f, 1f)]
+            public float _DirtSmoothness;
+
+            public void Start()
+            {
+                GrabMaterialValues();
+            }
+            public void GrabMaterialValues()
+            {
+                if (Material)
+                {
+                    _Color = Material.GetColor("_Color");
+                    _MainTex = Material.GetTexture("_MainTex");
+                    _MainTexScale = Material.GetTextureScale("_MainTex");
+                    _MainTexOffset = Material.GetTextureOffset("_MainTex");
+                    _NormalStrength = Material.GetFloat("_NormalStrength");
+                    _NormalTex = Material.GetTexture("_NormalTex");
+                    _NormalTexScale = Material.GetTextureScale("_NormalTex");
+                    _NormalTexOffset = Material.GetTextureOffset("_NormalTex");
+                    _SnowTex = Material.GetTexture("_SnowTex");
+                    _SnowTexScale = Material.GetTextureScale("_SnowTex");
+                    _SnowTexOffset = Material.GetTextureOffset("_SnowTex");
+                    _SnowNormalTex = Material.GetTexture("_SnowNormalTex");
+                    _SnowNormalTexScale = Material.GetTextureScale("_SnowNormalTex");
+                    _SnowNormalTexOffset = Material.GetTextureOffset("_SnowNormalTex");
+                    _SnowBias = Material.GetFloat("_SnowBias");
+                    _Depth = Material.GetFloat("_Depth");
+                    _IgnoreAlphaWeights = Material.IsKeywordEnabled("IGNORE_BIAS");
+                    _BlendWeightsBinarily = Material.IsKeywordEnabled("BINARYBLEND");
+                    _RampChoice = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
+                    _IgnoreDiffuseAlphaForSpeculars = Material.IsKeywordEnabled("FORCE_SPEC");
+                    _SpecularStrength = Material.GetFloat("_SpecularStrength");
+                    _SpecularExponent = Material.GetFloat("_SpecularExponent");
+                    _Smoothness = Material.GetFloat("_Smoothness");
+                    _SnowSpecularStrength = Material.GetFloat("_SnowSpecularStrength");
+                    _SnowSpecularExponent = Material.GetFloat("_SnowSpecularExponent");
+                    _SnowSmoothness = Material.GetFloat("_SnowSmoothness");
+                    _DitherOn = Material.IsKeywordEnabled("DITHER");
+                    _TriplanarOn = Material.IsKeywordEnabled("TRIPLANAR");
+                    _TriplanarTextureFactor = Material.GetFloat("_TriplanarTextureFactor");
+                    _SnowOn = Material.IsKeywordEnabled("MICROFACET_SNOW");
+                    _GradientBiasOn = Material.IsKeywordEnabled("GRADIENTBIAS");
+                    _GradientBiasVector = Material.GetVector("_GradientBiasVector");
+                    _DirtOn = Material.IsKeywordEnabled("DIRTON");
+                    _DirtTex = Material.GetTexture("_DirtTex");
+                    _DirtTexScale = Material.GetTextureScale("_DirtTex");
+                    _DirtTexOffset = Material.GetTextureOffset("_DirtTex");
+                    _DirtNormalTex = Material.GetTexture("_DirtNormalTex");
+                    _DirtNormalTexScale = Material.GetTextureScale("_DirtNormalTex");
+                    _DirtNormalTexOffset = Material.GetTextureOffset("_DirtNormalTex");
+                    _DirtBias = Material.GetFloat("_DirtBias");
+                    _DirtSpecularStrength = Material.GetFloat("_DirtSpecularStrength");
+                    _DirtSpecularExponent = Material.GetFloat("_DirtSpecularExponent");
+                    _DirtSmoothness = Material.GetFloat("_DirtSmoothness");
+                    MaterialName = Material.name;
+                }
+            }
+
+            public void Update()
+            {
+                if (Material)
+                {
+                    if (Material.name != MaterialName && Renderer)
+                    {
+                        GrabMaterialValues();
+                        PutMaterialIntoMeshRenderer(Renderer, Material);
+                    }
+
+                    Material.SetColor("_Color", _Color);
+
+                    if (_MainTex)
+                    {
+                        Material.SetTexture("_MainTex", _MainTex);
+                        Material.SetTextureScale("_MainTex", _MainTexScale);
+                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_MainTex", null);
+                    }
+
+                    Material.SetFloat("_NormalStrength", _NormalStrength);
+
+                    if (_NormalTex)
+                    {
+                        Material.SetTexture("_NormalTex", _NormalTex);
+                        Material.SetTextureScale("_NormalTex", _NormalTexScale);
+                        Material.SetTextureOffset("_NormalTex", _NormalTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_NormalTex", null);
+                    }
+
+                    if (_SnowTex)
+                    {
+                        Material.SetTexture("_SnowTex", _SnowTex);
+                        Material.SetTextureScale("_SnowTex", _SnowTexScale);
+                        Material.SetTextureOffset("_SnowTex", _SnowTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_SnowTex", null);
+                    }
+
+                    if (_SnowNormalTex)
+                    {
+                        Material.SetTexture("_SnowNormalTex", _SnowNormalTex);
+                        Material.SetTextureScale("_SnowNormalTex", _SnowNormalTexScale);
+                        Material.SetTextureOffset("_SnowNormalTex", _SnowNormalTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_SnowNormalTex", null);
+                    }
+
+                    Material.SetFloat("_SnowBias", _SnowBias);
+                    Material.SetFloat("_Depth", _Depth);
+
+                    SetShaderKeywordBasedOnBool(_IgnoreAlphaWeights, Material, "IGNORE_BIAS");
+                    SetShaderKeywordBasedOnBool(_BlendWeightsBinarily, Material, "BINARYBLEND");
+
+                    Material.SetFloat("_RampInfo", Convert.ToSingle(_RampChoice));
+
+                    SetShaderKeywordBasedOnBool(_IgnoreDiffuseAlphaForSpeculars, Material, "FORCE_SPEC");
+
+
+                    Material.SetFloat("_SpecularStrength", _SpecularStrength);
+                    Material.SetFloat("_SpecularExponent", _SpecularExponent);
+                    Material.SetFloat("_Smoothness", _Smoothness);
+
+                    Material.SetFloat("_SnowSpecularStrength", _SnowSpecularStrength);
+                    Material.SetFloat("_SnowSpecularExponent", _SnowSpecularExponent);
+                    Material.SetFloat("_SnowSmoothness", _SnowSmoothness);
+
+                    SetShaderKeywordBasedOnBool(_DitherOn, Material, "DITHER");
+
+                    SetShaderKeywordBasedOnBool(_TriplanarOn, Material, "TRIPLANAR");
+                    Material.SetFloat("_TriplanarTextureFactor", _TriplanarTextureFactor);
+                    SetShaderKeywordBasedOnBool(_SnowOn, Material, "MICROFACET_SNOW");
+
+                    SetShaderKeywordBasedOnBool(_GradientBiasOn, Material, "GRADIENTBIAS");
+                    Material.SetVector("_GradientBiasVector", _GradientBiasVector);
+                    SetShaderKeywordBasedOnBool(_DirtOn, Material, "DIRTON");
+
+                    if (_DirtTex)
+                    {
+                        Material.SetTexture("_DirtTex", _DirtTex);
+                        Material.SetTextureScale("_DirtTex", _DirtTexScale);
+                        Material.SetTextureOffset("_DirtTex", _DirtTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_DirtTex", null);
+                    }
+
+                    if (_DirtNormalTex)
+                    {
+                        Material.SetTexture("_DirtNormalTex", _DirtNormalTex);
+                        Material.SetTextureScale("_DirtNormalTex", _DirtNormalTexScale);
+                        Material.SetTextureOffset("_DirtNormalTex", _DirtNormalTexOffset);
+                    }
+                    else
+                    {
+                        Material.SetTexture("_DirtNormalTex", null);
+                    }
+
+                    Material.SetFloat("_DirtBias", _DirtBias);
+                    Material.SetFloat("_DirtSpecularStrength", _DirtSpecularStrength);
+                    Material.SetFloat("_DirtSpecularExponent", _DirtSpecularExponent);
+                    Material.SetFloat("_DirtSmoothness", _DirtSmoothness);
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Attach to anything, and feed in a material that has the hgcloudremap shader.
         /// You then gain access to manipulate this in any Runtime Inspector of your choice.
         /// </summary>
@@ -599,6 +871,9 @@ namespace Aetherium.Utils
             public Material Material;
             public Renderer Renderer;
             public string MaterialName;
+
+            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode;
+            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode;
 
             public Color _Tint;
             public bool _DisableRemapping;
@@ -635,19 +910,7 @@ namespace Aetherium.Utils
             }
             public _CullEnum _Cull_Mode;
 
-            public enum _ZTestEnum
-            {
-                Disabled = 0,
-                Never = 1,
-                Less = 2,
-                Equal = 3,
-                LessEqual = 4,
-                Greater = 5,
-                NotEqual = 6,
-                GreaterEqual = 7,
-                Always = 8
-            }
-            public _ZTestEnum _ZTest_Mode;
+            public UnityEngine.Rendering.CompareFunction _ZTest_Mode;
 
             [Range(-10f, 10f)]
             public float _DepthOffset;
@@ -687,6 +950,8 @@ namespace Aetherium.Utils
             {
                 if (Material)
                 {
+                    _Source_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_SrcBlend");
+                    _Destination_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_DstBlend");
                     _Tint = Material.GetColor("_TintColor");
                     _DisableRemapping = Material.IsKeywordEnabled("DISABLEREMAP");
                     _MainTex = Material.GetTexture("_MainTex");
@@ -703,7 +968,7 @@ namespace Aetherium.Utils
                     _FadeWhenNearCamera = Material.IsKeywordEnabled("FADECLOSE");
                     _FadeCloseDistance = Material.GetFloat("_FadeCloseDistance");
                     _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _ZTest_Mode = (_ZTestEnum)(int)Material.GetFloat("_ZTest");
+                    _ZTest_Mode = (UnityEngine.Rendering.CompareFunction)Material.GetFloat("_ZTest");
                     _DepthOffset = Material.GetFloat("_DepthOffset");
                     _CloudRemapping = Material.IsKeywordEnabled("USE_CLOUDS");
                     _DistortionClouds = Material.IsKeywordEnabled("CLOUDOFFSET");
@@ -739,6 +1004,10 @@ namespace Aetherium.Utils
                         GrabMaterialValues();
                         PutMaterialIntoMeshRenderer(Renderer, Material);
                     }
+
+                    Material.SetFloat("_SrcBlend", Convert.ToSingle(_Source_Blend_Mode));
+                    Material.SetFloat("_DstBlend", Convert.ToSingle(_Destination_Blend_Mode));
+
                     Material.SetColor("_TintColor", _Tint);
 
                     SetShaderKeywordBasedOnBool(_DisableRemapping, Material, "DISABLEREMAP");
@@ -830,36 +1099,8 @@ namespace Aetherium.Utils
             public Renderer Renderer;
             public string MaterialName;
 
-            public enum _SrcBlendFloatEnum
-            {
-                Zero = 0,
-                One = 1,
-                DstColor = 2,
-                SrcColor = 3,
-                OneMinusDstColor = 4,
-                SrcAlpha = 5,
-                OneMinusSrcColor = 6,
-                DstAlpha = 7,
-                OneMinusDstAlpha = 8,
-                SrcAlphaSaturate = 9,
-                OneMinusSrcAlpha = 10
-            }
-            public enum _DstBlendFloatEnum
-            {
-                Zero = 0,
-                One = 1,
-                DstColor = 2,
-                SrcColor = 3,
-                OneMinusDstColor = 4,
-                SrcAlpha = 5,
-                OneMinusSrcColor = 6,
-                DstAlpha = 7,
-                OneMinusDstAlpha = 8,
-                SrcAlphaSaturate = 9,
-                OneMinusSrcAlpha = 10
-            }
-            public _SrcBlendFloatEnum _Source_Blend_Mode;
-            public _DstBlendFloatEnum _Destination_Blend_Mode;
+            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode;
+            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode;
 
             public Color _Tint;
             public Texture _MainTex;
@@ -917,8 +1158,8 @@ namespace Aetherium.Utils
             {
                 if (Material)
                 {
-                    _Source_Blend_Mode = (_SrcBlendFloatEnum)(int)Material.GetFloat("_SrcBlendFloat");
-                    _Destination_Blend_Mode = (_DstBlendFloatEnum)(int)Material.GetFloat("_DstBlendFloat");
+                    _Source_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_SrcBlendFloat");
+                    _Destination_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_DstBlendFloat");
                     _Tint = Material.GetColor("_TintColor");
                     _MainTex = Material.GetTexture("_MainTex");
                     _MainTexScale = Material.GetTextureScale("_MainTex");

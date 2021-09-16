@@ -1,5 +1,5 @@
 ﻿#undef DEBUG
-#undef DEBUGMATERIALS
+#define DEBUGMATERIALS
 
 using Aetherium.Artifacts;
 using Aetherium.CoreModules;
@@ -194,6 +194,7 @@ namespace Aetherium
             ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}");
             ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
             ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
+            ModLogger.LogInfo($"Elite Equipment Enabled: {EliteEquipmentStatusDictionary.Count}");
             ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
             ModLogger.LogInfo("-----------------------------------------------");
 

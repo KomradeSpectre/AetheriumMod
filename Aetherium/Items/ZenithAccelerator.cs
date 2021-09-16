@@ -76,9 +76,9 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.16759F, -0.07591F, 0.06936F),
-                    localAngles = new Vector3(343.2889F, 299.2036F, 176.8172F),
+                    childName = "Chest",
+                    localPos = new Vector3(0, 0, 0),
+                    localAngles = new Vector3(0, 180, 0),
                     localScale = new Vector3(1F, 1F, 1F)
                 }
             });
@@ -328,7 +328,8 @@ namespace Aetherium.Items
                     if (ItemDisplay)
                     {
                         Animator = GetComponentInChildren<Animator>();
-                        ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume")).ToArray();
+                        //ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume")).ToArray();
+                        ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume") && !x.gameObject.name.Contains("Smoke")).ToArray();
                         //Debug.Log("Found ItemDisplay: " + itemDisplay);
                         var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
@@ -441,11 +442,9 @@ namespace Aetherium.Items
                 var t = Time.time / 1f + NoiseOffset;
                 var value = (Mathf.Sin(t * 7) * Mathf.Sin(t * 13) * Mathf.Sin(t * 43) * Mathf.Sin(t * 71) * Mathf.Sin(t * 101)) * 0.5f + 0.5f;
                 var windupCutoff = 0.5f;
-
                 var windup = Mathf.Clamp01(ManagerComponent.CalculateWindUp() - windupCutoff) / (1 - windupCutoff);
 
 
-                //TODO: Lerp the buff count to make the fading happen more smoothly.
                 Renderer.materials[0].SetFloat("_EmPower", EasingFunction.EaseInOutQuad(0, 10 - value * 7, windup));
             }
 

@@ -107,12 +107,11 @@ namespace Aetherium.Equipment.EliteEquipment
             {
                 new CombatDirector.EliteTierDef()
                 {
-                    //costMultiplier = CombatDirector.baseEliteCostMultiplier * 6,
-                    costMultiplier = 1,
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * 6,
                     damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * 3,
                     healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * 4.5f,
                     eliteTypes = Array.Empty<EliteDef>(),
-                    //isAvailable = SetAvailability
+                    isAvailable = SetAvailability
                 }
             };
         }

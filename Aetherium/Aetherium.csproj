@@ -9,6 +9,10 @@
     <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixBenevolent.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixHypercharged.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixRallying.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixSteadfast.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
@@ -108,7 +112,6 @@
 
   <ItemGroup>
     <Folder Include="Achievements\" />
-    <Folder Include="Elites\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
   </ItemGroup>

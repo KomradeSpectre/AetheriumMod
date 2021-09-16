@@ -74,7 +74,7 @@ namespace Aetherium.Equipment.EliteEquipment
             LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_NAME", EliteEquipmentName);
             LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_PICKUP", EliteEquipmentName);
             LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_DESCRIPTION", EliteEquipmentName);
-            LanguageAPI.Add("AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", EliteModifier);
+            LanguageAPI.Add("AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", EliteModifier + " {0}");
 
         }
 
@@ -158,7 +158,6 @@ namespace Aetherium.Equipment.EliteEquipment
             EliteDef.name = "AETHERIUM_ELITE_" + EliteAffixToken;
             EliteDef.modifierToken = "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER";
             EliteDef.eliteEquipmentDef = EliteEquipmentDef;
-            EliteDef.shaderEliteRampIndex = 0;
 
             var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
             if (!CanAppearInEliteTiers.All(x => baseEliteTierDefs.Contains(x)))
@@ -171,15 +170,13 @@ namespace Aetherium.Equipment.EliteEquipment
                     if (indexToInsertAt >= 0)
                     {
                         EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
-                        baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
                     }
                     else
                     {
-                        EliteAPI.AddCustomEliteTier(eliteTierDef);
-                        //HG.ArrayUtils.ArrayAppend<EliteTierDef>(ref baseEliteTierDefs, eliteTierDef);
+                        EliteAPI.AddCustomEliteTier(eliteTierDef);                        
                     }
+                    baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
                 }
-                EliteAPI.OverrideCombatDirectorEliteTiers(baseEliteTierDefs);
             }
 
             EliteAPI.Add(new CustomElite(EliteDef, CanAppearInEliteTiers));

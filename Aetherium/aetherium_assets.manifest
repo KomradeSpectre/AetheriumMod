@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 700122392
+CRC: 930614239
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: fee0d49dfb94a56959e8b3dd750526e0
+    Hash: df5ec8128492bce0604cc093923611e1
   TypeTreeHash:
     serializedVersion: 2
     Hash: 8bacc7b05c89bcecfe4e78a79f298591
@@ -139,6 +139,7 @@ Assets:
 - Assets/Textures/Icons/Artifact/ArtifactOfRegressionDisabledIcon.png
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorCoreGlow.mat
 - Assets/Shaders/3D Shaders/PulseShader.shader
+- Assets/Textures/Material Textures/From Others/HG/texRampImp.png
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat
 - Assets/Models/Raw Models/SharkTeeth.blend
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
@@ -205,6 +206,7 @@ Assets:
 - Assets/Animations/ThrusterRAfterburner.controller
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingSpikes.mat
 - Assets/Models/Raw Models/FeatheredPlume1.blend
+- Assets/Textures/Materials/Elite Equipment/AffixBenevolent/BenevolentFlame.mat
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusionTransparent.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldOmega.mat
 - Assets/Textures/Icons/Item/WeightedAnkletIcon.png
@@ -215,6 +217,7 @@ Assets:
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
 - Assets/Models/Raw Models/BlasterSwordAlt.blend
 - Assets/Textures/Material Textures/7w6XK.png
+- Assets/Models/Prefabs/Elite Equipment/AffixBenevolent/BenevolentDisplay.prefab
 - Assets/Shaders/3D Shaders/Glass.shader
 - Assets/Shaders/3D Shaders/FireDistortion.shader
 - Assets/Animations/ContainerCentrifuge.controller
@@ -247,6 +250,7 @@ Assets:
 - Assets/Textures/Material Textures/lightning.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingEffect.mat
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
+- Assets/Models/Prefabs/Elite Equipment/AffixBenevolent/BenevolentTracker.prefab
 - Assets/Textures/Material Textures/zenith diffuse.png
 - Assets/Textures/Icons/Item/SharkTeethIconAlt.png
 - Assets/Textures/Material Textures/RadialFlowMap.jpg
@@ -264,6 +268,7 @@ Assets:
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain1.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCore.mat
 - Assets/Textures/Material Textures/BlueToTransparentRamp.png
+- Assets/Models/Prefabs/Elite Equipment/AffixAbyssal/AffixAbyssalDisplay.prefab
 - Assets/Textures/Icons/Item/BlasterSwordIcon.png
 - Assets/Shaders/3D Shaders/ColorRampAnimated.shader
 - Assets/Models/Raw Models/AnkletOfMomentum.blend
@@ -314,6 +319,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Iridescent.shader
 - Assets/Models/Prefabs/Item/NailBomb/NailBomb.prefab
 - Assets/Models/Raw Models/JarOfReshaping.blend
+- Assets/Textures/Material Textures/ZenithAcceleratorSmokeRamp.png
 - Assets/Textures/Material Textures/11375-bump1.jpg
 - Assets/Models/Prefabs/Item/EngineersToolbelt/EngineersToolbelt.prefab
 - Assets/Animations/Torus.003.controller
@@ -333,6 +339,7 @@ Assets:
 - Assets/Animations/InspiringDroneUpperArmL.anim
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingHandles.mat
 - Assets/Textures/Material Textures/testcolorrampforintersectionshader.png
+- Assets/Textures/Materials/Elite Equipment/AffixBenevolent/BenevolentFlame 1.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerPlumes.mat
 - Assets/Textures/Material Textures/plume.png
 - Assets/Models/Prefabs/Item/NailBomb/NailBombProjectile.prefab
@@ -376,7 +383,7 @@ Assets:
 - Assets/Textures/Material Textures/BuffBrazierCloud2.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryBody.mat
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinParticleTrail.mat
-- Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveSmoke.mat
+- Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveBlueSmoke.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltWeirdScrewMesh.mat
 - Assets/Models/Raw Models/By Others/Ragon/AccursedPotion.blend
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRing.prefab
@@ -386,6 +393,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/SoulPin/SoulExtractionCircle.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Models/Raw Models/By Others/Ragon/SharkTeeth.blend
+- Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalMat.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneHeadsetWireTexture.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgwavycloth.shader
 - Assets/Animations/InspiringDroneChest.anim
@@ -478,6 +486,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileMain.mat
 - Assets/Textures/Material Textures/CrystalRamp.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltRachetKnob.mat
+- Assets/Textures/Material Textures/BenevolentCenterParticle.png
 - Assets/Shaders/3D Shaders/SonarFx.shader
 - Assets/Shaders/3D Shaders/Hologram.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
@@ -490,6 +499,7 @@ Assets:
 - Assets/Textures/Material Textures/AccursedPotionShellDiffuse.png
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
 - Assets/Models/Raw Models/SoulPinMagicCircle.blend
+- Assets/Textures/Material Textures/emberspark.png
 - Assets/Models/Raw Models/EngineersToolbelt.blend
 - Assets/Textures/Material Textures/414.jpg
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSword.prefab
@@ -534,6 +544,7 @@ Assets:
 - Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorMaterialGears.mat
 - Assets/Shaders/3D Shaders/LavaShader.shader
+- Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveEmber.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdamagenumber.shader
 - Assets/Textures/Materials/Item/NailBomb/NailProjectileMaterial.mat
@@ -633,6 +644,7 @@ Assets:
 - Assets/Textures/Material Textures/LabelTexture.png
 - Assets/Textures/Material Textures/AccursedPotionCorkDiffuse.png
 - Assets/Textures/Icons/Item/InspiringDroneIconTier2.png
+- Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveSmoke.mat
 - Assets/Models/Raw Models/InspiringDroneTracker.blend
 - Assets/Shaders/3D Shaders/IridescencePealescent.shader
 - Assets/Shaders/3D Shaders/StylizedLavaShader.shader
