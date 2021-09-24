@@ -348,7 +348,7 @@ namespace Aetherium.Items
                                             {
                                                 if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
                                                 {
-                                                    Vector3 chosenPosition = FindClosestGroundNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
+                                                    Vector3 chosenPosition = FindClosestNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
 
                                                     CharacterMaster summonedDrone = new MasterSummon()
                                                     {

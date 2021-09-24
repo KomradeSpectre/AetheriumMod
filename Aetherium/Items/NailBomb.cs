@@ -147,8 +147,22 @@ namespace Aetherium.Items
 
             NailBombNailEffect.AddComponent<NetworkIdentity>();
 
+            NailBombNailTracerEffect = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotNails"), "NailBombNailTracer");
+
+            var vfxComponent = NailBombNailTracerEffect.AddComponent<VFXAttributes>();
+            vfxComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
+            vfxComponent.vfxPriority = VFXAttributes.VFXPriority.Medium;
+
+            var smokeLine = NailBombNailTracerEffect.transform.Find("SmokeLine").gameObject;
+            if (smokeLine) { UnityEngine.Object.Destroy(smokeLine); }
+
+            NailBombNailTracerEffect.AddComponent<NetworkIdentity>();
+
             if (NailBombNailEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailEffect); }
             EffectAPI.AddEffect(NailBombNailEffect);
+
+            if (NailBombNailTracerEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailTracerEffect); }
+            EffectAPI.AddEffect(NailBombNailTracerEffect);
         }
 
         private void CreateProjectile()
@@ -182,7 +196,7 @@ namespace Aetherium.Items
 
             var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileFixedImpactExplosion>();
             impactExplosion.ChildBulletAttack = true;
-            impactExplosion.childTracerPrefab = Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotRebar");
+            impactExplosion.childTracerPrefab = NailBombNailTracerEffect;
             impactExplosion.childHitEffectPrefab = NailBombNailEffect;
             impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
             impactExplosion.explosionEffect = Resources.Load<GameObject>("Prefabs/effects/Omnieffect/OmniExplosionVFXCommandoGrenade");

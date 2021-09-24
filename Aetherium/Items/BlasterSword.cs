@@ -76,6 +76,11 @@ namespace Aetherium.Items
 
         public static RoR2.BuffDef BlasterSwordActiveBuff;
 
+        //Provided as a courtesy for other modders.
+        public delegate void BlasterSwordActivationHandler(FireProjectileInfo fireProjectileInfo);
+        public static event BlasterSwordActivationHandler onBlasterSwordFired;
+
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -801,6 +806,8 @@ namespace Aetherium.Items
                                     newProjectileInfo.position = positionChosen;
                                     newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
 
+                                    onBlasterSwordFired?.Invoke(newProjectileInfo);
+
                                     try
                                     {
                                         RecursionPrevention = true;
@@ -851,6 +858,7 @@ namespace Aetherium.Items
                                 var positionChosen = damageInfo.position + new Vector3(RoR2.Run.instance.stageRng.RangeFloat(-10, 10), RoR2.Run.instance.stageRng.RangeFloat(0, 10), RoR2.Run.instance.stageRng.RangeFloat(-10, 10)).normalized * 4;
                                 newProjectileInfo.position = positionChosen;
                                 newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
+                                onBlasterSwordFired?.Invoke(newProjectileInfo);
 
                                 try
                                 {
@@ -917,6 +925,8 @@ namespace Aetherium.Items
                                 position = self.origin,
                                 rotation = RoR2.Util.QuaternionSafeLookRotation(self.target.transform.position - self.origin)
                             };
+
+                            onBlasterSwordFired?.Invoke(newProjectileInfo);
 
                             try
                             {
@@ -1048,6 +1058,8 @@ namespace Aetherium.Items
                                     rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward)
                                 };
 
+                                onBlasterSwordFired?.Invoke(newProjectileInfo);
+
                                 try
                                 {
                                     RecursionPrevention = true;
@@ -1115,6 +1127,8 @@ namespace Aetherium.Items
                             newProjectileInfo.position = MuzzleTransform;
                             newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(self.aimVector);
 
+                            onBlasterSwordFired?.Invoke(newProjectileInfo);
+
                             try
                             {
                                 RecursionPrevention = true;
@@ -1154,6 +1168,8 @@ namespace Aetherium.Items
                                 newProjectileInfo.damageTypeOverride = null;
                                 newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
                                 newProjectileInfo.procChainMask = default;
+
+                                onBlasterSwordFired?.Invoke(newProjectileInfo);
 
                                 try
                                 {

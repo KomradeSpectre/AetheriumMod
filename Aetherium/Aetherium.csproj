@@ -13,6 +13,7 @@
     <Compile Remove="Equipment\EliteEquipment\AffixHypercharged.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixRallying.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixSteadfast.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixTarred.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
@@ -114,6 +115,7 @@
     <Folder Include="Achievements\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
+    <Folder Include="Utils\Scripts\" />
   </ItemGroup>
           <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\lib\UnityEngine.CoreModule.dll&quot; &quot;..\lib\UnityEngine.Networking.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />

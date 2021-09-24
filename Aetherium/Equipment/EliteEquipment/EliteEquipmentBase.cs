@@ -34,7 +34,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public virtual bool AppearsInMultiPlayer { get; } = true;
 
-        public virtual bool CanDrop { get; } = false;
+        public virtual bool CanDrop { get; } = true;
 
         public virtual float Cooldown { get; } = 60f;
 
@@ -72,8 +72,9 @@ namespace Aetherium.Equipment.EliteEquipment
         protected void CreateLang()
         {
             LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_NAME", EliteEquipmentName);
-            LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_PICKUP", EliteEquipmentName);
-            LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_DESCRIPTION", EliteEquipmentName);
+            LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_PICKUP", EliteEquipmentPickupDesc);
+            LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_DESCRIPTION", EliteEquipmentFullDescription);
+            LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_LORE", EliteEquipmentLore);
             LanguageAPI.Add("AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", EliteModifier + " {0}");
 
         }
@@ -84,12 +85,14 @@ namespace Aetherium.Equipment.EliteEquipment
             EliteBuffDef.name = EliteAffixToken;
             EliteBuffDef.buffColor = new Color32(255, 255, 255, byte.MaxValue);
             EliteBuffDef.canStack = false;
+            EliteBuffDef.iconSprite = EliteBuffIcon;
 
             EliteEquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
             EliteEquipmentDef.name = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken;
             EliteEquipmentDef.nameToken = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_NAME";
             EliteEquipmentDef.pickupToken = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_PICKUP";
             EliteEquipmentDef.descriptionToken = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_DESCRIPTION";
+            EliteEquipmentDef.loreToken = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_LORE";
             EliteEquipmentDef.pickupModelPrefab = EliteEquipmentModel;
             EliteEquipmentDef.pickupIconSprite = EliteEquipmentIcon;
             EliteEquipmentDef.appearsInSinglePlayer = AppearsInSinglePlayer;

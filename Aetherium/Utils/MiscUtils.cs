@@ -34,22 +34,56 @@ namespace Aetherium.Utils
             return shuffled;
         }
 
-        public static Vector3 FindClosestGroundNodeToPosition(Vector3 position, HullClassification hullClassification)
+        public static Vector3 FindClosestNodeToPosition(Vector3 position, HullClassification hullClassification, bool checkAirNodes = false)
         {
             Vector3 ResultPosition;
 
-            NodeGraph groundNodes = SceneInfo.instance.groundNodes;
+            NodeGraph nodesToCheck = checkAirNodes ? SceneInfo.instance.airNodes : SceneInfo.instance.groundNodes;
 
-            var closestNode = groundNodes.FindClosestNode(position, hullClassification);
+            var closestNode = nodesToCheck.FindClosestNode(position, hullClassification);
 
             if(closestNode != NodeGraph.NodeIndex.invalid)
             {
-                groundNodes.GetNodePosition(closestNode, out ResultPosition);
+                nodesToCheck.GetNodePosition(closestNode, out ResultPosition);
                 return ResultPosition;
             }
 
             Debug.LogWarning($"No closest node to be found for XYZ: {position}, returning 0,0,0");
             return Vector3.zero;
+        }
+
+        public static bool TeleportBody(CharacterBody characterBody, GameObject target, GameObject teleportEffect, HullClassification hullClassification, Xoroshiro128Plus rng, float minDistance = 20, float maxDistance = 45, bool teleportAir = false)
+        {
+            if (!characterBody){ return false; }
+
+            SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
+            spawnCard.hullSize = hullClassification;
+            spawnCard.nodeGraphType = teleportAir ? MapNodeGroup.GraphType.Air : MapNodeGroup.GraphType.Ground;
+            spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
+            GameObject gameObject = DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(spawnCard, new DirectorPlacementRule
+            {
+                placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                position = target.transform.position,
+                minDistance = minDistance,
+                maxDistance = maxDistance
+            }, rng));
+            if (gameObject)
+            {
+                TeleportHelper.TeleportBody(characterBody, gameObject.transform.position);
+                GameObject teleportEffectPrefab = teleportEffect;
+                if (teleportEffectPrefab)
+                {
+                    EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
+                }
+                UnityEngine.Object.Destroy(gameObject);
+                UnityEngine.Object.Destroy(spawnCard);
+                return true;
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(spawnCard);
+                return false;
+            }
         }
 
         public static Vector3? AboveTargetVectorFromDamageInfo(DamageInfo damageInfo, float distanceAboveTarget)

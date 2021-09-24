@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 930614239
+CRC: 2800941997
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: df5ec8128492bce0604cc093923611e1
+    Hash: 339b0885ba46a5988ec76a3285b65b7d
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 8bacc7b05c89bcecfe4e78a79f298591
+    Hash: 62a96e1908110c98788bc461bb7e4e79
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -31,6 +31,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 74
   Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
 - Class: 91
   Script: {instanceID: 0}
 - Class: 95
@@ -43,6 +45,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 111
   Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: acf56a9163ee82942812c6b58bb387f8, type: 3}
 - Class: 114
   Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
 - Class: 115
@@ -181,6 +185,7 @@ Assets:
 - Assets/Models/Raw Models/SwordBlade.png
 - Assets/Animations/InspiringDroneChest.controller
 - Assets/Shaders/3D Shaders/Rim + Texture.shader
+- Assets/Models/Prefabs/Elite Equipment/AffixAbyssal/PickupAffixAbyssal.prefab
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png
 - Assets/Textures/Icons/Artifact/ArtifactOfTheJourneyEnabledIcon.png
 - Assets/Textures/Material Textures/flameparticle.png
@@ -243,6 +248,7 @@ Assets:
 - Assets/Textures/Material Textures/12148-beams.png
 - Assets/Animations/HiveInner 1.controller
 - Assets/Models/Prefabs/Item/ZenithAccelerator/ZenithAccelerator.prefab
+- Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalDisplayMat.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgcloudremap.shader
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierAvailabilityIndicator.mat
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab
@@ -253,6 +259,7 @@ Assets:
 - Assets/Models/Prefabs/Elite Equipment/AffixBenevolent/BenevolentTracker.prefab
 - Assets/Textures/Material Textures/zenith diffuse.png
 - Assets/Textures/Icons/Item/SharkTeethIconAlt.png
+- Assets/Models/Raw Models/By Others/Ragon/abyssalAspectSingle.fbx
 - Assets/Textures/Material Textures/RadialFlowMap.jpg
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothTop.mat
 - Assets/Textures/Material Textures/UnstableDesignChimeraNormal.png
@@ -263,6 +270,7 @@ Assets:
 - Assets/Textures/Material Textures/7029.jpg
 - Assets/Textures/Material Textures/From Others/HG/texOmniExplosion2Mask.png
 - Assets/Textures/Material Textures/AlienMagnetRingDiffuse.png
+- Assets/Textures/Icons/Elite Equipment/AffixAbyssalIcon.png
 - Assets/Textures/Icons/UI/Indicator/SoulPinReticuleIcon.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothBody.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain1.mat
@@ -331,6 +339,7 @@ Assets:
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat
 - Assets/Textures/Material Textures/Powergem.png
 - Assets/Textures/Materials/Item/NailBomb/NailBombWickSparks.mat
+- Assets/Textures/Material Textures/AffixAbyssalDiffuse.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCoreGlass.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryCap.mat
 - Assets/Textures/Material Textures/3989-bump - Copy.jpg
@@ -351,6 +360,7 @@ Assets:
 - Assets/Textures/Material Textures/zenith_glow.png
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
+- Assets/Textures/Icons/Buff/By Others/FOG/AffixAbyssalBuffIcon.png
 - Assets/Textures/Material Textures/BlackToRedToBlackCircular.png
 - Assets/Textures/Material Textures/HorizontalGradientBW.png
 - Assets/Models/Raw Models/By Others/Ragon/soul pin.blend
@@ -427,6 +437,7 @@ Assets:
 - Assets/Textures/Materials/Miscellaneous/BlackHole.mat
 - Assets/Textures/Material Textures/1378-normal.jpg
 - Assets/Textures/Icons/Artifact/ArtifactOfTheTyrantDisabledIcon.png
+- Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingParticle.mat
 - Assets/Textures/Material Textures/BlueToTransparentRampCircular.png
 - Assets/Models/Prefabs/Equipment/PheromoneSac/PheromoneSac.prefab
 - Assets/Textures/Material Textures/FeatheredPlumeNormal.png
@@ -470,6 +481,7 @@ Assets:
 - Assets/Textures/Material Textures/From Others/HG/texRampLunarWispFire.png
 - Assets/Animations/ZenithAcceleratorAnimation.anim
 - Assets/Textures/Material Textures/3398-diffuse.jpg
+- Assets/Textures/Material Textures/AffixAbyssalEmission.png
 - Assets/Textures/Material Textures/leather-normal.jpg
 - Assets/Shaders/3D Shaders/GhostRim.shader
 - Assets/Textures/Material Textures/1678-bump.jpg
@@ -479,6 +491,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinSymbol.mat
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorMaterial.mat
 - Assets/Textures/Material Textures/soulextractioncirclenormal.png
+- Assets/Models/Raw Models/By Others/Ragon/abyssalAspect.blend
 - Assets/Textures/Material Textures/MetalRamp.png
 - Assets/Textures/Material Textures/FlameNoiseTexture.png
 - Assets/Textures/Material Textures/UnstableDesignChimeraEmission.png
@@ -516,6 +529,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Distortion.shader
 - Assets/Models/Raw Models/By Others/Ragon/heart of the void.blend
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgopaquecloudremap.shader
+- Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalPickup.mat
 - Assets/Textures/Material Textures/BlueToTransparentRampInner.png
 - Assets/Shaders/3D Shaders/SpriteSheet.shader
 - Assets/Textures/Icons/Equipment/PheromoneSacIcon.png
@@ -559,6 +573,7 @@ Assets:
 - Assets/Textures/Material Textures/BlasterSwordDiffuse.png
 - Assets/Animations/AlienMagnet.controller
 - Assets/Textures/Material Textures/BlasterSwordTextureNormal.png
+- Assets/Models/Raw Models/AffixBase.blend
 - Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacBrainwashOverlay.mat
 - Assets/Shaders/3D Shaders/AuraOutline.shader
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureDetailMask.png

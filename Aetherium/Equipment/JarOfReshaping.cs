@@ -107,6 +107,8 @@ namespace Aetherium.Equipment
             var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
             chargeSphereTimer.duration = ProjectileAbsorptionTime;
 
+
+
             var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
             chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
             chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
@@ -133,7 +135,7 @@ namespace Aetherium.Equipment
             orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
             orbEffect.endVelocity2 = new Vector3(10, 5, 10);
             orbEffect.movementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
+            
             JarOrb.AddComponent<NetworkIdentity>();
 
             if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);

@@ -74,6 +74,18 @@ namespace Aetherium.Utils
             return pointsList;
         }
 
+        public static Vector3 GetPointOnUnitSphereCap(Quaternion targetDirection, float angle)
+        {
+            var angleInRad = UnityEngine.Random.Range(0.0f, angle) * Mathf.Deg2Rad;
+            var PointOnCircle = (UnityEngine.Random.insideUnitCircle.normalized) * Mathf.Sin(angleInRad);
+            var V = new Vector3(PointOnCircle.x, PointOnCircle.y, Mathf.Cos(angleInRad));
+            return targetDirection * V;
+        }
+        public static Vector3 GetPointOnUnitSphereCap(Vector3 targetDirection, float angle)
+        {
+            return GetPointOnUnitSphereCap(Quaternion.LookRotation(targetDirection), angle);
+        }
+
         public static Vector3 RandomPointOnCircle(Vector3 origin, float radius, Xoroshiro128Plus random)
         {
             float angle = random.RangeFloat(0, 2f * Mathf.PI);

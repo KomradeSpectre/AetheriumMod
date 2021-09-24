@@ -95,30 +95,27 @@ namespace Aetherium.Utils
         {
             public Material Material;
             public Renderer Renderer;
-            public string MaterialName;
+            public string MaterialName { get => Material?.name ?? ""; }
 
-            public bool _EnableCutout;
-            public Color _Color;
-            public Texture _MainTex;
-            public Vector2 _MainTexScale;
-            public Vector2 _MainTexOffset;
+            public bool _EnableCutout { get => Material?.IsKeywordEnabled("CUTOUT") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "CUTOUT"); }
+            public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
+            public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
+            public Vector2 _MainTexScale { get => Material?.GetTextureScale("_MainTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MainTex", value); }
+            public Vector2 _MainTexOffset { get => Material?.GetTextureOffset("_MainTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MainTex", value); }
 
-            [Range(0f, 5f)]
-            public float _NormalStrength;
+            public float _NormalStrength { get => Material?.GetFloat("_NormalStrength") ?? 0; set => Material?.SetFloat("_NormalStrength", Mathf.Clamp(value, 0, 5)); }
 
-            public Texture _NormalTex;
-            public Vector2 _NormalTexScale;
-            public Vector2 _NormalTexOffset;
-            public Color _EmColor;
-            public Texture _EmTex;
+            public Texture _NormalTex { get => Material?.GetTexture("_NormalTex") ?? null; set => Material?.SetTexture("_NormalTex", value); }
+            public Vector2 _NormalTexScale { get => Material?.GetTextureScale("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureScale("_NormalTex", value); }
+            public Vector2 _NormalTexOffset { get => Material?.GetTextureOffset("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_NormalTex", value); }
+            public Color _EmColor { get => Material?.GetColor("_EmColor") ?? default(Color); set => Material?.SetColor("_EmColor", value); }
+            public Texture _EmTex { get => Material?.GetTexture("_EmTex") ?? null; set => Material?.SetTexture("_EmTex", value); }
 
-            [Range(0f, 10f)]
-            public float _EmPower;
+            public float _EmPower { get => Material?.GetFloat("_EmPower") ?? 0; set => Material?.SetFloat("_EmPower", Mathf.Clamp(value, 0, 10)); }
 
-            [Range(0f, 1f)]
-            public float _Smoothness;
+            public float _Smoothness { get => Material?.GetFloat("_Smoothness") ?? 0; set => Material?.SetFloat("_Smoothness", Mathf.Clamp(value, 0, 1)); }
 
-            public bool _IgnoreDiffuseAlphaForSpeculars;
+            public bool _IgnoreDiffuseAlphaForSpeculars { get => Material?.IsKeywordEnabled("FORCE_SPEC") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FORCE_SPEC"); }
 
             public enum _RampInfoEnum
             {
@@ -128,7 +125,7 @@ namespace Aetherium.Utils
                 Subsurface = 4,
                 Grass = 5
             }
-            public _RampInfoEnum _RampChoice;
+            public _RampInfoEnum _RampChoice { get => (_RampInfoEnum)(int)(Material?.GetFloat("_RampInfo") ?? 1); set => Material?.SetFloat("_RampInfo", Convert.ToSingle(value)); }
 
             public enum _DecalLayerEnum
             {
@@ -137,13 +134,11 @@ namespace Aetherium.Utils
                 Character = 2,
                 Misc = 3
             }
-            public _DecalLayerEnum _DecalLayer;
+            public _DecalLayerEnum _DecalLayer { get => (_DecalLayerEnum)(int)(Material?.GetFloat("_DecalLayer") ?? 1); set => Material?.SetFloat("_DecalLayer", Convert.ToSingle(value)); }
 
-            [Range(0f, 1f)]
-            public float _SpecularStrength;
+            public float _SpecularStrength { get => Material?.GetFloat("_SpecularStrength") ?? 0; set => Material?.SetFloat("_SpecularStrength", Mathf.Clamp(value, 0, 1)); }
 
-            [Range(0.1f, 20f)]
-            public float _SpecularExponent;
+            public float _SpecularExponent { get => Material?.GetFloat("_SpecularExponent") ?? 0; set => Material?.SetFloat("_SpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
 
             public enum _CullEnum
             {
@@ -151,48 +146,39 @@ namespace Aetherium.Utils
                 Front = 1,
                 Back = 2
             }
-            public _CullEnum _Cull_Mode;
+            public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
 
-            public bool _EnableDither;
+            public bool _EnableDither { get => Material?.IsKeywordEnabled("DITHER") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DITHER"); }
 
-            [Range(0f, 1f)]
-            public float _FadeBias;
+            public float _FadeBias { get => Material?.GetFloat("_FadeBias") ?? 0; set => Material?.SetFloat("_FadeBias", Mathf.Clamp(value, 0, 1)); }
 
-            public bool _EnableFresnelEmission;
+            public bool _EnableFresnelEmission { get => Material?.IsKeywordEnabled("FRESNEL_EMISSION") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FRESNEL_EMISSION"); }
 
-            public Texture _FresnelRamp;
+            public Texture _FresnelRamp { get => Material?.GetTexture("_FresnelRamp") ?? null; set => Material?.SetTexture("_FresnelRamp", value); }
 
-            [Range(0.1f, 20f)]
-            public float _FresnelPower;
+            public float _FresnelPower { get => Material?.GetFloat("_FresnelPower") ?? 0; set => Material?.SetFloat("_FresnelPower", Mathf.Clamp(value, 0.1f, 20)); }
 
-            public Texture _FresnelMask;
+            public Texture _FresnelMask { get => Material?.GetTexture("_FresnelMask") ?? null; set => Material?.SetTexture("_FresnelMask", value); }
 
-            [Range(0f, 20f)]
-            public float _FresnelBoost;
+            public float _FresnelBoost { get => Material?.GetFloat("_FresnelBoost") ?? 0; set => Material?.SetFloat("_FresnelBoost", Mathf.Clamp(value, 0, 20)); }
 
-            public bool _EnablePrinting;
+            public bool _EnablePrinting { get => Material?.IsKeywordEnabled("PRINT_CUTOFF") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "PRINT_CUTOFF"); }
 
-            [Range(-25f, 25f)]
-            public float _SliceHeight;
+            public float _SliceHeight { get => Material?.GetFloat("_SliceHeight") ?? 0; set => Material?.SetFloat("_SliceHeight", Mathf.Clamp(value, -25, 25)); }
 
-            [Range(0f, 10f)]
-            public float _PrintBandHeight;
+            public float _PrintBandHeight { get => Material?.GetFloat("_SliceBandHeight") ?? 0; set => Material?.SetFloat("_SliceBandHeight", Mathf.Clamp(value, 0, 10)); }
 
-            [Range(0f, 1f)]
-            public float _PrintAlphaDepth;
+            public float _PrintAlphaDepth { get => Material?.GetFloat("_SliceAlphaDepth") ?? 0; set => Material?.SetFloat("_SliceAlphaDepth", Mathf.Clamp(value, 0, 1)); }
 
-            public Texture _PrintAlphaTexture;
-            public Vector2 _PrintAlphaTextureScale;
-            public Vector2 _PrintAlphaTextureOffset;
+            public Texture _PrintAlphaTexture { get => Material?.GetTexture("_SliceAlphaTex") ?? null; set => Material?.SetTexture("_SliceAlphaTex", value); }
+            public Vector2 _PrintAlphaTextureScale { get => Material?.GetTextureScale("_SliceAlphaTex") ?? Vector2.zero; set => Material?.SetTextureScale("_SliceAlphaTex", value); }
+            public Vector2 _PrintAlphaTextureOffset { get => Material?.GetTextureOffset("_SliceAlphaTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_SliceAlphaTex", value); }
 
-            [Range(0f, 10f)]
-            public float _PrintColorBoost;
+            public float _PrintColorBoost { get => Material?.GetFloat("_PrintBoost") ?? 0; set => Material?.SetFloat("_PrintBoost", Mathf.Clamp(value, 0, 10)); }
 
-            [Range(0f, 4f)]
-            public float _PrintAlphaBias;
+            public float _PrintAlphaBias { get => Material?.GetFloat("_PrintBias") ?? 0; set => Material?.SetFloat("_PrintBias", Mathf.Clamp(value, 0, 4)); }
 
-            [Range(0f, 1f)]
-            public float _PrintEmissionToAlbedoLerp;
+            public float _PrintEmissionToAlbedoLerp { get => Material?.GetFloat("_PrintEmissionToAlbedoLerp") ?? 0; set => Material?.SetFloat("_PrintEmissionToAlbedoLerp", Mathf.Clamp(value, 0, 1)); }
 
             public enum _PrintDirectionEnum
             {
@@ -200,386 +186,77 @@ namespace Aetherium.Utils
                 TopDown = 1,
                 BackToFront = 3
             }
-            public _PrintDirectionEnum _PrintDirection;
+            public _PrintDirectionEnum _PrintDirection { get => (_PrintDirectionEnum)(int)(Material?.GetFloat("_PrintDirection") ?? 1); set => Material?.SetFloat("_PrintDirection", Convert.ToSingle(value)); }
 
-            public Texture _PrintRamp;
+            public Texture _PrintRamp { get => Material?.GetTexture("_PrintRamp") ?? null; set => Material?.SetTexture("_PrintRamp", value); }
 
-            [Range(-10f, 10f)]
-            public float _EliteBrightnessMin;
+            public float _EliteIndex { get => Material?.GetFloat("_EliteIndex") ?? 0; set => Material?.SetFloat("_EliteIndex", value); }
 
-            [Range(-10f, 10f)]
-            public float _EliteBrightnessMax;
+            public float _EliteBrightnessMin { get => Material?.GetFloat("_EliteBrightnessMin") ?? 0; set => Material?.SetFloat("_EliteBrightnessMin", Mathf.Clamp(value, -10, 10)); }
 
-            public bool _EnableSplatmap;
-            public bool _UseVertexColorsInstead;
+            public float _EliteBrightnessMax { get => Material?.GetFloat("_EliteBrightnessMax") ?? 0; set => Material?.SetFloat("_EliteBrightnessMax", Mathf.Clamp(value, -10, 10)); }
 
-            [Range(0f, 1f)]
-            public float _BlendDepth;
+            public bool _EnableSplatmap { get => Material?.IsKeywordEnabled("SPLATMAP") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "SPLATMAP"); }
+            public bool _UseVertexColorsInstead { get => Material?.IsKeywordEnabled("USE_VERTEX_COLORS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_VERTEX_COLORS"); }
 
-            public Texture _SplatmapTex;
-            public Vector2 _SplatmapTexScale;
-            public Vector2 _SplatmapTexOffset;
+            public float _BlendDepth { get => Material?.GetFloat("_Depth") ?? 0; set => Material?.SetFloat("_Depth", Mathf.Clamp(value, 0, 1)); }
 
-            [Range(0f, 20f)]
-            public float _SplatmapTileScale;
+            public Texture _SplatmapTex { get => Material?.GetTexture("_SplatmapTex") ?? null; set => Material?.SetTexture("_SplatmapTex", value); }
+            public Vector2 _SplatmapTexScale { get => Material?.GetTextureScale("_SplatmapTex") ?? Vector2.zero; set => Material?.SetTextureScale("_SplatmapTex", value); }
+            public Vector2 _SplatmapTexOffset { get => Material?.GetTextureOffset("_SplatmapTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_SplatmapTex", value); }
 
-            public Texture _GreenChannelTex;
-            public Texture _GreenChannelNormalTex;
+            public float _SplatmapTileScale { get => Material?.GetFloat("_SplatmapTileScale") ?? 0; set => Material?.SetFloat("_SplatmapTileScale", Mathf.Clamp(value, 0, 20)); }
 
-            [Range(0f, 1f)]
-            public float _GreenChannelSmoothness;
+            public Texture _GreenChannelTex { get => Material?.GetTexture("_GreenChannelTex") ?? null; set => Material?.SetTexture("_GreenChannelTex", value); }
+            public Texture _GreenChannelNormalTex { get => Material?.GetTexture("_GreenChannelNormalTex") ?? null; set => Material?.SetTexture("_GreenChannelNormalTex", value); }
 
-            [Range(-2f, 5f)]
-            public float _GreenChannelBias;
+            public float _GreenChannelSmoothness { get => Material?.GetFloat("_GreenChannelSmoothness") ?? 0; set => Material?.SetFloat("_GreenChannelSmoothness", Mathf.Clamp(value, 0, 1)); }
 
-            public Texture _BlueChannelTex;
-            public Texture _BlueChannelNormalTex;
+            public float _GreenChannelBias { get => Material?.GetFloat("_GreenChannelBias") ?? 0; set => Material?.SetFloat("_GreenChannelBias", Mathf.Clamp(value, -2, 5)); }
 
-            [Range(0f, 1f)]
-            public float _BlueChannelSmoothness;
+            public Texture _BlueChannelTex { get => Material?.GetTexture("_BlueChannelTex") ?? null; set => Material?.SetTexture("_BlueChannelTex", value); }
+            public Texture _BlueChannelNormalTex { get => Material?.GetTexture("_BlueChannelNormalTex") ?? null; set => Material?.SetTexture("_BlueChannelNormalTex", value); }
 
-            [Range(-2f, 5f)]
-            public float _BlueChannelBias;
+            public float _BlueChannelSmoothness { get => Material?.GetFloat("_BlueChannelSmoothness") ?? 0; set => Material?.SetFloat("_BlueChannelSmoothness", Mathf.Clamp(value, 0, 1)); }
 
-            public bool _EnableFlowmap;
-            public Texture _FlowTexture;
-            public Texture _FlowHeightmap;
-            public Vector2 _FlowHeightmapScale;
-            public Vector2 _FlowHeightmapOffset;
-            public Texture _FlowHeightRamp;
-            public Vector2 _FlowHeightRampScale;
-            public Vector2 _FlowHeightRampOffset;
+            public float _BlueChannelBias { get => Material?.GetFloat("_BlueChannelBias") ?? 0; set => Material?.SetFloat("_BlueChannelBias", Mathf.Clamp(value, -2, 5)); }
 
-            [Range(-1f, 1f)]
-            public float _FlowHeightBias;
+            public bool _EnableFlowmap { get => Material?.IsKeywordEnabled("FLOWMAP") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FLOWMAP"); }
+            public Texture _FlowTexture { get => Material?.GetTexture("_FlowTex") ?? null; set => Material?.SetTexture("_FlowTex", value); }
+            public Texture _FlowHeightmap { get => Material?.GetTexture("_FlowHeightmap") ?? null; set => Material?.SetTexture("_FlowHeightmap", value); }
+            public Vector2 _FlowHeightmapScale { get => Material?.GetTextureScale("_FlowHeightmap") ?? Vector2.zero; set => Material?.SetTextureScale("_FlowHeightmap", value); }
+            public Vector2 _FlowHeightmapOffset { get => Material?.GetTextureOffset("_FlowHeightmap") ?? Vector2.zero; set => Material?.SetTextureOffset("_FlowHeightmap", value); }
+            public Texture _FlowHeightRamp { get => Material?.GetTexture("_FlowHeightRamp") ?? null; set => Material?.SetTexture("_FlowHeightRamp", value); }
+            public Vector2 _FlowHeightRampScale { get => Material?.GetTextureScale("_FlowHeightRamp") ?? Vector2.zero; set => Material?.SetTextureScale("_FlowHeightRamp", value); }
+            public Vector2 _FlowHeightRampOffset { get => Material?.GetTextureOffset("_FlowHeightRamp") ?? Vector2.zero; set => Material?.SetTextureOffset("_FlowHeightRamp", value); }
 
-            [Range(0.1f, 20f)]
-            public float _FlowHeightPower;
+            public float _FlowHeightBias { get => Material?.GetFloat("_FlowHeightBias") ?? 0; set => Material?.SetFloat("_FlowHeightBias", Mathf.Clamp(value, -1, 1)); }
 
-            [Range(0.1f, 20f)]
-            public float _FlowEmissionStrength;
+            public float _FlowHeightPower { get => Material?.GetFloat("_FlowHeightPower") ?? 0; set => Material?.SetFloat("_FlowHeightPower", Mathf.Clamp(value, 0.1f, 20)); }
 
-            [Range(0f, 15f)]
-            public float _FlowSpeed;
+            public float _FlowEmissionStrength { get => Material?.GetFloat("_FlowEmissionStrength") ?? 0; set => Material?.SetFloat("_FlowEmissionStrength", Mathf.Clamp(value, 0.1f, 20)); }
 
-            [Range(0f, 5f)]
-            public float _MaskFlowStrength;
+            public float _FlowSpeed { get => Material?.GetFloat("_FlowSpeed") ?? 0; set => Material?.SetFloat("_FlowSpeed", Mathf.Clamp(value, 0, 15)); }
 
-            [Range(0f, 5f)]
-            public float _NormalFlowStrength;
+            public float _MaskFlowStrength { get => Material?.GetFloat("_FlowMaskStrength") ?? 0; set => Material?.SetFloat("_FlowMaskStrength", Mathf.Clamp(value, 0, 5)); }
 
-            [Range(0f, 10f)]
-            public float _FlowTextureScaleFactor;
+            public float _NormalFlowStrength { get => Material?.GetFloat("_FlowNormalStrength") ?? 0; set => Material?.SetFloat("_FlowNormalStrength", Mathf.Clamp(value, 0, 5)); }
 
-            public bool _EnableLimbRemoval;
+            public float _FlowTextureScaleFactor { get => Material?.GetFloat("_FlowTextureScaleFactor") ?? 0; set => Material?.SetFloat("_FlowTextureScaleFactor", Mathf.Clamp(value, 0, 10)); }
 
-            public void Start()
-            {
-                GrabMaterialValues();
-            }
-            public void GrabMaterialValues()
-            {
-                if (Material)
-                {
-                    _EnableCutout = Material.IsKeywordEnabled("CUTOUT");
-                    _Color = Material.GetColor("_Color");
-                    _MainTex = Material.GetTexture("_MainTex");
-                    _MainTexScale = Material.GetTextureScale("_MainTex");
-                    _MainTexOffset = Material.GetTextureOffset("_MainTex");
-                    _NormalStrength = Material.GetFloat("_NormalStrength");
-                    _NormalTex = Material.GetTexture("_NormalTex");
-                    _NormalTexScale = Material.GetTextureScale("_NormalTex");
-                    _NormalTexOffset = Material.GetTextureOffset("_NormalTex");
-                    _EmColor = Material.GetColor("_EmColor");
-                    _EmTex = Material.GetTexture("_EmTex");
-                    _EmPower = Material.GetFloat("_EmPower");
-                    _Smoothness = Material.GetFloat("_Smoothness");
-                    _IgnoreDiffuseAlphaForSpeculars = Material.IsKeywordEnabled("FORCE_SPEC");
-                    _RampChoice = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
-                    _DecalLayer = (_DecalLayerEnum)(int)Material.GetFloat("_DecalLayer");
-                    _SpecularStrength = Material.GetFloat("_SpecularStrength");
-                    _SpecularExponent = Material.GetFloat("_SpecularExponent");
-                    _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _EnableDither = Material.IsKeywordEnabled("DITHER");
-                    _FadeBias = Material.GetFloat("_FadeBias");
-                    _EnableFresnelEmission = Material.IsKeywordEnabled("FRESNEL_EMISSION");
-                    _FresnelRamp = Material.GetTexture("_FresnelRamp");
-                    _FresnelPower = Material.GetFloat("_FresnelPower");
-                    _FresnelMask = Material.GetTexture("_FresnelMask");
-                    _FresnelBoost = Material.GetFloat("_FresnelBoost");
-                    _EnablePrinting = Material.IsKeywordEnabled("PRINT_CUTOFF");
-                    _SliceHeight = Material.GetFloat("_SliceHeight");
-                    _PrintBandHeight = Material.GetFloat("_SliceBandHeight");
-                    _PrintAlphaDepth = Material.GetFloat("_SliceAlphaDepth");
-                    _PrintAlphaTexture = Material.GetTexture("_SliceAlphaTex");
-                    _PrintAlphaTextureScale = Material.GetTextureScale("_SliceAlphaTex");
-                    _PrintAlphaTextureOffset = Material.GetTextureOffset("_SliceAlphaTex");
-                    _PrintColorBoost = Material.GetFloat("_PrintBoost");
-                    _PrintAlphaBias = Material.GetFloat("_PrintBias");
-                    _PrintEmissionToAlbedoLerp = Material.GetFloat("_PrintEmissionToAlbedoLerp");
-                    _PrintDirection = (_PrintDirectionEnum)(int)Material.GetFloat("_PrintDirection");
-                    _PrintRamp = Material.GetTexture("_PrintRamp");
-                    _EliteBrightnessMin = Material.GetFloat("_EliteBrightnessMin");
-                    _EliteBrightnessMax = Material.GetFloat("_EliteBrightnessMax");
-                    _EnableSplatmap = Material.IsKeywordEnabled("SPLATMAP");
-                    _UseVertexColorsInstead = Material.IsKeywordEnabled("USE_VERTEX_COLORS");
-                    _BlendDepth = Material.GetFloat("_Depth");
-                    _SplatmapTex = Material.GetTexture("_SplatmapTex");
-                    _SplatmapTexScale = Material.GetTextureScale("_SplatmapTex");
-                    _SplatmapTexOffset = Material.GetTextureOffset("_SplatmapTex");
-                    _SplatmapTileScale = Material.GetFloat("_SplatmapTileScale");
-                    _GreenChannelTex = Material.GetTexture("_GreenChannelTex");
-                    _GreenChannelNormalTex = Material.GetTexture("_GreenChannelNormalTex");
-                    _GreenChannelSmoothness = Material.GetFloat("_GreenChannelSmoothness");
-                    _GreenChannelBias = Material.GetFloat("_GreenChannelBias");
-                    _BlueChannelTex = Material.GetTexture("_BlueChannelTex");
-                    _BlueChannelNormalTex = Material.GetTexture("_BlueChannelNormalTex");
-                    _BlueChannelSmoothness = Material.GetFloat("_BlueChannelSmoothness");
-                    _BlueChannelBias = Material.GetFloat("_BlueChannelBias");
-                    _EnableFlowmap = Material.IsKeywordEnabled("FLOWMAP");
-                    _FlowTexture = Material.GetTexture("_FlowTex");
-                    _FlowHeightmap = Material.GetTexture("_FlowHeightmap");
-                    _FlowHeightmapScale = Material.GetTextureScale("_FlowHeightmap");
-                    _FlowHeightmapOffset = Material.GetTextureOffset("_FlowHeightmap");
-                    _FlowHeightRamp = Material.GetTexture("_FlowHeightRamp");
-                    _FlowHeightRampScale = Material.GetTextureScale("_FlowHeightRamp");
-                    _FlowHeightRampOffset = Material.GetTextureOffset("_FlowHeightRamp");
-                    _FlowHeightBias = Material.GetFloat("_FlowHeightBias");
-                    _FlowHeightPower = Material.GetFloat("_FlowHeightPower");
-                    _FlowEmissionStrength = Material.GetFloat("_FlowEmissionStrength");
-                    _FlowSpeed = Material.GetFloat("_FlowSpeed");
-                    _MaskFlowStrength = Material.GetFloat("_FlowMaskStrength");
-                    _NormalFlowStrength = Material.GetFloat("_FlowNormalStrength");
-                    _FlowTextureScaleFactor = Material.GetFloat("_FlowTextureScaleFactor");
-                    _EnableLimbRemoval = Material.IsKeywordEnabled("LIMBREMOVAL");
-                    MaterialName = Material.name;
-                }
-            }
+            public bool _EnableLimbRemoval { get => Material?.IsKeywordEnabled("LIMBREMOVAL") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "LIMBREMOVAL"); }
+
+            public float _LimbPrimeMask { get => Material?.GetFloat("_LimbPrimeMask") ?? 0; set => Material?.SetFloat("_LimbPrimeMask", Mathf.Clamp(value, 1, 10000)); }
+
+            public Color _FlashColor { get => Material?.GetColor("_FlashColor") ?? default(Color); set => Material?.SetColor("_FlashColor", value); }
+
+            public float _Fade { get => Material?.GetFloat("_Fade") ?? 0; set => Material?.SetFloat("_Fade", Mathf.Clamp(value, 0, 1)); }
 
             public void Update()
             {
-                if (Material)
+                if (!Material)
                 {
-                    if (Material.name != MaterialName && Renderer)
-                    {
-                        GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(Renderer, Material);
-                    }
-
-                    SetShaderKeywordBasedOnBool(_EnableCutout, Material, "CUTOUT");
-
-                    Material.SetColor("_Color", _Color);
-
-                    if (_MainTex)
-                    {
-                        Material.SetTexture("_MainTex", _MainTex);
-                        Material.SetTextureScale("_MainTex", _MainTexScale);
-                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_MainTex", null);
-                    }
-
-                    Material.SetFloat("_NormalStrength", _NormalStrength);
-
-                    if (_NormalTex)
-                    {
-                        Material.SetTexture("_NormalTex", _NormalTex);
-                        Material.SetTextureScale("_NormalTex", _NormalTexScale);
-                        Material.SetTextureOffset("_NormalTex", _NormalTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_NormalTex", null);
-                    }
-
-                    Material.SetColor("_EmColor", _EmColor);
-
-                    if (_EmTex)
-                    {
-                        Material.SetTexture("_EmTex", _EmTex);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_EmTex", null);
-                    }
-
-                    Material.SetFloat("_EmPower", _EmPower);
-                    Material.SetFloat("_Smoothness", _Smoothness);
-
-                    SetShaderKeywordBasedOnBool(_IgnoreDiffuseAlphaForSpeculars, Material, "FORCE_SPEC");
-
-                    Material.SetFloat("_RampInfo", Convert.ToSingle(_RampChoice));
-                    Material.SetFloat("_DecalLayer", Convert.ToSingle(_DecalLayer));
-                    Material.SetFloat("_SpecularStrength", _SpecularStrength);
-                    Material.SetFloat("_SpecularExponent", _SpecularExponent);
-                    Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
-
-                    SetShaderKeywordBasedOnBool(_EnableDither, Material, "DITHER");
-
-                    Material.SetFloat("_FadeBias", _FadeBias);
-
-                    SetShaderKeywordBasedOnBool(_EnableFresnelEmission, Material, "FRESNEL_EMISSION");
-
-                    if (_FresnelRamp)
-                    {
-                        Material.SetTexture("_FresnelRamp", _FresnelRamp);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_FresnelRamp", null);
-                    }
-
-                    Material.SetFloat("_FresnelPower", _FresnelPower);
-
-                    if (_FresnelMask)
-                    {
-                        Material.SetTexture("_FresnelMask", _FresnelMask);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_FresnelMask", null);
-                    }
-
-                    Material.SetFloat("_FresnelBoost", _FresnelBoost);
-
-                    SetShaderKeywordBasedOnBool(_EnablePrinting, Material, "PRINT_CUTOFF");
-
-                    Material.SetFloat("_SliceHeight", _SliceHeight);
-                    Material.SetFloat("_SliceBandHeight", _PrintBandHeight);
-                    Material.SetFloat("_SliceAlphaDepth", _PrintAlphaDepth);
-
-                    if (_PrintAlphaTexture)
-                    {
-                        Material.SetTexture("_SliceAlphaTex", _PrintAlphaTexture);
-                        Material.SetTextureScale("_SliceAlphaTex", _PrintAlphaTextureScale);
-                        Material.SetTextureOffset("_SliceAlphaTex", _PrintAlphaTextureOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_SliceAlphaTex", null);
-                    }
-
-                    Material.SetFloat("_PrintBoost", _PrintColorBoost);
-                    Material.SetFloat("_PrintBias", _PrintAlphaBias);
-                    Material.SetFloat("_PrintEmissionToAlbedoLerp", _PrintEmissionToAlbedoLerp);
-                    Material.SetFloat("_PrintDirection", Convert.ToSingle(_PrintDirection));
-
-                    if (_PrintRamp)
-                    {
-                        Material.SetTexture("_PrintRamp", _PrintRamp);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_PrintRamp", null);
-                    }
-
-                    Material.SetFloat("_EliteBrightnessMin", _EliteBrightnessMin);
-                    Material.SetFloat("_EliteBrightnessMax", _EliteBrightnessMax);
-
-                    SetShaderKeywordBasedOnBool(_EnableSplatmap, Material, "SPLATMAP");
-                    SetShaderKeywordBasedOnBool(_UseVertexColorsInstead, Material, "USE_VERTEX_COLORS");
-
-                    Material.SetFloat("_Depth", _BlendDepth);
-
-                    if (_SplatmapTex)
-                    {
-                        Material.SetTexture("_SplatmapTex", _SplatmapTex);
-                        Material.SetTextureScale("_SplatmapTex", _SplatmapTexScale);
-                        Material.SetTextureOffset("_SplatmapTex", _SplatmapTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_SplatmapTex", null);
-                    }
-
-                    Material.SetFloat("_SplatmapTileScale", _SplatmapTileScale);
-
-                    if (_GreenChannelTex)
-                    {
-                        Material.SetTexture("_GreenChannelTex", _GreenChannelTex);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_GreenChannelTex", null);
-                    }
-
-                    if (_GreenChannelNormalTex)
-                    {
-                        Material.SetTexture("_GreenChannelNormalTex", _GreenChannelNormalTex);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_GreenChannelNormalTex", null);
-                    }
-
-                    Material.SetFloat("_GreenChannelSmoothness", _GreenChannelSmoothness);
-                    Material.SetFloat("_GreenChannelBias", _GreenChannelBias);
-
-                    if (_BlueChannelTex)
-                    {
-                        Material.SetTexture("_BlueChannelTex", _BlueChannelTex);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_BlueChannelTex", null);
-                    }
-
-                    if (_BlueChannelNormalTex)
-                    {
-                        Material.SetTexture("_BlueChannelNormalTex", _BlueChannelNormalTex);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_BlueChannelNormalTex", null);
-                    }
-
-                    Material.SetFloat("_BlueChannelSmoothness", _BlueChannelSmoothness);
-                    Material.SetFloat("_BlueChannelBias", _BlueChannelBias);
-
-                    SetShaderKeywordBasedOnBool(_EnableFlowmap, Material, "FLOWMAP");
-
-                    if (_FlowTexture)
-                    {
-                        Material.SetTexture("_FlowTex", _FlowTexture);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_FlowTex", null);
-                    }
-
-                    if (_FlowHeightmap)
-                    {
-                        Material.SetTexture("_FlowHeightmap", _FlowHeightmap);
-                        Material.SetTextureScale("_FlowHeightmap", _FlowHeightmapScale);
-                        Material.SetTextureOffset("_FlowHeightmap", _FlowHeightmapOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_FlowHeightmap", null);
-                    }
-
-                    if (_FlowHeightRamp)
-                    {
-                        Material.SetTexture("_FlowHeightRamp", _FlowHeightRamp);
-                        Material.SetTextureScale("_FlowHeightRamp", _FlowHeightRampScale);
-                        Material.SetTextureOffset("_FlowHeightRamp", _FlowHeightRampOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_FlowHeightRamp", null);
-                    }
-
-                    Material.SetFloat("_FlowHeightBias", _FlowHeightBias);
-                    Material.SetFloat("_FlowHeightPower", _FlowHeightPower);
-                    Material.SetFloat("_FlowEmissionStrength", _FlowEmissionStrength);
-                    Material.SetFloat("_FlowSpeed", _FlowSpeed);
-                    Material.SetFloat("_FlowMaskStrength", _MaskFlowStrength);
-                    Material.SetFloat("_FlowNormalStrength", _NormalFlowStrength);
-                    Material.SetFloat("_FlowTextureScaleFactor", _FlowTextureScaleFactor);
-
-                    SetShaderKeywordBasedOnBool(_EnableLimbRemoval, Material, "LIMBREMOVAL");
+                    Destroy(this);
                 }
             }
 
@@ -870,37 +547,32 @@ namespace Aetherium.Utils
         {
             public Material Material;
             public Renderer Renderer;
-            public string MaterialName;
+            public string MaterialName { get => Material?.name ?? "";}
 
-            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode;
-            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode;
+            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode { get => (UnityEngine.Rendering.BlendMode)(int)(Material?.GetFloat("_SrcBlend") ?? 1); set => Material?.SetFloat("_SrcBlend", Convert.ToSingle(value)); }
+            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode { get => (UnityEngine.Rendering.BlendMode)(int)(Material?.GetFloat("_DstBlend") ?? 1); set => Material?.SetFloat("_DstBlend", Convert.ToSingle(value)); }
 
-            public Color _Tint;
-            public bool _DisableRemapping;
-            public Texture _MainTex;
-            public Vector2 _MainTexScale;
-            public Vector2 _MainTexOffset;
-            public Texture _RemapTex;
-            public Vector2 _RemapTexScale;
-            public Vector2 _RemapTexOffset;
+            public Color _Tint { get => Material?.GetColor("_TintColor") ?? default(Color); set => Material?.SetColor("_TintColor", value); }
+            public bool _DisableRemapping { get => Material?.IsKeywordEnabled("DISABLEREMAP") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DISABLEREMAP"); }
+            public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
+            public Vector2 _MainTexScale { get => Material?.GetTextureScale("_MainTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MainTex", value); }
+            public Vector2 _MainTexOffset { get => Material?.GetTextureOffset("_MainTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MainTex", value); }
+            public Texture _RemapTex { get => Material?.GetTexture("_RemapTex") ?? null; set => Material?.SetTexture("_RemapTex", value); }
+            public Vector2 _RemapTexScale { get => Material?.GetTextureScale("_RemapTex") ?? Vector2.zero; set => Material?.SetTextureScale("_RemapTex", value); }
+            public Vector2 _RemapTexOffset { get => Material?.GetTextureOffset("_RemapTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_RemapTex", value); }
 
-            [Range(0f, 2f)]
-            public float _SoftFactor;
+            public float _SoftFactor { get => Material?.GetFloat("_InvFade") ?? 0; set => Material?.SetFloat("_InvFade", Mathf.Clamp(value, 0, 2)); }
 
-            [Range(1f, 20f)]
-            public float _BrightnessBoost;
+            public float _BrightnessBoost { get => Material?.GetFloat("_Boost") ?? 0; set => Material?.SetFloat("_Boost", Mathf.Clamp(value, 1, 20)); }
 
-            [Range(0f, 20f)]
-            public float _AlphaBoost;
+            public float _AlphaBoost { get => Material?.GetFloat("_AlphaBoost") ?? 0; set => Material?.SetFloat("_AlphaBoost", Mathf.Clamp(value, 0, 20)); }
 
-            [Range(0f, 1f)]
-            public float _AlphaBias;
+            public float _AlphaBias { get => Material?.GetFloat("_AlphaBias") ?? 0; set => Material?.SetFloat("_AlphaBias", Mathf.Clamp(value, 0, 20)); }
 
-            public bool _UseUV1;
-            public bool _FadeWhenNearCamera;
+            public bool _UseUV1 { get => Material?.IsKeywordEnabled("USE_UV1") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_UV1"); }
+            public bool _FadeWhenNearCamera { get => Material?.IsKeywordEnabled("FADECLOSE") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FADECLOSE"); }
 
-            [Range(0f, 1f)]
-            public float _FadeCloseDistance;
+            public float _FadeCloseDistance { get => Material?.GetFloat("_FadeCloseDistance") ?? 0; set => Material?.SetFloat("_FadeCloseDistance", Mathf.Clamp(value, 0, 1)); }
 
             public enum _CullEnum
             {
@@ -908,183 +580,42 @@ namespace Aetherium.Utils
                 Front = 1,
                 Back = 2
             }
-            public _CullEnum _Cull_Mode;
+            public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
 
-            public UnityEngine.Rendering.CompareFunction _ZTest_Mode;
+            public UnityEngine.Rendering.CompareFunction _ZTest_Mode { get => (UnityEngine.Rendering.CompareFunction)(int)(Material?.GetFloat("_ZTest") ?? 1); set => Material?.SetFloat("_ZTest", Convert.ToSingle(value)); }
 
-            [Range(-10f, 10f)]
-            public float _DepthOffset;
+            public float _DepthOffset { get => Material?.GetFloat("_DepthOffset") ?? 0; set => Material?.SetFloat("_DepthOffset", Mathf.Clamp(value, -10, 10)); }
 
-            public bool _CloudRemapping;
-            public bool _DistortionClouds;
+            public bool _CloudRemapping { get => Material?.IsKeywordEnabled("USE_CLOUDS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_CLOUDS"); }
+            public bool _DistortionClouds { get => Material?.IsKeywordEnabled("CLOUDOFFSET") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "CLOUDOFFSET"); }
+            public float _DistortionStrength { get => Material?.GetFloat("_DistortionStrength") ?? 0; set => Material?.SetFloat("_DistortionStrength", Mathf.Clamp(value, -2, 2)); }
 
-            [Range(-2f, 2f)]
-            public float _DistortionStrength;
+            public Texture _Cloud1Tex { get => Material?.GetTexture("_Cloud1Tex") ?? null; set => Material?.SetTexture("_Cloud1Tex", value); }
+            public Vector2 _Cloud1TexScale { get => Material?.GetTextureScale("_Cloud1Tex") ?? Vector2.zero; set => Material?.SetTextureScale("_Cloud1Tex", value); }
+            public Vector2 _Cloud1TexOffset { get => Material?.GetTextureOffset("_Cloud1Tex") ?? Vector2.zero; set => Material?.SetTextureOffset("_Cloud1Tex", value); }
+            public Texture _Cloud2Tex { get => Material?.GetTexture("_Cloud2Tex") ?? null; set => Material?.SetTexture("_Cloud2Tex", value); }
+            public Vector2 _Cloud2TexScale { get => Material?.GetTextureScale("_Cloud2Tex") ?? Vector2.zero; set => Material?.SetTextureScale("_Cloud2Tex", value); }
+            public Vector2 _Cloud2TexOffset { get => Material?.GetTextureOffset("_Cloud2Tex") ?? Vector2.zero; set => Material?.SetTextureOffset("_Cloud2Tex", value); }
 
-            public Texture _Cloud1Tex;
-            public Vector2 _Cloud1TexScale;
-            public Vector2 _Cloud1TexOffset;
-            public Texture _Cloud2Tex;
-            public Vector2 _Cloud2TexScale;
-            public Vector2 _Cloud2TexOffset;
-            public Vector4 _CutoffScroll;
-            public bool _VertexColors;
-            public bool _LuminanceForVertexAlpha;
-            public bool _LuminanceForTextureAlpha;
-            public bool _VertexOffset;
-            public bool _FresnelFade;
-            public bool _SkyboxOnly;
+            public Vector4 _CutoffScroll { get => Material?.GetVector("_CutoffScroll") ?? Vector4.zero; set => Material?.SetVector("_CutoffScroll", value); }
+            public bool _VertexColors { get => Material?.IsKeywordEnabled("VERTEXCOLOR") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "VERTEXCOLOR"); }
+            public bool _LuminanceForVertexAlpha { get => Material?.IsKeywordEnabled("VERTEXALPHA") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "VERTEXALPHA"); }
+            public bool _LuminanceForTextureAlpha { get => Material?.IsKeywordEnabled("CALCTEXTUREALPHA") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "CALCTEXTUREALPHA"); }
+            public bool _VertexOffset { get => Material?.IsKeywordEnabled("VERTEXOFFSET") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "VERTEXOFFSET"); }
+            public bool _FresnelFade { get => Material?.IsKeywordEnabled("FRESNEL") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FRESNEL"); }
+            public bool _SkyboxOnly { get => Material?.IsKeywordEnabled("SKYBOX_ONLY") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "SKYBOX_ONLY"); }
 
-            [Range(-20f, 20f)]
-            public float _FresnelPower;
+            public float _FresnelPower { get => Material?.GetFloat("_FresnelPower") ?? 0; set => Material?.SetFloat("_FresnelPower", Mathf.Clamp(value, -20, 20)); }
+            public float _VertexOffsetAmount { get => Material?.GetFloat("_OffsetAmount") ?? 0; set => Material?.SetFloat("_OffsetAmount", Mathf.Clamp(value, 0, 3)); }
 
-            [Range(0f, 3f)]
-            public float _VertexOffsetAmount;
-
-            public void Start()
-            {
-                GrabMaterialValues();
-            }
-
-            public void GrabMaterialValues()
-            {
-                if (Material)
-                {
-                    _Source_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_SrcBlend");
-                    _Destination_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_DstBlend");
-                    _Tint = Material.GetColor("_TintColor");
-                    _DisableRemapping = Material.IsKeywordEnabled("DISABLEREMAP");
-                    _MainTex = Material.GetTexture("_MainTex");
-                    _MainTexScale = Material.GetTextureScale("_MainTex");
-                    _MainTexOffset = Material.GetTextureOffset("_MainTex");
-                    _RemapTex = Material.GetTexture("_RemapTex");
-                    _RemapTexScale = Material.GetTextureScale("_RemapTex");
-                    _RemapTexOffset = Material.GetTextureOffset("_RemapTex");
-                    _SoftFactor = Material.GetFloat("_InvFade");
-                    _BrightnessBoost = Material.GetFloat("_Boost");
-                    _AlphaBoost = Material.GetFloat("_AlphaBoost");
-                    _AlphaBias = Material.GetFloat("_AlphaBias");
-                    _UseUV1 = Material.IsKeywordEnabled("USE_UV1");
-                    _FadeWhenNearCamera = Material.IsKeywordEnabled("FADECLOSE");
-                    _FadeCloseDistance = Material.GetFloat("_FadeCloseDistance");
-                    _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _ZTest_Mode = (UnityEngine.Rendering.CompareFunction)Material.GetFloat("_ZTest");
-                    _DepthOffset = Material.GetFloat("_DepthOffset");
-                    _CloudRemapping = Material.IsKeywordEnabled("USE_CLOUDS");
-                    _DistortionClouds = Material.IsKeywordEnabled("CLOUDOFFSET");
-                    _DistortionStrength = Material.GetFloat("_DistortionStrength");
-                    _Cloud1Tex = Material.GetTexture("_Cloud1Tex");
-                    _Cloud1TexScale = Material.GetTextureScale("_Cloud1Tex");
-                    _Cloud1TexOffset = Material.GetTextureOffset("_Cloud1Tex");
-                    _Cloud2Tex = Material.GetTexture("_Cloud2Tex");
-                    _Cloud2TexScale = Material.GetTextureScale("_Cloud2Tex");
-                    _Cloud2TexOffset = Material.GetTextureOffset("_Cloud2Tex");
-                    _CutoffScroll = Material.GetVector("_CutoffScroll");
-                    _VertexColors = Material.IsKeywordEnabled("VERTEXCOLOR");
-                    _LuminanceForVertexAlpha = Material.IsKeywordEnabled("VERTEXALPHA");
-                    _LuminanceForTextureAlpha = Material.IsKeywordEnabled("CALCTEXTUREALPHA");
-                    _VertexOffset = Material.IsKeywordEnabled("VERTEXOFFSET");
-                    _FresnelFade = Material.IsKeywordEnabled("FRESNEL");
-                    _SkyboxOnly = Material.IsKeywordEnabled("SKYBOX_ONLY");
-                    _FresnelPower = Material.GetFloat("_FresnelPower");
-                    _VertexOffsetAmount = Material.GetFloat("_OffsetAmount");
-                    MaterialName = Material.name;
-                }
-            }
-
-
+            public float _ExternalAlpha { get => Material?.GetFloat("_ExternalAlpha") ?? 0; set => Material?.SetFloat("_ExternalAlpha", Mathf.Clamp(value, 0, 1)); }
+            public float _Fade { get => Material?.GetFloat("_Fade") ?? 0; set => Material?.SetFloat("_Fade", Mathf.Clamp(value, 0, 1)); }
 
             public void Update()
             {
-
-                if (Material)
+                if (!Material)
                 {
-                    if (Material.name != MaterialName && Renderer)
-                    {
-                        GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(Renderer, Material);
-                    }
-
-                    Material.SetFloat("_SrcBlend", Convert.ToSingle(_Source_Blend_Mode));
-                    Material.SetFloat("_DstBlend", Convert.ToSingle(_Destination_Blend_Mode));
-
-                    Material.SetColor("_TintColor", _Tint);
-
-                    SetShaderKeywordBasedOnBool(_DisableRemapping, Material, "DISABLEREMAP");
-
-                    if (_MainTex)
-                    {
-                        Material.SetTexture("_MainTex", _MainTex);
-                        Material.SetTextureScale("_MainTex", _MainTexScale);
-                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_MainTex", null);
-                    }
-
-                    if (_RemapTex)
-                    {
-                        Material.SetTexture("_RemapTex", _RemapTex);
-                        Material.SetTextureScale("_RemapTex", _RemapTexScale);
-                        Material.SetTextureOffset("_RemapTex", _RemapTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_RemapTex", null);
-                    }
-
-                    Material.SetFloat("_InvFade", _SoftFactor);
-                    Material.SetFloat("_Boost", _BrightnessBoost);
-                    Material.SetFloat("_AlphaBoost", _AlphaBoost);
-                    Material.SetFloat("_AlphaBias", _AlphaBias);
-
-                    SetShaderKeywordBasedOnBool(_UseUV1, Material, "USE_UV1");
-                    SetShaderKeywordBasedOnBool(_FadeWhenNearCamera, Material, "FADECLOSE");
-
-                    Material.SetFloat("_FadeCloseDistance", _FadeCloseDistance);
-                    Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
-                    Material.SetFloat("_ZTest", Convert.ToSingle(_ZTest_Mode));
-                    Material.SetFloat("_DepthOffset", _DepthOffset);
-
-                    SetShaderKeywordBasedOnBool(_CloudRemapping, Material, "USE_CLOUDS");
-                    SetShaderKeywordBasedOnBool(_DistortionClouds, Material, "CLOUDOFFSET");
-
-                    Material.SetFloat("_DistortionStrength", _DistortionStrength);
-
-                    if (_Cloud1Tex)
-                    {
-                        Material.SetTexture("_Cloud1Tex", _Cloud1Tex);
-                        Material.SetTextureScale("_Cloud1Tex", _Cloud1TexScale);
-                        Material.SetTextureOffset("_Cloud1Tex", _Cloud1TexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_Cloud1Tex", null);
-                    }
-
-                    if (_Cloud2Tex)
-                    {
-                        Material.SetTexture("_Cloud2Tex", _Cloud2Tex);
-                        Material.SetTextureScale("_Cloud2Tex", _Cloud2TexScale);
-                        Material.SetTextureOffset("_Cloud2Tex", _Cloud2TexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_Cloud2Tex", null);
-                    }
-
-                    Material.SetVector("_CutoffScroll", _CutoffScroll);
-
-                    SetShaderKeywordBasedOnBool(_VertexColors, Material, "VERTEXCOLOR");
-                    SetShaderKeywordBasedOnBool(_LuminanceForVertexAlpha, Material, "VERTEXALPHA");
-                    SetShaderKeywordBasedOnBool(_LuminanceForTextureAlpha, Material, "CALCTEXTUREALPHA");
-                    SetShaderKeywordBasedOnBool(_VertexOffset, Material, "VERTEXOFFSET");
-                    SetShaderKeywordBasedOnBool(_FresnelFade, Material, "FRESNEL");
-                    SetShaderKeywordBasedOnBool(_SkyboxOnly, Material, "SKYBOX_ONLY");
-
-                    Material.SetFloat("_FresnelPower", _FresnelPower);
-                    Material.SetFloat("_OffsetAmount", _VertexOffsetAmount);
+                    Destroy(this);
                 }
             }
         }

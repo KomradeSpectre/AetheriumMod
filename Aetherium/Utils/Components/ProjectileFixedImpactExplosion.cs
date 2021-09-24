@@ -16,11 +16,6 @@ namespace Aetherium.Utils.Components
 
         public bool alive = true;
 
-        [ShowFieldObsolete]
-        [Obsolete("This sound will not play over the network. Provide the sound via the prefab referenced by explosionEffect instead.", false)]
-        [Tooltip("This sound will not play over the network. Provide the sound via the prefab referenced by explosionEffect instead.")]
-        public string explosionSoundString;
-
         public BlastAttack.FalloffModel falloffModel = BlastAttack.FalloffModel.Linear;
 
         public float blastRadius;
@@ -80,11 +75,6 @@ namespace Aetherium.Utils.Components
         private Vector3 impactNormal = Vector3.up;
 
         public GameObject impactEffect;
-
-        [ShowFieldObsolete]
-        [Tooltip("This sound will not play over the network. Use lifetimeExpiredSound instead.")]
-        [Obsolete("This sound will not play over the network. Use lifetimeExpiredSound instead.", false)]
-        public string lifetimeExpiredSoundString;
 
         public NetworkSoundEventDef lifetimeExpiredSound;
 
@@ -231,10 +221,6 @@ namespace Aetherium.Utils.Components
                 blastAttack.attackerFiltering = blastAttackerFiltering;
                 blastAttack.Fire();
             }
-            if (explosionSoundString.Length > 0)
-            {
-                Util.PlaySound(explosionSoundString, base.gameObject);
-            }
             if (fireChildren)
             {
                 for (int i = 0; i < childrenCount; i++)
@@ -324,7 +310,7 @@ namespace Aetherium.Utils.Components
             }
             else
             {
-                Debug.Log("No projectile damage component!");
+                AetheriumPlugin.ModLogger.LogError("No projectile damage component!");
             }
             HurtBox component = collider.GetComponent<HurtBox>();
             if (component)
@@ -365,17 +351,6 @@ namespace Aetherium.Utils.Components
 
         public void OnValidate()
         {
-            if (!Application.IsPlaying(this))
-            {
-                if (!string.IsNullOrEmpty(explosionSoundString))
-                {
-                    Debug.LogWarningFormat(base.gameObject, "{0} ProjectileImpactExplosion component supplies a value in the explosionSoundString field. This will not play correctly over the network. Please move the sound to the explosion effect.", Util.GetGameObjectHierarchyName(base.gameObject));
-                }
-                if (!string.IsNullOrEmpty(lifetimeExpiredSoundString))
-                {
-                    Debug.LogWarningFormat(base.gameObject, "{0} ProjectileImpactExplosion component supplies a value in the lifetimeExpiredSoundString field. This will not play correctly over the network. Please use lifetimeExpiredSound instead.", Util.GetGameObjectHierarchyName(base.gameObject));
-                }
-            }
         }
     }
 }
