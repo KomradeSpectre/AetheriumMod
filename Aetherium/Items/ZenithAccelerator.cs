@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Aetherium.Utils;
+using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.ItemHelpers;
 using System.Linq;
 using UnityEngine.Networking;
@@ -14,16 +15,29 @@ using UnityEngine.Networking;
 namespace Aetherium.Items
 {
     public class ZenithAccelerator : ItemBase<ZenithAccelerator>
-    { 
+    {
+        public ConfigOption<float> ExponentialBaseMultiplier;
+        public ConfigOption<float> PercentageIncreasePerHit;
+        public ConfigOption<float> BaseMaximumPercentageCap;
+        public ConfigOption<float> AdditionalMaximumPercentageCap;
+        public ConfigOption<float> DurationOfTimedBuffPerStack;
+
         public override string ItemName => "Zenith Accelerator";
 
         public override string ItemLangTokenName => "ZENITH_ACCELERATOR";
 
-        public override string ItemPickupDesc => "Each hit grants you a temporary attack speed bonus stack up to a cap, but you";
+        public override string ItemPickupDesc => $"Hits increase your attack speed... <style=cDeath>BUT it's reduced by {FloatToPercentageString(ExponentialBaseMultiplier)} initially.</style>";
 
-        public override string ItemFullDescription => "";
+        public override string ItemFullDescription => $"<style=cIsDamage>Hitting enemies</style> grants you a <style=cIsDamage>temporary attack speed buff</style> that increases attack speed <style=cIsDamage>{FloatToPercentageString(PercentageIncreasePerHit)}</style> per buff stack linearly up to <style=cIsDamage>+{FloatToPercentageString(BaseMaximumPercentageCap)}</style> <style=cStack>(+{FloatToPercentageString(AdditionalMaximumPercentageCap)} per item stack linearly)</style>, " +
+            $"but you lose up to <style=cDeath>{FloatToPercentageString(ExponentialBaseMultiplier)} attack speed</style> <style=cStack>(+{FloatToPercentageString(ExponentialBaseMultiplier)} per item stack exponentially)</style> the closer you are to <style=cDeath>0</style> stacks of the buff.";
 
-        public override string ItemLore => "";
+        public override string ItemLore => "The others are not the masters of this universe, brother. They create clocks to count the time, we create clocks to create our own time. Watch.\n\n" +
+            "We create an axle for stability, power, and to release the energies trapped within. A rounded center is key to its purpose.\n\n" +
+            "The exhausts send the energies spiraling out. This, we harness with a simple bit of stone. We require less of the essence if we create smaller portions here, and here.\n\n" +
+            "Now it is complete. The hotter it burns, the more time we have created. This time allows us a quickening.\n\n" +
+            "I do not need to remind you of the importance of the quickening. Remember brother.\n\n" +
+            "Fuel is Blood.\n\n" +
+            "Speed is War.";
 
         public override ItemTier Tier => ItemTier.Lunar;
 
@@ -31,7 +45,7 @@ namespace Aetherium.Items
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("ZenithAccelerator.prefab");
 
-        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("NailBombIcon.png");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("ZenithAcceleratorIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -48,16 +62,21 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
+            ExponentialBaseMultiplier = config.ActiveBind<float>("Item: " + ItemName, "Exponential Base Multiplier", 0.5f, "How far down should we reduce attack speed by at 0 stacks of the Zenith Acceleration Buff? (0.5f results in reducing attack speed by half, an additional pickup of the item reduces it twice as much as the first.)");
+            PercentageIncreasePerHit = config.ActiveBind<float>("Item: " + ItemName, "Percentage Increase per Hit", 0.1f, "How much bonus in percentage towards our cap should we get per hit?");
+            BaseMaximumPercentageCap = config.ActiveBind<float>("Item: " + ItemName, "Base Percentage Max of Zenith Acceleration Attack Speed Bonus", 3f, "What should be our base cap for the attack speed bonus granted to us at full Zenith Acceleration stacks?");
+            AdditionalMaximumPercentageCap = config.ActiveBind<float>("Item: " + ItemName, "Additional Percentage Cap per Additional Stack", 1f, "How much higher should our base percentage cap go with additional Zenith Accelerator stacks?");
+            DurationOfTimedBuffPerStack = config.ActiveBind<float>("Item: " + ItemName, "Duration of Zenith Acceleration Stack", 3f, "How long should the base Zenith Acceleration stack be?");
         }
 
         private void CreateBuff()
         {
             ZenithAccelerationBuff = ScriptableObject.CreateInstance<BuffDef>();
             ZenithAccelerationBuff.name = "Aetherium: Zenith Acceleration";
-            ZenithAccelerationBuff.buffColor = new Color(255, 255, 255);
+            ZenithAccelerationBuff.buffColor = new Color(195, 61, 100, 255);
             ZenithAccelerationBuff.canStack = true;
             ZenithAccelerationBuff.isDebuff = false;
-            ZenithAccelerationBuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
+            ZenithAccelerationBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ZenithAccelerationBuffIcon.png");
 
             BuffAPI.Add(new CustomBuff(ZenithAccelerationBuff));
         }
@@ -77,9 +96,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 180, 0),
-                    localScale = new Vector3(1F, 1F, 1F)
+                    localPos = new Vector3(0.00195F, 0.19555F, -0.29803F),
+                    localAngles = new Vector3(9.01745F, 0.00455F, 0.05957F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -88,10 +107,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.14431F, -0.06466F, -0.03696F),
-                    localAngles = new Vector3(355.1616F, 81.55997F, 180F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(-0.00009F, 0.10958F, -0.21047F),
+                    localAngles = new Vector3(9.01745F, 0.00455F, 0.05957F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
@@ -100,10 +119,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ThighR",
-                    localPos = new Vector3(0.08787F, 0.07478F, 1.04472F),
-                    localAngles = new Vector3(354.9749F, 182.8028F, 237.0256F),
-                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
+                    childName = "Chest",
+                    localPos = new Vector3(0.00047F, 1.88769F, -2.93752F),
+                    localAngles = new Vector3(9.01745F, 0.00455F, 0.05957F),
+                    localScale = new Vector3(2F, 2F, 2F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -112,10 +131,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.20102F, 0.09445F, 0.16025F),
-                    localAngles = new Vector3(15.50638F, 144.8099F, 180.4037F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0.00201F, 0.14603F, -0.40206F),
+                    localAngles = new Vector3(9.01745F, 0.00455F, 0.05957F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
@@ -124,10 +143,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.17241F, -0.0089F, 0.02642F),
-                    localAngles = new Vector3(5.28933F, 111.5028F, 190.532F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0.00206F, 0.08224F, -0.43672F),
+                    localAngles = new Vector3(13.96509F, 0.00984F, 0.06063F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
@@ -136,10 +155,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(0.16832F, 0.04282F, 0.06368F),
-                    localAngles = new Vector3(355.8307F, 42.81982F, 185.1587F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0.00194F, 0.20398F, -0.34966F),
+                    localAngles = new Vector3(18.7297F, 0.01516F, 0.06212F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -148,9 +167,9 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "FlowerBase",
-                    localPos = new Vector3(-0.6845F, -0.60707F, -0.05308F),
-                    localAngles = new Vector3(349.4037F, 73.89225F, 346.442F),
+                    childName = "WeaponPlatform",
+                    localPos = new Vector3(0.01724F, -0.31024F, 0.66479F),
+                    localAngles = new Vector3(325.6529F, 87.44426F, 98.67111F),
                     localScale = new Vector3(0.1F, 0.1F, 0.1F)
                 }
             });
@@ -160,10 +179,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.2442F, 0.04122F, 0.01506F),
-                    localAngles = new Vector3(22.73106F, 289.1799F, 159.5365F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0.0026F, 0.22369F, -0.39605F),
+                    localAngles = new Vector3(6.51947F, 0.00243F, 0.04324F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
@@ -172,10 +191,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Hip",
-                    localPos = new Vector3(-2.2536F, 1.10779F, 0.45293F),
-                    localAngles = new Vector3(1.77184F, 278.9485F, 190.4101F),
-                    localScale = new Vector3(0.5F, 0.5F, 0.5F)
+                    childName = "Chest",
+                    localPos = new Vector3(0F, 0.33546F, 4.95571F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(2F, 2F, 2F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -184,10 +203,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.21004F, -0.09095F, -0.09165F),
-                    localAngles = new Vector3(0F, 60.43688F, 180F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0F, 0.2863F, -0.29111F),
+                    localAngles = new Vector3(22.03487F, 0F, 0F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
@@ -196,10 +215,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(0.17925F, -0.02363F, -0.11047F),
-                    localAngles = new Vector3(359.353F, 299.9855F, 169.6378F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(-0.00013F, 0.16106F, -0.25889F),
+                    localAngles = new Vector3(9.01745F, 0.00455F, 0.05957F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             return rules;
@@ -207,26 +226,54 @@ namespace Aetherium.Items
 
         public override void Hooks()
         {
-            R2API.RecalculateStatsAPI.GetStatCoefficients += CalculateAttackSpeedStat;
+            //R2API.RecalculateStatsAPI.GetStatCoefficients += CalculateAttackSpeedStat;
+            On.RoR2.CharacterBody.RecalculateStats += AddAttackSpeedMult;
             On.RoR2.GlobalEventManager.OnHitEnemy += AddAttackSpeedBuff;
         }
 
-        private void CalculateAttackSpeedStat(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
+        private void AddAttackSpeedMult(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)
+        {
+            orig(self);
+            var inventoryCount = GetCount(self);
+            if (inventoryCount > 0)
+            {
+                var speedMult = CalculateSpeedMult(self);
+                self.attackSpeed *= speedMult;
+            }
+        }
+
+        public int CalculateMaxBuffStacks(CharacterBody characterBody)
+        {
+            var inventoryCount = characterBody.inventory.GetItemCount(instance.ItemDef);
+            var baseAmount = Math.Pow(ExponentialBaseMultiplier, inventoryCount);
+            var increase = PercentageIncreasePerHit;
+            var max = BaseMaximumPercentageCap + (inventoryCount - 1) * AdditionalMaximumPercentageCap;
+            int maxBuffCount = (int)Math.Ceiling((max - baseAmount) / increase);
+
+            return maxBuffCount;
+        }
+
+        public float CalculateSpeedMult(CharacterBody characterBody)
+        {
+            var buffCount = characterBody.GetBuffCount(ZenithAccelerationBuff);
+            var inventoryCount = characterBody.inventory.GetItemCount(instance.ItemDef);
+            var Base = Mathf.Pow(ExponentialBaseMultiplier, inventoryCount);
+            var Increase = PercentageIncreasePerHit;
+            var Max = BaseMaximumPercentageCap + (inventoryCount - 1) * AdditionalMaximumPercentageCap;
+            var SpeedMult = Mathf.Min(Base + Increase * buffCount, Max);
+
+            return SpeedMult;
+        }
+
+        /*public void CalculateAttackSpeedStat(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
         {
             var inventoryCount = GetCount(sender);
             if (inventoryCount > 0)
             {
-                var buffCount = sender.GetBuffCount(ZenithAccelerationBuff);
-                var Base = 1.0 / Math.Pow(2, inventoryCount);
-                //var Increase = 0.10 + (inventoryCount - 1) * 0.05;
-                var Increase = 0.10;
-                var Max = 3.0 + (inventoryCount - 1) * 1.0;
-                var SpeedMult = (float)Math.Min(Base + Increase * buffCount, Max);
-
-                args.attackSpeedMultAdd += SpeedMult - 1.0f;
-                
+                var speedMult = CalculateSpeedMult(sender);
+                args.attackSpeedMultAdd += speedMult - 1.0f;            
             }
-        }
+        }*/
 
         private void AddAttackSpeedBuff(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
@@ -241,17 +288,13 @@ namespace Aetherium.Items
                     if(inventoryCount > 0)
                     {
                         var buffCount = body.GetBuffCount(ZenithAccelerationBuff);
-                        var baseAmount = 1.0 / Math.Pow(2, inventoryCount);
-                        //var increase = 0.10 + (inventoryCount - 1) * 0.05;
-                        var increase = 0.10;
-                        var max = 3.0 + (inventoryCount - 1) * 1.0;
-                        int maxBuffCount = (int)Math.Ceiling((max - baseAmount) / increase);
+                        var maxBuffCount = CalculateMaxBuffStacks(body);
 
                         RefreshTimedBuffs(body, ZenithAccelerationBuff, 1 + (0.5f * (inventoryCount - 1)), 0.25f / inventoryCount);
 
                         if (buffCount < maxBuffCount)
                         {
-                            body.AddTimedBuff(ZenithAccelerationBuff, 3);
+                            body.AddTimedBuff(ZenithAccelerationBuff, DurationOfTimedBuffPerStack);
                         }
                     }
                 }
@@ -271,34 +314,11 @@ namespace Aetherium.Items
             public RoR2.CharacterMaster OwnerMaster;
             public RoR2.CharacterBody OwnerBody;
 
-            public int CalculateMaxBuffStacks()
-            {
-                var inventoryCount = OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef);
-                var baseAmount = 1.0 / Math.Pow(2, inventoryCount);
-                var increase = 0.10;
-                var max = 3.0 + (inventoryCount - 1) * 1.0;
-                int maxBuffCount = (int)Math.Ceiling((max - baseAmount) / increase);
-
-                return maxBuffCount;
-            }
-
-            public float CalculateSpeedMult()
-            {
-                var buffCount = OwnerBody.GetBuffCount(ZenithAccelerationBuff);
-                var inventoryCount = OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef);
-                var Base = 1.0f / Mathf.Pow(2, inventoryCount);
-                var Increase = 0.10f;
-                var Max = 3.0f + (inventoryCount - 1) * 1.0f;
-                var SpeedMult = Mathf.Min(Base + Increase * buffCount, Max);
-
-                return SpeedMult;
-            }
-
             public float CalculateWindUp()
             {
                 var buffCount = OwnerBody.GetBuffCount(ZenithAccelerationBuff);
                 var inventoryCount = OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef);
-                var Base = 1.0f / Mathf.Pow(2, inventoryCount);
+                var Base = Mathf.Pow(0.5f, inventoryCount);
                 var Increase = 0.10f;
                 var Max = 3.0f + (inventoryCount - 1) * 1.0f;
                 
@@ -329,7 +349,7 @@ namespace Aetherium.Items
                     {
                         Animator = GetComponentInChildren<Animator>();
                         //ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume")).ToArray();
-                        ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume") && !x.gameObject.name.Contains("Smoke")).ToArray();
+                        ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume")).ToArray();
                         //Debug.Log("Found ItemDisplay: " + itemDisplay);
                         var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
@@ -375,7 +395,7 @@ namespace Aetherium.Items
                 {
                     foreach(ParticleSystem particleSystem in ParticleSystem)
                     {
-                        if (OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef) > 0 && CalculateMaxBuffStacks() == OwnerBody.GetBuffCount(ZenithAccelerationBuff))
+                        if (OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef) > 0 && ZenithAccelerator.instance.CalculateMaxBuffStacks(OwnerBody) == OwnerBody.GetBuffCount(ZenithAccelerationBuff))
                         {
                             if (!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
                             {
@@ -410,15 +430,18 @@ namespace Aetherium.Items
 
                 if(OwnerBody && Animator)
                 {
-                    Animator.speed = CalculateSpeedMult();
+                    Animator.speed = ZenithAccelerator.instance.CalculateSpeedMult(OwnerBody);
                 }
             }
 
             public void Update()
             {
-                foreach(ZenithGlowController zenithGlowController in GlowControllers)
+                if (OwnerBody)
                 {
-                    zenithGlowController.Update();
+                    foreach (ZenithGlowController zenithGlowController in GlowControllers)
+                    {
+                        zenithGlowController.Update();
+                    }
                 }
             }
         }

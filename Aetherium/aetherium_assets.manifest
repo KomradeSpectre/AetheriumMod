@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2800941997
+CRC: 3624661855
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 339b0885ba46a5988ec76a3285b65b7d
+    Hash: 008db42c76ee9ed1f219535014ca45e6
   TypeTreeHash:
     serializedVersion: 2
     Hash: 62a96e1908110c98788bc461bb7e4e79
@@ -161,6 +161,7 @@ Assets:
 - Assets/Models/Raw Models/WitchesRingCircle.blend
 - Assets/Textures/Material Textures/nailbomb-normal.jpg
 - Assets/Textures/Materials/Item/NailBomb/NailBombWick.mat
+- Assets/Textures/Material Textures/rampAffixAbyssal.png
 - Assets/Shaders/3D Shaders/WaterShader.shader
 - Assets/Textures/Icons/Item/SharkTeethIcon.png
 - Assets/Shaders/3D Shaders/DistanceAwareOutline.shader
@@ -174,6 +175,7 @@ Assets:
 - Assets/Textures/Material Textures/iridescentRainbow.png
 - Assets/Textures/Material Textures/soulpincylinderdiffuse.png
 - Assets/Shaders/3D Shaders/FireParticleShader.shader
+- Assets/Shaders/3D Shaders/FractalSoup.shader
 - Assets/Models/Raw Models/BlasterSwordAltProjectile.blend
 - Assets/Textures/Material Textures/SoulExtractionCircleHeight.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat
@@ -291,6 +293,7 @@ Assets:
 - Assets/Animations/HiveInner.controller
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
+- Assets/Textures/Icons/Buff/ZenithAccelerationBuffIcon.png
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPin.controller
 - Assets/Textures/Material Textures/nailbomb-binding-texture.jpg
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulumTracker.prefab
@@ -361,6 +364,7 @@ Assets:
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Icons/Buff/By Others/FOG/AffixAbyssalBuffIcon.png
+- Assets/Textures/Materials/Item/ZenithAccelerator/SmokePrototypeMat.mat
 - Assets/Textures/Material Textures/BlackToRedToBlackCircular.png
 - Assets/Textures/Material Textures/HorizontalGradientBW.png
 - Assets/Models/Raw Models/By Others/Ragon/soul pin.blend
@@ -631,6 +635,7 @@ Assets:
 - Assets/Models/Raw Models/AccursedPotion.blend
 - Assets/Textures/Icons/Item/UnstableDesignIcon.png
 - Assets/Models/Raw Models/By Others/Ragon/soul circle.obj
+- Assets/Textures/Icons/Item/ZenithAcceleratorIcon.png
 - Assets/Shaders/3D Shaders/DistortionFlow.shader
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldHandle.mat
 - Assets/Textures/Material Textures/14200-normal.jpg

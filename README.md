@@ -25,6 +25,7 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |![](https://i.imgur.com/Pex4nKP.png)|  **Heart of the Void** | `On death`, cause a void implosion with a radius of `15m` (+`7.5m` per stack) that `revives you` if an enemy is killed by it **BUT** at `30%` health (`+5%` per stack, max `99%`) or lower, all kinds of healing are `converted to damage`. | Lunar | Hyperion_21 |
 |![](https://i.imgur.com/MxqLea7.png)| **Unstable Design** | Every `30` seconds you are compelled to create a very '**FRIENDLY**' Lunar Chimera, if one of your creations does not already exist. It has a `400%` base damage boost (`+100%` per stack), a `10%` base HP boost (`+10%` per stack), a `300%` base attack speed boost, and finally a `24%` base movement speed boost (`+24%` per stack). This monstrosity can level up from kills. | Lunar | SpookyBoogie |
 |![](https://i.imgur.com/o78EHhU.png)| **Weighted Anklet** | A collection of weights will slow your attack speed by `10%` (to a minimum of `10%` total) and your movement speed by `10%` (to a minimum of `10%` total). If you find a way to remove them, you are granted `0.25` attack speed `flat scaling`, `1` movement speed `flat scaling`, and `5%` damage per removal. Additionally, removing an anklet grants you a stack of `Limiter Release Dodge`. `Dodge` will allow you to dodge one `overlap`, or `blast` attack before depleting. Once all stacks of dodge are depleted, they will need to recharge (`10` seconds for the first stack, `5` seconds per each additional stack) before fully replenishing. | Lunar | Me |
+|![](https://i.imgur.com/6lw4kWM.png)| **Zenith Accelerator** | Hitting enemies grants you a temporary attack speed buff that increases attack speed by `10%` per buff stack linearly up to `300%` (+`100%` per item stack linearly), but you lose up to `50%` attack speed (+`50%` per item stack exponentially) the closer you are to `0` stacks of the buff. | Lunar | Ragon |
 
 ----
 ## Equipment (so far):
@@ -35,6 +36,14 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |![](https://i.imgur.com/RUky7N5.png)| **Jar of Reshaping** | On activation, `absorb projectiles` in a `20m` radius for `3` second(s). Upon success, `fire all of the projectiles` out of the jar upon next activation. The damage traits of each projectiles fired from the jar `depends on the bullets you absorbed`. After all the projectiles have been fired from the jar, it will need to cool down. | Normal | Me |
 
 ----
+## Elite Equipment (and elites) (so far):
+----
+
+| Buff Icon | Icon | Elite Equipment | Description | Modifier |  Original Idea by |
+|:-|-|-|------|-|-|
+|![](https://i.imgur.com/O6099IP.png)| ![](https://i.imgur.com/yxNqZkb.png)| **Bloody Fealty** | On use, teleport dash up to 10m in the direction you're going and gain slight invulnerability during the dash. Additionally, all of your attacks now cause bleeding. | Sanguine | Ragon, modified slightly by me. |
+
+----
 ## Artifacts (so far):
 ----
 | Icon | Artifact | Description | Original Idea by |
@@ -42,13 +51,14 @@ Discord: https://www.discord.gg/WNap5qcPf6
 |![](https://i.imgur.com/FxvUnX6.png)| **Artifact of Leonids** | When enabled, after every `60` seconds a meteor shower will occur that contains `6` wave(s) of meteors. | Bord |  
 |![](https://i.imgur.com/u9OFBut.png)| **Artifact of Progression** | When enabled, most enemies will evolve into stronger versions of themselves after a duration. | Chen, Me |  
 |![](https://i.imgur.com/tEYWscl.png)| **Artifact of Regression** | When enabled, if a monster is in an evolved form, it will split into a group of its lesser form when it dies. | Me |  
+|![](https://i.imgur.com/GBH0AeB.png)| **Artifact of the Journey** | When enabled, most stages will be randomly picked. After a certain amount, a primordial teleporter will be placed. | Tons of People, Bord |  
 |![](https://i.imgur.com/syskO36.png)| **Artifact of the Nightmare** | When enabled, non-boss enemies are granted 1-4 of the Lunar Heresy items when they spawn. | Inspired by Hyperion_21 |  
 |![](https://i.imgur.com/WdXKlSZ.png)| **Artifact of the Tyrant** | When enabled, any time Mithrix spawns they will be given `1` random elite modifier. | Me |  
 
 ----
 ## Upcoming
 ----
-- Version 0.6.0 or 0.7.0 will include a new survivor, we're building up to that.  
+- Version 0.7.0 will include a new survivor, we're building up to that.  
 
 - Make Unstable Design's spawn behavior configurable between individual per player or similar to halcyon seed.  
 
@@ -56,10 +66,23 @@ Discord: https://www.discord.gg/WNap5qcPf6
 
 - Implement Active Dodging for Weighted Anklet.
 
+- Add itemstatsmod and betterui buff description support to Zenith Acceleration and Sanguine buff.
+
 ----
 
 ## Changelog
 ----
+
+[0.6.3]
++ Adds Sanguine Elites. Elite buff icon was done by FOG, display model done by Ragon. The elite type grants abilities similar to the regular imps, including bleed on hit and a special dash ability. Players get invulnerability during the dash state but have a mandatory cooldown period between uses of the dash. AIs get the ability to chain dash if their enemy is too far away, but if they dash too often in too short of a period they get stunned.
++ Added Zenith Accelerator, a lunar that decreases your attack speed initially but you gain it back and then some with continuous hits. If it's too powerful, I'm going to add another downside. We'll see.
++ Fixed memory leak issue from using the tracer from Mul-T's nail. It doesn't clean up its smoke.
++ Added a temporary visual effect to Jar of Reshaping's opening.
+
+[0.6.2]
++ Adds Artifact of the Journey. When enabled, stages will be chosen randomly. The dream seers in the bazaar will also be randomized. After every 5 (or stages per loop) amount of stages, a Primordial Teleporter will be placed.
++ Fixed Heart of the Void's overlay pulling from the wrong material. You can no longer be thick and veiny after reviving by it.
++ Fixed a rare culture specific issue regarding using "ToLower" to do a dictionary lookup. It's now culture invariant.
 
 [0.6.1]
 + Fixed odd infinicombo Nail Bombing. It can no longer proc from a hit with 0 proc coefficient.
@@ -93,30 +116,11 @@ Discord: https://www.discord.gg/WNap5qcPf6
 + Fixed Giganto Toolbelt, the Engineers Toolbelt should now be a normal size as a drop.
 - Removed my sanity, and sleep today.
 
-[0.5.7]
-+ Fixed stupid classloading errors with ItemStatsMod and BetterUI.
-
-[0.5.6]
-+ Added ItemStatsMod support.
-+ Added a homing swords configuration option for Blaster Sword, disabled by default.
-+ Added a config option to allow Blaster Sword to be used with any level of Barrier, disabled by default.
-+ Added a config option to stop Shark Teeth from being able to kill you, disabled by default.
-+ Added Engineers Toolbelt, a new Green Item. With it, you have a small chance to duplicate drones or turrets on purchase, and a small chance for them to revive themselves on death.
-+ Added a Targeting Indicator config option to Unstable Design. If there is an unstable design out, it places one of these above whatever it is targeting's head. An arrow on it points to the one targeting you.
-+ Added an Aggression Pulling config option to Unstable Design. If it is targeting any AI, it will draw their aggression until it loses sight of them, changes target, or either party dies.
-+ Fixed a Heart of the Void bug where Dios would activate during heart of the void, and lead to a game over regardless of living status. Now, dios get used first before Heart of the Void activates.
-+ Fixed a Heart of the Void bug where the forced camera sometimes would not delete and kept spinning.
-+ Added Artifact of the Tyrant, when enabled, any time Mithrix spawns, they will have a random elite affix (how many they have is configurable).
-+ Added Artifact of Leonids, when enabled, after a duration a meteor shower will occur.
-+ Added Artifact of Regression, when enabled, any enemy monster that is in an evolved form will split into a group of its lesser form on death. E.g. Beetle Queen into 2 Beetle Guards into 5 Beetles each Guard.
-- Removed all item display default rules. Any more reports of big item displays will be ignored.
-
-
-
 ----
 
 ## Special Thanks  
 **Ragon** - Overhauled quite a few of my models to be awesome looking. Provided Models and Textures for them that allow them to shine visually. They also participate in development talks about Aetherium, and provide some quality ideas for new mechanics.  
+**BordListian** - Basically co-dev support in creating this and playtesting.  
 **ThinkInvis** - I learned a whole lot of things from their Classic Items mod. Thanks to them for authorizing me to use TILER2's stathooks in my itembase, it was integral in getting it off the ground.  
 **Chen** - Fixed turrets teleporting into the ground with Inspiring Drone. Provided me a snazzy build event to let me test things faster now. Put in a ton of work to highly improve the Inspiring Drone's code as well, can't thank them enough for it.  
 **KingEnderBrine** - Helping out with some questions regarding Item Displays, and providing a useful helper mod to speed up my IDRS creation.  
@@ -125,11 +129,11 @@ Discord: https://www.discord.gg/WNap5qcPf6
 **Rob** - For varied questions relating to coding on ROR2. Also for helping solve some issues regarding ItemDisplay rendering.  
 **OkIGotIt (referencing Rico)** - For providing a code snippet for ItemDisplays which let me learn how to have them show up in the first place.  
 **Rico** - For the above, and for creating a timer component for me to fix an annoying Voidheart issue that I couldn't solve.   
-**Rolo** - For providing a projectile code example, which allowed us to use it as a basis to create Blaster Sword with heavy modifications.  
-**BordListian** - Basically co-dev support in creating this and playtesting.  
+**Rolo** - For providing a projectile code example, which allowed us to use it as a basis to create Blaster Sword with heavy modifications.   
 **GrimTheWanderer** - Playtesting.  
 **WaltzingPhantom** - For providing alternative icon art for Feathered Plume, Blood Soaked Shield, Shark Teeth, and Shielding Core!  
 **Various ROR2 Modding Core Developers and Modders** - Answering questions related to modding for ROR2 at random stages during development of version 0.1.0.  
 **753** - Providing a crystallization shader for me to use in the future.  
 **Lorc (Https://lorcblog.blogspot.com/)** - For the base feather icon I did a small edit to for Feathered Plume's speed buff.  
 **FilterForge (Https://www.filterforge.com/)** - For providing a good deal of the base for my normals. Awesome plugin library, I recommend it.  
+**FOG** - Providing an elite buff icon for Sanguine Elites.  

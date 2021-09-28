@@ -23,9 +23,9 @@ namespace Aetherium.MyEntityStates
 
 		private Vector3 blinkStart = Vector3.zero;
 
-		public static float duration = 0.2f;
+		public float duration = 0.2f;
 
-		public static float blinkDistance = 10f;
+		public float blinkDistance = 10f;
 
 		public static string beginSoundString;
 

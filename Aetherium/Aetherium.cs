@@ -1,5 +1,5 @@
 ﻿#undef DEBUG
-#define DEBUGMATERIALS
+#undef DEBUGMATERIALS
 
 using Aetherium.Artifacts;
 using Aetherium.CoreModules;
@@ -35,7 +35,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.2";
+        public const string ModVer = "0.6.3";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 

@@ -7,6 +7,7 @@ using static RoR2.CombatDirector;
 using UnityEngine;
 using System.Linq;
 using BepInEx.Configuration;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Equipment.EliteEquipment
 {
@@ -34,7 +35,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public virtual bool AppearsInMultiPlayer { get; } = true;
 
-        public virtual bool CanDrop { get; } = true;
+        public virtual bool CanDrop { get; } = false;
 
         public virtual float Cooldown { get; } = 60f;
 
@@ -55,6 +56,8 @@ namespace Aetherium.Equipment.EliteEquipment
         public BuffDef EliteBuffDef;
 
         public abstract Sprite EliteBuffIcon { get; }
+
+        public virtual Color EliteBuffColor { get; set; } = new Color32(255, 255, 255, byte.MaxValue);
 
         /// <summary>
         /// If not overriden, the elite can spawn in all tiers defined.
@@ -83,7 +86,7 @@ namespace Aetherium.Equipment.EliteEquipment
         {
             EliteBuffDef = ScriptableObject.CreateInstance<BuffDef>();
             EliteBuffDef.name = EliteAffixToken;
-            EliteBuffDef.buffColor = new Color32(255, 255, 255, byte.MaxValue);
+            EliteBuffDef.buffColor = EliteBuffColor;
             EliteBuffDef.canStack = false;
             EliteBuffDef.iconSprite = EliteBuffIcon;
 
@@ -115,7 +118,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
             if (EliteMaterial)
             {
-                On.RoR2.CharacterBody.FixedUpdate += OverlayManager;
+                On.RoR2.CharacterBody.FixedUpdate += OverlayManager;                
             }
 
         }
