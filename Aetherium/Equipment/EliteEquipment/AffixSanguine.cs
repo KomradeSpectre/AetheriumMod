@@ -67,6 +67,15 @@ namespace Aetherium.Equipment.EliteEquipment
             "RoboBallBossBody"
         };
 
+        public static HashSet<Type> EntityStateBlacklist = new HashSet<Type>()
+        {
+            typeof(EntityStates.BrotherMonster.SpellBaseState),
+            typeof(EntityStates.BrotherMonster.SpellChannelEnterState),
+            typeof(EntityStates.BrotherMonster.SpellChannelExitState),
+            typeof(EntityStates.BrotherMonster.SpellChannelState),
+            typeof(EntityStates.BrotherMonster.FistSlam)
+        };
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -1197,7 +1206,7 @@ namespace Aetherium.Equipment.EliteEquipment
                 DecrementOverdriveStacksOverTime();
                 if(Stopwatch >= TimeBetweenJumps)
                 {
-                    if (BodyStateMachine)
+                    if (BodyStateMachine && !EntityStateBlacklist.Contains(BodyStateMachine.state.GetType()))
                     {
                         if (Body)
                         {

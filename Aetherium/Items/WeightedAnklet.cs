@@ -523,6 +523,7 @@ namespace Aetherium.Items
             LimiterReleaseItemDef.descriptionToken = "HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION";
             LimiterReleaseItemDef.loreToken = "";
             LimiterReleaseItemDef.canRemove = false;
+            LimiterReleaseItemDef.hidden = true;
             LimiterReleaseItemDef.tier = ItemTier.NoTier;
 
             ItemAPI.Add(new CustomItem(LimiterReleaseItemDef, CreateLimiterItemDisplayRules()));

@@ -11,6 +11,7 @@
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixBenevolent.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixHypercharged.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixMagnetic.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixRallying.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixSteadfast.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixTarred.cs" />
@@ -21,6 +22,7 @@
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />
+    <Compile Remove="Items\RicochetTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

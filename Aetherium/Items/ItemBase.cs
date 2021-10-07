@@ -1,7 +1,9 @@
 ﻿using BepInEx.Configuration;
+using MonoMod.Cil;
 using R2API;
 using RoR2;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,6 +45,8 @@ namespace Aetherium.Items
 
         public virtual bool AIBlacklisted { get; set; } = false;
 
+        public virtual bool PrinterBlacklisted { get; set; } = false;
+
         public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
 
         public abstract void Init(ConfigFile config);
@@ -79,7 +83,36 @@ namespace Aetherium.Items
 
             if(ItemTags.Length > 0) { ItemDef.tags = ItemTags; }
 
+            if (PrinterBlacklisted)
+            {
+                AetheriumPlugin.BlacklistedFromPrinter.Add(ItemDef);
+            }
+
             ItemAPI.Add(new CustomItem(ItemDef, CreateItemDisplayRules()));
+        }
+
+        public static void BlacklistFromPrinter(ILContext il)
+        {
+            var c = new ILCursor(il);
+
+            int listIndex = -1;
+            int thisIndex = -1;
+            c.GotoNext(x => x.MatchSwitch(out _));
+            var gotThisIndex = c.TryGotoNext(x => x.MatchLdarg(out thisIndex));
+            var gotListIndex = c.TryGotoNext(x => x.MatchLdloc(out listIndex));
+            c.GotoNext(MoveType.Before, x => x.MatchCall(out _));
+            if(gotThisIndex && gotListIndex)
+            {
+                c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg, thisIndex);
+                c.Emit(Mono.Cecil.Cil.OpCodes.Ldloc, listIndex);
+                c.EmitDelegate<Action<ShopTerminalBehavior, List<PickupIndex>>>((shopTerminalBehavior, list) =>
+                {
+                    if (shopTerminalBehavior && shopTerminalBehavior.gameObject.name.Contains("Duplicator"))
+                    {
+                        list.RemoveAll(x => AetheriumPlugin.BlacklistedFromPrinter.Contains(ItemCatalog.GetItemDef(PickupCatalog.GetPickupDef(x).itemIndex)));
+                    }
+                });
+            }
         }
 
         public abstract void Hooks();

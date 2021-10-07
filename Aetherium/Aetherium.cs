@@ -1,4 +1,5 @@
 ﻿#undef DEBUG
+#undef DEBUGMULTIPLAYER
 #undef DEBUGMATERIALS
 
 using Aetherium.Artifacts;
@@ -35,7 +36,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.3";
+        public const string ModVer = "0.6.4";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -57,6 +58,8 @@ namespace Aetherium
         public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
 
+        public static HashSet<ItemDef> BlacklistedFromPrinter = new HashSet<ItemDef>();
+
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
         public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
@@ -66,10 +69,14 @@ namespace Aetherium
 
         private void Awake()
         {
-#if DEBUG
+            #if DEBUG
+            R2API.Utils.CommandHelper.AddToConsoleWhenReady();
+            #endif
+
+            #if DEBUGMULTIPLAYER
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
-#endif
+            #endif
 
             ModLogger = this.Logger;
 
@@ -89,9 +96,7 @@ namespace Aetherium
             ShaderConversion(MainAssets);
 
             #if DEBUGMATERIALS
-
             AttachControllerFinderToObjects(MainAssets);
-
             #endif
 
             //Core Initializations
@@ -141,6 +146,8 @@ namespace Aetherium
                     ModLogger.LogInfo("Item: " + item.ItemName + " Initialized!");
                 }
             }
+
+            IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer += ItemBase.BlacklistFromPrinter;
 
             //Equipment Initialization
             var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
@@ -218,6 +225,7 @@ namespace Aetherium
         {
             var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
             var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
+            var printerBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from Printers?", false, "Should the printers be able to print this item?").Value;
 
             ItemStatusDictionary.Add(item, enabled);
 
@@ -227,6 +235,10 @@ namespace Aetherium
                 if (aiBlacklist)
                 {
                     item.AIBlacklisted = true;
+                }
+                if (printerBlacklist)
+                {
+                    item.PrinterBlacklisted = true;
                 }
             }
             return enabled;
