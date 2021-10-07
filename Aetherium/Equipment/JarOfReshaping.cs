@@ -61,7 +61,7 @@ namespace Aetherium.Equipment
 
         public override float Cooldown => JarCooldown;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static GameObject JarProjectile;
 

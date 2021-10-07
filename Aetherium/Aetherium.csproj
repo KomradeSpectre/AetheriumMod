@@ -45,6 +45,9 @@
     <Reference Include="BetterUI">
       <HintPath>lib\BetterUI.dll</HintPath>
     </Reference>
+    <Reference Include="MoonstormSharedUtils">
+      <HintPath>lib\MoonstormSharedUtils.dll</HintPath>
+    </Reference>
     <Reference Include="HGCSharpUtils">
       <HintPath>lib\HGCSharpUtils.dll</HintPath>
     </Reference>

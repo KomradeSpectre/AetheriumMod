@@ -61,7 +61,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("Voidheart.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("VoidheartIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public RoR2.UI.HealthBarStyle HealthBarStyle;
 
@@ -369,7 +369,7 @@ namespace Aetherium.Items
 
             if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
-                var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
+                var Meshes = instance.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
                 overlay.duration = VoidHeartCooldownDebuffDuration;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);

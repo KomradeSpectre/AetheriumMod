@@ -51,7 +51,8 @@ namespace Aetherium.Items
 
         public override bool CanRemove => false;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
+
         public static GameObject ItemFollowerPrefab;
 
         public override void Init(ConfigFile config)

@@ -45,6 +45,8 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
+        public virtual GameObject ItemBodyModelPrefab { get; internal set; }
+
         public EquipmentDef EquipmentDef;
 
         public abstract void Init(ConfigFile config);

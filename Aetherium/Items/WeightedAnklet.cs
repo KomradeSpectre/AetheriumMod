@@ -72,7 +72,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("WeightedAnklet.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("WeightedAnkletIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static GameObject LimiterReleaseEyePrefab;
 
         public static ItemDef LimiterReleaseItemDef;

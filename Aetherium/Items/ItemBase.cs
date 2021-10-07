@@ -49,6 +49,8 @@ namespace Aetherium.Items
 
         public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
 
+        public virtual GameObject ItemBodyModelPrefab { get; internal set; }
+
         public abstract void Init(ConfigFile config);
 
         protected void CreateLang()

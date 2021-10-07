@@ -66,6 +66,8 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public virtual Material EliteMaterial { get; set;} = null;
 
+        public virtual GameObject ItemBodyModelPrefab { get; internal set; }
+
         public EliteDef EliteDef;
 
         public abstract void Init(ConfigFile config);

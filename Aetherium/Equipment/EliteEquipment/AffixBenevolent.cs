@@ -33,7 +33,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override Sprite EliteBuffIcon => null;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static GameObject ItemFollowerPrefab;
 
         public override void Init(ConfigFile config)

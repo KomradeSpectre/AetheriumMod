@@ -55,7 +55,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => UseAlternateModel ? MainAssets.LoadAsset<GameObject>("PickupBlasterSwordAlt.prefab") : MainAssets.LoadAsset<GameObject>("PickupBlasterSword.prefab");
         public override Sprite ItemIcon => UseAlternateModel ? MainAssets.LoadAsset<Sprite>("BlasterKatanaIcon.png") : MainAssets.LoadAsset<Sprite>("BlasterSwordIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static GameObject SwordProjectile;
 
         public bool RecursionPrevention;

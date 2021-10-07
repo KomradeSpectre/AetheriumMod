@@ -46,7 +46,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("WitchesRing.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("WitchesRingIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static GameObject CircleBodyModelPrefab;
 
         public static BuffDef WitchesRingImmunityBuffDef;

@@ -50,7 +50,7 @@ namespace Aetherium.Equipment
 
         public static GameObject BellSoundwaveEffect;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public override float Cooldown => 20;
 

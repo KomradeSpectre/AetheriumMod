@@ -60,7 +60,7 @@ namespace Aetherium.Items
 
         public static BuffDef AccursedPotionSipCooldownDebuff;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static NetworkSoundEventDef AccursedPotionGulp;
 

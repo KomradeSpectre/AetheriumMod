@@ -7,6 +7,8 @@ using static Aetherium.Utils.MathHelpers;
 using System.Text;
 using UnityEngine;
 using R2API;
+using Aetherium.Equipment;
+using Aetherium.Equipment.EliteEquipment;
 
 namespace Aetherium.Compatability
 {
@@ -449,6 +451,49 @@ namespace Aetherium.Compatability
                 }
 
                 TILER2.FakeInventory.blacklist.Add(itemDef);
+            }
+        }
+
+        internal static class MSUCompat
+        {
+            public static bool IsMSUInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.TeamMoonstorm.MoonstormSharedUtils");
+
+            public static void Init(List<ItemBase> items, List<EquipmentBase> equips, List<EliteEquipmentBase> eliteEquips)
+            {
+                var KeyAssetDisplayPairs = new List<Moonstorm.KeyAssetDisplayPairHolder.KeyAssetDisplayPair>();
+                foreach(ItemBase itemBase in items)
+                {
+                    var modelPrefab = itemBase.ItemBodyModelPrefab;
+                    var itemDef = itemBase.ItemDef;
+
+                    if(modelPrefab && itemDef)
+                    {
+                        KeyAssetDisplayPairs.Add(Moonstorm.Utilities.MSIDRSUtil.CreateKeyAssetDisplayPair(itemDef, modelPrefab));
+                    }
+                }
+
+                foreach(EquipmentBase eqpBase in equips)
+                {
+                    var modelPrefab = eqpBase.ItemBodyModelPrefab;
+                    var eqpDef = eqpBase.EquipmentDef;
+
+                    if(modelPrefab && eqpDef)
+                    {
+                        KeyAssetDisplayPairs.Add(Moonstorm.Utilities.MSIDRSUtil.CreateKeyAssetDisplayPair(eqpDef, modelPrefab));
+                    }
+                }
+
+                foreach(EliteEquipmentBase eliteEqp in eliteEquips)
+                {
+                    var modelPrefab = eliteEqp.ItemBodyModelPrefab;
+                    var eqpDef = eliteEqp.EliteEquipmentDef;
+
+                    if(modelPrefab && eqpDef)
+                    {
+                        KeyAssetDisplayPairs.Add(Moonstorm.Utilities.MSIDRSUtil.CreateKeyAssetDisplayPair(eqpDef, modelPrefab));
+                    }
+                }
+                Moonstorm.Utilities.MSIDRSUtil.AddIDRSStuff(KeyAssetDisplayPairs);
             }
         }
     }

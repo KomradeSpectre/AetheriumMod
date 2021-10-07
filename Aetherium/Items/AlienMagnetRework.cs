@@ -37,7 +37,7 @@ namespace Aetherium.Items
         public static Sprite LiftStackDebuffIcon;
         public static BuffIndex LevitationDebuff;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; set; }
         public static GameObject ItemFollowerPrefab;
 
         public AlienMagnet()

@@ -47,7 +47,7 @@ namespace Aetherium.Items
 
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("ZenithAcceleratorIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static BuffDef ZenithAccelerationBuff;
 

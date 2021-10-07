@@ -57,7 +57,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("ShieldingCore.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("ShieldingCoreIconAlt.png") : MainAssets.LoadAsset<Sprite>("ShieldingCoreIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public Material OriginalShieldMaterial;
 
