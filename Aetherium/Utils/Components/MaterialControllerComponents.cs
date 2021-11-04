@@ -80,6 +80,11 @@ namespace Aetherium.Utils
                                 snowToppedController.Renderer = Renderer;
                                 snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
                                 break;
+                            case "Hopoo Games/FX/Solid Parallax":
+                                var parallaxController = gameObject.AddComponent<HGSolidParallaxController>();
+                                parallaxController.Material = Material;
+                                parallaxController.Renderer = Renderer;
+                                break;
                         }
                     }
                 }
@@ -260,6 +265,65 @@ namespace Aetherium.Utils
                 }
             }
 
+        }
+
+        public class HGSolidParallaxController : MonoBehaviour
+        {
+            public Material Material;
+            public Renderer Renderer;
+            public string MaterialName { get => Material?.name ?? ""; }
+            public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
+            public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
+            public Vector2 _MainTexScale { get => Material?.GetTextureScale("_MainTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MainTex", value); }
+            public Vector2 _MainTexOffset { get => Material?.GetTextureOffset("_MainTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MainTex", value); }
+            public Texture _EmissionTex { get => Material?.GetTexture("_EmissionTex") ?? null; set => Material?.SetTexture("_EmissionTex", value); }
+            public Vector2 _EmissionTexScale { get => Material?.GetTextureScale("_EmissionTex") ?? Vector2.zero; set => Material?.SetTextureScale("_EmissionTex", value); }
+            public Vector2 _EmissionTexOffset { get => Material?.GetTextureOffset("_EmissionTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_EmissionTex", value); }
+            public float _EmissionPower { get => Material?.GetFloat("_EmissionPower") ?? 0; set => Material?.SetFloat("_EmissionPower", Mathf.Clamp(value, 0.1f, 20)); }
+            public Texture _Normal { get => Material?.GetTexture("_Normal") ?? null; set => Material?.SetTexture("_Normal", value); }
+            public Vector2 _NormalScale { get => Material?.GetTextureScale("_Normal") ?? Vector2.zero; set => Material?.SetTextureScale("_Normal", value); }
+            public Vector2 _NormalOffset { get => Material?.GetTextureOffset("_Normal") ?? Vector2.zero; set => Material?.SetTextureOffset("_Normal", value); }
+            public float _SpecularStrength { get => Material?.GetFloat("_SpecularStrength") ?? 0; set => Material?.SetFloat("_SpecularStrength", Mathf.Clamp(value, 0, 1)); }
+            public float _SpecularExponent { get => Material?.GetFloat("_SpecularExponent") ?? 0; set => Material?.SetFloat("_SpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+            public float _Smoothness { get => Material?.GetFloat("_Smoothness") ?? 0; set => Material?.SetFloat("_Smoothness", Mathf.Clamp(value, 0f, 1)); }
+            public Texture _Height1 { get => Material?.GetTexture("_Height1") ?? null; set => Material?.SetTexture("_Height1", value); }
+            public Vector2 _Height1Scale { get => Material?.GetTextureScale("_Height1") ?? Vector2.zero; set => Material?.SetTextureScale("_Height1", value); }
+            public Vector2 _Height1Offset { get => Material?.GetTextureOffset("_Height1") ?? Vector2.zero; set => Material?.SetTextureOffset("_Height1", value); }
+            public Texture _Height2 { get => Material?.GetTexture("_Height2") ?? null; set => Material?.SetTexture("_Height2", value); }
+            public Vector2 _Height2Scale { get => Material?.GetTextureScale("_Height2") ?? Vector2.zero; set => Material?.SetTextureScale("_Height2", value); }
+            public Vector2 _Height2Offset { get => Material?.GetTextureOffset("_Height2") ?? Vector2.zero; set => Material?.SetTextureOffset("_Height2", value); }
+            public float _HeightStrength { get => Material?.GetFloat("_HeightStrength") ?? 0; set => Material?.SetFloat("_HeightStrength", Mathf.Clamp(value, 0f, 20)); }
+            public float _HeightBias { get => Material?.GetFloat("_HeightBias") ?? 0; set => Material?.SetFloat("_HeightBias", Mathf.Clamp(value, 0f, 1)); }
+            public float _Parallax { get => Material?.GetFloat("_Parallax") ?? 0; set => Material?.SetFloat("_Parallax", value); }
+            public Vector4 _ScrollSpeed { get => Material?.GetVector("_ScrollSpeed") ?? Vector4.zero; set => Material?.SetVector("_ScrollSpeed", value); }
+
+            public enum _RampInfoEnum
+            {
+                TwoTone = 0,
+                SmoothedTwoTone = 1,
+                Unlitish = 3,
+                Subsurface = 4,
+                Grass = 5
+            }
+            public _RampInfoEnum _RampInfo { get => (_RampInfoEnum)(int)(Material?.GetFloat("_RampInfo") ?? 1); set => Material?.SetFloat("_RampInfo", Convert.ToSingle(value)); }
+
+            public enum _CullEnum
+            {
+                Off = 0,
+                Front = 1,
+                Back = 2
+            }
+            public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
+
+            public bool _ClipOn { get => Material?.IsKeywordEnabled("ALPHACLIP") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "ALPHACLIP"); }
+
+            public void Update()
+            {
+                if (!Material)
+                {
+                    Destroy(this);
+                }
+            }
         }
 
         /// <summary>

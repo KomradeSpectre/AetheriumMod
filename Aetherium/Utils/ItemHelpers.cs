@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Aetherium.Utils
 {
@@ -122,7 +123,10 @@ namespace Aetherium.Utils
                 }
                 else
                 {
-                    body.AddTimedBuffAuthority(buff.buffIndex, duration);
+                    if (NetworkServer.active)
+                    {
+                        body.AddTimedBuff(buff.buffIndex, duration);
+                    }
                 }
             }
         }

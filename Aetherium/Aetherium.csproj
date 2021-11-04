@@ -18,7 +18,7 @@
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
-    <Compile Remove="Interactables\BuffBrazier.cs" />
+    <Compile Remove="Interactables\BuffBrazierOld.cs" />
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />
@@ -27,7 +27,14 @@
 
   <ItemGroup>
     <None Remove="AetheriumSounds.bnk" />
+    <None Remove="AetheriumSounds.txt" />
     <None Remove="aetherium_assets" />
+    <None Remove="Init.bnk" />
+    <None Remove="Init.txt" />
+    <None Remove="objexporter" />
+    <None Remove="objexporter.manifest" />
+    <None Remove="PluginInfo.xml" />
+    <None Remove="SoundbanksInfo.xml" />
   </ItemGroup>
 
   <ItemGroup>

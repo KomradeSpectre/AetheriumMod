@@ -107,7 +107,9 @@ namespace Aetherium.Equipment
             var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
             chargeSphereTimer.duration = ProjectileAbsorptionTime;
 
-
+            var objectScaleCurve = JarChargeSphere.AddComponent<ObjectScaleCurve>();
+            objectScaleCurve.useOverallCurveOnly = true;
+            objectScaleCurve.overallCurve = AnimationCurve.EaseInOut(0, 0, 0.3f, BaseRadiusGranted);
 
             var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
             chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;

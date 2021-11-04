@@ -21,6 +21,8 @@ namespace Aetherium.MyEntityStates.BellTotem
                 rotation = gameObject.transform.rotation,
             };
             EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/impactEffects/SpawnLemurian"), effectData, true);
+
+
         }
 
         public override void FixedUpdate()

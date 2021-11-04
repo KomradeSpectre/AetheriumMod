@@ -1,8 +1,9 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 #undef DEBUGMULTIPLAYER
-#undef DEBUGMATERIALS
+#define DEBUGMATERIALS
 
 using Aetherium.Artifacts;
+using Aetherium.StandaloneBuffs;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
 using Aetherium.Equipment.EliteEquipment;
@@ -48,11 +49,13 @@ namespace Aetherium
             {"fake ror/hopoo games/fx/hgcloud intersection remap", "shaders/fx/hgintersectioncloudremap" },
             {"fake ror/hopoo games/fx/hgcloud remap", "shaders/fx/hgcloudremap" },
             {"fake ror/hopoo games/fx/hgdistortion", "shaders/fx/hgdistortion" },
-            {"fake ror/hopoo games/deferred/hgsnow topped", "shaders/deferred/hgsnowtopped" }
+            {"fake ror/hopoo games/deferred/hgsnow topped", "shaders/deferred/hgsnowtopped" },
+            {"fake ror/hopoo games/fx/hgsolid parallax", "shaders/fx/hgsolidparallax" }
         };
 
         public List<CoreModule> CoreModules = new List<CoreModule>();
         public List<ArtifactBase> Artifacts = new List<ArtifactBase>();
+        public List<BuffBase> Buffs = new List<BuffBase>();
         public List<ItemBase> Items = new List<ItemBase>();
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
         public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
@@ -62,6 +65,7 @@ namespace Aetherium
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
         public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
+        public static Dictionary<BuffBase, bool> BuffStatusDictionary = new Dictionary<BuffBase, bool>();
         public static Dictionary<ItemBase, bool> ItemStatusDictionary = new Dictionary<ItemBase, bool>();
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
@@ -115,53 +119,85 @@ namespace Aetherium
 
             //Achievement
 
-            //Artifact Initialization
-            var ArtifactTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactBase)));
-
-            ModLogger.LogInfo("--------------ARTIFACTS---------------------");
-
-            foreach (var artifactType in ArtifactTypes)
+            var disableArtifacts = Config.ActiveBind<bool>("Artifacts", "Disable All Artifacts?", false, "Do you wish to disable every artifact in Aetherium?");
+            if (!disableArtifacts)
             {
-                ArtifactBase artifact = (ArtifactBase)Activator.CreateInstance(artifactType);
-                if(ValidateArtifact(artifact, Artifacts))
-                {
-                    artifact.Init(Config);
+                //Artifact Initialization
+                var ArtifactTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactBase)));
 
-                    ModLogger.LogInfo("Artifact: " + artifact.ArtifactName + " Initialized!");
+                ModLogger.LogInfo("--------------ARTIFACTS---------------------");
+
+                foreach (var artifactType in ArtifactTypes)
+                {
+                    ArtifactBase artifact = (ArtifactBase)Activator.CreateInstance(artifactType);
+                    if (ValidateArtifact(artifact, Artifacts))
+                    {
+                        artifact.Init(Config);
+
+                        ModLogger.LogInfo("Artifact: " + artifact.ArtifactName + " Initialized!");
+                    }
                 }
             }
 
-            //Item Initialization
-            var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
-
-            ModLogger.LogInfo("----------------------ITEMS--------------------");
-
-            foreach (var itemType in ItemTypes)
+            var disableBuffs = Config.ActiveBind<bool>("Artifacts", "Disable All Standalone Buff?", false, "Do you wish to disable every standalone buff in Aetherium?");
+            if (!disableBuffs)
             {
-                ItemBase item = (ItemBase)System.Activator.CreateInstance(itemType);
-                if (ValidateItem(item, Items))
-                {
-                    item.Init(Config);
+                //Standalone Buff Initialization
+                var BuffTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(BuffBase)));
 
-                    ModLogger.LogInfo("Item: " + item.ItemName + " Initialized!");
+                ModLogger.LogInfo("--------------BUFFS---------------------");
+
+                foreach (var buffType in BuffTypes)
+                {
+                    BuffBase buff = (BuffBase)Activator.CreateInstance(buffType);
+                    if (ValidateBuff(buff, Buffs))
+                    {
+                        buff.Init(Config);
+
+                        ModLogger.LogInfo("Buff: " + buff.BuffName + " Initialized!");
+                    }
                 }
             }
 
-            IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer += ItemBase.BlacklistFromPrinter;
-
-            //Equipment Initialization
-            var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
-
-            ModLogger.LogInfo("-----------------EQUIPMENT---------------------");
-
-            foreach (var equipmentType in EquipmentTypes)
+            var disableItems = Config.ActiveBind<bool>("Items", "Disable All Items?", false, "Do you wish to disable every item in Aetherium?");
+            if (!disableItems)
             {
-                EquipmentBase equipment = (EquipmentBase)System.Activator.CreateInstance(equipmentType);
-                if (ValidateEquipment(equipment, Equipments))
-                {
-                    equipment.Init(Config);
+                //Item Initialization
+                var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
 
-                    ModLogger.LogInfo("Equipment: " + equipment.EquipmentName + " Initialized!");
+                ModLogger.LogInfo("----------------------ITEMS--------------------");
+
+                foreach (var itemType in ItemTypes)
+                {
+                    ItemBase item = (ItemBase)System.Activator.CreateInstance(itemType);
+                    if (ValidateItem(item, Items))
+                    {
+                        item.Init(Config);
+
+                        ModLogger.LogInfo("Item: " + item.ItemName + " Initialized!");
+                    }
+                }
+
+                IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer += ItemBase.BlacklistFromPrinter;
+            }
+
+            var disableEquipment = Config.ActiveBind<bool>("Equipment", "Disable All Equipment?", false, "Do you wish to disable every equipment in Aetherium?");
+            if (!disableEquipment)
+            {
+                //Equipment Initialization
+                var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
+
+                ModLogger.LogInfo("-----------------EQUIPMENT---------------------");
+
+                foreach (var equipmentType in EquipmentTypes)
+                {
+                    EquipmentBase equipment = (EquipmentBase)System.Activator.CreateInstance(equipmentType);
+                    if (ValidateEquipment(equipment, Equipments))
+                    {
+                        equipment.Init(Config);
+
+                        ModLogger.LogInfo("Equipment: " + equipment.EquipmentName + " Initialized!");
+                    }
                 }
             }
 
@@ -198,11 +234,19 @@ namespace Aetherium
 
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
-            ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}");
-            ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}");
-            ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}");
-            ModLogger.LogInfo($"Elite Equipment Enabled: {EliteEquipmentStatusDictionary.Count}");
-            ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}");
+
+            if (ArtifactStatusDictionary.Count > 0) { ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}"); }
+
+            if (BuffStatusDictionary.Count > 0) { ModLogger.LogInfo($"Standalone Buffs Enabled: {BuffStatusDictionary.Count}"); }
+
+            if (ItemStatusDictionary.Count > 0) { ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}"); }
+
+            if (EquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}"); }
+
+            if (EliteEquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Elite Equipment Enabled: {EliteEquipmentStatusDictionary.Count}"); }
+
+            if (InteractableStatusDictionary.Count > 0){ ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}"); }
+
             ModLogger.LogInfo("-----------------------------------------------");
 
 
@@ -217,6 +261,19 @@ namespace Aetherium
             if (enabled)
             {
                 artifactList.Add(artifact);
+            }
+            return enabled;
+        }
+
+        public bool ValidateBuff(BuffBase buff, List<BuffBase> buffList)
+        {
+            var enabled = Config.Bind<bool>("Buff: " + buff.BuffName, "Enable Buff?", true, "Should this buff be registered for use in the game?").Value;
+
+            BuffStatusDictionary.Add(buff, enabled);
+
+            if (enabled)
+            {
+                buffList.Add(buff);
             }
             return enabled;
         }

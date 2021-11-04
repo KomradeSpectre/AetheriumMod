@@ -90,6 +90,7 @@ namespace Aetherium.Utils
         {
             if (damageInfo.rejected || !damageInfo.attacker) { return null; }
 
+            
             var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
 
             if (attackerBody)
@@ -142,6 +143,31 @@ namespace Aetherium.Utils
             {
                 return closestPointOnBounds + (Vector3.up * distanceAbove);
             }
+        }
+
+        public static Dictionary<string, Vector3> GetAimSurfaceAlignmentInfo(Ray ray, int layerMask, float distance)
+        {
+            Dictionary<string, Vector3> SurfaceAlignmentInfo = new Dictionary<string, Vector3>();
+
+            var didHit = Physics.Raycast(ray, out RaycastHit raycastHit, distance, layerMask, QueryTriggerInteraction.Ignore);
+
+            if (!didHit)
+            {
+                AetheriumPlugin.ModLogger.LogError($"GetAimSurfaceAlignmentInfo did not hit anything in the aim direction on the specified layer.");
+                return null;
+            }
+
+            var point = raycastHit.point;
+            var right = Vector3.Cross(ray.direction, Vector3.up);
+            var up = Vector3.ProjectOnPlane(raycastHit.normal, right);
+            var forward = Vector3.Cross(right, up);
+
+            SurfaceAlignmentInfo.Add("Position", point);
+            SurfaceAlignmentInfo.Add("Right", right);
+            SurfaceAlignmentInfo.Add("Forward", forward);
+            SurfaceAlignmentInfo.Add("Up", up);
+
+            return SurfaceAlignmentInfo;
         }
     }
 }

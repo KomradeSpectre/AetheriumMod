@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2384527033
+CRC: 841971701
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: b3e40f7de81145133e3a4cf89e9d2702
+    Hash: 95a9b602dc410f63e761c52b3a2f5f5f
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 370f92ecdf7e61895862d61fb33fad36
+    Hash: 072b8f10b67aa5ed2e8487739bd44ae5
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -57,6 +57,8 @@ ClassTypes:
   Script: {fileID: 11500000, guid: a450a6f634bea4e44a44079d6a4b1a36, type: 3}
 - Class: 115
   Script: {instanceID: 0}
+- Class: 120
+  Script: {instanceID: 0}
 - Class: 135
   Script: {instanceID: 0}
 - Class: 136
@@ -72,6 +74,7 @@ ClassTypes:
 Assets:
 - Assets/Shaders/3D Shaders/ToonUnlit.shader
 - Assets/Animations/Torus.002.controller
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrb.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab
 - Assets/Shaders/3D Shaders/intersection.shader
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab
@@ -91,6 +94,7 @@ Assets:
 - Assets/Animations/VoidHeartBeating.anim
 - Assets/Textures/Material Textures/EliteRingSoulIcon.png
 - Assets/Models/Raw Models/By Others/PrototypeNewShieldingCore.blend
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrbGlass.mat
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPinMagicCircle.prefab
 - Assets/Textures/Icons/Buff/AlienMagnetLevitationDebuffIcon.png
 - Assets/Models/Raw Models/BuffBrazier.blend
@@ -104,12 +108,15 @@ Assets:
 - Assets/Models/Raw Models/WeightedAnklet.blend
 - Assets/Models/Prefabs/Item/FeatheredPlume/FeatheredPlumeOld.prefab
 - Assets/Animations/JarOfReshapingAbsorbEffect.controller
+- Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOrbEffect.prefab
 - Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseTrail.mat
+- Assets/Models/Prefabs/Equipment/BellTotem/NoSpawnAllowedEffect.prefab
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingEye.mat
 - Assets/Textures/Materials/Equipment/BellTotem/BellTotemBellStrapClip.mat
 - Assets/Animations/InspiringDroneHead.controller
 - Assets/Textures/Material Textures/teststringtexture.png
 - Assets/Textures/Icons/Artifact/ArtifactOfProgressionEnabledIcon.png
+- Assets/Textures/Material Textures/BellTotemNoSpawnParticle.png
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPinProjectile.prefab
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodthirstyShieldHandles.mat
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileSecondary.mat
@@ -128,6 +135,7 @@ Assets:
 - Assets/Models/Prefabs/Item/WitchesRing/WitchesRingCircle.prefab
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeFeatherOld.mat
 - Assets/Textures/Material Textures/EliteRingSunIcon.png
+- Assets/Textures/Icons/Buff/By Others/Ragon/SoulLinkedDebuffIcon.png
 - Assets/Animations/NailBombNailShrink.anim
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab
@@ -150,6 +158,7 @@ Assets:
 - Assets/Textures/Material Textures/414-normal.jpg
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignChimera.mat
 - Assets/Models/Prefabs/Item/Voidheart/VoidheartOld.prefab
+- Assets/Models/Raw Models/By Others/Ragon/brazier.obj
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodthirstyShieldEnergy.mat
 - Assets/Textures/Icons/Artifact/ArtifactOfRegressionDisabledIcon.png
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorCoreGlow.mat
@@ -157,9 +166,11 @@ Assets:
 - Assets/Textures/Material Textures/From Others/HG/texRampImp.png
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletSecondary.mat
 - Assets/Models/Raw Models/SharkTeeth.blend
+- Assets/Textures/Icons/Buff/DoubleGoldDoubleXPBuffIcon.png
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseBuffIcon.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreRivets.mat
 - Assets/Textures/Materials/Item/NailBomb/NailBombCasing.mat
+- Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOrbitOrb.prefab
 - Assets/Textures/Material Textures/bloodthirstyshieldmetalnormal.png
 - Assets/Textures/Materials/Item/NailBomb/NailBombBinding - Copy.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgstandard.shader
@@ -183,6 +194,7 @@ Assets:
 - Assets/Textures/Material Textures/musicnote.png
 - Assets/Shaders/3D Shaders/CloudIntersectionRemap.shader
 - Assets/Textures/Icons/Buff/ProgressionThreeQuartersBuffIcon.png
+- Assets/Textures/Material Textures/brazierDiffuse.png
 - Assets/Models/Prefabs/Item/BloodthirstyShield/BloodSoakedShield.prefab
 - Assets/Textures/Material Textures/iridescentRainbow.png
 - Assets/Models/Raw Models/By Others/Ragon/belltotemdisplaybell.blend
@@ -193,6 +205,7 @@ Assets:
 - Assets/Textures/Material Textures/SoulExtractionCircleHeight.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandleBraid.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordEnergyGlow.mat
+- Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedOverlay.mat
 - Assets/Textures/Material Textures/3989-bump.jpg
 - Assets/Models/Raw Models/UnstableDesignTargetingSphere.blend
 - Assets/Textures/Materials/Miscellaneous/Gem Glass.mat
@@ -209,6 +222,7 @@ Assets:
 - Assets/Textures/Icons/Artifact/ArtifactOfTheNightmareDisabledIcon.png
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusion.png
 - Assets/Models/Raw Models/BlasterSwordPaladin.blend
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffFlameIcon.mat
 - Assets/Textures/Material Textures/SwordBlade.png
 - Assets/Textures/Materials/Item/HexPendulum/HexPendulumArc.mat
 - Assets/Models/Raw Models/ShieldingCore.blend
@@ -226,7 +240,10 @@ Assets:
 - Assets/Textures/Material Textures/DefaultRamp.png
 - Assets/Textures/Material Textures/VoidHeartEffectDiffuse.png
 - Assets/Animations/BellTotemDisplayTest.anim
+- Assets/Textures/Material Textures/From Others/HG/texChainTrailNormal.png
+- Assets/Animations/Fire Icon.controller
 - Assets/Animations/ThrusterRAfterburner.controller
+- Assets/Textures/Material Textures/BuffBrazierOrbParticle.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingSpikes.mat
 - Assets/Models/Raw Models/FeatheredPlume1.blend
 - Assets/Textures/Materials/Elite Equipment/AffixBenevolent/BenevolentFlame.mat
@@ -249,6 +266,7 @@ Assets:
 - Assets/Textures/Material Textures/6147-bump.jpg
 - Assets/Animations/mdlZenithAccelerator.controller
 - Assets/Animations/HexPendulum.controller
+- Assets/Textures/Material Textures/From Others/HG/texChainTrailMask.png
 - Assets/Textures/Material Textures/From Others/HG/texBasicMask.png
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingIndicator.prefab
 - Assets/Models/Raw Models/WitchesBand.blend
@@ -256,6 +274,7 @@ Assets:
 - Assets/Textures/Icons/Buff/ProgressionHalfBuffIcon.png
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgsolidparallax.shader
 - Assets/Shaders/3D Shaders/NewUnlitShader.shader
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrbIcon.mat
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureWhiteEmission.png
 - Assets/Textures/Materials/Equipment/BellTotem/matSoundwave.mat
 - Assets/Textures/Material Textures/AccursedPotionShellNormal.png
@@ -263,6 +282,7 @@ Assets:
 - Assets/Shaders/3D Shaders/Flow.cginc
 - Assets/Textures/Material Textures/GreenToDarkGreenRamp.png
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
+- Assets/Textures/Material Textures/From Others/Dotflare/brazier_Diffuse.png
 - Assets/Textures/Icons/Achievement/BlasterSwordAchievementIcon.png
 - Assets/Textures/Material Textures/jarofreshapingceramicnormal.png
 - Assets/Textures/Material Textures/12148-beams.png
@@ -273,6 +293,7 @@ Assets:
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierAvailabilityIndicator.mat
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnet.prefab
 - Assets/Textures/Material Textures/AlienMagnetGemNormal.png
+- Assets/Textures/Material Textures/From Others/HG/texBlackbeachDirt.png
 - Assets/Textures/Material Textures/lightning.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingEffect.mat
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingGem.mat
@@ -286,6 +307,7 @@ Assets:
 - Assets/Textures/Material Textures/UnstableDesignChimeraNormal.png
 - Assets/Textures/Icons/Item/WitchesRingIcon.png
 - Assets/Textures/Material Textures/10089.jpg
+- Assets/Shaders/3D Shaders/Marble.shader
 - Assets/Animations/BellTotemIdle.anim
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBelt.mat
 - Assets/Textures/Icons/Item/AlienMagnetIcon.png
@@ -308,14 +330,17 @@ Assets:
 - Assets/Textures/Material Textures/BuffBrazierCloud1.jpg
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTape.mat
 - Assets/Animations/AlienMagnetBlueTorus.anim
+- Assets/Textures/Material Textures/ParticleRamp.png
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneAfterburnerParticle.mat
 - Assets/Textures/Icons/Equipment/BellTotemIcon.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldSpikes.mat
 - Assets/Animations/HiveInner.controller
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneMain2.mat
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierPlaceholderMat.mat
 - Assets/Textures/Materials/Miscellaneous/InvisibleOutlineMeshHolder.mat
 - Assets/Textures/Icons/Buff/ZenithAccelerationBuffIcon.png
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPin.controller
+- Assets/Textures/Materials/Item/ObliterballAndChain/ObliterballMaterial.mat
 - Assets/Textures/Material Textures/nailbomb-binding-texture.jpg
 - Assets/Models/Prefabs/Item/HexPendulum/HexPendulumTracker.prefab
 - Assets/Textures/Materials/Miscellaneous/Hologram 2.mat
@@ -323,6 +348,7 @@ Assets:
 - Assets/Textures/Material Textures/BuffBrazierDiffuse.png
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreAdditiveParticleMateiral.mat
 - Assets/Textures/Material Textures/10587 - Copy.jpg
+- Assets/Textures/Material Textures/SoulLinkedHeartIcon.png
 - Assets/Textures/Material Textures/LightningRamp.png
 - Assets/Shaders/3D Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Material Textures/BuffBrazierNormal.png
@@ -340,6 +366,7 @@ Assets:
 - Assets/Textures/Material Textures/AccursedPotionCorkNormal.png
 - Assets/Textures/Material Textures/From Others/HG/texCloudOrganicNormal.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTapeOuterRoll.mat
+- Assets/Textures/Materials/Interactables/BuffBrazier/BuffFlame.mat
 - Assets/Textures/Material Textures/AccursedPotionGlassDiffuse.png
 - Assets/Animations/JarOfReshapingSphere.anim
 - Assets/Models/Prefabs/Equipment/BellTotem/BellTotemDisplay.prefab
@@ -380,12 +407,14 @@ Assets:
 - Assets/Textures/Material Textures/plume.png
 - Assets/Models/Prefabs/Item/NailBomb/NailBombProjectile.prefab
 - Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBone.mat
+- Assets/Models/Prefabs/Item/ObliterballAndChain/ObliterballObject.prefab
 - Assets/Shaders/3D Shaders/FireMaskShader.shader
 - Assets/Textures/Material Textures/index - Copy.png
 - Assets/Animations/JarProjectileSawSecondary.controller
 - Assets/Textures/Icons/Artifact/ArtifactOfLeonidsEnabledIcon.png
 - Assets/Textures/Material Textures/zenith_glow.png
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
+- Assets/Models/Raw Models/BuffBrazierBuffOrb.fbx
 - Assets/Animations/BellTotemRinging.anim
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Icons/Buff/By Others/FOG/AffixAbyssalBuffIcon.png
@@ -434,6 +463,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/SoulPin/SoulExtractionCircle.mat
 - Assets/Models/Raw Models/AlienMagnet.blend
 - Assets/Models/Raw Models/By Others/Ragon/SharkTeeth.blend
+- Assets/Animations/BuffBrazierFireIcon.anim
 - Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalMat.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneHeadsetWireTexture.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgwavycloth.shader
@@ -450,6 +480,7 @@ Assets:
 - Assets/Models/Raw Models/BuffBrazierSphere.blend
 - Assets/Models/Raw Models/Voidheart.blend
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
+- Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedHeartEffect.prefab
 - Assets/Textures/Materials/Miscellaneous/FractureInner.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartVeins.mat
 - Assets/Textures/Icons/Interactable/BuffBrazier/BuffBrazierIndicatorIcon.png
@@ -488,6 +519,7 @@ Assets:
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClasp.mat
 - Assets/Textures/Icons/Artifact/ArtifactOfRegressionEnabledIcon.png
 - Assets/Textures/Material Textures/MagicCircleEmission.png
+- Assets/Textures/Materials/Equipment/BellTotem/BellTotemNoSpawnAllowed.mat
 - Assets/Models/Raw Models/By Others/Ragon/AlienMagnet.blend
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveInner.mat
@@ -510,13 +542,13 @@ Assets:
 - Assets/Textures/Material Textures/nailbomb-texture.jpg
 - Assets/Animations/InspiringDroneHead.anim
 - Assets/Textures/Material Textures/nailbomb-wick-normal.png
-- Assets/Textures/Materials/Interactables/BuffBrazier/BuffFlameParticles.mat
 - Assets/Textures/Materials/Equipment/BellTotem/BellTotemBellStrap.mat
 - Assets/Textures/Material Textures/From Others/HG/texRampLunarWispFire.png
 - Assets/Animations/ZenithAcceleratorAnimation.anim
 - Assets/Textures/Material Textures/3398-diffuse.jpg
 - Assets/Textures/Material Textures/AffixAbyssalEmission.png
 - Assets/Textures/Material Textures/leather-normal.jpg
+- Assets/Models/Raw Models/GrayBlobTheory/ShrineTest.blend
 - Assets/Shaders/3D Shaders/GhostRim.shader
 - Assets/Textures/Material Textures/1678-bump.jpg
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgvertexonly.shader
@@ -541,6 +573,7 @@ Assets:
 - Assets/Textures/Icons/Item/EngineersToolbeltIcon.png
 - Assets/Textures/Material Textures/soulpinrodnormal.png
 - Assets/Models/Raw Models/By Others/Ragon/plume.obj
+- Assets/Textures/Icons/Interactable/BuffBrazier/BuffBrazierShrineIcon.png
 - Assets/Textures/Material Textures/RadialFlowMapnormal.jpg
 - Assets/Models/Raw Models/NailBombSubProjectile.blend
 - Assets/Textures/Material Textures/SoulExtractionCircleDiffuse.png
@@ -572,8 +605,10 @@ Assets:
 - Assets/Shaders/3D Shaders/FireParticle.shader
 - Assets/Models/Prefabs/Item/Voidheart/Voidheart.prefab
 - Assets/Textures/Material Textures/BlasterSwordTexture.png
+- Assets/Textures/Materials/Item/New Material.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltBladeSharp.mat
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingMetal.mat
+- Assets/Textures/Materials/Item/ObliterballAndChain/ObliterballChain.mat
 - Assets/Textures/Material Textures/spiralnormal.jpg
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinRods.mat
 - Assets/Textures/Material Textures/bloodthirstyshieldhandlesdiffuse.png
@@ -595,10 +630,12 @@ Assets:
 - Assets/Shaders/3D Shaders/LavaShader.shader
 - Assets/Textures/Material Textures/belltotemnormal.png
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveEmber.mat
+- Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedTrail.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdamagenumber.shader
 - Assets/Textures/Materials/Item/NailBomb/NailProjectileMaterial.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartPlaceholderTexture.mat
+- Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingAbsorb.mat
 - Assets/Models/Prefabs/Item/ShieldingCore/ShieldingCoreBak.prefab
 - Assets/Textures/Material Textures/Purple Crystal.jpg
 - Assets/Models/Raw Models/BlasterSwordProjectile.blend
@@ -618,11 +655,14 @@ Assets:
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEyes.mat
 - Assets/Textures/Icons/Item/BloodthirstyShieldIcon.png
 - Assets/Models/Raw Models/By Others/Ragon/jar.blend
+- Assets/Models/Raw Models/BuffBrazierBuffOrb.blend
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorFlameJet.mat
 - Assets/Textures/Icons/Item/FeatheredPlumeIcon.png
-- Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab
+- Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedTrailEffect.prefab
+- Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOld.prefab
 - Assets/Models/Prefabs/Item/AnkletOfMomentum/AnkletOfMomentum.prefab
 - Assets/Animations/InspiringDroneUpperArmL.controller
+- Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedHeartMaterial.mat
 - Assets/Shaders/3D Shaders/AuraGhostOutline.shader
 - Assets/Models/Prefabs/Item/AccursedPotion/AccursedPotion.prefab
 - Assets/Textures/Materials/Item/FeatheredPlume/FeatheredPlumeQuillOld.mat
@@ -632,6 +672,7 @@ Assets:
 - Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseEyeParticleSystem.mat
 - Assets/Shaders/3D Shaders/FireBallEffect.shader
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletCrystal.mat
+- Assets/Textures/Material Textures/brazierNormal.png
 - Assets/Textures/Material Textures/AccursedPotionGlassNormal.png
 - Assets/Animations/NailBombSubProjectile.controller
 - Assets/Shaders/3D Shaders/DoubleTexGlobalPosition.shader
@@ -677,6 +718,7 @@ Assets:
 - Assets/Textures/Material Textures/JarOfReshapingCeramicDiffuse.png
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPin.prefab
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionGlass.mat
+- Assets/Models/Prefabs/Interactables/BuffBrazier/ShrineTest.prefab
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnetTracker.prefab
 - Assets/Animations/InspiringDroneUpperArmR.controller
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab
@@ -696,6 +738,7 @@ Assets:
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltDuctTapeStopper.mat
 - Assets/Animations/InspiringDroneThrusterPlume.anim
 - Assets/Animations/BlasterSwordEnergyBladePrint10.anim
+- Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab
 - Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png
 - Assets/Textures/Material Textures/LabelTexture.png
 - Assets/Textures/Material Textures/AccursedPotionCorkDiffuse.png

@@ -49,6 +49,7 @@ namespace Aetherium.Equipment
         public static NetworkSoundEventDef BellRingingSound;
 
         public static GameObject BellSoundwaveEffect;
+        public static GameObject NoBellSpawnEffect;
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -90,8 +91,29 @@ namespace Aetherium.Equipment
             vfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
 
             BellSoundwaveEffect.AddComponent<NetworkIdentity>();
+
             if (BellSoundwaveEffect) PrefabAPI.RegisterNetworkPrefab(BellSoundwaveEffect);
             EffectAPI.AddEffect(BellSoundwaveEffect);
+
+            NoBellSpawnEffect = MainAssets.LoadAsset<GameObject>("NoSpawnAllowedEffect.prefab");
+
+            NoBellSpawnEffect.AddComponent<NetworkIdentity>();
+
+            var secondaryEffectComponent = NoBellSpawnEffect.AddComponent<EffectComponent>();
+            secondaryEffectComponent.parentToReferencedTransform = false;
+            secondaryEffectComponent.positionAtReferencedTransform = true;
+            secondaryEffectComponent.applyScale = true;
+
+            var secondaryVfxAttributes = NoBellSpawnEffect.AddComponent<RoR2.VFXAttributes>();
+            secondaryVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            secondaryVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
+
+            var secondaryDestroyOnParticleEnd = NoBellSpawnEffect.AddComponent<DestroyOnParticleEnd>();
+            secondaryDestroyOnParticleEnd.ps = NoBellSpawnEffect.GetComponent<ParticleSystem>();
+
+            if (NoBellSpawnEffect) PrefabAPI.RegisterNetworkPrefab(NoBellSpawnEffect);
+            EffectAPI.AddEffect(NoBellSpawnEffect);
+
         }
 
         public void CreateInteractable()
@@ -108,6 +130,7 @@ namespace Aetherium.Equipment
             purchaseInteraction.costType = CostTypeIndex.None;
             purchaseInteraction.available = true;
             purchaseInteraction.lockGameObject = null;
+            purchaseInteraction.setUnavailableOnTeleporterActivated = false;
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
 
@@ -347,12 +370,25 @@ namespace Aetherium.Equipment
                 var BellTotemCache = body.GetComponent<BellTotemCache>();
                 if (BellTotemCache)
                 {
+                    if (BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is MyEntityStates.BellTotem.BellTotemDisappearState))
+                    {
+                        BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new MyEntityStates.BellTotem.BellTotemDisappearState());
+                    }
+
                     var hitPlace = Physics.Raycast(new Ray(slot.inputBank.aimOrigin, slot.inputBank.aimDirection), out RaycastHit raycastHit, 1000, LayerIndex.world.mask, QueryTriggerInteraction.Ignore);
                     if (hitPlace)
                     {
-                        if (BellTotemCache.BellTotem)
+                        if(raycastHit.collider && raycastHit.collider.gameObject.name.Contains("BellTotem")) 
                         {
-                            BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new MyEntityStates.BellTotem.BellTotemDisappearState());
+                            slot.subcooldownTimer = 0.1f;
+
+                            var effectData = new EffectData()
+                            {
+                                origin = raycastHit.point,
+                                scale = 0.4f
+                            };
+                            EffectManager.SpawnEffect(NoBellSpawnEffect, effectData, true);
+                            return false; 
                         }
 
                         var right = Vector3.Cross(slot.inputBank.aimDirection, Vector3.up);

@@ -129,7 +129,6 @@ namespace Aetherium.Items
             NailBombImmunityBuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
 
             BuffAPI.Add(new CustomBuff(NailBombImmunityBuff));
-
         }
 
 

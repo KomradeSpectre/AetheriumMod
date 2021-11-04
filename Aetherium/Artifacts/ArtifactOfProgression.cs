@@ -10,6 +10,7 @@ using static Aetherium.AetheriumPlugin;
 using UnityEngine.Networking;
 using Aetherium.Utils;
 using RoR2.Audio;
+using System.Linq;
 
 namespace Aetherium.Artifacts
 {
@@ -18,6 +19,7 @@ namespace Aetherium.Artifacts
         public static ConfigOption<float> ProgressionInterval;
         public static ConfigOption<bool> EnableSounds;
         public static ConfigOption<bool> DoubleGoldAndExpOfProgressions;
+        public static ConfigOption<string> BlacklistedEvolutionMastersString;
 
         public override string ArtifactName => "Artifact of Progression";
 
@@ -31,6 +33,9 @@ namespace Aetherium.Artifacts
 
         internal Dictionary<string, EvolutionData> ProgressionLookup = new Dictionary<string, EvolutionData>();
 
+        public delegate bool EvolutionDataHandler(EvolutionData evolutionData);
+        public event EvolutionDataHandler onProgressionLookupChanged;
+
         public static BuffDef ProgressionStartBuff;
         public static BuffDef ProgressionQuarterBuff;
         public static BuffDef ProgressionHalfBuff;
@@ -39,6 +44,8 @@ namespace Aetherium.Artifacts
         public static GameObject ProgressionSoundEffectHolder;
 
         public static NetworkSoundEventDef ProgressionSquelchEvent;
+
+        public List<CharacterMaster> BlacklistedEvolutionMasters = new List<CharacterMaster>();
 
         public override void Init(ConfigFile config)
         {
@@ -56,6 +63,7 @@ namespace Aetherium.Artifacts
             ProgressionInterval = config.ActiveBind<float>("Artifact: " + ArtifactName, "Interval Between Each Progression", 60, "How long until a monster progresses to the next progression state if they have one?");
             EnableSounds = config.ActiveBind<bool>("Artifact:" + ArtifactName, "Enable Progression Sounds?", true, "Should a sound play each time a monster reaches a progression checkpoint?");
             DoubleGoldAndExpOfProgressions = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Double Gold and Exp Reward of Progressions", true, "Should progressions spawned by the Progression effect have doubled money and exp?");
+            BlacklistedEvolutionMastersString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Evolution Masters", "", "Which enemies master components should be blacklisted from evolving? (Each entry should be separated by a comma, you must know their internal master name to blacklist them. E.g. impmaster,lemurianmaster will blacklist normal imps and lemurians.");
         }
 
         private void CreateSound()
@@ -132,7 +140,26 @@ namespace Aetherium.Artifacts
 
         public override void Hooks()
         {
+            On.RoR2.Run.Start += BlacklistSpecificEvolutions;
             On.RoR2.CharacterAI.BaseAI.OnBodyStart += AddEvolutionComponent;
+        }
+
+        private void BlacklistSpecificEvolutions(On.RoR2.Run.orig_Start orig, Run self)
+        {
+            string testString = BlacklistedEvolutionMastersString;
+            var testStringArray = testString.Split(',');
+            if (testStringArray.Length > 0)
+            {
+                foreach (string stringToTest in testStringArray)
+                {
+                    var master = Array.Find<CharacterMaster>(RoR2.MasterCatalog.masterPrefabMasterComponents, x => x.name.ToLowerInvariant() == stringToTest.ToLowerInvariant());
+                    if (!master) { continue; }
+
+                    BlacklistedEvolutionMasters.Add(master);
+                }
+            }
+
+            orig(self);
         }
 
         private void AddEvolutionComponent(On.RoR2.CharacterAI.BaseAI.orig_OnBodyStart orig, RoR2.CharacterAI.BaseAI self, CharacterBody newBody)
@@ -143,7 +170,7 @@ namespace Aetherium.Artifacts
                 if (self.master && self.master.teamIndex != TeamIndex.Player && newBody && !newBody.isBoss)
                 {
                     var masterName = self.master.name.Replace("(Clone)", "");
-                    if (ProgressionLookup.ContainsKey(masterName))
+                    if (!BlacklistedEvolutionMasters.Any(master => master.name.ToLowerInvariant() == masterName.ToLowerInvariant()) && ProgressionLookup.ContainsKey(masterName))
                     {
                         List<EvolutionData.EvolvedStateData> evolutionData = ProgressionLookup[masterName].PossibleNextEvolutions;
 

@@ -36,6 +36,13 @@ namespace Aetherium.Utils
             return origin + differenceVector;
         }
 
+        /// <summary>
+        /// A method to create a list of points evenly spread around a sphere at a set radius.
+        /// </summary>
+        /// <param name="points">The number of points to spread around a sphere.</param>
+        /// <param name="radius">The radius of our sphere.</param>
+        /// <param name="origin">The point of reference for our sphere.</param>
+        /// <returns>A list of points evenly distributed around the desired sphere.</returns>
         public static List<Vector3> DistributePointsEvenlyAroundSphere(int points, float radius, Vector3 origin)
         {
             List<Vector3> pointArray = new List<Vector3>();
@@ -60,14 +67,25 @@ namespace Aetherium.Utils
 
         }
 
-        public static List<Vector3> DistributePointsEvenlyAroundCircle(int points, float radius, Vector3 origin)
+        /// <summary>
+        /// A method to create a list of points evenly spread around a circle at a set radius. Three points make a triangle, four make a square, and so on.
+        /// </summary>
+        /// <param name="points">The number of points to spread around a circle.</param>
+        /// <param name="radius">The radius of our circle.</param>
+        /// <param name="origin">The point of reference for our circle.</param>
+        /// <param name="angleOffset">How far along the circle should we shift all our points?</param>
+        /// <returns>A list of points evenly distributed around the desired circle.</returns>
+        public static List<Vector3> DistributePointsEvenlyAroundCircle(int points, float radius, Vector3 origin, float angleOffset = 0)
         {
             List<Vector3> pointsList = new List<Vector3>();
-            for(int i = 0; i < points; i++)
+            for (int i = 0; i < points; i++)
             {
                 var theta = (Math.PI * 2) / points;
-                var angle = theta * i;
-                var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + origin.x), origin.y, (float)(radius * Math.Sin(angle) + origin.z));
+                var angle = theta * i + angleOffset;
+                Vector3 positionChosen;
+
+                positionChosen = new Vector3((float)(radius * Math.Cos(angle) + origin.x), origin.y, (float)(radius * Math.Sin(angle) + origin.z));
+
                 pointsList.Add(positionChosen);
             }
 
