@@ -29,6 +29,7 @@ namespace Aetherium
     [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.TeamMoonstorm.MoonstormSharedUtils", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
@@ -249,7 +250,8 @@ namespace Aetherium
 
             ModLogger.LogInfo("-----------------------------------------------");
 
-
+            if (Aetherium.Compatability.ModCompatability.MSUCompat.IsMSUInstalled)
+                Aetherium.Compatability.ModCompatability.MSUCompat.Init(Items, Equipments, EliteEquipments);
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)

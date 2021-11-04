@@ -50,7 +50,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("BloodthirstyShield.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("BloodSoakedShieldIconAlt.png") : MainAssets.LoadAsset<Sprite>("BloodthirstyShieldIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public override void Init(ConfigFile config)
         {

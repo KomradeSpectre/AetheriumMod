@@ -52,7 +52,7 @@ namespace Aetherium.Equipment
         public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("PheromoneSacIcon.png");
 
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static BuffDef BrainwashDebuff;
         public static BuffDef StrengthenedMindBuff;

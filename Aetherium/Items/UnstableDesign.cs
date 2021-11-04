@@ -66,7 +66,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("UnstableDesign.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("UnstableDesignIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static RoR2.SpawnCard LunarChimeraSpawnCard;
         public static GameObject LunarChimeraMasterPrefab;
         public static GameObject LunarChimeraBodyPrefab;

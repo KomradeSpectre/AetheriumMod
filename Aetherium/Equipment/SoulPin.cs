@@ -38,7 +38,7 @@ namespace Aetherium.Equipment
 
         public override bool UseTargeting => true;
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static GameObject SoulConversionProjectile;
 

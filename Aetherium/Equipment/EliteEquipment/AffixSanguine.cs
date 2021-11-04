@@ -48,7 +48,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override Color EliteBuffColor => new Color(195, 33, 72, 255);
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public override float Cooldown => 2;
 

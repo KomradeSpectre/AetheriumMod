@@ -60,7 +60,7 @@ namespace Aetherium.Items
             "of the box.\n\n" +
 
             "Bury the body, take the design, and stay quiet about this. It can be our little secret.\n\n" +
-            
+
             "Sincerely,\n" +
             "Jeb Labinsky";
 
@@ -72,7 +72,7 @@ namespace Aetherium.Items
 
         public override Sprite ItemIcon => UseAlternateImplementation ? MainAssets.LoadAsset<Sprite>("NailBombTier2.png") : MainAssets.LoadAsset<Sprite>("NailBombTier1.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public static GameObject NailBombProjectileMain;
 

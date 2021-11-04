@@ -49,7 +49,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("FeatheredPlume.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("FeatheredPlumeIconAlt.png") : MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public BuffDef SpeedBuff { get; private set; }
 

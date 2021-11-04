@@ -45,7 +45,7 @@ namespace Aetherium.Items
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("SharkTeeth.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("SharkTeethIconAlt.png") : MainAssets.LoadAsset<Sprite>("SharkTeethIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
 
         public GameObject BleedInflictor = new GameObject("Shark Teeth Damage");
 

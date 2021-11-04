@@ -88,7 +88,7 @@ namespace Aetherium.Items
 
         public override Sprite ItemIcon => IsGreenRarity ? MainAssets.LoadAsset<Sprite>("InspiringDroneIconTier2.png") : MainAssets.LoadAsset<Sprite>("InspiringDroneIconTier3.png");
 
-        public static GameObject ItemBodyModelPrefab;
+        public override GameObject ItemBodyModelPrefab { get; internal set; }
         public static GameObject ItemFollowerPrefab;
 
         private static readonly List<string> DronesList = new List<string>
