@@ -64,6 +64,22 @@ namespace Aetherium.Utils
                                 standardController.Material = Material;
                                 standardController.Renderer = Renderer;
                                 break;
+                            case "Hopoo Games/Deferred/Snow Topped":
+                                var snowToppedController = gameObject.AddComponent<HGSnowToppedController>();
+                                snowToppedController.Material = Material;
+                                snowToppedController.Renderer = Renderer;
+                                snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
+                                break;
+                            case "Hopoo Games/FX/Distortion":
+                                var distortionController = gameObject.AddComponent<HGDistortionController>();
+                                distortionController.Material = Material;
+                                distortionController.Renderer = Renderer;
+                                break;
+                            case "Hopoo Games/FX/Solid Parallax":
+                                var parallaxController = gameObject.AddComponent<HGSolidParallaxController>();
+                                parallaxController.Material = Material;
+                                parallaxController.Renderer = Renderer;
+                                break;
                             case "Hopoo Games/FX/Cloud Remap":
                                 var cloudController = gameObject.AddComponent<HGCloudRemapController>();
                                 cloudController.Material = Material;
@@ -74,17 +90,6 @@ namespace Aetherium.Utils
                                 intersectionController.Material = Material;
                                 intersectionController.Renderer = Renderer;
                                 break;
-                            case "Hopoo Games/Deferred/Snow Topped":
-                                var snowToppedController = gameObject.AddComponent<HGSnowToppedController>();
-                                snowToppedController.Material = Material;
-                                snowToppedController.Renderer = Renderer;
-                                snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
-                                break;
-                            case "Hopoo Games/FX/Solid Parallax":
-                                var parallaxController = gameObject.AddComponent<HGSolidParallaxController>();
-                                parallaxController.Material = Material;
-                                parallaxController.Renderer = Renderer;
-                                break;
                         }
                     }
                 }
@@ -93,13 +98,43 @@ namespace Aetherium.Utils
         }
 
         /// <summary>
-        /// Attach to anything, and feed in a material that has the hgstandard shader.
-        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// The base class of any shader controller below. Serves to reduce code redundancy, set code standards, and implements a dynamic checking functionality to all inheritors.
         /// </summary>
-        public class HGStandardController : MonoBehaviour
+        public class HGBaseController : MonoBehaviour
         {
             public Material Material;
             public Renderer Renderer;
+            public virtual string ShaderName { get; set; }
+            public GameObject OwnerGameObject;
+
+            public void Start()
+            {
+                OwnerGameObject = gameObject;
+            }
+
+            public void Update()
+            {
+                if (!Material || !Renderer)
+                {
+                    Destroy(this);
+                }
+
+                if (Renderer && Material && !Material.shader.name.Contains(ShaderName) || Renderer && Renderer.gameObject != OwnerGameObject)
+                {
+                    var finder = Renderer.gameObject.AddComponent<HGControllerFinder>();
+                    finder.Renderer = Renderer;
+                    Destroy(this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Attach to anything, and feed in a material that has the hgstandard shader.
+        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// </summary>
+        public class HGStandardController : HGBaseController
+        {
+            public override string ShaderName => "Hopoo Games/Deferred/Standard";
             public string MaterialName { get => Material?.name ?? ""; }
 
             public bool _EnableCutout { get => Material?.IsKeywordEnabled("CUTOUT") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "CUTOUT"); }
@@ -256,21 +291,137 @@ namespace Aetherium.Utils
             public Color _FlashColor { get => Material?.GetColor("_FlashColor") ?? default(Color); set => Material?.SetColor("_FlashColor", value); }
 
             public float _Fade { get => Material?.GetFloat("_Fade") ?? 0; set => Material?.SetFloat("_Fade", Mathf.Clamp(value, 0, 1)); }
+        }
 
-            public void Update()
+        /// <summary>
+        /// Developed by Vale-X. Attach to anything, and feed in a material that has the hgsnowtopped shader.
+        /// You then gain access to manipulate this in any Runtime Inspector of your choice.
+        /// </summary>
+        public class HGSnowToppedController : HGBaseController
+        {
+            public override string ShaderName => "Hopoo Games/Deferred/Snow Topped";
+            public string MaterialName { get => Material?.name ?? ""; }
+
+            public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
+            public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
+            public Vector2 _MainTexScale { get => Material?.GetTextureScale("_MainTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MainTex", value); }
+            public Vector2 _MainTexOffset { get => Material?.GetTextureOffset("_MainTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MainTex", value); }
+
+            public float _NormalStrength { get => Material?.GetFloat("_NormalStrength") ?? 0; set => Material?.SetFloat("_NormalStrength", Mathf.Clamp(value, 0, 1)); }
+
+            public Texture _NormalTex { get => Material?.GetTexture("_NormalTex") ?? null; set => Material?.SetTexture("_NormalTex", value); }
+            public Vector2 _NormalTexScale { get => Material?.GetTextureScale("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureScale("_NormalTex", value); }
+            public Vector2 _NormalTexOffset { get => Material?.GetTextureOffset("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_NormalTex", value); }
+
+            public Texture _SnowTex { get => Material?.GetTexture("_SnowTex") ?? null; set => Material?.SetTexture("_SnowTex", value); }
+            public Vector2 _SnowTexScale { get => Material?.GetTextureScale("_SnowTex") ?? Vector2.zero; set => Material?.SetTextureScale("_SnowTex", value); }
+            public Vector2 _SnowTexOffset { get => Material?.GetTextureOffset("_SnowTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_SnowTex", value); }
+
+            public Texture _SnowNormalTex { get => Material?.GetTexture("_SnowNormalTex") ?? null; set => Material?.SetTexture("_SnowNormalTex", value); }
+            public Vector2 _SnowNormalTexScale { get => Material?.GetTextureScale("_SnowNormalTex") ?? Vector2.zero; set => Material?.SetTextureScale("_SnowNormalTex", value); }
+            public Vector2 _SnowNormalTexOffset { get => Material?.GetTextureOffset("_SnowNormalTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_SnowNormalTex", value); }
+
+            public float _SnowBias { get => Material?.GetFloat("_SnowBias") ?? 0; set => Material?.SetFloat("_SnowBias", Mathf.Clamp(value, -1, 1)); }
+
+            public float _Depth { get => Material?.GetFloat("_Depth") ?? 0; set => Material?.SetFloat("_Depth", Mathf.Clamp(value, 0, 1)); }
+
+            public bool _IgnoreAlphaWeights { get => Material?.IsKeywordEnabled("IGNORE_BIAS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "IGNORE_BIAS"); }
+            public bool _BlendWeightsBinarily { get => Material?.IsKeywordEnabled("BINARYBLEND") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "BINARYBLEND"); }
+
+            public enum _RampInfoEnum
             {
-                if (!Material)
-                {
-                    Destroy(this);
-                }
+                TwoTone = 0,
+                SmoothedTwoTone = 1,
+                Unlitish = 3,
+                Subsurface = 4,
+                Grass = 5
             }
+            public _RampInfoEnum _RampChoice { get => (_RampInfoEnum)(int)(Material?.GetFloat("_RampInfo") ?? 1); set => Material?.SetFloat("_RampInfo", Convert.ToSingle(value)); }
+
+            public bool _IgnoreDiffuseAlphaForSpeculars { get => Material?.IsKeywordEnabled("FORCE_SPEC") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FORCE_SPEC"); }
+
+            public float _SpecularStrength { get => Material?.GetFloat("_SpecularStrength") ?? 0; set => Material?.SetFloat("_SpecularStrength", Mathf.Clamp(value, 0, 1)); }
+
+            public float _SpecularExponent { get => Material?.GetFloat("_SpecularExponent") ?? 0; set => Material?.SetFloat("_SpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+
+            public float _Smoothness { get => Material?.GetFloat("_Smoothness") ?? 0; set => Material?.SetFloat("_Smoothness", Mathf.Clamp(value, 0, 1)); }
+
+            public float _SnowSpecularStrength { get => Material?.GetFloat("_SnowSpecularStrength") ?? 0; set => Material?.SetFloat("_SnowSpecularStrength", Mathf.Clamp(value, 0, 1)); }
+
+            public float _SnowSpecularExponent { get => Material?.GetFloat("_SnowSpecularExponent") ?? 0; set => Material?.SetFloat("_SnowSpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+
+            public float _SnowSmoothness { get => Material?.GetFloat("_SnowSmoothness") ?? 0; set => Material?.SetFloat("_SnowSmoothness", Mathf.Clamp(value, 0, 1)); }
+
+            public float _Fade { get => Material?.GetFloat("_Fade") ?? 0; set => Material?.SetFloat("_Fade", Mathf.Clamp(value, 0, 1)); }
+
+            public bool _DitherOn { get => Material?.IsKeywordEnabled("DITHER") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DITHER"); }
+
+            public bool _TriplanarOn { get => Material?.IsKeywordEnabled("TRIPLANAR") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "TRIPLANAR"); }
+
+            public float _TriplanarTextureFactor { get => Material?.GetFloat("_TriplanarTextureFactor") ?? 0; set => Material?.SetFloat("_TriplanarTextureFactor", Mathf.Clamp(value, 0, 1)); }
+
+            public bool _SnowOn { get => Material?.IsKeywordEnabled("MICROFACET_SNOW") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "MICROFACET_SNOW"); }
+
+            public bool _GradientBiasOn { get => Material?.IsKeywordEnabled("GRADIENTBIAS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "GRADIENTBIAS"); }
+
+            public Vector4 _GradientBiasVector { get => Material?.GetVector("_GradientBiasVector") ?? Vector4.zero; set => Material?.SetVector("_GradientBiasVector", value); }
+
+            public bool _DirtOn { get => Material?.IsKeywordEnabled("DIRTON") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DIRTON"); }
+
+            public Texture _DirtTex { get => Material?.GetTexture("_DirtTex") ?? null; set => Material?.SetTexture("_DirtTex", value); }
+            public Vector2 _DirtTexScale { get => Material?.GetTextureScale("_DirtTex") ?? Vector2.zero; set => Material?.SetTextureScale("_DirtTex", value); }
+            public Vector2 _DirtTexOffset { get => Material?.GetTextureOffset("_DirtTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_DirtTex", value); }
+
+            public Texture _DirtNormalTex { get => Material?.GetTexture("_DirtNormalTex") ?? null; set => Material?.SetTexture("_DirtNormalTex", value); }
+            public Vector2 _DirtNormalTexScale { get => Material?.GetTextureScale("_DirtNormalTex") ?? Vector2.zero; set => Material?.SetTextureScale("_DirtNormalTex", value); }
+            public Vector2 _DirtNormalTexOffset { get => Material?.GetTextureOffset("_DirtNormalTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_DirtNormalTex", value); }
+
+            public float _DirtBias { get => Material?.GetFloat("_DirtBias") ?? 0; set => Material?.SetFloat("_DirtBias", Mathf.Clamp(value, -2, 2)); }
+
+            public float _DirtSpecularStrength { get => Material?.GetFloat("_DirtSpecularStrength") ?? 0; set => Material?.SetFloat("_DirtSpecularStrength", Mathf.Clamp(value, 0, 1)); }
+
+            public float _DirtSpecularExponent { get => Material?.GetFloat("_DirtSpecularExponent") ?? 0; set => Material?.SetFloat("_DirtSpecularExponent", Mathf.Clamp(value, 0, 20)); }
+
+            public float _DirtSmoothness { get => Material?.GetFloat("_DirtSmoothness") ?? 0; set => Material?.SetFloat("_DirtSmoothness", Mathf.Clamp(value, 0, 1)); }
 
         }
 
-        public class HGSolidParallaxController : MonoBehaviour
+        /// <summary>
+        /// Attach to anything, and feed in a material that has the hgdistortion shader.
+        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// </summary>
+        public class HGDistortionController : HGBaseController
         {
-            public Material Material;
-            public Renderer Renderer;
+            public Texture _BumpMap { get => Material?.GetTexture("_BumpMap") ?? null; set => Material?.SetTexture("_BumpMap", value); }
+            public Vector2 _BumpMapScale { get => Material?.GetTextureScale("_BumpMap") ?? Vector2.zero; set => Material?.SetTextureScale("_BumpMap", value); }
+            public Vector2 _BumpMapOffset { get => Material?.GetTextureOffset("_BumpMap") ?? Vector2.zero; set => Material?.SetTextureOffset("_BumpMap", value); }
+
+            public Texture _MaskTex { get => Material?.GetTexture("_MaskTex") ?? null; set => Material?.SetTexture("_MaskTex", value); }
+            public Vector2 _MaskTexScale { get => Material?.GetTextureScale("_MaskTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MaskTex", value); }
+            public Vector2 _MaskTexOffset { get => Material?.GetTextureOffset("_MaskTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MaskTex", value); }
+
+            public float _Magnitude { get => Material?.GetFloat("_Magnitude") ?? 0; set => Material?.SetFloat("_Magnitude", Mathf.Clamp(value, 0, 10)); }
+
+            public float _NearFadeZeroDistance { get => Material?.GetFloat("_NearFadeZeroDistance") ?? 0; set => Material?.SetFloat("_NearFadeZeroDistance", value); }
+            public float _NearFadeOneDistance { get => Material?.GetFloat("_NearFadeOneDistance") ?? 0; set => Material?.SetFloat("_NearFadeOneDistance", value); }
+            public float _FarFadeOneDistance { get => Material?.GetFloat("_FarFadeOneDistance") ?? 0; set => Material?.SetFloat("_FarFadeOneDistance", value); }
+            public float _FarFadeZeroDistance { get => Material?.GetFloat("_FarFadeZeroDistance") ?? 0; set => Material?.SetFloat("_FarFadeZeroDistance", value); }
+
+            public bool _DistanceModulationOn { get => Material?.IsKeywordEnabled("DISTANCEMODULATION") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DISTANCEMODULATION"); }
+
+            public float _DistanceModulationMagnitude { get => Material?.GetFloat("_DistanceModulationMagnitude") ?? 0; set => Material?.SetFloat("_DistanceModulationMagnitude", Mathf.Clamp(value, 0, 1)); }
+            public float _InvFade { get => Material?.GetFloat("_InvFade") ?? 0; set => Material?.SetFloat("_InvFade", Mathf.Clamp(value, 0, 2)); }
+
+
+        }
+
+        /// <summary>
+        /// Attach to anything, and feed in a material that has the hgsolidparallax shader.
+        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// </summary>
+        public class HGSolidParallaxController : HGBaseController
+        {
+            public override string ShaderName => "Hopoo Games/FX/Solid Parallax";
             public string MaterialName { get => Material?.name ?? ""; }
             public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
             public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
@@ -316,301 +467,15 @@ namespace Aetherium.Utils
             public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
 
             public bool _ClipOn { get => Material?.IsKeywordEnabled("ALPHACLIP") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "ALPHACLIP"); }
-
-            public void Update()
-            {
-                if (!Material)
-                {
-                    Destroy(this);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Developed by Vale-X. Attach to anything, and feed in a material that has the hgsnowtopped shader.
-        /// You then gain access to manipulate this in any Runtime Inspector of your choice.
-        /// </summary>
-        public class HGSnowToppedController : MonoBehaviour
-        {
-            public Material Material;
-            public Renderer Renderer;
-            public string MaterialName;
-
-            public Color _Color;
-            public Texture _MainTex;
-            public Vector2 _MainTexScale;
-            public Vector2 _MainTexOffset;
-
-            [Range(0f, 5f)]
-            public float _NormalStrength;
-
-            public Texture _NormalTex;
-            public Vector2 _NormalTexScale;
-            public Vector2 _NormalTexOffset;
-
-            public Texture _SnowTex;
-            public Vector2 _SnowTexScale;
-            public Vector2 _SnowTexOffset;
-
-            public Texture _SnowNormalTex;
-            public Vector2 _SnowNormalTexScale;
-            public Vector2 _SnowNormalTexOffset;
-
-            [Range(-1f, 1f)]
-            public float _SnowBias;
-
-            [Range(0f, 1f)]
-            public float _Depth;
-
-            public bool _IgnoreAlphaWeights;
-            public bool _BlendWeightsBinarily;
-
-            public enum _RampInfoEnum
-            {
-                TwoTone = 0,
-                SmoothedTwoTone = 1,
-                Unlitish = 3,
-                Subsurface = 4,
-                Grass = 5
-            }
-            public _RampInfoEnum _RampChoice;
-
-            public bool _IgnoreDiffuseAlphaForSpeculars;
-
-            [Range(0f, 1f)]
-            public float _SpecularStrength;
-
-            [Range(0.1f, 20f)]
-            public float _SpecularExponent;
-
-            [Range(0f, 1f)]
-            public float _Smoothness;
-
-            [Range(0f, 1f)]
-            public float _SnowSpecularStrength;
-
-            [Range(0.1f, 20f)]
-            public float _SnowSpecularExponent;
-
-            [Range(0f, 1f)]
-            public float _SnowSmoothness;
-
-            public bool _DitherOn;
-
-            public bool _TriplanarOn;
-
-            [Range(0f, 1f)]
-            public float _TriplanarTextureFactor;
-
-            public bool _SnowOn;
-
-            public bool _GradientBiasOn;
-
-            public Vector4 _GradientBiasVector;
-
-            public bool _DirtOn;
-
-            public Texture _DirtTex;
-            public Vector2 _DirtTexScale;
-            public Vector2 _DirtTexOffset;
-
-            public Texture _DirtNormalTex;
-            public Vector2 _DirtNormalTexScale;
-            public Vector2 _DirtNormalTexOffset;
-
-            [Range(-2f, 2f)]
-            public float _DirtBias;
-
-            [Range(0f, 1f)]
-            public float _DirtSpecularStrength;
-
-            [Range(0f, 20f)]
-            public float _DirtSpecularExponent;
-
-            [Range(0f, 1f)]
-            public float _DirtSmoothness;
-
-            public void Start()
-            {
-                GrabMaterialValues();
-            }
-            public void GrabMaterialValues()
-            {
-                if (Material)
-                {
-                    _Color = Material.GetColor("_Color");
-                    _MainTex = Material.GetTexture("_MainTex");
-                    _MainTexScale = Material.GetTextureScale("_MainTex");
-                    _MainTexOffset = Material.GetTextureOffset("_MainTex");
-                    _NormalStrength = Material.GetFloat("_NormalStrength");
-                    _NormalTex = Material.GetTexture("_NormalTex");
-                    _NormalTexScale = Material.GetTextureScale("_NormalTex");
-                    _NormalTexOffset = Material.GetTextureOffset("_NormalTex");
-                    _SnowTex = Material.GetTexture("_SnowTex");
-                    _SnowTexScale = Material.GetTextureScale("_SnowTex");
-                    _SnowTexOffset = Material.GetTextureOffset("_SnowTex");
-                    _SnowNormalTex = Material.GetTexture("_SnowNormalTex");
-                    _SnowNormalTexScale = Material.GetTextureScale("_SnowNormalTex");
-                    _SnowNormalTexOffset = Material.GetTextureOffset("_SnowNormalTex");
-                    _SnowBias = Material.GetFloat("_SnowBias");
-                    _Depth = Material.GetFloat("_Depth");
-                    _IgnoreAlphaWeights = Material.IsKeywordEnabled("IGNORE_BIAS");
-                    _BlendWeightsBinarily = Material.IsKeywordEnabled("BINARYBLEND");
-                    _RampChoice = (_RampInfoEnum)(int)Material.GetFloat("_RampInfo");
-                    _IgnoreDiffuseAlphaForSpeculars = Material.IsKeywordEnabled("FORCE_SPEC");
-                    _SpecularStrength = Material.GetFloat("_SpecularStrength");
-                    _SpecularExponent = Material.GetFloat("_SpecularExponent");
-                    _Smoothness = Material.GetFloat("_Smoothness");
-                    _SnowSpecularStrength = Material.GetFloat("_SnowSpecularStrength");
-                    _SnowSpecularExponent = Material.GetFloat("_SnowSpecularExponent");
-                    _SnowSmoothness = Material.GetFloat("_SnowSmoothness");
-                    _DitherOn = Material.IsKeywordEnabled("DITHER");
-                    _TriplanarOn = Material.IsKeywordEnabled("TRIPLANAR");
-                    _TriplanarTextureFactor = Material.GetFloat("_TriplanarTextureFactor");
-                    _SnowOn = Material.IsKeywordEnabled("MICROFACET_SNOW");
-                    _GradientBiasOn = Material.IsKeywordEnabled("GRADIENTBIAS");
-                    _GradientBiasVector = Material.GetVector("_GradientBiasVector");
-                    _DirtOn = Material.IsKeywordEnabled("DIRTON");
-                    _DirtTex = Material.GetTexture("_DirtTex");
-                    _DirtTexScale = Material.GetTextureScale("_DirtTex");
-                    _DirtTexOffset = Material.GetTextureOffset("_DirtTex");
-                    _DirtNormalTex = Material.GetTexture("_DirtNormalTex");
-                    _DirtNormalTexScale = Material.GetTextureScale("_DirtNormalTex");
-                    _DirtNormalTexOffset = Material.GetTextureOffset("_DirtNormalTex");
-                    _DirtBias = Material.GetFloat("_DirtBias");
-                    _DirtSpecularStrength = Material.GetFloat("_DirtSpecularStrength");
-                    _DirtSpecularExponent = Material.GetFloat("_DirtSpecularExponent");
-                    _DirtSmoothness = Material.GetFloat("_DirtSmoothness");
-                    MaterialName = Material.name;
-                }
-            }
-
-            public void Update()
-            {
-                if (Material)
-                {
-                    if (Material.name != MaterialName && Renderer)
-                    {
-                        GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(Renderer, Material);
-                    }
-
-                    Material.SetColor("_Color", _Color);
-
-                    if (_MainTex)
-                    {
-                        Material.SetTexture("_MainTex", _MainTex);
-                        Material.SetTextureScale("_MainTex", _MainTexScale);
-                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_MainTex", null);
-                    }
-
-                    Material.SetFloat("_NormalStrength", _NormalStrength);
-
-                    if (_NormalTex)
-                    {
-                        Material.SetTexture("_NormalTex", _NormalTex);
-                        Material.SetTextureScale("_NormalTex", _NormalTexScale);
-                        Material.SetTextureOffset("_NormalTex", _NormalTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_NormalTex", null);
-                    }
-
-                    if (_SnowTex)
-                    {
-                        Material.SetTexture("_SnowTex", _SnowTex);
-                        Material.SetTextureScale("_SnowTex", _SnowTexScale);
-                        Material.SetTextureOffset("_SnowTex", _SnowTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_SnowTex", null);
-                    }
-
-                    if (_SnowNormalTex)
-                    {
-                        Material.SetTexture("_SnowNormalTex", _SnowNormalTex);
-                        Material.SetTextureScale("_SnowNormalTex", _SnowNormalTexScale);
-                        Material.SetTextureOffset("_SnowNormalTex", _SnowNormalTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_SnowNormalTex", null);
-                    }
-
-                    Material.SetFloat("_SnowBias", _SnowBias);
-                    Material.SetFloat("_Depth", _Depth);
-
-                    SetShaderKeywordBasedOnBool(_IgnoreAlphaWeights, Material, "IGNORE_BIAS");
-                    SetShaderKeywordBasedOnBool(_BlendWeightsBinarily, Material, "BINARYBLEND");
-
-                    Material.SetFloat("_RampInfo", Convert.ToSingle(_RampChoice));
-
-                    SetShaderKeywordBasedOnBool(_IgnoreDiffuseAlphaForSpeculars, Material, "FORCE_SPEC");
-
-
-                    Material.SetFloat("_SpecularStrength", _SpecularStrength);
-                    Material.SetFloat("_SpecularExponent", _SpecularExponent);
-                    Material.SetFloat("_Smoothness", _Smoothness);
-
-                    Material.SetFloat("_SnowSpecularStrength", _SnowSpecularStrength);
-                    Material.SetFloat("_SnowSpecularExponent", _SnowSpecularExponent);
-                    Material.SetFloat("_SnowSmoothness", _SnowSmoothness);
-
-                    SetShaderKeywordBasedOnBool(_DitherOn, Material, "DITHER");
-
-                    SetShaderKeywordBasedOnBool(_TriplanarOn, Material, "TRIPLANAR");
-                    Material.SetFloat("_TriplanarTextureFactor", _TriplanarTextureFactor);
-                    SetShaderKeywordBasedOnBool(_SnowOn, Material, "MICROFACET_SNOW");
-
-                    SetShaderKeywordBasedOnBool(_GradientBiasOn, Material, "GRADIENTBIAS");
-                    Material.SetVector("_GradientBiasVector", _GradientBiasVector);
-                    SetShaderKeywordBasedOnBool(_DirtOn, Material, "DIRTON");
-
-                    if (_DirtTex)
-                    {
-                        Material.SetTexture("_DirtTex", _DirtTex);
-                        Material.SetTextureScale("_DirtTex", _DirtTexScale);
-                        Material.SetTextureOffset("_DirtTex", _DirtTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_DirtTex", null);
-                    }
-
-                    if (_DirtNormalTex)
-                    {
-                        Material.SetTexture("_DirtNormalTex", _DirtNormalTex);
-                        Material.SetTextureScale("_DirtNormalTex", _DirtNormalTexScale);
-                        Material.SetTextureOffset("_DirtNormalTex", _DirtNormalTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_DirtNormalTex", null);
-                    }
-
-                    Material.SetFloat("_DirtBias", _DirtBias);
-                    Material.SetFloat("_DirtSpecularStrength", _DirtSpecularStrength);
-                    Material.SetFloat("_DirtSpecularExponent", _DirtSpecularExponent);
-                    Material.SetFloat("_DirtSmoothness", _DirtSmoothness);
-                }
-            }
-
         }
 
         /// <summary>
         /// Attach to anything, and feed in a material that has the hgcloudremap shader.
         /// You then gain access to manipulate this in any Runtime Inspector of your choice.
         /// </summary>
-        public class HGCloudRemapController : MonoBehaviour
+        public class HGCloudRemapController : HGBaseController
         {
-            public Material Material;
-            public Renderer Renderer;
+            public override string ShaderName => "Hopoo Games/FX/Cloud Remap";
             public string MaterialName { get => Material?.name ?? "";}
 
             public UnityEngine.Rendering.BlendMode _Source_Blend_Mode { get => (UnityEngine.Rendering.BlendMode)(int)(Material?.GetFloat("_SrcBlend") ?? 1); set => Material?.SetFloat("_SrcBlend", Convert.ToSingle(value)); }
@@ -674,64 +539,48 @@ namespace Aetherium.Utils
 
             public float _ExternalAlpha { get => Material?.GetFloat("_ExternalAlpha") ?? 0; set => Material?.SetFloat("_ExternalAlpha", Mathf.Clamp(value, 0, 1)); }
             public float _Fade { get => Material?.GetFloat("_Fade") ?? 0; set => Material?.SetFloat("_Fade", Mathf.Clamp(value, 0, 1)); }
-
-            public void Update()
-            {
-                if (!Material)
-                {
-                    Destroy(this);
-                }
-            }
         }
 
         /// <summary>
         /// Attach to anything, and feed in a material that has the hgcloudintersectionremap shader.
         /// You then gain access to manipulate this in any Runtime Inspector of your choice.
         /// </summary>
-        public class HGIntersectionController : MonoBehaviour
+        public class HGIntersectionController : HGBaseController
         {
-            public Material Material;
-            public Renderer Renderer;
-            public string MaterialName;
+            public override string ShaderName => "Hopoo Games/FX/Cloud Intersection Remap";
+            public string MaterialName { get => Material?.name ?? ""; }
 
-            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode;
-            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode;
+            public UnityEngine.Rendering.BlendMode _Source_Blend_Mode { get => (UnityEngine.Rendering.BlendMode)(int)(Material?.GetFloat("_SrcBlendFloat") ?? 1); set => Material?.SetFloat("_SrcBlendFloat", Convert.ToSingle(value)); }
+            public UnityEngine.Rendering.BlendMode _Destination_Blend_Mode { get => (UnityEngine.Rendering.BlendMode)(int)(Material?.GetFloat("_DstBlendFloat") ?? 1); set => Material?.SetFloat("_DstBlendFloat", Convert.ToSingle(value)); }
 
-            public Color _Tint;
-            public Texture _MainTex;
-            public Vector2 _MainTexScale;
-            public Vector2 _MainTexOffset;
-            public Texture _Cloud1Tex;
-            public Vector2 _Cloud1TexScale;
-            public Vector2 _Cloud1TexOffset;
-            public Texture _Cloud2Tex;
-            public Vector2 _Cloud2TexScale;
-            public Vector2 _Cloud2TexOffset;
-            public Texture _RemapTex;
-            public Vector2 _RemapTexScale;
-            public Vector2 _RemapTexOffset;
-            public Vector4 _CutoffScroll;
+            public Color _Tint { get => Material?.GetColor("_TintColor") ?? default(Color); set => Material?.SetColor("_TintColor", value); }
+            public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }
+            public Vector2 _MainTexScale { get => Material?.GetTextureScale("_MainTex") ?? Vector2.zero; set => Material?.SetTextureScale("_MainTex", value); }
+            public Vector2 _MainTexOffset { get => Material?.GetTextureOffset("_MainTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_MainTex", value); }
+            public Texture _Cloud1Tex { get => Material?.GetTexture("_Cloud1Tex") ?? null; set => Material?.SetTexture("_Cloud1Tex", value); }
+            public Vector2 _Cloud1TexScale { get => Material?.GetTextureScale("_Cloud1Tex") ?? Vector2.zero; set => Material?.SetTextureScale("_Cloud1Tex", value); }
+            public Vector2 _Cloud1TexOffset { get => Material?.GetTextureOffset("_Cloud1Tex") ?? Vector2.zero; set => Material?.SetTextureOffset("_Cloud1Tex", value); }
+            public Texture _Cloud2Tex { get => Material?.GetTexture("_Cloud2Tex") ?? null; set => Material?.SetTexture("_Cloud2Tex", value); }
+            public Vector2 _Cloud2TexScale { get => Material?.GetTextureScale("_Cloud2Tex") ?? Vector2.zero; set => Material?.SetTextureScale("_Cloud2Tex", value); }
+            public Vector2 _Cloud2TexOffset { get => Material?.GetTextureOffset("_Cloud2Tex") ?? Vector2.zero; set => Material?.SetTextureOffset("_Cloud2Tex", value); }
+            public Texture _RemapTex { get => Material?.GetTexture("_RemapTex") ?? null; set => Material?.SetTexture("_RemapTex", value); }
+            public Vector2 _RemapTexScale { get => Material?.GetTextureScale("_RemapTex") ?? Vector2.zero; set => Material?.SetTextureScale("_RemapTex", value); }
+            public Vector2 _RemapTexOffset { get => Material?.GetTextureOffset("_RemapTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_RemapTex", value); }
+            public Vector4 _CutoffScroll { get => Material?.GetVector("_CutoffScroll") ?? Vector4.zero; set => Material?.SetVector("_CutoffScroll", value); }
 
-            [Range(0f, 30f)]
-            public float _SoftFactor;
+            public float _SoftFactor { get => Material?.GetFloat("_InvFade") ?? 0; set => Material?.SetFloat("_InvFade", Mathf.Clamp(value, 0, 30)); }
 
-            [Range(0.1f, 20f)]
-            public float _SoftPower;
+            public float _SoftPower { get => Material?.GetFloat("_SoftPower") ?? 0; set => Material?.SetFloat("_SoftPower", Mathf.Clamp(value, 0.1f, 20)); }
 
-            [Range(0f, 5f)]
-            public float _BrightnessBoost;
+            public float _BrightnessBoost { get => Material?.GetFloat("_Boost") ?? 0; set => Material?.SetFloat("_Boost", Mathf.Clamp(value, 0, 5)); }
 
-            [Range(0.1f, 20f)]
-            public float _RimPower;
+            public float _RimPower { get => Material?.GetFloat("_RimPower") ?? 0; set => Material?.SetFloat("_RimPower", Mathf.Clamp(value, 0.1f, 20)); }
 
-            [Range(0f, 5f)]
-            public float _RimStrength;
+            public float _RimStrength { get => Material?.GetFloat("_RimStrength") ?? 0; set => Material?.SetFloat("_RimStrength", Mathf.Clamp(value, 0, 5)); }
 
-            [Range(0f, 20f)]
-            public float _AlphaBoost;
+            public float _AlphaBoost { get => Material?.GetFloat("_AlphaBoost") ?? 0; set => Material?.SetFloat("_AlphaBoost", Mathf.Clamp(value, 0, 20)); }
 
-            [Range(0f, 20f)]
-            public float _IntersectionStrength;
+            public float _IntersectionStrength { get => Material?.GetFloat("_IntersectionStrength") ?? 0; set => Material?.SetFloat("_IntersectionStrength", Mathf.Clamp(value, 0, 20)); }
 
             public enum _CullEnum
             {
@@ -739,121 +588,13 @@ namespace Aetherium.Utils
                 Front = 1,
                 Back = 2
             }
-            public _CullEnum _Cull_Mode;
+            public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
 
-            public bool _FadeFromVertexColorsOn;
-            public bool _EnableTriplanarProjectionsForClouds;
+            public float _ExternalAlpha { get => Material?.GetFloat("_ExternalAlpha") ?? 0; set => Material?.SetFloat("_ExternalAlpha", Mathf.Clamp(value, 0, 1)); }
 
-            public void Start()
-            {
-                GrabMaterialValues();
-            }
+            public bool _FadeFromVertexColorsOn { get => Material?.IsKeywordEnabled("FADE_FROM_VERTEX_COLORS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "FADE_FROM_VERTEX_COLORS"); }
+            public bool _EnableTriplanarProjectionsForClouds { get => Material?.IsKeywordEnabled("TRIPLANAR") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "TRIPLANAR"); }
 
-            public void GrabMaterialValues()
-            {
-                if (Material)
-                {
-                    _Source_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_SrcBlendFloat");
-                    _Destination_Blend_Mode = (UnityEngine.Rendering.BlendMode)Material.GetFloat("_DstBlendFloat");
-                    _Tint = Material.GetColor("_TintColor");
-                    _MainTex = Material.GetTexture("_MainTex");
-                    _MainTexScale = Material.GetTextureScale("_MainTex");
-                    _MainTexOffset = Material.GetTextureOffset("_MainTex");
-                    _Cloud1Tex = Material.GetTexture("_Cloud1Tex");
-                    _Cloud1TexScale = Material.GetTextureScale("_Cloud1Tex");
-                    _Cloud1TexOffset = Material.GetTextureOffset("_Cloud1Tex");
-                    _Cloud2Tex = Material.GetTexture("_Cloud2Tex");
-                    _Cloud2TexScale = Material.GetTextureScale("_Cloud2Tex");
-                    _Cloud2TexOffset = Material.GetTextureOffset("_Cloud2Tex");
-                    _RemapTex = Material.GetTexture("_RemapTex");
-                    _RemapTexScale = Material.GetTextureScale("_RemapTex");
-                    _RemapTexOffset = Material.GetTextureOffset("_RemapTex");
-                    _CutoffScroll = Material.GetVector("_CutoffScroll");
-                    _SoftFactor = Material.GetFloat("_InvFade");
-                    _SoftPower = Material.GetFloat("_SoftPower");
-                    _BrightnessBoost = Material.GetFloat("_Boost");
-                    _RimPower = Material.GetFloat("_RimPower");
-                    _RimStrength = Material.GetFloat("_RimStrength");
-                    _AlphaBoost = Material.GetFloat("_AlphaBoost");
-                    _IntersectionStrength = Material.GetFloat("_IntersectionStrength");
-                    _Cull_Mode = (_CullEnum)(int)Material.GetFloat("_Cull");
-                    _FadeFromVertexColorsOn = Material.IsKeywordEnabled("FADE_FROM_VERTEX_COLORS");
-                    _EnableTriplanarProjectionsForClouds = Material.IsKeywordEnabled("TRIPLANAR");
-                    MaterialName = Material.name;
-                }
-            }
-
-            public void Update()
-            {
-
-                if (Material)
-                {
-                    if (Material.name != MaterialName && Renderer)
-                    {
-                        GrabMaterialValues();
-                        PutMaterialIntoMeshRenderer(Renderer, Material);
-                    }
-                    Material.SetFloat("_SrcBlendFloat", Convert.ToSingle(_Source_Blend_Mode));
-                    Material.SetFloat("_DstBlendFloat", Convert.ToSingle(_Destination_Blend_Mode));
-                    Material.SetColor("_TintColor", _Tint);
-                    if (_MainTex)
-                    {
-                        Material.SetTexture("_MainTex", _MainTex);
-                        Material.SetTextureScale("_MainTex", _MainTexScale);
-                        Material.SetTextureOffset("_MainTex", _MainTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_MainTex", null);
-                    }
-
-                    if (_Cloud1Tex)
-                    {
-                        Material.SetTexture("_Cloud1Tex", _Cloud1Tex);
-                        Material.SetTextureScale("_Cloud1Tex", _Cloud1TexScale);
-                        Material.SetTextureOffset("_Cloud1Tex", _Cloud1TexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_Cloud1Tex", null);
-                    }
-
-                    if (_Cloud2Tex)
-                    {
-                        Material.SetTexture("_Cloud2Tex", _Cloud2Tex);
-                        Material.SetTextureScale("_Cloud2Tex", _Cloud2TexScale);
-                        Material.SetTextureOffset("_Cloud2Tex", _Cloud2TexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_Cloud2Tex", null);
-                    }
-
-                    if (_RemapTex)
-                    {
-                        Material.SetTexture("_RemapTex", _RemapTex);
-                        Material.SetTextureScale("_RemapTex", _RemapTexScale);
-                        Material.SetTextureOffset("_RemapTex", _RemapTexOffset);
-                    }
-                    else
-                    {
-                        Material.SetTexture("_RemapTex", null);
-                    }
-
-                    Material.SetVector("_CutoffScroll", _CutoffScroll);
-                    Material.SetFloat("_InvFade", _SoftFactor);
-                    Material.SetFloat("_SoftPower", _SoftPower);
-                    Material.SetFloat("_Boost", _BrightnessBoost);
-                    Material.SetFloat("_RimPower", _RimPower);
-                    Material.SetFloat("_RimStrength", _RimStrength);
-                    Material.SetFloat("_AlphaBoost", _AlphaBoost);
-                    Material.SetFloat("_IntersectionStrength", _IntersectionStrength);
-                    Material.SetFloat("_Cull", Convert.ToSingle(_Cull_Mode));
-
-                    SetShaderKeywordBasedOnBool(_FadeFromVertexColorsOn, Material, "FADE_FROM_VERTEX_COLORS");
-                    SetShaderKeywordBasedOnBool(_EnableTriplanarProjectionsForClouds, Material, "TRIPLANAR");
-                }
-            }
         }
     }
 }

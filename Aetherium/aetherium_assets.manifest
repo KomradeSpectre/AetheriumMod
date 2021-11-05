@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 841971701
+CRC: 2764710713
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 95a9b602dc410f63e761c52b3a2f5f5f
+    Hash: f479dd338218690cb7d984ccd7a09c2d
   TypeTreeHash:
     serializedVersion: 2
     Hash: 072b8f10b67aa5ed2e8487739bd44ae5
@@ -76,6 +76,7 @@ Assets:
 - Assets/Animations/Torus.002.controller
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrb.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab
+- Assets/Textures/Material Textures/JarOfReshapingSpikeNormal.png
 - Assets/Shaders/3D Shaders/intersection.shader
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab
 - Assets/Animations/ThrusterLAfterburner.controller
@@ -126,7 +127,6 @@ Assets:
 - Assets/Textures/Material Textures/RadialFlowMap.png
 - Assets/Textures/Material Textures/simple_blood.png
 - Assets/Models/Raw Models/UnstableDesignRolledUp.blend
-- Assets/Textures/Material Textures/JarOfReshapingSpikeNormal.png
 - Assets/Textures/Icons/Buff/FeatheredPlumeBuffIcon.png
 - Assets/Textures/Material Textures/flameparticle2.png
 - Assets/Textures/Material Textures/WitchesRingSkullEmission.png
@@ -212,6 +212,7 @@ Assets:
 - Assets/Textures/Materials/Item/AccursedPotion/AccursedPotionWrapper.mat
 - Assets/Models/Raw Models/SwordBlade.png
 - Assets/Animations/InspiringDroneChest.controller
+- Assets/Textures/Material Textures/From Others/Filterforge/VortexNormalMap.jpg
 - Assets/Shaders/3D Shaders/Rim + Texture.shader
 - Assets/Animations/belltotemdisplaybell.controller
 - Assets/Models/Prefabs/Elite Equipment/AffixAbyssal/PickupAffixAbyssal.prefab
@@ -284,7 +285,7 @@ Assets:
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
 - Assets/Textures/Material Textures/From Others/Dotflare/brazier_Diffuse.png
 - Assets/Textures/Icons/Achievement/BlasterSwordAchievementIcon.png
-- Assets/Textures/Material Textures/jarofreshapingceramicnormal.png
+- Assets/Textures/Material Textures/JarOfReshapingCeramicNormal.png
 - Assets/Textures/Material Textures/12148-beams.png
 - Assets/Animations/HiveInner 1.controller
 - Assets/Models/Prefabs/Item/ZenithAccelerator/ZenithAccelerator.prefab
@@ -577,6 +578,7 @@ Assets:
 - Assets/Textures/Material Textures/RadialFlowMapnormal.jpg
 - Assets/Models/Raw Models/NailBombSubProjectile.blend
 - Assets/Textures/Material Textures/SoulExtractionCircleDiffuse.png
+- Assets/Textures/Material Textures/From Others/Filterforge/VortexBumpMap.jpg
 - Assets/Textures/Material Textures/AccursedPotionShellDiffuse.png
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
 - Assets/Models/Raw Models/SoulPinMagicCircle.blend
