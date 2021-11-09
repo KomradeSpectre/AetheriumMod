@@ -357,6 +357,40 @@ namespace Aetherium.Items
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Body",
+                    localPos = new Vector3(0F, 0.00988F, -0.00079F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00424F, 0.00424F, 0.00424F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Pelvis",
+                    localPos = new Vector3(0.30187F, 0.15768F, -0.03129F),
+                    localAngles = new Vector3(4.32037F, 93.26093F, 357.2377F),
+                    localScale = new Vector3(0.09084F, 0.09084F, 0.09084F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
+        }
+
         public override void Hooks()
         {
             RoR2Application.onLoad += OnLoadModCompat;

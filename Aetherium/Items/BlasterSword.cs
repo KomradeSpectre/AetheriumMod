@@ -2,7 +2,6 @@
 using BepInEx.Configuration;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using On.RoR2;
 using R2API;
 using RoR2;
 using RoR2.Projectile;
@@ -736,6 +735,40 @@ namespace Aetherium.Items
                 }
             });
             return UseAlternateModel ? rulesAlt : rulesNormal;
+        }
+
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Cleaver",
+                    localPos = new Vector3(-0.00341F, 0.03122F, 0F),
+                    localAngles = new Vector3(0F, 0F, 185.6668F),
+                    localScale = new Vector3(0.01453F, 0.00627F, 0.01F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "HandL",
+                    localPos = new Vector3(-0.0074F, 0.27164F, 0.75613F),
+                    localAngles = new Vector3(22.33475F, 277.4532F, 100.4245F),
+                    localScale = new Vector3(0.15F, 0.15F, 0.15F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
         }
 
         public override void Hooks()

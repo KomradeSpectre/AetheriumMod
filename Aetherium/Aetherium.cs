@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Aetherium
 {
@@ -232,6 +233,8 @@ namespace Aetherium
                 }
             }
 
+            Compatability.ModCompatability.ModdedCharacterDisplayCompat.Init();
+
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
 
@@ -248,8 +251,6 @@ namespace Aetherium
             if (InteractableStatusDictionary.Count > 0){ ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}"); }
 
             ModLogger.LogInfo("-----------------------------------------------");
-
-
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)

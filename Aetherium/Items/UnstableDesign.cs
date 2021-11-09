@@ -343,6 +343,40 @@ namespace Aetherium.Items
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Body",
+                    localPos = new Vector3(0F, 0.02173F, -0.00807F),
+                    localAngles = new Vector3(0F, 45F, 0F),
+                    localScale = new Vector3(0.025F, 0.025F, 0.025F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.0001F, 0.47916F, -0.21495F),
+                    localAngles = new Vector3(0F, 48.877F, 0F),
+                    localScale = new Vector3(1F, 1F, 1F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
+        }
+
         public override void Hooks()
         {
             On.RoR2.CharacterBody.FixedUpdate += SummonLunarChimera;

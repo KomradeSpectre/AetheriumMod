@@ -213,6 +213,40 @@ namespace Aetherium.Items
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LeftArm4",
+                    localPos = new Vector3(0F, 0.00373F, -0.0032F),
+                    localAngles = new Vector3(0F, 180F, 90F),
+                    localScale = new Vector3(0.008F, 0.008F, 0.01F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LowerArmL",
+                    localPos = new Vector3(0.05551F, 0.27008F, -0.17225F),
+                    localAngles = new Vector3(0F, 172.5358F, 90F),
+                    localScale = new Vector3(0.3F, 0.3F, 0.3F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
+        }
+
         public override void Hooks()
         {
             GetStatCoefficients += GrantBaseShield;

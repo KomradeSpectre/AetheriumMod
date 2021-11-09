@@ -1,6 +1,5 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
-using On.RoR2;
 using R2API;
 using R2API.Utils;
 using RoR2;
@@ -54,7 +53,7 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
-        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("ShieldingCore.prefab");
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("PickupShieldingCore.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("ShieldingCoreIconAlt.png") : MainAssets.LoadAsset<Sprite>("ShieldingCoreIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
@@ -80,10 +79,9 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = ItemModel;
-            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
-            if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
+            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayShieldingCore.prefab");
+            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab); ;
+            //if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
 
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
@@ -95,9 +93,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.2f, -0.22f),
-                    localAngles = new Vector3(180f, 0f, 0f),
-                    localScale = new Vector3(0.17f, 0.17f, 0.17f)
+                    localPos = new Vector3(0.00016F, 0.411F, -0.18529F),
+                    localAngles = new Vector3(319.6483F, 180F, 0F),
+                    localScale = new Vector3(0.3F, 0.3F, 0.3F)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -107,9 +105,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0.05f, 0.14f, -0.12f),
-                    localAngles = new Vector3(0f, 160f, -20f),
-                    localScale = new Vector3(0.14f, 0.14f, 0.14f)
+                    localPos = new Vector3(0.00005F, 0.18419F, -0.16441F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.2F, 0.2F, 0.2F)
                 }
             });
             rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]
@@ -119,9 +117,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0.00002F, 2.19732F, -2.74712F),
+                    localPos = new Vector3(0.00003F, 2.19746F, -2.62706F),
                     localAngles = new Vector3(0F, 180F, 0F),
-                    localScale = new Vector3(1.5F, 1.5F, 1.5F)
+                    localScale = new Vector3(2F, 2F, 2F)
                 }
             });
             rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]
@@ -131,9 +129,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.22f, -0.3f),
-                    localAngles = new Vector3(0f, 180, 180f),
-                    localScale = generalScale
+                    localPos = new Vector3(0.00479F, 0.14603F, -0.3537F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.4F, 0.4F, 0.4F)
                 }
             });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]
@@ -143,9 +141,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.1f, -0.35f),
-                    localAngles = new Vector3(-10f, 180f, 180f),
-                    localScale = new Vector3(0.14f, 0.14f, 0.14f)
+                    localPos = new Vector3(-0.00001F, 0.0736F, -0.36554F),
+                    localAngles = new Vector3(350F, 180F, 0F),
+                    localScale = new Vector3(0.3F, 0.3F, 0.3F)
                 }
             });
             rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]
@@ -155,9 +153,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.19f, -0.32f),
-                    localAngles = new Vector3(-15f, -180f, 180f),
-                    localScale = new Vector3(0.17f, 0.17f, 0.17f)
+                    localPos = new Vector3(0F, 0.19601F, -0.32415F),
+                    localAngles = new Vector3(345F, 180F, 0F),
+                    localScale = new Vector3(0.24F, 0.24F, 0.24F)
                 }
             });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]
@@ -167,9 +165,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "FlowerBase",
-                    localPos = new Vector3(0f, 0.9f, 0f),
-                    localAngles = new Vector3(-90f, 0f, 0f),
-                    localScale = new Vector3(0.7f, 0.7f, 0.7f)
+                    localPos = new Vector3(0F, 0.75313F, 0F),
+                    localAngles = new Vector3(270F, 199F, 0F),
+                    localScale = new Vector3(2.5F, 2.5F, 2.5F)
                 }
             });
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]
@@ -179,9 +177,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.25f, -0.4f),
-                    localAngles = new Vector3(-10f, 180, 0f),
-                    localScale = generalScale
+                    localPos = new Vector3(0F, 0.23597F, -0.3267F),
+                    localAngles = new Vector3(355F, 180F, 0F),
+                    localScale = new Vector3(0.325F, 0.325F, 0.325F)
                 }
             });
             rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]
@@ -191,9 +189,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 3.5f, 3.5f),
-                    localAngles = new Vector3(-45f, 0f, 0f),
-                    localScale = new Vector3(2, 2, 2)
+                    localPos = new Vector3(0F, -0.13686F, 5.21808F),
+                    localAngles = new Vector3(18.42252F, 0F, 0F),
+                    localScale = new Vector3(2.5F, 2.5F, 7F)
                 }
             });
             rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]
@@ -203,9 +201,9 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0f, 0.2f, -0.25f),
-                    localAngles = new Vector3(0f, -180f, 0f),
-                    localScale = generalScale
+                    localPos = new Vector3(0.00002F, 0.19992F, -0.28208F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.4F, 0.4F, 0.4F)
                 }
             });
             rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]
@@ -215,12 +213,46 @@ namespace Aetherium.Items
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "Chest",
-                    localPos = new Vector3(0F, 0.1737F, -0.2124F),
-                    localAngles = new Vector3(0F, 180F, 0F),
-                    localScale = new Vector3(0.1239F, 0.1239F, 0.1239F)
+                    localPos = new Vector3(-0.00047F, 0.22947F, -0.22251F),
+                    localAngles = new Vector3(351.6424F, 177.6975F, 0.33485F),
+                    localScale = new Vector3(0.3F, 0.3F, 0.3F)
                 }
             });
             return rules;
+        }
+
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Body",
+                    localPos = new Vector3(0F, 0.01225F, -0.01305F),
+                    localAngles = new Vector3(9.43706F, 180F, 0F),
+                    localScale = new Vector3(0.02F, 0.02F, 0.025F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0F, -0.10087F, -0.26249F),
+                    localAngles = new Vector3(12.60514F, 180F, 0F),
+                    localScale = new Vector3(0.45F, 0.45F, 0.45F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
         }
 
         public override void Hooks()

@@ -212,6 +212,40 @@ namespace Aetherium.Items
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LeftLeg",
+                    localPos = new Vector3(0F, 0.01236F, 0.00006F),
+                    localAngles = new Vector3(81.90417F, 0F, 0F),
+                    localScale = new Vector3(0.00232F, 0.00232F, 0.00232F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "CalfL",
+                    localPos = new Vector3(-0.02789F, 0.3097F, 0.03044F),
+                    localAngles = new Vector3(77.06367F, 8.05409F, 337.8984F),
+                    localScale = new Vector3(0.13029F, 0.29853F, 0.16657F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
+        }
+
         public override void Hooks()
         {
             On.RoR2.HealthComponent.TakeDamage += TakeDamage;

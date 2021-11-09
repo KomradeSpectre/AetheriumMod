@@ -17,6 +17,7 @@ namespace Aetherium.Artifacts
     {
         public ConfigOption<int> RegressionSplitMonsterCap;
         public ConfigOption<bool> ReduceGoldAndExpOfChildren;
+        public ConfigOption<float> ChildImmunityDuration;
 
         public ConfigOption<int> QueenToGuardSplitNumber;
         public ConfigOption<int> GuardToBeetleSplitNumber;
@@ -73,6 +74,8 @@ namespace Aetherium.Artifacts
             RegressionSplitMonsterCap = config.ActiveBind<int>("Artifact: " + ArtifactName, "Regression Split Monster Cap", 48, "At what monster population should we not be able to split anymore?");
 
             ReduceGoldAndExpOfChildren = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Reduce Gold and Exp Reward of Children", true, "Should children spawned by the Regression effect have halved money and exp?");
+
+            ChildImmunityDuration = config.ActiveBind<float>("Artifact: " + ArtifactName, "Duration of Child Immunity", 2, "How long in seconds should children of regression splits be immune?");
 
             QueenToGuardSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Queen to Guard Split Amount", 2, "How many Beetle Guards should appear when the Beetle Queen has regressed?");
             GuardToBeetleSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Guard to Beetle Split Amount", 4, "How many Beetles should appear when the Beetle Guard has regressed?");
@@ -211,7 +214,7 @@ namespace Aetherium.Artifacts
                                         var summonBody = summonedThing.GetBody();
                                         if (summonBody)
                                         {
-                                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
+                                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, ChildImmunityDuration);
                                             var summonDeathRewards = summonBody.GetComponent<DeathRewards>();
                                             var originalBodyDeathRewards = characterBody.GetComponent<DeathRewards>();
 

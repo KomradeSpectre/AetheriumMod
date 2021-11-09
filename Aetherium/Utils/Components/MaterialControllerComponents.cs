@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using R2API.Utils;
+using RoR2;
+using UnityEngine.Networking;
 
 namespace Aetherium.Utils
 {
@@ -50,6 +53,7 @@ namespace Aetherium.Utils
 
             public void Start()
             {
+                Renderer = gameObject.GetComponent<Renderer>();
                 if (Renderer)
                 {
                     Material = Renderer.materials[0];
@@ -69,6 +73,11 @@ namespace Aetherium.Utils
                                 snowToppedController.Material = Material;
                                 snowToppedController.Renderer = Renderer;
                                 snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
+                                break;
+                            case "Hopoo Games/Deferred/Triplanar Terrain Blend":
+                                var triplanarController = gameObject.AddComponent<HGTriplanarTerrainBlend>();
+                                triplanarController.Material = Material;
+                                triplanarController.Renderer = Renderer;
                                 break;
                             case "Hopoo Games/FX/Distortion":
                                 var distortionController = gameObject.AddComponent<HGDistortionController>();
@@ -384,6 +393,91 @@ namespace Aetherium.Utils
 
             public float _DirtSmoothness { get => Material?.GetFloat("_DirtSmoothness") ?? 0; set => Material?.SetFloat("_DirtSmoothness", Mathf.Clamp(value, 0, 1)); }
 
+        }
+
+        /// <summary>
+        /// Attach to anything, and feed in a material that has the hgtriplanarterrainblend shader.
+        /// You then gain access to manipulate this in any runtime inspector of your choice.
+        /// </summary>
+        public class HGTriplanarTerrainBlend : HGBaseController
+        {
+            public override string ShaderName => "Hopoo Games/Deferred/Triplanar Terrain Blend";
+            public bool _Use_Vertex_Colors { get => Material?.IsKeywordEnabled("USE_VERTEX_COLORS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_VERTEX_COLORS"); }
+            public bool _Mix_Vertex_Colors { get => Material?.IsKeywordEnabled("MIX_VERTEX_COLORS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "MIX_VERTEX_COLORS"); }
+            public bool _Use_Alpha_As_Mask { get => Material?.IsKeywordEnabled("USE_ALPHA_AS_MASK") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_ALPHA_AS_MASK"); }
+            public bool _Vertical_Bias_On { get => Material?.IsKeywordEnabled("USE_VERTICAL_BIAS") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "USE_VERTICAL_BIAS"); }
+            public bool _Double_Sample_On { get => Material?.IsKeywordEnabled("DOUBLESAMPLE") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "DOUBLESAMPLE"); }
+
+            public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
+            public Texture _NormalTex { get => Material?.GetTexture("_NormalTex") ?? null; set => Material?.SetTexture("_NormalTex", value); }
+            public Vector2 _NormalTexScale { get => Material?.GetTextureScale("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureScale("_NormalTex", value); }
+            public Vector2 _NormalTexOffset { get => Material?.GetTextureOffset("_NormalTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_NormalTex", value); }
+
+            public float _NormalStrength { get => Material?.GetFloat("_NormalStrength") ?? 0; set => Material?.SetFloat("_NormalStrength", Mathf.Clamp(value, 0, 1)); }
+
+            public enum _RampInfoEnum
+            {
+                TwoTone = 0,
+                SmoothedTwoTone = 1,
+                Unlitish = 3,
+                Subsurface = 4,
+                Grass = 5
+            }
+            public _RampInfoEnum _RampChoice { get => (_RampInfoEnum)(int)(Material?.GetFloat("_RampInfo") ?? 1); set => Material?.SetFloat("_RampInfo", Convert.ToSingle(value)); }
+
+            public enum _DecalLayerEnum
+            {
+                Default = 0,
+                Environment = 1,
+                Character = 2,
+                Misc = 3
+            }
+            public _DecalLayerEnum _DecalLayer { get => (_DecalLayerEnum)(int)(Material?.GetFloat("_DecalLayer") ?? 1); set => Material?.SetFloat("_DecalLayer", Convert.ToSingle(value)); }
+
+            public enum _CullEnum
+            {
+                Off = 0,
+                Front = 1,
+                Back = 2
+            }
+            public _CullEnum _Cull_Mode { get => (_CullEnum)(int)(Material?.GetFloat("_Cull") ?? 1); set => Material?.SetFloat("_Cull", Convert.ToSingle(value)); }
+
+            public float _TextureFactor { get => Material?.GetFloat("_TextureFactor") ?? 0; set => Material?.SetFloat("_TextureFactor", Mathf.Clamp(value, 0, 1)); }
+
+            public float _Depth { get => Material?.GetFloat("_Depth") ?? 0; set => Material?.SetFloat("_Depth", Mathf.Clamp(value, 0, 1)); }
+
+            public Texture _SplatmapTex { get => Material?.GetTexture("_SplatmapTex") ?? null; set => Material?.SetTexture("_SplatmapTex", value); }
+            public Vector2 _SplatmapTexScale { get => Material?.GetTextureScale("_SplatmapTex") ?? Vector2.zero; set => Material?.SetTextureScale("_SplatmapTex", value); }
+            public Vector2 _SplatmapTexOffset { get => Material?.GetTextureOffset("_SplatmapTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_SplatmapTex", value); }
+
+            public Texture _RedChannelTopTex { get => Material?.GetTexture("_RedChannelTopTex") ?? null; set => Material?.SetTexture("_RedChannelTopTex", value); }
+            public Vector2 _RedChannelTopTexScale { get => Material?.GetTextureScale("_RedChannelTopTex") ?? Vector2.zero; set => Material?.SetTextureScale("_RedChannelTopTex", value); }
+            public Vector2 _RedChannelTopTexOffset { get => Material?.GetTextureOffset("_RedChannelTopTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_RedChannelTopTex", value); }
+            public Texture _RedChannelSideTex { get => Material?.GetTexture("_RedChannelSideTex") ?? null; set => Material?.SetTexture("_RedChannelSideTex", value); }
+            public Vector2 _RedChannelSideTexScale { get => Material?.GetTextureScale("_RedChannelSideTex") ?? Vector2.zero; set => Material?.SetTextureScale("_RedChannelSideTex", value); }
+            public Vector2 _RedChannelSideTexOffset { get => Material?.GetTextureOffset("_RedChannelSideTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_RedChannelSideTex", value); }
+            public float _RedChannelSmoothness { get => Material?.GetFloat("_RedChannelSmoothness") ?? 0; set => Material?.SetFloat("_RedChannelSmoothness", Mathf.Clamp(value, 0, 1)); }
+            public float _RedChannelSpecularStrength { get => Material?.GetFloat("_RedChannelSpecularStrength") ?? 0; set => Material?.SetFloat("_RedChannelSpecularStrength", Mathf.Clamp(value, 0, 1)); }
+            public float _RedChannelSpecularExponent { get => Material?.GetFloat("_RedChannelSpecularExponent") ?? 0; set => Material?.SetFloat("_RedChannelSpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+            public float _RedChannelBias { get => Material?.GetFloat("_RedChannelBias") ?? 0; set => Material?.SetFloat("_RedChannelBias", Mathf.Clamp(value, -2, 5)); }
+
+            public Texture _GreenChannelTex { get => Material?.GetTexture("_GreenChannelTex") ?? null; set => Material?.SetTexture("_GreenChannelTex", value); }
+            public Vector2 _GreenChannelTexScale { get => Material?.GetTextureScale("_GreenChannelTex") ?? Vector2.zero; set => Material?.SetTextureScale("_GreenChannelTex", value); }
+            public Vector2 _GreenChannelTexOffset { get => Material?.GetTextureOffset("_GreenChannelTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_GreenChannelTex", value); }
+            public float _GreenChannelSmoothness { get => Material?.GetFloat("_GreenChannelSmoothness") ?? 0; set => Material?.SetFloat("_GreenChannelSmoothness", Mathf.Clamp(value, 0, 1)); }
+            public float _GreenChannelSpecularStrength { get => Material?.GetFloat("_GreenChannelSpecularStrength") ?? 0; set => Material?.SetFloat("_GreenChannelSpecularStrength", Mathf.Clamp(value, 0, 1)); }
+            public float _GreenChannelSpecularExponent { get => Material?.GetFloat("_GreenChannelSpecularExponent") ?? 0; set => Material?.SetFloat("_GreenChannelSpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+            public float _GreenChannelBias { get => Material?.GetFloat("_GreenChannelBias") ?? 0; set => Material?.SetFloat("_GreenChannelBias", Mathf.Clamp(value, -2, 5)); }
+
+            public Texture _BlueChannelTex { get => Material?.GetTexture("_RedChannelTopTex") ?? null; set => Material?.SetTexture("_BlueChannelTex", value); }
+            public Vector2 _BlueChannelTexScale { get => Material?.GetTextureScale("_BlueChannelTex") ?? Vector2.zero; set => Material?.SetTextureScale("_BlueChannelTex", value); }
+            public Vector2 _BlueChannelTexOffset { get => Material?.GetTextureOffset("_BlueChannelTex") ?? Vector2.zero; set => Material?.SetTextureOffset("_BlueChannelTex", value); }
+            public float _BlueChannelSmoothness { get => Material?.GetFloat("_BlueChannelSmoothness") ?? 0; set => Material?.SetFloat("_BlueChannelSmoothness", Mathf.Clamp(value, 0, 1)); }
+            public float _BlueChannelSpecularStrength { get => Material?.GetFloat("_BlueChannelSpecularStrength") ?? 0; set => Material?.SetFloat("_BlueChannelSpecularStrength", Mathf.Clamp(value, 0, 1)); }
+            public float _BlueChannelSpecularExponent { get => Material?.GetFloat("_BlueChannelSpecularExponent") ?? 0; set => Material?.SetFloat("_BlueChannelSpecularExponent", Mathf.Clamp(value, 0.1f, 20)); }
+            public float _BlueChannelBias { get => Material?.GetFloat("_BlueChannelBias") ?? 0; set => Material?.SetFloat("_BlueChannelBias", Mathf.Clamp(value, -2, 5)); }
+
+            public bool _Treat_Green_Channel_As_Snow { get => Material?.IsKeywordEnabled("MICROFACET_SNOW") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "MICROFACET_SNOW"); }
         }
 
         /// <summary>

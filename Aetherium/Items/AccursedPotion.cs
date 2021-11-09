@@ -249,6 +249,40 @@ namespace Aetherium.Items
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Body",
+                    localPos = new Vector3(0F, 0.01217F, -0.00126F),
+                    localAngles = new Vector3(356.9376F, 25.8988F, 14.69767F),
+                    localScale = new Vector3(0.01F, 0.01F, 0.01F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(-0.27697F, -0.32539F, -0.0984F),
+                    localAngles = new Vector3(0F, 48.7075F, 0F),
+                    localScale = new Vector3(0.03752F, 0.03752F, 0.03752F)
+                }
+            });
+
+            foreach(var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
+            }
+        }
+
         public override void Hooks()
         {
             On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;

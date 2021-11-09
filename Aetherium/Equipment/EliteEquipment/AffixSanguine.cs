@@ -970,6 +970,79 @@ namespace Aetherium.Equipment.EliteEquipment
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.00518F, 0.00509F, -0.00039F),
+                    localAngles = new Vector3(0F, 0F, 337.5F),
+                    localScale = new Vector3(0.25F, 0.25F, 0.25F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.00518F, 0.00509F, -0.00039F),
+                    localAngles = new Vector3(0F, 0F, 22.5F),
+                    localScale = new Vector3(-0.25F, 0.25F, 0.25F)
+                }
+            });
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.13391F, 0.28267F, 0.12773F),
+                    localAngles = new Vector3(40F, 0F, 340F),
+                    localScale = new Vector3(7F, 7F, 7F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.13391F, 0.28267F, 0.12773F),
+                    localAngles = new Vector3(40F, 0F, 20F),
+                    localScale = new Vector3(-7F, 7F, 7F)
+                }
+            });
+            rules.Add("DroidDroneBody", new RoR2.ItemDisplayRule[]
+            {   
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "EliteDisplay",
+                    localPos = new Vector3(-0.66485F, 0.23983F, 0.47396F),
+                    localAngles = new Vector3(0F, 0F, 180F),
+                    localScale = new Vector3(-15F, -15F, -15F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "EliteDisplay",
+                    localPos = new Vector3(-0.66485F, 0.23983F, -0.47396F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(15F, 15F, 15F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, EliteEquipmentDef);
+            }
+        }
+
         private void RegisterEntityState()
         {
             LoadoutAPI.StateTypeOf<MyEntityStates.AbyssalDash>();

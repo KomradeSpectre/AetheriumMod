@@ -8,6 +8,7 @@ using R2API.Networking.Interfaces;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -53,7 +54,7 @@ namespace Aetherium.Equipment
             $"[The jar activates, shooting its contents around the room. One of the projectiles hits the hull and explodes, ripping a hole through it moments before the feed is lost.]\n" +
             $"\n[END OF FILE] ";
 
-        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("JarOfReshaping.prefab");
+        public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("PickupJarOfReshaping.prefab");
 
         public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("JarOfReshapingIcon.png");
 
@@ -68,6 +69,7 @@ namespace Aetherium.Equipment
         public static GameObject JarOrb;
 
         public static GameObject JarChargeSphere;
+        public static GameObject JarSuctionEffect;
 
         public override void Init(ConfigFile config)
         {
@@ -103,21 +105,36 @@ namespace Aetherium.Equipment
             var chargeSphereEffectComponent = JarChargeSphere.AddComponent<RoR2.EffectComponent>();
             chargeSphereEffectComponent.parentToReferencedTransform = true;
             chargeSphereEffectComponent.positionAtReferencedTransform = true;
+            chargeSphereEffectComponent.applyScale = true;
 
-            var chargeSphereTimer = JarChargeSphere.AddComponent<RoR2.DestroyOnTimer>();
-            chargeSphereTimer.duration = ProjectileAbsorptionTime;
-
-            var objectScaleCurve = JarChargeSphere.AddComponent<ObjectScaleCurve>();
-            objectScaleCurve.useOverallCurveOnly = true;
-            objectScaleCurve.overallCurve = AnimationCurve.EaseInOut(0, 0, 0.3f, BaseRadiusGranted);
+            var animationController = JarChargeSphere.AddComponent<JarChargeSphereAnimationController>();
+            animationController.Duration = ProjectileAbsorptionTime;
 
             var chargeSphereVfxAttributes = JarChargeSphere.AddComponent<RoR2.VFXAttributes>();
             chargeSphereVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
-            chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Medium;
+            chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
 
             JarChargeSphere.AddComponent<NetworkIdentity>();
             if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
             EffectAPI.AddEffect(JarChargeSphere);
+
+            JarSuctionEffect = MainAssets.LoadAsset<GameObject>("JarOfReshapingSuctionEffect.prefab");
+
+            var suctionEffectComponent = JarSuctionEffect.AddComponent<RoR2.EffectComponent>();
+            suctionEffectComponent.parentToReferencedTransform = true;
+            suctionEffectComponent.positionAtReferencedTransform = true;
+            suctionEffectComponent.applyScale = true;
+
+            var suctionEffectTimer = JarSuctionEffect.AddComponent<RoR2.DestroyOnTimer>();
+            suctionEffectTimer.duration = ProjectileAbsorptionTime;
+
+            var suctionEffectVfxAttributes = JarSuctionEffect.AddComponent<RoR2.VFXAttributes>();
+            suctionEffectVfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
+            suctionEffectVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
+
+            JarSuctionEffect.AddComponent<NetworkIdentity>();
+            if (JarSuctionEffect) PrefabAPI.RegisterNetworkPrefab(JarSuctionEffect);
+            EffectAPI.AddEffect(JarSuctionEffect);
             //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
 
             JarOrb = MainAssets.LoadAsset<GameObject>("JarOfReshapingOrb.prefab");
@@ -180,7 +197,8 @@ namespace Aetherium.Equipment
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = EquipmentModel;
+            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayJarOfReshaping.prefab");
+            ItemBodyModelPrefab.AddComponent<JarRotationHandler>();
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
@@ -321,9 +339,45 @@ namespace Aetherium.Equipment
             return rules;
         }
 
+        public override void CreateModdedItemDisplayRules()
+        {
+            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
+            rules.Add("CHEF", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Body",
+                    localPos = new Vector3(-0.0308F, 0.0329F, -0.01119F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00232F, 0.00232F, 0.00232F)
+                }
+            });
+
+            rules.Add("RobPaladinBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Base",
+                    localPos = new Vector3(-1.29645F, 1.3155F, -0.30915F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.11874F, 0.11874F, 0.11874F)
+                }
+            });
+
+            foreach (var rule in rules)
+            {
+                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, EquipmentDef);
+            }
+        }
+
         public override void Hooks()
         {
-            On.RoR2.EquipmentSlot.Update += EquipmentUpdate;
+            //On.RoR2.EquipmentSlot.PerformEquipmentAction += TiltJar;
+            //On.RoR2.EquipmentSlot.Update += EquipmentUpdate;
             On.RoR2.CharacterBody.FixedUpdate += AddTrackerToBodies;
         }
 
@@ -347,7 +401,7 @@ namespace Aetherium.Equipment
 
         private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_Update orig, RoR2.EquipmentSlot self)
         {
-            if (self.equipmentIndex == EquipmentDef.equipmentIndex)
+            if (EquipmentCatalog.GetEquipmentDef(self.equipmentIndex) == EquipmentDef)
             {
                 var selfDisplay = self.FindActiveEquipmentDisplay();
                 var body = self.characterBody;
@@ -365,7 +419,7 @@ namespace Aetherium.Equipment
                             return;
                         }
                     }
-                    selfDisplay.rotation = Quaternion.Slerp(selfDisplay.rotation, RoR2.Util.QuaternionSafeLookRotation(Vector3.up), 0.15f);
+                    selfDisplay.rotation = Quaternion.Slerp(selfDisplay.rotation, RoR2.Util.QuaternionSafeLookRotation(Vector3.down), 0.15f);
                 }
             }
             orig(self);
@@ -419,7 +473,85 @@ namespace Aetherium.Equipment
 
         }
 
-        public class JarBulletTracker : MonoBehaviour
+        public class JarRotationHandler : NetworkBehaviour
+        {
+            public CharacterBody OwnerBody;
+            public JarBulletTracker JarBulletTracker;
+            public bool Firing;
+            public void Start()
+            {
+                var transformRoot = gameObject.transform.root.gameObject;
+                var characterModel = transformRoot.GetComponent<CharacterModel>();
+                if (characterModel)
+                {
+                    var body = characterModel.body;
+                    if (body)
+                    {
+                        OwnerBody = body;
+                    }
+                }
+            }
+
+            public void FixedUpdate()
+            {
+                if(OwnerBody && !JarBulletTracker)
+                {
+                    var bulletTracker = OwnerBody.GetComponent<JarBulletTracker>();
+                    if (bulletTracker)
+                    {
+                        JarBulletTracker = bulletTracker;
+                    }
+                }
+            }
+
+            public void Update()
+            {
+                if(OwnerBody && OwnerBody.inputBank && JarBulletTracker)
+                {
+                    if(JarBulletTracker.ChargeTime > 0)
+                    {
+                        gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, RoR2.Util.QuaternionSafeLookRotation(OwnerBody.inputBank.aimDirection), 0.15f);
+                    }
+                    else
+                    {
+                        gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, RoR2.Util.QuaternionSafeLookRotation(Vector3.up), 0.15f);
+                    }
+                }
+            }
+        }
+
+        public class JarChargeSphereAnimationController : MonoBehaviour
+        {
+            public Animator Animator;
+            public float Duration;
+            public float Stopwatch;
+            public bool Fading = false;
+
+            public void Start()
+            {
+                Animator = GetComponent<Animator>();
+            }
+
+            public void Update()
+            {
+                if (!Animator)
+                {
+                    Destroy(gameObject);
+                }
+                Stopwatch += Time.deltaTime;
+                if(Stopwatch >= Duration && (Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbAppear") || Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbIdle")) && !Fading)
+                {
+                    Fading = true;
+                    Animator.Play("JarOfReshapingAbsorbFade");
+                }
+                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit"))
+                {
+                    Destroy(gameObject);
+                }
+            }
+        }
+
+        public class JarBulletTracker : NetworkBehaviour
         {
             public List<JarBullet> jarBullets = new List<JarBullet>();
             public RoR2.CharacterBody body;
@@ -438,19 +570,29 @@ namespace Aetherium.Equipment
                 {
                     if (!IsSuckingProjectiles)
                     {
-                        RoR2.EffectData sphere = new RoR2.EffectData
+                        if (NetworkServer.active)
                         {
-                            origin = TargetTransform ? TargetTransform.position : body.transform.position,
-                            rotation = TargetTransform ? TargetTransform.rotation : body.transform.rotation,
-                            rootObject = TargetTransform ? TargetTransform.gameObject : body.gameObject
-                        };
-                        RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
+                            RoR2.EffectData sphere = new RoR2.EffectData
+                            {
+                                rootObject = TargetTransform ? TargetTransform.gameObject : body.gameObject,
+                                rotation = Util.QuaternionSafeLookRotation(Vector3.up),
+                                scale = BaseRadiusGranted
+                            };
+                            RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, true);
 
-                        var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
+                            RoR2.EffectData suction = new RoR2.EffectData
+                            {
+                                rootObject = TargetTransform ? TargetTransform.gameObject : body.gameObject,
+                                rotation = Util.QuaternionSafeLookRotation(Vector3.up)
+                            };
+
+                            EffectManager.SpawnEffect(JarSuctionEffect, suction, true);
+                        }
+                        /*var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
                         if (bodyIdentity && NetworkServer.active)
                         {
                             new SyncJarSucking(SyncJarSucking.MessageType.Charging, true, ProjectileAbsorptionTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
-                        }
+                        }*/
                         IsSuckingProjectiles = true;
                     }
                     SuckTime -= Time.fixedDeltaTime;
@@ -459,7 +601,7 @@ namespace Aetherium.Equipment
                     {
                         radius = BaseRadiusGranted,
                         mask = RoR2.LayerIndex.projectile.mask,
-                        origin = body.corePosition
+                        origin = TargetTransform ? TargetTransform.position : body.corePosition
                     }.RefreshCandidates().FilterCandidatesByProjectileControllers().GetProjectileControllers(bullets);
                     if (bullets.Count > 0)
                     {
@@ -679,9 +821,21 @@ namespace Aetherium.Equipment
                                 {
                                     origin = target.transform.position,
                                     rotation = target.transform.rotation,
-                                    rootObject = target
+                                    rootObject = target,
+                                    scale = BaseRadiusGranted
                                 };
                                 RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
+
+
+                                RoR2.EffectData suction = new RoR2.EffectData
+                                {
+                                    origin = target.transform.position,
+                                    rotation = target.transform.rotation,
+                                    rootObject = target,
+                                    scale = eqp ? eqp.localScale.magnitude : playerBody.bestFitRadius
+                                };
+
+                                EffectManager.SpawnEffect(JarSuctionEffect, suction, false);
                             }
                         }
                     }

@@ -15,9 +15,9 @@ namespace Aetherium.Utils
     public static class MiscUtils
     {
         //Sourced from source code, couldn't access because it was private, modified a little
-        public static Vector3? RaycastToDirection(Vector3 position, float maxDistance, Vector3 direction)
+        public static Vector3? RaycastToDirection(Vector3 position, float maxDistance, Vector3 direction, int layerIndex = 11)
         {
-            if (Physics.Raycast(new Ray(position, direction), out RaycastHit raycastHit, maxDistance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(new Ray(position, direction), out RaycastHit raycastHit, maxDistance, layerIndex, QueryTriggerInteraction.Ignore))
             {
                 return raycastHit.point;
             }

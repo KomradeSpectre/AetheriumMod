@@ -72,6 +72,8 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
 
+        public virtual void CreateModdedItemDisplayRules() { }
+
         protected void CreateLang()
         {
             LanguageAPI.Add("AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken + "_NAME", EliteEquipmentName);
@@ -120,6 +122,8 @@ namespace Aetherium.Equipment.EliteEquipment
             {
                 On.RoR2.CharacterBody.FixedUpdate += OverlayManager;                
             }
+
+            CreateModdedItemDisplayRules();
 
         }
 
