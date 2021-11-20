@@ -3,6 +3,7 @@ using RoR2;
 using RoR2.Audio;
 using RoR2.Projectile;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -49,6 +50,10 @@ namespace Aetherium.Utils.Components
 
         [Tooltip("What percentage of our damage does the children get?")]
         public float childrenDamageCoefficient;
+
+        public bool childStaggerFire;
+        public bool childRandomSpeed;
+        public float childFireDelayInterval;
 
         public float MinDeviationAngle;
         public float MaxDeviationAngle;
@@ -223,10 +228,27 @@ namespace Aetherium.Utils.Components
             }
             if (fireChildren)
             {
-                for (int i = 0; i < childrenCount; i++)
+                if (!childStaggerFire)
                 {
-                    FireChild();
+                    for (int i = 0; i < childrenCount; i++)
+                    {
+                        FireChild();
+                    }
                 }
+                else
+                {
+                    this.StartCoroutine(StaggerFire(childFireDelayInterval, childRandomSpeed));
+                }
+            }
+        }
+
+        public IEnumerator StaggerFire(float delay, bool randomDelayOffset)
+        {
+            while(childrenCount > 0)
+            {
+                FireChild();
+                childrenCount--;
+                yield return new WaitForSeconds(randomDelayOffset ? Mathf.Clamp(delay + UnityEngine.Random.Range(-(delay * 0.25f), delay * 0.25f), 0, float.PositiveInfinity) : delay);
             }
         }
 
@@ -250,7 +272,7 @@ namespace Aetherium.Utils.Components
                     damage = projectileDamage.damage,
                     tracerEffectPrefab = childTracerPrefab,
                     hitEffectPrefab = childHitEffectPrefab,
-                    smartCollision = true                    
+                    smartCollision = true,                    
                     
                 };
 

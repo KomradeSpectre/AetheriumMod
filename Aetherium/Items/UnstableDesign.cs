@@ -340,12 +340,6 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.4842F, 0.4842F, 0.4842F)
                 }
             });
-            return rules;
-        }
-
-        public override void CreateModdedItemDisplayRules()
-        {
-            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
             rules.Add("CHEF", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -370,11 +364,43 @@ namespace Aetherium.Items
                     localScale = new Vector3(1F, 1F, 1F)
                 }
             });
-
-            foreach (var rule in rules)
+            rules.Add("ArbiterBody", new RoR2.ItemDisplayRule[]
             {
-                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
-            }
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0F, 0.36611F, -0.10803F),
+                    localAngles = new Vector3(0F, 45F, 0F),
+                    localScale = new Vector3(0.49288F, 0.49288F, 0.49288F)
+                }
+            });
+            rules.Add("EnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0.2222F, 0.5104F, 0F),
+                    localAngles = new Vector3(0F, 315F, 0F),
+                    localScale = new Vector3(1F, 1F, 1F)
+                }
+            });
+            rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Model",
+                    localPos = new Vector3(0, 0, 0),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(1, 1, 1)
+                }
+            });
+            return rules;
         }
 
         public override void Hooks()

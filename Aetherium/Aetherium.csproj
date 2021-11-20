@@ -22,6 +22,7 @@
     <Compile Remove="Items\AlienMagnet.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />
+    <Compile Remove="Items\ObliterballAndChain.cs" />
     <Compile Remove="Items\RicochetTest.cs" />
   </ItemGroup>
 

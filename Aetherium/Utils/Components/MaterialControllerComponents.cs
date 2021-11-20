@@ -49,56 +49,59 @@ namespace Aetherium.Utils
         public class HGControllerFinder : MonoBehaviour
         {
             public Renderer Renderer;
-            public Material Material;
+            public Material[] Materials;
 
             public void Start()
             {
                 Renderer = gameObject.GetComponent<Renderer>();
                 if (Renderer)
                 {
-                    Material = Renderer.materials[0];
+                    Materials = Renderer.materials;
 
-                    if (Material)
+                    foreach(Material material in Materials)
                     {
-
-                        switch (Material.shader.name)
+                        if (material)
                         {
-                            case "Hopoo Games/Deferred/Standard":
-                                var standardController = gameObject.AddComponent<HGStandardController>();
-                                standardController.Material = Material;
-                                standardController.Renderer = Renderer;
-                                break;
-                            case "Hopoo Games/Deferred/Snow Topped":
-                                var snowToppedController = gameObject.AddComponent<HGSnowToppedController>();
-                                snowToppedController.Material = Material;
-                                snowToppedController.Renderer = Renderer;
-                                snowToppedController.name = Material.name + "(HGSnowTopped) Controller";
-                                break;
-                            case "Hopoo Games/Deferred/Triplanar Terrain Blend":
-                                var triplanarController = gameObject.AddComponent<HGTriplanarTerrainBlend>();
-                                triplanarController.Material = Material;
-                                triplanarController.Renderer = Renderer;
-                                break;
-                            case "Hopoo Games/FX/Distortion":
-                                var distortionController = gameObject.AddComponent<HGDistortionController>();
-                                distortionController.Material = Material;
-                                distortionController.Renderer = Renderer;
-                                break;
-                            case "Hopoo Games/FX/Solid Parallax":
-                                var parallaxController = gameObject.AddComponent<HGSolidParallaxController>();
-                                parallaxController.Material = Material;
-                                parallaxController.Renderer = Renderer;
-                                break;
-                            case "Hopoo Games/FX/Cloud Remap":
-                                var cloudController = gameObject.AddComponent<HGCloudRemapController>();
-                                cloudController.Material = Material;
-                                cloudController.Renderer = Renderer;
-                                break;
-                            case "Hopoo Games/FX/Cloud Intersection Remap":
-                                var intersectionController = gameObject.AddComponent<HGIntersectionController>();
-                                intersectionController.Material = Material;
-                                intersectionController.Renderer = Renderer;
-                                break;
+
+                            switch (material.shader.name)
+                            {
+                                case "Hopoo Games/Deferred/Standard":
+                                    var standardController = gameObject.AddComponent<HGStandardController>();
+                                    standardController.Material = material;
+                                    standardController.Renderer = Renderer;
+                                    break;
+                                case "Hopoo Games/Deferred/Snow Topped":
+                                    var snowToppedController = gameObject.AddComponent<HGSnowToppedController>();
+                                    snowToppedController.Material = material;
+                                    snowToppedController.Renderer = Renderer;
+                                    snowToppedController.name = material.name + "(HGSnowTopped) Controller";
+                                    break;
+                                case "Hopoo Games/Deferred/Triplanar Terrain Blend":
+                                    var triplanarController = gameObject.AddComponent<HGTriplanarTerrainBlend>();
+                                    triplanarController.Material = material;
+                                    triplanarController.Renderer = Renderer;
+                                    break;
+                                case "Hopoo Games/FX/Distortion":
+                                    var distortionController = gameObject.AddComponent<HGDistortionController>();
+                                    distortionController.Material = material;
+                                    distortionController.Renderer = Renderer;
+                                    break;
+                                case "Hopoo Games/FX/Solid Parallax":
+                                    var parallaxController = gameObject.AddComponent<HGSolidParallaxController>();
+                                    parallaxController.Material = material;
+                                    parallaxController.Renderer = Renderer;
+                                    break;
+                                case "Hopoo Games/FX/Cloud Remap":
+                                    var cloudController = gameObject.AddComponent<HGCloudRemapController>();
+                                    cloudController.Material = material;
+                                    cloudController.Renderer = Renderer;
+                                    break;
+                                case "Hopoo Games/FX/Cloud Intersection Remap":
+                                    var intersectionController = gameObject.AddComponent<HGIntersectionController>();
+                                    intersectionController.Material = material;
+                                    intersectionController.Renderer = Renderer;
+                                    break;
+                            }
                         }
                     }
                 }
@@ -144,7 +147,6 @@ namespace Aetherium.Utils
         public class HGStandardController : HGBaseController
         {
             public override string ShaderName => "Hopoo Games/Deferred/Standard";
-            public string MaterialName { get => Material?.name ?? ""; }
 
             public bool _EnableCutout { get => Material?.IsKeywordEnabled("CUTOUT") ?? false; set => SetShaderKeywordBasedOnBool(value, Material, "CUTOUT"); }
             public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
@@ -309,7 +311,6 @@ namespace Aetherium.Utils
         public class HGSnowToppedController : HGBaseController
         {
             public override string ShaderName => "Hopoo Games/Deferred/Snow Topped";
-            public string MaterialName { get => Material?.name ?? ""; }
 
             public Color _Color { get => Material?.GetColor("_Color") ?? default(Color); set => Material?.SetColor("_Color", value); }
             public Texture _MainTex { get => Material?.GetTexture("_MainTex") ?? null; set => Material?.SetTexture("_MainTex", value); }

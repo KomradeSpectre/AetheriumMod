@@ -210,12 +210,6 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.1533F, 0.1533F, 0.1533F)
                 }
             });
-            return rules;
-        }
-
-        public override void CreateModdedItemDisplayRules()
-        {
-            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
             rules.Add("CHEF", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -240,11 +234,55 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.3F, 0.3F, 0.3F)
                 }
             });
-
-            foreach (var rule in rules)
+            rules.Add("RedMistBody", new RoR2.ItemDisplayRule[]
             {
-                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, ItemDef);
-            }
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "HandR",
+                    localPos = new Vector3(0.03136F, 0.0477F, 0.01365F),
+                    localAngles = new Vector3(357.0265F, 56.73941F, 0F),
+                    localScale = new Vector3(0.03674F, 0.03674F, 0.03674F)
+                }
+            });
+            rules.Add("ArbiterBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "LowerArmR",
+                    localPos = new Vector3(0.05742F, 0.2146F, 0.00018F),
+                    localAngles = new Vector3(359.2144F, 90F, 270F),
+                    localScale = new Vector3(0.1F, 0.1F, 0.1F)
+                }
+            });
+            rules.Add("EnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Shield",
+                    localPos = new Vector3(0.36339F, -0.11669F, 0.01F),
+                    localAngles = new Vector3(10.25951F, 127.3924F, 352.6849F),
+                    localScale = new Vector3(0.35804F, 0.35804F, 0.35804F)
+                }
+            });
+            rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Model",
+                    localPos = new Vector3(0, 0, 0),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(1, 1, 1)
+                }
+            });
+            return rules;
         }
 
         public override void Hooks()

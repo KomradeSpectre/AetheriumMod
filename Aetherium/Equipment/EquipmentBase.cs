@@ -51,10 +51,6 @@ namespace Aetherium.Equipment
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
 
-        public virtual void CreateModdedItemDisplayRules()
-        {
-        }
-
         #region Normal Equipment Setup
         protected void CreateLang()
         {
@@ -89,8 +85,6 @@ namespace Aetherium.Equipment
             {
                 On.RoR2.EquipmentSlot.Update += UpdateTargeting;
             }
-
-            CreateModdedItemDisplayRules();
         }
 
         protected bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)

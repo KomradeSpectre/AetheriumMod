@@ -1,6 +1,7 @@
 ﻿#define DEBUG
 #undef DEBUGMULTIPLAYER
 #define DEBUGMATERIALS
+#define DEBUGHELPERS
 
 using Aetherium.Artifacts;
 using Aetherium.StandaloneBuffs;
@@ -233,8 +234,6 @@ namespace Aetherium
                 }
             }
 
-            Compatability.ModCompatability.ModdedCharacterDisplayCompat.Init();
-
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
 
@@ -251,6 +250,20 @@ namespace Aetherium
             if (InteractableStatusDictionary.Count > 0){ ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}"); }
 
             ModLogger.LogInfo("-----------------------------------------------");
+
+        }
+
+        [ConCommand(commandName = "give_aetherium_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives all enabled Aetherium items to the sender.")]
+        public static void CCGiveAllAetheriumItems(ConCommandArgs args)
+        {
+            var body = args.TryGetSenderBody();
+            if (body && body.inventory)
+            {
+                foreach(var item in ItemStatusDictionary.Where(x => x.Value == true))
+                {
+                    body.inventory.GiveItem(item.Key.ItemDef);
+                }
+            }
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
@@ -368,7 +381,6 @@ namespace Aetherium
                 foreach (Renderer renderer in foundRenderers)
                 {
                     var controller = renderer.gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
-                    controller.Renderer = renderer;
                 }
             }
 

@@ -60,9 +60,6 @@ namespace Aetherium.Items
         }
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
-        public virtual void CreateModdedItemDisplayRules() 
-        {
-        }
 
         protected void CreateItem()
         {
@@ -92,7 +89,6 @@ namespace Aetherium.Items
             }
 
             ItemAPI.Add(new CustomItem(ItemDef, CreateItemDisplayRules()));
-            CreateModdedItemDisplayRules();
         }
 
         public static void BlacklistFromPrinter(ILContext il)

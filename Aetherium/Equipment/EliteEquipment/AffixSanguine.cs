@@ -967,12 +967,6 @@ namespace Aetherium.Equipment.EliteEquipment
                     localScale = new Vector3(-12F, 12F, 12F)
                 }
             });
-            return rules;
-        }
-
-        public override void CreateModdedItemDisplayRules()
-        {
-            Dictionary<string, ItemDisplayRule[]> rules = new Dictionary<string, ItemDisplayRule[]>();
             rules.Add("CHEF", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -1016,7 +1010,7 @@ namespace Aetherium.Equipment.EliteEquipment
                 }
             });
             rules.Add("DroidDroneBody", new RoR2.ItemDisplayRule[]
-            {   
+            {
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
@@ -1036,11 +1030,70 @@ namespace Aetherium.Equipment.EliteEquipment
                     localScale = new Vector3(15F, 15F, 15F)
                 }
             });
-
-            foreach (var rule in rules)
+            rules.Add("ArbiterBody", new RoR2.ItemDisplayRule[]
             {
-                Compatability.ModCompatability.ModdedCharacterDisplayCompat.AddModdedCharacterItemDisplayInfo(rule.Key, rule.Value, EliteEquipmentDef);
-            }
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(0.03486F, 0.13453F, -0.08371F),
+                    localAngles = new Vector3(305.2194F, 0F, 0F),
+                    localScale = new Vector3(3F, 3F, 3F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.03486F, 0.13453F, -0.08371F),
+                    localAngles = new Vector3(305.2193F, 0F, 0F),
+                    localScale = new Vector3(-3F, 3F, 3F)
+                }
+            });
+            rules.Add("EnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.1203F, 0.17569F, 0.11369F),
+                    localAngles = new Vector3(45.00001F, 270F, 0F),
+                    localScale = new Vector3(5F, 5F, 5F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Head",
+                    localPos = new Vector3(-0.1203F, 0.17569F, -0.11369F),
+                    localAngles = new Vector3(45.00001F, 270F, 0F),
+                    localScale = new Vector3(-5F, 5F, 5F)
+                }
+            });
+            rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Model",
+                    localPos = new Vector3(0, 0, 0),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(1, 1, 1)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Model",
+                    localPos = new Vector3(0, 0, 0),
+                    localAngles = new Vector3(0, 0, 0),
+                    localScale = new Vector3(1, 1, 1)
+                }
+            });
+            return rules;
         }
 
         private void RegisterEntityState()
