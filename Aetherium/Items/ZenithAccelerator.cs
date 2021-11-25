@@ -43,7 +43,7 @@ namespace Aetherium.Items
 
         public override bool AIBlacklisted => true;
 
-        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("ZenithAccelerator.prefab");
+        public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("PickupZenithAccelerator.prefab");
 
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("ZenithAcceleratorIcon.png");
 
@@ -83,7 +83,7 @@ namespace Aetherium.Items
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = ItemModel;
+            ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayZenithAccelerator.prefab");
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
             ItemBodyModelPrefab.AddComponent<ZenithAcceleratorManager>();
@@ -299,10 +299,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Minigun",
+                    localPos = new Vector3(0F, 0.00669F, 0.00604F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.01F, 0.01F, 0.01F)
                 }
             });
             return rules;

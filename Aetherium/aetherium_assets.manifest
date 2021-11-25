@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1614975252
+CRC: 2874725707
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0ced07b7817f34a0bcb33b845282bd99
+    Hash: 25c7b937ddd4ba50200c53edcbb9c5b8
   TypeTreeHash:
     serializedVersion: 2
     Hash: cb07a82761072bcaf60b07ebe3d8cb0b
@@ -288,7 +288,7 @@ Assets:
 - Assets/Textures/Material Textures/12148-beams.png
 - Assets/Animations/HiveInner 1.controller
 - Assets/Models/Prefabs/Item/WeightedAnklet/DisplayWeightedAnklet.prefab
-- Assets/Models/Prefabs/Item/ZenithAccelerator/ZenithAccelerator.prefab
+- Assets/Models/Prefabs/Item/ZenithAccelerator/DisplayZenithAccelerator.prefab
 - Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalDisplayMat.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgcloudremap.shader
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierAvailabilityIndicator.mat
@@ -311,6 +311,7 @@ Assets:
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBelt.mat
 - Assets/Textures/Icons/Item/AlienMagnetIcon.png
 - Assets/Textures/Material Textures/7029.jpg
+- Assets/Models/Prefabs/Item/ZenithAccelerator/PickupZenithAccelerator.prefab
 - Assets/Textures/Material Textures/From Others/HG/texOmniExplosion2Mask.png
 - Assets/Textures/Material Textures/AlienMagnetRingDiffuse.png
 - Assets/Textures/Icons/Elite Equipment/AffixAbyssalIcon.png
@@ -579,7 +580,6 @@ Assets:
 - Assets/Textures/Materials/Item/NailBomb/NailBombMetalMaterial.mat
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletMetal.mat
 - Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
-- Assets/Unused/Item/SoulPinMagicCircle.blend
 - Assets/Textures/Material Textures/emberspark.png
 - Assets/Models/Raw Models/EngineersToolbelt.blend
 - Assets/Animations/JarOfReshapingAbsorbFade.anim
@@ -725,7 +725,7 @@ Assets:
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab
 - Assets/Animations/ThrusterLAfterburner.anim
 - Assets/Textures/Materials/Item/HexPendulum/HexTotemTextureEye.mat
-- Assets/Textures/Icons/Buff/NailBombNailCooldownIcon.png
+- Assets/Textures/Icons/Buff/By Others/Ragon/NailBombNailCooldownIcon.png
 - Assets/Textures/Icons/Item/WitchesRingIcon.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldMain.mat
 - Assets/Textures/Material Textures/14601-normal.jpg
@@ -741,7 +741,7 @@ Assets:
 - Assets/Animations/InspiringDroneThrusterPlume.anim
 - Assets/Animations/BlasterSwordEnergyBladePrint10.anim
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazier.prefab
-- Assets/Textures/Icons/Buff/WitchesRingBuffIcon.png
+- Assets/Textures/Icons/Buff/By Others/Ragon/WitchesRingBuffIcon.png
 - Assets/Textures/Material Textures/LabelTexture.png
 - Assets/Textures/Material Textures/AccursedPotionCorkDiffuse.png
 - Assets/Textures/Icons/Item/InspiringDroneIconTier2.png

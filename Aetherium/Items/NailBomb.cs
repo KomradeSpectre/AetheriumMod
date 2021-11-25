@@ -143,6 +143,9 @@ namespace Aetherium.Items
             NailBombTracerSound.eventName = "Aetherium_Nailbomb_Nail_Impact";
             SoundAPI.AddNetworkedSoundEvent(NailBombTracerSound);
 
+            var normalEffectComponent = NailBombNailEffect.GetComponent<EffectComponent>();
+            normalEffectComponent.soundName = "Aetherium_Nailbomb_Nail_Impact";
+
             NailBombNailEffect.AddComponent<NetworkIdentity>();
 
             NailBombShrapnelEffect = MainAssets.LoadAsset<GameObject>("NailBombShrapnelEffect.prefab");
@@ -150,7 +153,6 @@ namespace Aetherium.Items
 
             var shrapnelEffectComponent = NailBombShrapnelEffect.AddComponent<EffectComponent>();
             shrapnelEffectComponent.applyScale = true;
-            shrapnelEffectComponent.soundName = "Aetherium_Nailbomb_Nail_Impact";
 
             var particleKiller = NailBombShrapnelEffect.AddComponent<DestroyOnParticleEnd>();
             particleKiller.ps = NailBombShrapnelEffect.GetComponent<ParticleSystem>();
@@ -255,10 +257,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(-0.19108F, 0.01395F, 0.0757F),
-                    localAngles = new Vector3(273.2552F, 66.86761F, 67.59741F),
-                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
+                    childName = "Chest",
+                    localPos = new Vector3(0F, 0.17296F, 0.20893F),
+                    localAngles = new Vector3(80.00002F, 180F, 180F),
+                    localScale = new Vector3(0.08412F, 0.06451F, 0.06451F)
                 }
             });
             rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]
@@ -447,10 +449,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Chest",
+                    localPos = new Vector3(-0.00631F, 0.00766F, 0.00022F),
+                    localAngles = new Vector3(73.33791F, 90F, 180F),
+                    localScale = new Vector3(0.00278F, 0.00278F, 0.00278F)
                 }
             });
             return rules;

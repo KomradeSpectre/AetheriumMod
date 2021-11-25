@@ -16,7 +16,7 @@ namespace Aetherium.StandaloneBuffs
     {
         public override string BuffName => "Soul Linked";
 
-        public override Color Color => new Color32(163, 142, 185, 255);
+        public override Color Color => new Color32(125, 75, 255, 255);
 
         public override Sprite BuffIcon => MainAssets.LoadAsset<Sprite>("SoulLinkedDebuffIcon.png");
 
@@ -83,7 +83,7 @@ namespace Aetherium.StandaloneBuffs
 
         private void SpreadDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
-            if(!RecursionPrevention && self.body && self.body.HasBuff(BuffDef))
+            if(!RecursionPrevention && self.alive && self.body && self.body.HasBuff(BuffDef))
             {
                 RecursionPrevention = true;
                 var teamMembers = TeamComponent.GetTeamMembers(self.body.teamComponent.teamIndex).Where(x => x.body != self.body);

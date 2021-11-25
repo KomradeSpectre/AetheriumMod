@@ -349,10 +349,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "KneeL",
+                    localPos = new Vector3(0F, 0.00906F, -0.00053F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00868F, 0.00868F, 0.00868F)
                 }
             });
             return rules;
@@ -640,19 +640,19 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.16338F, 0.07396F, 0.06667F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.16338F, 0.07396F, -0.06667F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
@@ -661,19 +661,19 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.00303F, 0.00374F, 0.0016F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = LimiterReleaseEyePrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.00303F, 0.00374F, -0.0016F),
+                    localAngles = new Vector3(0F, 180F, 0F),
+                    localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
 

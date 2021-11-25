@@ -63,7 +63,7 @@ namespace Aetherium.Items
             BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
             AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
             MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
-            DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Duration", 5f, "How many seconds should the damage be spread out over?");
+            DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Duration", 2f, "How many seconds should the damage be spread out over?");
             TicksOfDamageDuringDuration = config.ActiveBind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
             SharkTeethIsNonLethal = config.ActiveBind<bool>("Item: " + ItemName, "Shark Teeth Effect is Non-Lethal", false, "Should the Shark Teeth's bleed ticks be unable to kill you? If this is set to true, it will void any damage from segments that would kill you.");
         }
@@ -275,10 +275,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "KneeL",
+                    localPos = new Vector3(0F, 0.00768F, 0.00007F),
+                    localAngles = new Vector3(88.39465F, 182.8047F, 180F),
+                    localScale = new Vector3(0.00332F, 0.00416F, 0.00307F)
                 }
             });
             return rules;

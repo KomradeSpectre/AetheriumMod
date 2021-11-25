@@ -325,6 +325,18 @@ namespace Aetherium.Equipment
                     localScale = new Vector3(0.05F, 0.05F, 0.05F)
                 }
             });
+            rules.Add("mdlEquipmentDrone", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "GunBarrelBase",
+                    localPos = new Vector3(-0.00001F, -0.27867F, 0.65675F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.26288F, 0.26288F, 0.26288F)
+                }
+            });
             rules.Add("CHEF", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -380,11 +392,38 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
-                }
+                    childName = "ShotgunItems",
+                    localPos = new Vector3(0.30099F, 0.02967F, 0.0014F),
+                    localAngles = new Vector3(0F, 264.0641F, 0F),
+                    localScale = new Vector3(0.08471F, 0.08471F, 0.08471F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "SSGBarrelItems",
+                    localPos = new Vector3(0.00001F, 0.54802F, 0.00138F),
+                    localAngles = new Vector3(359.4769F, 50.06654F, 0.3528F),
+                    localScale = new Vector3(0.08471F, 0.08471F, 0.08471F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "HMGItems",
+                    localPos = new Vector3(-0.10357F, 0.10921F, -0.00352F),
+                    localAngles = new Vector3(0F, 257.0276F, 0F),
+                    localScale = new Vector3(0.08471F, 0.08471F, 0.08471F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "HammerHeadFront",
+                    localPos = new Vector3(0.00007F, -0.20318F, -0.00036F),
+                    localAngles = new Vector3(358.5298F, 5.5261F, 359.8578F),
+                    localScale = new Vector3(0.08471F, 0.08471F, 0.08471F)
+                },
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
             {
@@ -392,10 +431,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "ElbowR",
+                    localPos = new Vector3(-0.00109F, 0.00496F, -0.00115F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00327F, 0.00327F, 0.00327F)
                 }
             });
             return rules;

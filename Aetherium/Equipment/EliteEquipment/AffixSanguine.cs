@@ -1078,19 +1078,19 @@ namespace Aetherium.Equipment.EliteEquipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.00247F, 0.00689F, 0.00269F),
+                    localAngles = new Vector3(45.00001F, 270F, 337.5F),
+                    localScale = new Vector3(0.15284F, 0.15284F, 0.15284F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Head",
+                    localPos = new Vector3(-0.00247F, 0.00689F, -0.00269F),
+                    localAngles = new Vector3(45.00002F, 270F, 22.5F),
+                    localScale = new Vector3(-0.15284F, 0.15284F, 0.15284F)
                 }
             });
             return rules;
@@ -1334,7 +1334,7 @@ namespace Aetherium.Equipment.EliteEquipment
                 {
                     if (BodyStateMachine && !EntityStateBlacklist.Contains(BodyStateMachine.state.GetType()))
                     {
-                        if (Body)
+                        if (Body && Body)
                         {
                             var target = GetCurrentTarget();
                             if (target)

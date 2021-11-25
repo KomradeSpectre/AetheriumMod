@@ -321,6 +321,18 @@ namespace Aetherium.Equipment
                     localScale = new Vector3(0.1F, 0.1F, 0.1F)
                 }
             });
+            rules.Add("mdlEquipmentDrone", new RoR2.ItemDisplayRule[]
+            {
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "GunBarrelBase",
+                    localPos = new Vector3(-0.00001F, 0F, 0.96976F),
+                    localAngles = new Vector3(0F, 0F, 30F),
+                    localScale = new Vector3(0.16696F, 0.16696F, 0.16696F)
+                }
+            });
             rules.Add("CHEF", new RoR2.ItemDisplayRule[]
             {
                 new RoR2.ItemDisplayRule
@@ -376,10 +388,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Base",
+                    localPos = new Vector3(-1.44097F, 1.03557F, 1.77019F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.0893F, 0.0893F, 0.0893F)
                 }
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
@@ -388,10 +400,10 @@ namespace Aetherium.Equipment
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Base",
+                    localPos = new Vector3(0.01155F, 0.03353F, -0.02529F),
+                    localAngles = new Vector3(0F, 270F, 0F),
+                    localScale = new Vector3(0.00192F, 0.00192F, 0.00192F)
                 }
             });
             return rules;
@@ -582,6 +594,7 @@ namespace Aetherium.Equipment
                 {
                     gameObject.transform.position = ParentTransform.position;
                     gameObject.transform.localScale = new Vector3(BaseRadiusGranted, BaseRadiusGranted, BaseRadiusGranted);
+                    gameObject.transform.rotation = Util.QuaternionSafeLookRotation(Vector3.up);
                 }
 
                 if (!Animator)

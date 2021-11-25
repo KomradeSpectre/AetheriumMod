@@ -25,7 +25,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_PROGRESSION";
 
-        public override string ArtifactDescription => "When enabled, most enemies will evolve into stronger versions of themselves after a duration.";
+        public override string ArtifactDescription => "Most enemies will evolve into stronger versions of themselves after a duration.";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfProgressionEnabledIcon.png");
 

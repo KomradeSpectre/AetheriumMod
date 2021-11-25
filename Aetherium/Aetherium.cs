@@ -34,12 +34,13 @@ namespace Aetherium
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI), nameof(LoadoutAPI))]
+                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI), nameof(LoadoutAPI),
+                              nameof(CommandHelper))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.4";
+        public const string ModVer = "0.6.6";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -141,7 +142,7 @@ namespace Aetherium
                 }
             }
 
-            var disableBuffs = Config.ActiveBind<bool>("Artifacts", "Disable All Standalone Buff?", false, "Do you wish to disable every standalone buff in Aetherium?");
+            var disableBuffs = Config.ActiveBind<bool>("Buffs", "Disable All Standalone Buffs?", false, "Do you wish to disable every standalone buff in Aetherium?");
             if (!disableBuffs)
             {
                 //Standalone Buff Initialization

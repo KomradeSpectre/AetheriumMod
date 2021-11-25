@@ -19,7 +19,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_LEONIDS";
 
-        public override string ArtifactDescription => $"When enabled, after every {MeteorShowerInterval} second(s) a meteor shower will occur that contains {WavesPerMeteorStorm} wave(s) of meteors.";
+        public override string ArtifactDescription => $"After every {MeteorShowerInterval} second(s) a meteor shower will occur that contains {WavesPerMeteorStorm} wave(s) of meteors.";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfLeonidsEnabledIcon.png");
 

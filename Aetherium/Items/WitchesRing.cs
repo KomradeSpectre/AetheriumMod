@@ -34,11 +34,18 @@ namespace Aetherium.Items
         public override string ItemFullDescription => $"Hits that deal <style=cIsDamage>{FloatToPercentageString(WitchesRingTriggerThreshold)} damage</style> or more will trigger <style=cDeath>On Kill</style> effects." +
             $" Upon success, {(GlobalCooldownOnUse ? "the target hit is <style=cIsUtility>granted immunity to this effect</style>" : "<style=cIsUtility>the ring must recharge</style>")} for <style=cIsUtility>{BaseCooldownDuration} second(s)</style> <style=cStack>(-{FloatToPercentageString(AdditionalCooldownReduction)} duration per stack, hyperbolically)</style>.";
 
-        public override string ItemLore => "A strange ring found next to a skeleton wearing a dark green robe with light green trim.\n" +
-            "The markings on it roughly translate to the following: \n" +
-            "\n<color=#00AA00>She rewards us, for our service to the cycle she maintains is vital.</color>" +
-            "\n<color=#008800>She teaches us, so our hands may always bring forth her sermons in combat.</color>" +
-            "\n<color=#00AA00>We are empowered by the cycle of</color> <color=#000000>death</color><color=#00AA00>, so that we may keep balance over an unchecked cycle of</color> <color=#FFFFFF>life</color>.";
+        public override string ItemLore =>
+            "\"The Raven calls and it commands\n" +
+            "To each and every devotee\n" + 
+            "The time has come, a cycle ends\n" +
+            "Burn out, o sun, dry out, o sea\n\n" +
+
+            "And here our coven gathered now\n" + 
+            "Along with night wind's howling breath\n" +
+            "We seal our pact with Her, this vow:\n" +
+            "To bring life's long awaited death\"\n\n" +
+
+            "Is this what's written on the ring or did you always know this poem...?";
 
         public override ItemTier Tier => ItemTier.Tier3;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
@@ -507,19 +514,37 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "MinigunBarrel",
+                    localPos = new Vector3(0F, 0.02617F, 0F),
+                    localAngles = new Vector3(0F, 60F, 0F),
+                    localScale = new Vector3(0.01335F, 0.01335F, 0.01335F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "Hammer",
+                    localPos = new Vector3(0F, 0.00288F, 0F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00754F, 0.00754F, 0.00754F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = CircleBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Hammer",
+                    localPos = new Vector3(0F, 0.01181F, 0.006F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.01191F, 0.01191F, 0.00001F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = CircleBodyModelPrefab,
+                    childName = "MinigunMuzzle",
+                    localPos = new Vector3(0F, 0F, 0.0041F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00384F, 0.00384F, 0F)
                 }
             });
             return rules;

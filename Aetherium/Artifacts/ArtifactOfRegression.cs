@@ -52,7 +52,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_REGRESSION";
 
-        public override string ArtifactDescription => $"When enabled, if a monster is in an evolved form, it will split into a group of its lesser form when it dies.";
+        public override string ArtifactDescription => $"If a monster is in an evolved form, it will split into a group of its lesser form when it dies.";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionEnabledIcon.png");
 

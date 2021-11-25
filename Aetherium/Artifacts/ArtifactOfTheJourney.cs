@@ -15,7 +15,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_THE_JOURNEY";
 
-        public override string ArtifactDescription => "When enabled, most stages will be randomly picked. After a certain amount, a primordial teleporter will be placed.";
+        public override string ArtifactDescription => "Most stages will be randomly picked. After a certain amount, a primordial teleporter will be placed.";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheJourneyEnabledIcon.png");
 

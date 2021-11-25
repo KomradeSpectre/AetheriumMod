@@ -17,7 +17,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_THE_NIGHTMARE";
 
-        public override string ArtifactDescription => "When enabled, non-boss enemies are granted 1-4 of the Lunar Heresy items when they spawn.";
+        public override string ArtifactDescription => "Non-boss enemies are granted 1-4 of the Lunar Heresy items when they spawn.";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheNightmareEnabledIcon.png");
 

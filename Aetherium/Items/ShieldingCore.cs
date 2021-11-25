@@ -282,10 +282,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Pelvis",
+                    localPos = new Vector3(0.00502F, 0.00483F, 0F),
+                    localAngles = new Vector3(277.5818F, 270F, 0F),
+                    localScale = new Vector3(0.01F, 0.01357F, 0.01F)
                 }
             });
             return rules;

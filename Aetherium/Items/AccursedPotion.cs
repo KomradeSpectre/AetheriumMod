@@ -50,7 +50,7 @@ namespace Aetherium.Items
 
             "The shack fills with light. When it begins to dim, the figure can no longer be seen and a thought starts to burrow its way into your mind, \"I know what they forgot, I can succeed where they had failed.\" Confident, you begin adding ingredients to the brew.\n\n" +
 
-            "The work must be completed, there is much to do before the cycle begins anew.";
+            "The work must be completed, but it seems it can wait a moment. You have a visitor.";
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
@@ -312,10 +312,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Pelvis",
+                    localPos = new Vector3(-0.00583F, 0.00067F, 0.00583F),
+                    localAngles = new Vector3(358.4079F, 152.9051F, 176.8915F),
+                    localScale = new Vector3(0.00084F, 0.00084F, 0.00084F)
                 }
             });
             return rules;

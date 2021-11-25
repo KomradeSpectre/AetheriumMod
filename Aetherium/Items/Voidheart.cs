@@ -316,18 +316,6 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.10293F, 0.10293F, 0.10293F)
                 }
             });
-            rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
-            {
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
-                }
-            });
             return rules;
         }
 
@@ -447,7 +435,7 @@ namespace Aetherium.Items
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;
-                overlay.originalMaterial = Meshes[1].material;
+                overlay.originalMaterial = MainAssets.LoadAsset<Material>("VoidheartPlaceholderTexture.mat");
                 overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
                 var VoidheartCooldownTracker = self.gameObject.AddComponent<Voidheart.VoidheartCooldown>();
                 VoidheartCooldownTracker.Overlay = overlay;

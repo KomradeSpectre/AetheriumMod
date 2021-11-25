@@ -206,6 +206,26 @@ namespace Aetherium.Interactables
         {
             On.RoR2.PurchaseInteraction.GetDisplayName += AppendBuffName;
             On.RoR2.TeleporterInteraction.OnInteractionBegin += SpendFlame;
+            On.RoR2.PurchaseInteraction.GetInteractability += StopInteractionIfRedundant;
+        }
+
+        private Interactability StopInteractionIfRedundant(On.RoR2.PurchaseInteraction.orig_GetInteractability orig, PurchaseInteraction self, Interactor activator)
+        {
+            if (self.displayNameToken == $"INTERACTABLE_{InteractableLangToken}_NAME" && activator)
+            {
+                var body = activator.GetComponent<CharacterBody>();
+                var buffBrazierManager = self.gameObject.GetComponent<BuffBrazierManager>();
+                if (body && body.master && buffBrazierManager)
+                {
+                    var flameOrbController = body.master.GetComponent<BuffBrazierFlameOrbController>();
+                    if (flameOrbController && flameOrbController.FlameOrbs.Any(x => x.CuratedType.BuffDef == buffBrazierManager.ChosenBuffBrazierBuff.BuffDef))
+                    {
+                        return Interactability.ConditionsNotMet;
+                    }
+                }
+            }
+
+            return orig(self, activator);
         }
 
         private string AppendBuffName(On.RoR2.PurchaseInteraction.orig_GetDisplayName orig, PurchaseInteraction self)
@@ -290,6 +310,14 @@ namespace Aetherium.Interactables
             }
         }
 
+        /// <summary>
+        /// Adds a new buff/debuff type to be chosen by a Buff Brazier interactable.
+        /// </summary>
+        /// <param name="displayName">Name to be shown when highlighting the interactable.</param>
+        /// <param name="buffDef">The buff/debuff you'd like it to apply.</param>
+        /// <param name="color">The base color of all the effects related to the buff flame orb and field.</param>
+        /// <param name="costMultiplier">What multiplier should we apply to the base cost of the interactable for this flame?</param>
+        /// <param name="isDebuff">Is the provided buffdef a buff or a debuff?</param>
         public void AddCuratedBuffType(string displayName, BuffDef buffDef, Color32 color, float costMultiplier, bool isDebuff)
         {
             if (String.IsNullOrWhiteSpace(displayName))
@@ -332,6 +360,12 @@ namespace Aetherium.Interactables
 
             //Slowdown Debuff
             AddCuratedBuffType("80% Slowdown", RoR2Content.Buffs.Slow80, new Color32(179, 154, 61, 255), 1.5f, true);
+
+            if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
+            {
+                //Strength of the Pack
+                AddCuratedBuffType("Strength of the Pack", StandaloneBuffs.StrengthOfThePack.instance.BuffDef, StandaloneBuffs.StrengthOfThePack.instance.Color, 1.5f, false);
+            }
 
             if (StandaloneBuffs.DoubleXPDoubleGold.instance != null && StandaloneBuffs.DoubleXPDoubleGold.instance.BuffDef)
             {
@@ -669,7 +703,7 @@ namespace Aetherium.Interactables
                 }
             }
 
-            if (HoldoutZoneController && HoldoutZoneController.currentRadius > 0 && NetworkServer.active)
+            if (HoldoutZoneController && HoldoutZoneController.currentRadius > 0 && ActivatorMaster && FlameOrbController && NetworkServer.active)
             {
                 RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(ActivatorMaster.teamIndex);
                 RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
@@ -681,9 +715,9 @@ namespace Aetherium.Interactables
 
                 foreach (HurtBox hurtBox in hurtBoxes)
                 {
-                    if (hurtBox.healthComponent && hurtBox.healthComponent.body)
+                    if (hurtBox.healthComponent && hurtBox.healthComponent.body && hurtBox.healthComponent.body.teamComponent)
                     {
-                        foreach (BrazierBuffFlameOrbType flameOrbType in FlameOrbController.FlameOrbs)
+                        foreach (BrazierBuffFlameOrbType flameOrbType in FlameOrbController.FlameOrbs.Where(x => x.CuratedType.BuffDef))
                         {
                             if (hurtBox.healthComponent.body.teamComponent && (flameOrbType.CuratedType.IsDebuff == enemyTeams.HasTeam(hurtBox.healthComponent.body.teamComponent.teamIndex)))
                             {

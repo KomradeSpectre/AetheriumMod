@@ -21,7 +21,7 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_THE_TYRANT";
 
-        public override string ArtifactDescription => $"When enabled, any time Mithrix spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
+        public override string ArtifactDescription => $"Any time Mithrix spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantEnabledIcon.png");
 

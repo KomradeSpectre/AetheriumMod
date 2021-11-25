@@ -540,10 +540,19 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Hammer",
+                    localPos = new Vector3(0F, -0.05731F, 0F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00262F, 0.00157F, 0.00262F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MinigunMuzzle",
+                    localPos = new Vector3(0F, 0F, 0.00747F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.00262F, 0.00157F, 0.00262F)
                 }
             });
 
@@ -917,10 +926,19 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Model",
-                    localPos = new Vector3(0, 0, 0),
-                    localAngles = new Vector3(0, 0, 0),
-                    localScale = new Vector3(1, 1, 1)
+                    childName = "Hammer",
+                    localPos = new Vector3(0F, -0.05731F, 0F),
+                    localAngles = new Vector3(0F, 0F, 0F),
+                    localScale = new Vector3(0.00262F, 0.00157F, 0.00262F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "MinigunMuzzle",
+                    localPos = new Vector3(0F, 0F, 0.00747F),
+                    localAngles = new Vector3(270F, 0F, 0F),
+                    localScale = new Vector3(0.00262F, 0.00157F, 0.00262F)
                 }
             });
             return UseAlternateModel ? rulesAlt : rulesNormal;
