@@ -420,9 +420,18 @@ namespace Aetherium.Equipment
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
                     childName = "HammerHeadFront",
-                    localPos = new Vector3(0.00007F, -0.20318F, -0.00036F),
+                    localPos =    new Vector3(0.00408F, -0.26034F, -0.08745F),
                     localAngles = new Vector3(358.5298F, 5.5261F, 359.8578F),
-                    localScale = new Vector3(0.08471F, 0.08471F, 0.08471F)
+                    localScale =  new Vector3(0.15374F, 0.15374F, 0.15374F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName = "NeedlerItems",
+                    localPos =    new Vector3(-0.35184F, 0.42466F, 0.06943F),
+                    localAngles = new Vector3(0F, 257.0276F, 0F),
+                    localScale =  new Vector3(0.08976F, 0.08976F, 0.08976F)
                 },
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]

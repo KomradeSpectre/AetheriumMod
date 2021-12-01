@@ -465,6 +465,15 @@ namespace Aetherium.Items
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = ItemBodyModelPrefab,
+                    childName =   "NeedlerItems",
+                    localPos =    new Vector3(-0.15368F, 0.11949F, -0.01714F),
+                    localAngles = new Vector3(343.9558F, 0F, 90F),
+                    localScale =  new Vector3(0.23553F, 0.24472F, 0.23553F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = CircleBodyModelPrefab,
                     childName = "ShotgunItems",
                     localPos = new Vector3(1.00937F, -0.04993F, 0.00758F),
@@ -478,7 +487,7 @@ namespace Aetherium.Items
                     childName = "SSGBarrelItems",
                     localPos = new Vector3(-0.03745F, 1.07244F, 0.07575F),
                     localAngles = new Vector3(90F, 0F, 0F),
-                    localScale = new Vector3(0.034F, 0.034F, 0F)
+                    localScale = new Vector3(0.08F, 0.08F, 0F)
                 },
                 new RoR2.ItemDisplayRule
                 {
@@ -487,7 +496,7 @@ namespace Aetherium.Items
                     childName = "SSGBarrelItems",
                     localPos = new Vector3(0.03198F, 1.0725F, 0.07575F),
                     localAngles = new Vector3(90F, 0F, 0F),
-                    localScale = new Vector3(0.034F, 0.034F, 0F)
+                    localScale = new Vector3(0.08F, 0.08F, 0F)
                 },
                 new RoR2.ItemDisplayRule
                 {
@@ -506,6 +515,15 @@ namespace Aetherium.Items
                     localPos = new Vector3(0.00004F, 1.51978F, -0.00007F),
                     localAngles = new Vector3(90F, 0F, 0F),
                     localScale = new Vector3(0.33855F, 0.33855F, 0.00003F)
+                },
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = CircleBodyModelPrefab,
+                    childName =   "NeedlerItems",
+                    localPos =    new Vector3(0.22771F, 0.07286F, -0.00003F),
+                    localAngles = new Vector3(0F, 90F, 0F),
+                    localScale =  new Vector3(0.26724F, 0.26724F, 0.00002F)
                 },
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
