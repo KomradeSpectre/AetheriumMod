@@ -310,10 +310,10 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Pelvis",
-                    localPos = new Vector3(0F, 0.09452F, 0F),
-                    localAngles = new Vector3(0F, 347.7791F, 180F),
-                    localScale = new Vector3(0.39468F, 0.39468F, 0.39468F)
+                    childName =  "Pelvis",
+                    localPos =   new Vector3(0.00784F, 0.05264F, 0.00931F), 
+                    localAngles = new Vector3(8.1354F, 273.3271F, 181.3306F),
+                    localScale = new Vector3(0.3227F, 0.31414F, 0.29262F)
                 }
             });
             rules.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
