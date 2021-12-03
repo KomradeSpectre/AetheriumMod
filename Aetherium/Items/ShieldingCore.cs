@@ -1,4 +1,5 @@
-﻿using Aetherium.Utils;
+﻿using Aetherium.Achievements;
+using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
@@ -63,6 +64,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
+            CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -73,6 +75,15 @@ namespace Aetherium.Items
             BaseShieldingCoreArmorGrant = config.ActiveBind<float>("Item: " + ItemName, "First Shielding Core Bonus to Armor", 15f, "How much armor should the first Shielding Core grant?");
             AdditionalShieldingCoreArmorGrant = config.ActiveBind<float>("Item: " + ItemName, "Additional Shielding Cores Bonus to Armor", 10f, "How much armor should each additional Shielding Core grant?");
             BaseGrantShieldMultiplier = config.ActiveBind<float>("Item: " + ItemName, "First Shielding Core Bonus to Max Shield", 0.08f, "How much should the starting shield be upon receiving the item?");
+        }
+
+        private void CreateAchievement()
+        {
+            if (RequireUnlock)
+            {
+                ShieldingCoreAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<ShieldingCoreAchievement>(typeof(ShieldingCoreAchievement.ShieldingCoreServerAchievementTracker));
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

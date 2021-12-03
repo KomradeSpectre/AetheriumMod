@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Aetherium.Utils;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Interactables.BuffBrazier;
 using static Aetherium.Interactables.BuffBrazierManager;
@@ -338,7 +339,12 @@ namespace Aetherium.Interactables
                 return;
             }
 
-            CuratedBuffList.Add(new BrazierBuffCuratedType(displayName, buffDef, color, costMultiplier, isDebuff));
+            var enabled = MainConfig.ActiveBind<bool>($"Interactable: Buff Brazier {(isDebuff ? "Debuffs" : "Buffs")}", $"{displayName}: Enable in Runs?", true, $"Should this {(isDebuff ? "debuff" : "buff")} be able to appear in runs?");
+
+            if (enabled)
+            {
+                CuratedBuffList.Add(new BrazierBuffCuratedType(displayName, buffDef, color, costMultiplier, isDebuff));
+            }            
         }
 
         private void CreateBaseCuratedBuffList()
@@ -359,7 +365,7 @@ namespace Aetherium.Interactables
             AddCuratedBuffType("Brainstalks", RoR2Content.Buffs.NoCooldowns, new Color32(196, 7, 125, 255), 4, false);
 
             //Slowdown Debuff
-            AddCuratedBuffType("80% Slowdown", RoR2Content.Buffs.Slow80, new Color32(179, 154, 61, 255), 1.5f, true);
+            AddCuratedBuffType("80 Percent Slowdown", RoR2Content.Buffs.Slow80, new Color32(179, 154, 61, 255), 1.5f, true);
 
             if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
             {

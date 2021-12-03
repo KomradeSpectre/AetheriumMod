@@ -1,4 +1,5 @@
-﻿using Aetherium.Utils;
+﻿using Aetherium.Achievements;
+using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
 using R2API.Networking;
@@ -87,6 +88,7 @@ namespace Aetherium.Items
             CreateLang();
             CreateNetworkMessages();
             CreateBuff();
+            CreateAchievement();
             CreatePowerupItem();
             CreateItem();
             Hooks();
@@ -140,6 +142,15 @@ namespace Aetherium.Items
 
             BuffAPI.Add(new CustomBuff(LimiterReleaseDodgeCooldownDebuffDef));
 
+        }
+
+        private void CreateAchievement()
+        {
+            if (RequireUnlock)
+            {
+                WeightedAnkletAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<WeightedAnkletAchievement>(typeof(WeightedAnkletAchievement.WeightedAnkletServerAchievementTracker));
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -20,8 +20,6 @@ namespace Aetherium.Items
 {
     public class SharkTeeth : ItemBase<SharkTeeth>
     {
-        public static ConfigOption<bool> UseNewIcons;
-        //public static bool UseNewIcons;
         public static ConfigOption<float> BaseDamageSpreadPercentage;
         public static ConfigOption<float> AdditionalDamageSpreadPercentage;
         public static ConfigOption<float> MaxDamageSpreadPercentage;
@@ -43,7 +41,7 @@ namespace Aetherium.Items
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.AIBlacklist };
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("SharkTeeth.prefab");
-        public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("SharkTeethIconAlt.png") : MainAssets.LoadAsset<Sprite>("SharkTeethIcon.png");
+        public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("SharkTeethIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -59,7 +57,6 @@ namespace Aetherium.Items
 
         private void CreateConfig(ConfigFile config)
         {
-            UseNewIcons = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternative Icon Art?", false, "If set to true, will use the new icon art drawn by WaltzingPhantom, else it will use the old icon art.");
             BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
             AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
             MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");

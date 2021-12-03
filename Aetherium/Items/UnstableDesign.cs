@@ -1,4 +1,5 @@
-﻿using Aetherium.Utils;
+﻿using Aetherium.Achievements;
+using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
 using R2API.Networking;
@@ -108,6 +109,7 @@ namespace Aetherium.Items
             CreateSound();
             CreateTargetingPrefabs();
             CreateSpawncard();
+            CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -198,6 +200,15 @@ namespace Aetherium.Items
             RoR2.MasterCatalog.getAdditionalEntries += list => list.Add(LunarChimeraMasterPrefab);
             RoR2.BodyCatalog.getAdditionalEntries += list => list.Add(LunarChimeraBodyPrefab);
             NetworkingAPI.RegisterMessageType<AssignOwner>();
+        }
+
+        private void CreateAchievement()
+        {
+            if (RequireUnlock)
+            {
+                UnstableDesignAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<UnstableDesignAchievement>(typeof(UnstableDesignAchievement.UnstableDesignServerAchievementTracker));
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

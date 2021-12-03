@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Achievements;
+using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using System;
@@ -92,6 +93,7 @@ namespace Aetherium.Items
             CreateBuff();
             CreateEffect();
             CreateProjectile();
+            CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -242,6 +244,15 @@ namespace Aetherium.Items
             PrefabAPI.RegisterNetworkPrefab(NailBombProjectileMain);
             ProjectileAPI.Add(NailBombProjectileMain);
 
+        }
+
+        private void CreateAchievement()
+        {
+            if (RequireUnlock)
+            {
+                NailBombAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<NailBombAchievement>(typeof(NailBombAchievement.NailBombServerAchievementTracker));
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

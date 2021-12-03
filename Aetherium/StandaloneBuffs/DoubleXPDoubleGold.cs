@@ -9,7 +9,7 @@ namespace Aetherium.StandaloneBuffs
 {
     public class DoubleXPDoubleGold : BuffBase<DoubleXPDoubleGold>
     {
-        public override string BuffName => "Double XP / Double Gold";
+        public override string BuffName => "Double XP and Double Gold";
 
         public override Color Color => new Color32(255, 215, 0, 255);
 

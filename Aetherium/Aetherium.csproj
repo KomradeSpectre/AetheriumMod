@@ -122,7 +122,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Achievements\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
     <Folder Include="Utils\Scripts\" />

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2874725707
+CRC: 1736046275
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 25c7b937ddd4ba50200c53edcbb9c5b8
+    Hash: bd3e0d2cf0d3e85c4e23d550cf5cf244
   TypeTreeHash:
     serializedVersion: 2
     Hash: cb07a82761072bcaf60b07ebe3d8cb0b
@@ -283,7 +283,6 @@ Assets:
 - Assets/Textures/Material Textures/GreenToDarkGreenRamp.png
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
 - Assets/Textures/Material Textures/From Others/Dotflare/brazier_Diffuse.png
-- Assets/Textures/Icons/Achievement/BlasterSwordAchievementIcon.png
 - Assets/Textures/Material Textures/JarOfReshapingCeramicNormal.png
 - Assets/Textures/Material Textures/12148-beams.png
 - Assets/Animations/HiveInner 1.controller
@@ -708,6 +707,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingCeramic.mat
 - Assets/Textures/Material Textures/BuffBrazierRamp1.png
 - Assets/Models/Prefabs/Item/NailBomb/DisplayNailBomb.prefab
+- Assets/Textures/Icons/Achievement/UnstableDesignAchievementIcon.png
 - Assets/Animations/NailBombExitIdle.anim
 - Assets/Textures/Icons/Item/UnstableDesignIcon.png
 - Assets/Models/Prefabs/Equipment/BellTotem/BellTotem.prefab

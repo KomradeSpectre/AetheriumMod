@@ -47,6 +47,8 @@ namespace Aetherium.Items
 
         public virtual bool PrinterBlacklisted { get; set; } = false;
 
+        public virtual bool RequireUnlock { get; set; } = true;
+
         public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
 
         public abstract void Init(ConfigFile config);
