@@ -35,7 +35,7 @@ namespace Aetherium.Artifacts
             "BrotherHurtBody"
         };
 
-        public string[] BlacklistedAffixes = new string[]
+        public List<string> BlacklistedAffixes = new List<string>()
         {
             "AffixEcho"
         };
@@ -51,6 +51,18 @@ namespace Aetherium.Artifacts
         private void CreateConfig(ConfigFile config)
         {
             NumberOfEliteAffixesToGiveMithrix = config.ActiveBind<int>("Artifact: " + ArtifactName, "Number of Elite Affixes to Give Mithrix", 1, "How many elite statuses should Mithrix be granted by us?");
+
+            var blacklistString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Affixes String", "", "What affixes should be blacklisted from Artifact of the Tyrant? (generally no spaces, comma delimited)");
+
+            if (!String.IsNullOrWhiteSpace(blacklistString))
+            {
+                var blacklistedStringArray = blacklistString.ToString().Split(',');
+
+                foreach(string blacklistedEntry in blacklistedStringArray)
+                {
+                    BlacklistedAffixes.Add(blacklistedEntry);
+                }
+            }
         }
 
         public override void Hooks()

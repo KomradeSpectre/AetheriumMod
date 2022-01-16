@@ -148,8 +148,8 @@ namespace Aetherium.Items
         {
             if (RequireUnlock)
             {
-                WeightedAnkletAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<WeightedAnkletAchievement>(typeof(WeightedAnkletAchievement.WeightedAnkletServerAchievementTracker));
+                /*WeightedAnkletAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<WeightedAnkletAchievement>(typeof(WeightedAnkletAchievement.WeightedAnkletServerAchievementTracker));*/
             }
         }
 

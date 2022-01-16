@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using Aetherium.Achievements;
+using BepInEx.Configuration;
 using MonoMod.Cil;
 using R2API;
 using RoR2;
@@ -6,6 +7,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using RoR2.Achievements;
 
 namespace Aetherium.Items
 {
@@ -41,6 +43,8 @@ namespace Aetherium.Items
 
         public ItemDef ItemDef;
 
+        public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
+
         public virtual bool CanRemove { get; } = true;
 
         public virtual bool AIBlacklisted { get; set; } = false;
@@ -48,8 +52,6 @@ namespace Aetherium.Items
         public virtual bool PrinterBlacklisted { get; set; } = false;
 
         public virtual bool RequireUnlock { get; set; } = true;
-
-        public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
 
         public abstract void Init(ConfigFile config);
 
@@ -81,13 +83,17 @@ namespace Aetherium.Items
             ItemDef.hidden = false;
             ItemDef.canRemove = CanRemove;
             ItemDef.tier = Tier;
-            ItemDef.unlockableDef = ItemUnlockableDef;
 
             if(ItemTags.Length > 0) { ItemDef.tags = ItemTags; }
 
             if (PrinterBlacklisted)
             {
                 AetheriumPlugin.BlacklistedFromPrinter.Add(ItemDef);
+            }
+
+            if (ItemUnlockableDef)
+            {
+                ItemDef.unlockableDef = ItemUnlockableDef;
             }
 
             ItemAPI.Add(new CustomItem(ItemDef, CreateItemDisplayRules()));
@@ -143,6 +149,6 @@ namespace Aetherium.Items
             if (!body || !body.inventory) { return 0; }
 
             return body.inventory.GetItemCount(itemDef);
-        }
+        }        
     }
 }

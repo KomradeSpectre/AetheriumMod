@@ -13,51 +13,23 @@ using Mono.Cecil.Cil;
 
 namespace Aetherium.Achievements
 {
-    public class NailBombAchievement : ModdedUnlockable
+    public class NailBombAchievement : AchievementBase
     {
-        public override string AchievementIdentifier => "AETHERIUM_ACHIEVEMENT_NAIL_BOMB_ID";
+        public override string AchievementName => "Duck in the Woods";
 
-        public override string UnlockableIdentifier => "AETHERIUM_UNLOCKABLE_NAIL_BOMB_REWARD_ID";
+        public override string AchievementLangToken => "NAIL_BOMB";
 
-        public override string PrerequisiteUnlockableIdentifier => "";
+        public override string AchievementDescription => "Fail to open a Rusted Lockbox.";
 
-        public override string AchievementNameToken => "AETHERIUM_NAIL_BOMB_ACHIEVEMENT_NAME";
+        public override string AchievementPrerequisiteID => "";
 
-        public override string AchievementDescToken => "AETHERIUM_NAIL_BOMB_ACHIEVEMENT_DESC";
+        public override Sprite AchievementIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
+        public override bool ServerTracked => true;
 
-        public override string UnlockableNameToken => "AETHERIUM_NAIL_BOMB_UNLOCKABLE_NAME";
-
-        public override Sprite Sprite => MainAssets.LoadAsset<Sprite>("ShieldingCoreAchievementIcon.png");
-
-        public override Func<string> GetHowToUnlock { get; } = () => Language.GetStringFormatted("UNLOCK_VIA_ACHIEVEMENT_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_DESC"),
-            });
-
-        public override Func<string> GetUnlocked { get; } = () => Language.GetStringFormatted("UNLOCKED_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_DESC"),
-            });
-
-        public static void RegisterLanguage()
+        public override void Init()
         {
-            LanguageAPI.Add("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_NAME", "Duck in the Woods");
-            LanguageAPI.Add("AETHERIUM_NAIL_BOMB_ACHIEVEMENT_DESC", "Fail to open a rusted lockbox the proper way.");
-        }
-
-        public override void OnInstall()
-        {
-            base.OnInstall();
-            base.SetServerTracked(true);
-        }
-
-        public override void OnUninstall()
-        {
-            base.OnUninstall();
+            RegisterLang();
+            CreateAchievement(ServerTracked, new NailBombServerAchievementTracker());
         }
 
         public class NailBombServerAchievementTracker : BaseServerAchievement
@@ -66,6 +38,12 @@ namespace Aetherium.Achievements
             {
                 base.OnInstall();
                 IL.RoR2.Interactor.PerformInteraction += TedKaczynski;
+            }
+
+            public override void OnUninstall()
+            {
+                base.OnUninstall();
+                IL.RoR2.Interactor.PerformInteraction -= TedKaczynski;
             }
 
             private void TedKaczynski(ILContext il)
@@ -95,12 +73,6 @@ namespace Aetherium.Achievements
                 {
                     //Error Out
                 }
-            }
-
-            public override void OnUninstall()
-            {
-                base.OnUninstall();
-                IL.RoR2.Interactor.PerformInteraction -= TedKaczynski;
             }
         }
     }

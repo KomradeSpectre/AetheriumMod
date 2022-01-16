@@ -89,11 +89,11 @@ namespace Aetherium.Items
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
+            CreateAchievement();
             CreateLang();
             CreateBuff();
             CreateEffect();
             CreateProjectile();
-            CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -250,8 +250,12 @@ namespace Aetherium.Items
         {
             if (RequireUnlock)
             {
-                NailBombAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<NailBombAchievement>(typeof(NailBombAchievement.NailBombServerAchievementTracker));
+                var achievement = new NailBombAchievement();
+                achievement.Init();
+                if (achievement.UnlockableDef)
+                {
+                    ItemUnlockableDef = achievement.UnlockableDef;
+                }
             }
         }
 

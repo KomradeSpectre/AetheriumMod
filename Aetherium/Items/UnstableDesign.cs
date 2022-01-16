@@ -206,8 +206,8 @@ namespace Aetherium.Items
         {
             if (RequireUnlock)
             {
-                UnstableDesignAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<UnstableDesignAchievement>(typeof(UnstableDesignAchievement.UnstableDesignServerAchievementTracker));
+                /*UnstableDesignAchievement.RegisterLanguage();
+                ItemUnlockableDef = UnlockableAPI.AddUnlockable<UnstableDesignAchievement>(typeof(UnstableDesignAchievement.UnstableDesignServerAchievementTracker));*/
             }
         }
 

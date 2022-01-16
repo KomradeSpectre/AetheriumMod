@@ -93,7 +93,7 @@ namespace Aetherium
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
-            }
+            }            
 
             using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.AetheriumSounds.bnk"))
             {

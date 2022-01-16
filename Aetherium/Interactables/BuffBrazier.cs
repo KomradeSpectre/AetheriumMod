@@ -321,6 +321,7 @@ namespace Aetherium.Interactables
         /// <param name="isDebuff">Is the provided buffdef a buff or a debuff?</param>
         public void AddCuratedBuffType(string displayName, BuffDef buffDef, Color32 color, float costMultiplier, bool isDebuff)
         {
+            CharacterBody body = new CharacterBody();
             if (String.IsNullOrWhiteSpace(displayName))
             {
                 ModLogger.LogError($"Provided displayName {displayName} is null, empty, or only contains whitespace characters! Aborting adding to curated brazier buff list!");

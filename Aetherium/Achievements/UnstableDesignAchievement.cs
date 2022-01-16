@@ -9,40 +9,22 @@ using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Achievements
 {
-    public class UnstableDesignAchievement : ModdedUnlockable
+    public class UnstableDesignAchievement : AchievementBase
     {
-        public override string AchievementIdentifier => "AETHERIUM_ACHIEVEMENT_UNSTABLE_DESIGN_ID";
+        public override string AchievementName => "First Step into Madness";
 
-        public override string UnlockableIdentifier => "AETHERIUM_UNLOCKABLE_UNSTABLE_DESIGN_REWARD_ID";
+        public override string AchievementLangToken => "UNSTABLE_DESIGN";
 
-        public override string PrerequisiteUnlockableIdentifier => "";
+        public override string AchievementDescription => "Kill or die to a Perfected Lunar Chimera";
 
-        public override string AchievementNameToken => "AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_NAME";
+        public override string AchievementPrerequisiteID => "";
 
-        public override string AchievementDescToken => "AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_DESC";
+        public override Sprite AchievementIcon => MainAssets.LoadAsset<Sprite>("UnstableDesignIcon.png");
 
-        public override string UnlockableNameToken => "AETHERIUM_UNSTABLE_DESIGN_UNLOCKABLE_NAME";
-
-        public override Sprite Sprite => MainAssets.LoadAsset<Sprite>("UnstableDesignAchievementIcon.png");
-
-        public override Func<string> GetHowToUnlock { get; } = () => Language.GetStringFormatted("UNLOCK_VIA_ACHIEVEMENT_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_DESC"),
-            });
-
-        public override Func<string> GetUnlocked { get; } = () => Language.GetStringFormatted("UNLOCKED_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_DESC"),
-            });
-
-        public static void RegisterLanguage()
+        public override void Init()
         {
-            LanguageAPI.Add("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_NAME", "First Step into Madness");
-            LanguageAPI.Add("AETHERIUM_UNSTABLE_DESIGN_ACHIEVEMENT_DESC", "Kill or die to a Perfected Lunar Chimera.");
+            RegisterLang();
+            CreateAchievement(ServerTracked, new UnstableDesignServerAchievementTracker());
         }
 
         public override void OnInstall()

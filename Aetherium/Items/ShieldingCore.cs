@@ -1,5 +1,4 @@
-﻿using Aetherium.Achievements;
-using Aetherium.Utils;
+﻿using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
@@ -18,6 +17,8 @@ using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static R2API.RecalculateStatsAPI;
+using RoR2.Achievements;
+using Aetherium.Achievements;
 
 namespace Aetherium.Items
 {
@@ -81,8 +82,12 @@ namespace Aetherium.Items
         {
             if (RequireUnlock)
             {
-                ShieldingCoreAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<ShieldingCoreAchievement>(typeof(ShieldingCoreAchievement.ShieldingCoreServerAchievementTracker));
+                var achievement = new ShieldingCoreAchievement();
+                achievement.Init();
+                if (achievement.UnlockableDef)
+                {
+                    ItemUnlockableDef = achievement.UnlockableDef;
+                }
             }
         }
 

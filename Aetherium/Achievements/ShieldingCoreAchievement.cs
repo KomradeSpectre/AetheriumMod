@@ -9,51 +9,19 @@ using RoR2.Achievements;
 
 namespace Aetherium.Achievements
 {
-    public class ShieldingCoreAchievement : ModdedUnlockable
+    public class ShieldingCoreAchievement : AchievementBase
     {
-        public override string AchievementIdentifier => "AETHERIUM_ACHIEVEMENT_SHIELDING_CORE_ID";
+        public override string AchievementName => "Shield Maiden";
+        public override string AchievementLangToken => "SHIELDING_CORE";
+        public override string AchievementDescription => "Have over half of your health as shields.";
+        public override string AchievementPrerequisiteID => "";
+        public override Sprite AchievementIcon => null;
+        public override bool ServerTracked => true;
 
-        public override string UnlockableIdentifier => "AETHERIUM_UNLOCKABLE_SHIELDING_CORE_REWARD_ID";
-
-        public override string PrerequisiteUnlockableIdentifier => "";
-
-        public override string AchievementNameToken => "AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_NAME";
-
-        public override string AchievementDescToken => "AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_DESC";
-
-        public override string UnlockableNameToken => "AETHERIUM_SHIELDING_CORE_UNLOCKABLE_NAME";
-
-        public override Sprite Sprite => MainAssets.LoadAsset<Sprite>("ShieldingCoreAchievementIcon.png");
-
-        public override Func<string> GetHowToUnlock { get; } = () => Language.GetStringFormatted("UNLOCK_VIA_ACHIEVEMENT_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_DESC"),
-            });
-
-        public override Func<string> GetUnlocked { get; } = () => Language.GetStringFormatted("UNLOCKED_FORMAT",
-            new object[]
-            {
-                Language.GetString("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_NAME"),
-                Language.GetString("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_DESC"),
-            });
-
-        public static void RegisterLanguage()
+        public override void Init()
         {
-            LanguageAPI.Add("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_NAME", "Shield Maiden");
-            LanguageAPI.Add("AETHERIUM_SHIELDING_CORE_ACHIEVEMENT_DESC", "Have over 50% of your health bar as shields without the use of a certain lunar item.");
-        }
-
-        public override void OnInstall()
-        {
-            base.OnInstall();
-            base.SetServerTracked(true);
-        }
-
-        public override void OnUninstall()
-        {
-            base.OnUninstall();
+            RegisterLang();
+            CreateAchievement(ServerTracked, new ShieldingCoreServerAchievementTracker());
         }
 
         public class ShieldingCoreServerAchievementTracker : BaseServerAchievement
@@ -83,7 +51,6 @@ namespace Aetherium.Achievements
                     }
                 }
             }
-
         }
     }
 }
