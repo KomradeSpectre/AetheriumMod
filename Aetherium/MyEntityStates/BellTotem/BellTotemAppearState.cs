@@ -20,7 +20,7 @@ namespace Aetherium.MyEntityStates.BellTotem
                 origin = gameObject.transform.Find("Base").position,
                 rotation = gameObject.transform.rotation,
             };
-            EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/impactEffects/SpawnLemurian"), effectData, true);
+            EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/impactEffects/SpawnLemurian"), effectData, true);
 
 
         }

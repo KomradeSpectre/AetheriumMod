@@ -45,90 +45,33 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>lib\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="BetterUI">
-      <HintPath>lib\BetterUI.dll</HintPath>
-    </Reference>
-    <Reference Include="HGCSharpUtils">
-      <HintPath>lib\HGCSharpUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="HGUnityUtils">
-      <HintPath>lib\HGUnityUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="InLobbyConfig">
-      <HintPath>lib\InLobbyConfig.dll</HintPath>
-    </Reference>
-    <Reference Include="ItemStats">
-      <HintPath>lib\ItemStats.dll</HintPath>
-    </Reference>
-    <Reference Include="MMHOOK_Assembly-CSharp">
-      <HintPath>lib\MMHOOK_Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>lib\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>lib\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>lib\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="R2API">
-      <HintPath>lib\R2API.dll</HintPath>
-    </Reference>
-    <Reference Include="Rewired_Core">
-      <HintPath>lib\Rewired_Core.dll</HintPath>
-    </Reference>
-    <Reference Include="TILER2">
-      <HintPath>lib\TILER2.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Postprocessing.Runtime">
-      <HintPath>lib\Unity.Postprocessing.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>lib\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>lib\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>lib\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>lib\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>lib\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>lib\UnityEngine.ParticleSystemModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>lib\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Wwise">
-      <HintPath>lib\Wwise.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="lib\" />
     <Folder Include="obj\" />
     <Folder Include="Utils\Scripts\" />
   </ItemGroup>
-          <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.4.19" />
+    <PackageReference Include="BetterUI" Version="2.4.4" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.1-r.1" />
+    <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="InLobbyConfig, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>lib\InLobbyConfig.dll</HintPath>
+    </Reference>
+    <Reference Include="MMHOOK_RoR2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>lib\MMHOOK_RoR2.dll</HintPath>
+    </Reference>
+    <Reference Include="R2API, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>lib\R2API.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <!--TODO couldnt get this operation to work, did steal the unetpatcher from debugtoolkit
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\lib\UnityEngine.CoreModule.dll&quot; &quot;..\lib\UnityEngine.Networking.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />
   </Target>
+  -->
 	
 </Project>

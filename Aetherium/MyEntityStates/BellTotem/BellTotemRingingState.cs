@@ -29,7 +29,7 @@ namespace Aetherium.MyEntityStates.BellTotem
 
         public void CreateEffect()
         {
-            EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/ShrineUseEffect"), gameObject.transform.position, gameObject.transform.rotation, true);
+            EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/ShrineUseEffect"), gameObject.transform.position, gameObject.transform.rotation, true);
         }
 
         public void CreateBlastAttack()

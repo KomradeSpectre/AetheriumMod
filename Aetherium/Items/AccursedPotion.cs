@@ -104,7 +104,7 @@ namespace Aetherium.Items
             AccursedPotionSipCooldownDebuff.isDebuff = false;
             AccursedPotionSipCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(AccursedPotionSipCooldownDebuff));
+            ContentAddition.AddBuffDef(AccursedPotionSipCooldownDebuff);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

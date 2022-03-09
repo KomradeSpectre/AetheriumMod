@@ -124,13 +124,13 @@ namespace Aetherium.Items
             BlasterSwordActiveBuff.isDebuff = false;
             BlasterSwordActiveBuff.iconSprite = MainAssets.LoadAsset<Sprite>("BlasterSwordBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(BlasterSwordActiveBuff));
+            ContentAddition.AddBuffDef(BlasterSwordActiveBuff);
 
         }
 
         private void CreateProjectile()
         {
-            SwordProjectile = UseImpaleProjectile ? PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
+            SwordProjectile = UseImpaleProjectile ? PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/Thermite"), "SwordProjectile", true) : PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/FMJ"), "SwordProjectile", true);
 
             var model = UseAlternateModel ? MainAssets.LoadAsset<GameObject>("BlasterSwordAltProjectile.prefab") : MainAssets.LoadAsset<GameObject>("BlasterSwordProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
@@ -149,7 +149,7 @@ namespace Aetherium.Items
             var intervalController = SwordProjectile.GetComponent<ProjectileIntervalOverlapAttack>();
             UnityEngine.Object.Destroy(intervalController);
 
-            var impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
+            var impactEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
 
             if (UseImpaleProjectile)
             {
@@ -201,9 +201,9 @@ namespace Aetherium.Items
 
             // register it for networking
             if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
-
+            
             // add it to the projectile catalog or it won't work in multiplayer
-            ProjectileAPI.Add(SwordProjectile);
+            ContentAddition.AddProjectile(SwordProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

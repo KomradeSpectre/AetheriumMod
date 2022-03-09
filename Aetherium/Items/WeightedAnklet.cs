@@ -19,7 +19,7 @@ using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
 using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
-using static Aetherium.Compatability.ModCompatability.TILER2Compat;
+//using static Aetherium.Compatability.ModCompatability.TILER2Compat; TODO
 
 using System.Runtime.CompilerServices;
 using static R2API.RecalculateStatsAPI;
@@ -122,7 +122,7 @@ namespace Aetherium.Items
             LimiterReleaseBuffDef.isDebuff = false;
             LimiterReleaseBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(LimiterReleaseBuffDef));
+            ContentAddition.AddBuffDef(LimiterReleaseBuffDef);
 
             LimiterReleaseDodgeBuffDef = ScriptableObject.CreateInstance<BuffDef>();
             LimiterReleaseDodgeBuffDef.name = "Aetherium: Limiter Release Dodge";
@@ -131,7 +131,7 @@ namespace Aetherium.Items
             LimiterReleaseDodgeBuffDef.isDebuff = false;
             LimiterReleaseDodgeBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseDodgeBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(LimiterReleaseDodgeBuffDef));
+            ContentAddition.AddBuffDef(LimiterReleaseDodgeBuffDef);
 
             LimiterReleaseDodgeCooldownDebuffDef = ScriptableObject.CreateInstance<BuffDef>();
             LimiterReleaseDodgeCooldownDebuffDef.name = "Aetherium: Limiter Release Dodge Cooldown";
@@ -140,7 +140,7 @@ namespace Aetherium.Items
             LimiterReleaseDodgeCooldownDebuffDef.isDebuff = false;
             LimiterReleaseDodgeCooldownDebuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(LimiterReleaseDodgeCooldownDebuffDef));
+            ContentAddition.AddBuffDef(LimiterReleaseDodgeCooldownDebuffDef);
 
         }
 
@@ -846,10 +846,11 @@ namespace Aetherium.Items
                 RegisterBuffInfo(LimiterReleaseDodgeCooldownDebuffDef, dodgeCooldownDebuffInfo.Item1, dodgeCooldownDebuffInfo.Item2);
             }
 
-            if (IsTILER2Installed)
+            /*
+            if (IsTILER2Installed) TODO
             {
                 BlacklistItemFromFakeInventory(ItemDef);
-            }
+            }*/
         }
 
         private void RemoveWeightedAnkletAndLimitersFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
@@ -959,7 +960,7 @@ namespace Aetherium.Items
             RoR2.SpawnCard spawnCard = ScriptableObject.CreateInstance<RoR2.SpawnCard>();
             spawnCard.hullSize = body.hullClassification;
             spawnCard.nodeGraphType = nodeGraphType;
-            spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
+            spawnCard.prefab = LegacyResourcesAPI.Load<GameObject>("SpawnCards/HelperPrefab");
             GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(new RoR2.DirectorSpawnRequest(spawnCard, new RoR2.DirectorPlacementRule
             {
                 placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
@@ -1030,7 +1031,10 @@ namespace Aetherium.Items
                     if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController)
                     {
                         var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
-                        Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
+                        var newState = Camera.currentCameraState;
+                        newState.rotation = Quaternion.LookRotation(attackerBody.corePosition - dodgeBody.corePosition); // TODO i have no idea if the math here is right
+                        Camera.SetCameraState(newState);
+                        //Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
                     }
                     UnityEngine.Object.Destroy(this);
                 }

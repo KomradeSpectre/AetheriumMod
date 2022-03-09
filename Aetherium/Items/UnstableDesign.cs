@@ -170,7 +170,7 @@ namespace Aetherium.Items
 
         private void CreateSpawncard()
         {
-            LunarChimeraSpawnCard = Resources.Load<RoR2.SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
+            LunarChimeraSpawnCard = LegacyResourcesAPI.Load<RoR2.SpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarGolem");
             LunarChimeraSpawnCard = UnityEngine.Object.Instantiate(LunarChimeraSpawnCard);
             LunarChimeraMasterPrefab = LunarChimeraSpawnCard.prefab;
             LunarChimeraMasterPrefab = LunarChimeraMasterPrefab.InstantiateClone($"{LunarChimeraMasterPrefab.name}{nameSuffix}", true);

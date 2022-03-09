@@ -105,8 +105,8 @@ namespace Aetherium.Equipment.EliteEquipment
                 new CombatDirector.EliteTierDef()
                 {
                     costMultiplier = CombatDirector.baseEliteCostMultiplier * CostMultiplierOfElite,
-                    damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * DamageMultiplierOfElite,
-                    healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * HealthMultiplierOfElite,
+                    //damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * DamageMultiplierOfElite, TODO Moved into EliteDef and i dont know where that is
+                    //healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * HealthMultiplierOfElite,
                     eliteTypes = Array.Empty<EliteDef>(),
                     isAvailable = SetAvailability
                 }
@@ -1098,7 +1098,7 @@ namespace Aetherium.Equipment.EliteEquipment
 
         private void RegisterEntityState()
         {
-            LoadoutAPI.StateTypeOf<MyEntityStates.AbyssalDash>();
+            ContentAddition.AddEntityState<MyEntityStates.AbyssalDash>(out _);
         }
 
         private void CreateNetworking()

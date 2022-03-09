@@ -82,7 +82,7 @@ namespace Aetherium.Artifacts
             ProgressionStartBuff.canStack = false;
             ProgressionStartBuff.isDebuff = false;
             ProgressionStartBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionStartBuffIcon.png");
-            BuffAPI.Add(new CustomBuff(ProgressionStartBuff));
+            ContentAddition.AddBuffDef(ProgressionStartBuff);
 
             ProgressionQuarterBuff = ScriptableObject.CreateInstance<BuffDef>();
             ProgressionQuarterBuff.name = "Aetherium: Progression Quarter Buff";
@@ -90,7 +90,7 @@ namespace Aetherium.Artifacts
             ProgressionQuarterBuff.canStack = false;
             ProgressionQuarterBuff.isDebuff = false;
             ProgressionQuarterBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionQuarterBuffIcon.png");
-            BuffAPI.Add(new CustomBuff(ProgressionQuarterBuff));
+            ContentAddition.AddBuffDef(ProgressionQuarterBuff);
 
             ProgressionHalfBuff = ScriptableObject.CreateInstance<BuffDef>();
             ProgressionHalfBuff.name = "Aetherium: Progression Half Buff";
@@ -98,7 +98,7 @@ namespace Aetherium.Artifacts
             ProgressionHalfBuff.canStack = false;
             ProgressionHalfBuff.isDebuff = false;
             ProgressionHalfBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionHalfBuffIcon.png");
-            BuffAPI.Add(new CustomBuff(ProgressionHalfBuff));
+            ContentAddition.AddBuffDef(ProgressionHalfBuff);
 
             ProgressionThreeQuartersBuff = ScriptableObject.CreateInstance<BuffDef>();
             ProgressionThreeQuartersBuff.name = "Aetherium: Progression Three Quarters Buff";
@@ -106,7 +106,7 @@ namespace Aetherium.Artifacts
             ProgressionThreeQuartersBuff.canStack = false;
             ProgressionThreeQuartersBuff.isDebuff = false;
             ProgressionThreeQuartersBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionThreeQuartersBuffIcon.png");
-            BuffAPI.Add(new CustomBuff(ProgressionThreeQuartersBuff));
+            ContentAddition.AddBuffDef(ProgressionThreeQuartersBuff);
         }
 
         private void CreateProgressionLookup()
@@ -301,7 +301,7 @@ namespace Aetherium.Artifacts
                     scale = scale                    
                 };
 
-                EffectManager.SpawnEffect(Resources.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
+                EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
                 EntitySoundManager.EmitSoundServer(ProgressionSquelchEvent.akId, Body.gameObject);
             }
         }
@@ -356,7 +356,7 @@ namespace Aetherium.Artifacts
         {
             if (!resource)
             {
-                resource = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{nextEvolutionName}");
+                resource = LegacyResourcesAPI.Load<GameObject>($"Prefabs/CharacterMasters/{nextEvolutionName}");
             }
             PossibleNextEvolutions.Add(new EvolvedStateData(nextEvolutionName, resource));
         }

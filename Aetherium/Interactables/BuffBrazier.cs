@@ -64,8 +64,8 @@ namespace Aetherium.Interactables
             BrazierBuffFlameOrb.AddComponent<NetworkIdentity>();
 
             var orbEffect = BrazierBuffFlameOrb.AddComponent<OrbEffect>();
-            //orbEffect.startEffect = Resources.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
-            //orbEffect.endEffect = Resources.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
+            //orbEffect.startEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
+            //orbEffect.endEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
             orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
             orbEffect.startVelocity2 = new Vector3(10, 13, 10);
             orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
@@ -81,7 +81,7 @@ namespace Aetherium.Interactables
             visualController.IsVisualOrb = true;
 
             if (BrazierBuffFlameOrb) PrefabAPI.RegisterNetworkPrefab(BrazierBuffFlameOrb);
-            EffectAPI.AddEffect(BrazierBuffFlameOrb);
+            ContentAddition.AddEffect(BrazierBuffFlameOrb);
 
             OrbAPI.AddOrb(typeof(Effect.BuffBrazierFlameOrb));
         }
@@ -174,8 +174,8 @@ namespace Aetherium.Interactables
 
             var billboard = InteractableBodyModelPrefab.transform.Find("Fire Icon").gameObject.AddComponent<Billboard>();
 
-            LoadoutAPI.StateTypeOf<MyEntityStates.BuffBrazier.BuffBrazierMainState>();
-            LoadoutAPI.StateTypeOf<MyEntityStates.BuffBrazier.BuffBrazierPurchased>();
+            ContentAddition.AddEntityState<MyEntityStates.BuffBrazier.BuffBrazierMainState>(out _);
+            ContentAddition.AddEntityState<MyEntityStates.BuffBrazier.BuffBrazierPurchased>(out _);
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
 
@@ -198,7 +198,7 @@ namespace Aetherium.Interactables
             {
                 selectionWeight = 4,
                 spawnCard = InteractableSpawnCard,
-                allowAmbushSpawn = true,
+                //allowAmbushSpawn = true, TODO removed i think?
             };
             DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);
         }

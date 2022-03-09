@@ -3,6 +3,7 @@ using RoR2;
 using RoR2.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -123,14 +124,15 @@ namespace Aetherium.MyEntityStates
 				characterBody.transform.SetPositionAndRotation(newPosition, characterBody.transform.rotation);
 			}
 		}
-
+		
+		private static readonly FieldInfo Velo = typeof(CharacterMotor).GetField("velocity");
 		public override void FixedUpdate()
 		{
 			base.FixedUpdate();
 			stopwatch += Time.fixedDeltaTime;
 			if (characterMotor && characterDirection)
 			{
-				characterMotor.velocity = Vector3.zero;
+				Velo.SetValue(characterMotor, Vector3.zero);
 			}
 			SetPosition(Vector3.Lerp(blinkStart, blinkDestination, stopwatch / duration));
 			if (stopwatch >= duration && isAuthority)

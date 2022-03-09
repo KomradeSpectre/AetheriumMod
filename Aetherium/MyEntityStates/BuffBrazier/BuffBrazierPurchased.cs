@@ -21,7 +21,7 @@ namespace Aetherium.MyEntityStates.BuffBrazier
             gameObject.transform.Find("Fire Icon/Fire Light").gameObject.SetActive(false);
             gameObject.transform.Find("Fire Icon").gameObject.SetActive(false);
 
-            EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/ShrineUseEffect"), gameObject.transform.position, gameObject.transform.rotation, false);
+            EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/ShrineUseEffect"), gameObject.transform.position, gameObject.transform.rotation, false);
         }
     }
 }

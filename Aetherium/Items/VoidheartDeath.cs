@@ -1,6 +1,7 @@
 ﻿using EntityStates.NullifierMonster;
 using RoR2;
 using System;
+using EntityStates;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -28,9 +29,9 @@ namespace Aetherium.Items
             if (this.muzzleTransform)
             {
                 this.portalPosition = new Vector3?(this.muzzleTransform.position);
-                if (DeathState.deathPreExplosionVFX)
+                if (GenericCharacterDeath.voidDeathEffect)
                 {
-                    this.deathPreExplosionInstance = UnityEngine.Object.Instantiate<GameObject>(DeathState.deathPreExplosionVFX, this.muzzleTransform.position, this.muzzleTransform.rotation);
+                    this.deathPreExplosionInstance = UnityEngine.Object.Instantiate<GameObject>(GenericCharacterDeath.voidDeathEffect, this.muzzleTransform.position, this.muzzleTransform.rotation);
                     this.deathPreExplosionInstance.transform.parent = this.muzzleTransform;
                     this.deathPreExplosionInstance.transform.localScale = Vector3.one * voidExplosionRadius;
                     ScaleParticleSystemDuration component = this.deathPreExplosionInstance.GetComponent<ScaleParticleSystemDuration>();
@@ -144,9 +145,9 @@ namespace Aetherium.Items
                         //characterBody2.healthComponent.Suicide(base.gameObject, base.gameObject, DamageType.VoidDeath);
                     }
                 }
-                if (DeathState.deathExplosionEffect)
+                if (GenericCharacterDeath.voidDeathEffect)
                 {
-                    EffectManager.SpawnEffect(DeathState.deathExplosionEffect, new EffectData
+                    EffectManager.SpawnEffect(GenericCharacterDeath.voidDeathEffect, new EffectData
                     {
                         origin = base.transform.position,
                         scale = voidExplosionRadius

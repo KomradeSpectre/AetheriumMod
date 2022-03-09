@@ -28,13 +28,13 @@ namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency("com.bepis.r2api")]
-    [BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
+    //[BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(BuffAPI), nameof(LanguageAPI), nameof(ResourcesAPI),
+    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), //nameof(BuffAPI), nameof(ResourcesAPI), nameof(EffectAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(LoadoutAPI),   
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(EffectAPI), nameof(DirectorAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI), nameof(LoadoutAPI),
+                              nameof(NetworkingAPI), nameof(DirectorAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI),
                               nameof(CommandHelper))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
@@ -184,7 +184,7 @@ namespace Aetherium
                     }
                 }
 
-                IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer += ItemBase.BlacklistFromPrinter;
+                IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer_bool += ItemBase.BlacklistFromPrinter;
             }
 
             var disableEquipment = Config.ActiveBind<bool>("Equipment", "Disable All Equipment?", false, "Do you wish to disable every equipment in Aetherium?");
@@ -370,7 +370,7 @@ namespace Aetherium
 
             foreach (Material material in materialAssets)
             {
-                var replacementShader = Resources.Load<Shader>(ShaderLookup[material.shader.name.ToLowerInvariant()]);
+                var replacementShader = LegacyResourcesAPI.Load<Shader>(ShaderLookup[material.shader.name.ToLowerInvariant()]); // TODO this might not be correct
                 if (replacementShader) { material.shader = replacementShader; }
             }
         }

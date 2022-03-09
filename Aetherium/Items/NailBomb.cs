@@ -124,7 +124,7 @@ namespace Aetherium.Items
             NailBombCooldownDebuff.isDebuff = true;
             NailBombCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
 
-            BuffAPI.Add(new CustomBuff(NailBombCooldownDebuff));
+            ContentAddition.AddBuffDef(NailBombCooldownDebuff);
 
             NailBombImmunityBuff = ScriptableObject.CreateInstance<BuffDef>();
             NailBombImmunityBuff.name = "Aetherium: Nail Bomb Immunity";
@@ -133,13 +133,13 @@ namespace Aetherium.Items
             NailBombImmunityBuff.isDebuff = false;
             NailBombImmunityBuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
 
-            BuffAPI.Add(new CustomBuff(NailBombImmunityBuff));
+            ContentAddition.AddBuffDef(NailBombImmunityBuff);
         }
 
 
         public void CreateEffect()
         {
-            NailBombNailEffect = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/effects/impacteffects/ImpactNailgun"), "NailBombNailImpact");
+            NailBombNailEffect = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/effects/impacteffects/ImpactNailgun"), "NailBombNailImpact");
 
             NailBombTracerSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             NailBombTracerSound.eventName = "Aetherium_Nailbomb_Nail_Impact";
@@ -163,7 +163,7 @@ namespace Aetherium.Items
             shrapnelVFXComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
             shrapnelVFXComponent.vfxPriority = VFXAttributes.VFXPriority.Medium;
 
-            NailBombNailTracerEffect = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotNails"), "NailBombNailTracer");
+            NailBombNailTracerEffect = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/tracers/TracerToolbotNails"), "NailBombNailTracer");
 
             var vfxComponent = NailBombNailTracerEffect.AddComponent<VFXAttributes>();
             vfxComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
@@ -175,18 +175,18 @@ namespace Aetherium.Items
             NailBombNailTracerEffect.AddComponent<NetworkIdentity>();
 
             if (NailBombNailEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailEffect); }
-            EffectAPI.AddEffect(NailBombNailEffect);
+            ContentAddition.AddEffect(NailBombNailEffect);
 
             if (NailBombShrapnelEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombShrapnelEffect); }
-            EffectAPI.AddEffect(NailBombShrapnelEffect);
+            ContentAddition.AddEffect(NailBombShrapnelEffect);
 
             if (NailBombNailTracerEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailTracerEffect); }
-            EffectAPI.AddEffect(NailBombNailTracerEffect);
+            ContentAddition.AddEffect(NailBombNailTracerEffect);
         }
 
         private void CreateProjectile()
         {
-            NailBombProjectileMain = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile", true);
+            NailBombProjectileMain = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile", true);
 
             var networkIdentityMain = NailBombProjectileMain.GetComponent<NetworkIdentity>();
             if (!networkIdentityMain) { NailBombProjectileMain.AddComponent<NetworkIdentity>(); }
@@ -242,7 +242,7 @@ namespace Aetherium.Items
             impactExplosion.lifetimeAfterImpact = 0.2f;
 
             PrefabAPI.RegisterNetworkPrefab(NailBombProjectileMain);
-            ProjectileAPI.Add(NailBombProjectileMain);
+            ContentAddition.AddProjectile(NailBombProjectileMain);
 
         }
 

@@ -93,7 +93,7 @@ namespace Aetherium.Equipment
             BellSoundwaveEffect.AddComponent<NetworkIdentity>();
 
             if (BellSoundwaveEffect) PrefabAPI.RegisterNetworkPrefab(BellSoundwaveEffect);
-            EffectAPI.AddEffect(BellSoundwaveEffect);
+            ContentAddition.AddEffect(BellSoundwaveEffect);
 
             NoBellSpawnEffect = MainAssets.LoadAsset<GameObject>("NoSpawnAllowedEffect.prefab");
 
@@ -112,7 +112,7 @@ namespace Aetherium.Equipment
             secondaryDestroyOnParticleEnd.ps = NoBellSpawnEffect.GetComponent<ParticleSystem>();
 
             if (NoBellSpawnEffect) PrefabAPI.RegisterNetworkPrefab(NoBellSpawnEffect);
-            EffectAPI.AddEffect(NoBellSpawnEffect);
+            ContentAddition.AddEffect(NoBellSpawnEffect);
 
         }
 
@@ -171,11 +171,12 @@ namespace Aetherium.Equipment
                     transform = InteractableBodyModelPrefab.transform.Find("HologramPivot")
                 }
             };
-
-            LoadoutAPI.StateTypeOf<MyEntityStates.BellTotem.BellTotemAppearState>();
-            LoadoutAPI.StateTypeOf<MyEntityStates.BellTotem.BellTotemDisappearState>();
-            LoadoutAPI.StateTypeOf<MyEntityStates.BellTotem.BellTotemMainState>();
-            LoadoutAPI.StateTypeOf<MyEntityStates.BellTotem.BellTotemRingingState>();
+            
+            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemAppearState>(out _);
+            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemDisappearState>(out _);
+            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemMainState>(out _);
+            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemRingingState>(out _);
+            
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
 

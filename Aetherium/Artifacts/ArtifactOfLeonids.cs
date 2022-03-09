@@ -78,7 +78,7 @@ namespace Aetherium.Artifacts
                     //spawn meteors here
                     if (NetworkServer.active)
                     {
-                        MeteorStormController component = UnityEngine.Object.Instantiate<GameObject>(Resources.Load<GameObject>("Prefabs/NetworkedObjects/MeteorStorm"), Vector3.zero, Quaternion.identity).GetComponent<MeteorStormController>();
+                        MeteorStormController component = UnityEngine.Object.Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/MeteorStorm"), Vector3.zero, Quaternion.identity).GetComponent<MeteorStormController>();
                         component.owner = this.gameObject;
                         component.ownerDamage = 20 * Run.difficultyCoefficient;
                         component.waveCount = MeteorWaves;

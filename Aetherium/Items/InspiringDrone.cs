@@ -672,7 +672,7 @@ namespace Aetherium.Items
                 SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
                 spawnCard.hullSize = BotBody.hullClassification;
                 spawnCard.nodeGraphType = nodeGraphType;
-                spawnCard.prefab = Resources.Load<GameObject>("SpawnCards/HelperPrefab");
+                spawnCard.prefab = LegacyResourcesAPI.Load<GameObject>("SpawnCards/HelperPrefab");
                 GameObject gameObject = DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(spawnCard, new DirectorPlacementRule
                 {
                     placementMode = DirectorPlacementRule.PlacementMode.Approximate,
