@@ -49,11 +49,11 @@ namespace Aetherium.Artifacts
                 {
                     if (Run.instance.NetworkstageClearCount % Run.stagesPerLoop == Run.stagesPerLoop - 1)
                     {
-                        self.teleporterSpawnCard = Resources.Load<InteractableSpawnCard>(TeleporterNames[0]);
+                        self.teleporterSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>(TeleporterNames[0]);
                     }
                     else
                     {
-                        self.teleporterSpawnCard = Resources.Load<InteractableSpawnCard>(TeleporterNames[1]);
+                        self.teleporterSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>(TeleporterNames[1]);
                     }
                 }
             }

@@ -84,7 +84,7 @@ namespace Aetherium.Items
             WitchesRingImmunityBuffDef.isDebuff = false;
             WitchesRingImmunityBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WitchesRingBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(WitchesRingImmunityBuffDef));
+            ContentAddition.AddBuffDef(WitchesRingImmunityBuffDef);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

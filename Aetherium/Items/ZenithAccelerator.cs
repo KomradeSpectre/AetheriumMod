@@ -78,7 +78,7 @@ namespace Aetherium.Items
             ZenithAccelerationBuff.isDebuff = false;
             ZenithAccelerationBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ZenithAccelerationBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(ZenithAccelerationBuff));
+            ContentAddition.AddBuffDef(ZenithAccelerationBuff);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

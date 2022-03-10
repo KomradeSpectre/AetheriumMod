@@ -323,7 +323,7 @@ namespace Aetherium.Items
                     {
                         //Thanks Chen for fixing this.
                         float mass;
-                        if (self.body.characterMotor) mass = self.body.characterMotor.mass;
+                        if (self.body.characterMotor) mass = (self.body.characterMotor as IPhysMotor).mass;
                         else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
                         else mass = 1f;
 

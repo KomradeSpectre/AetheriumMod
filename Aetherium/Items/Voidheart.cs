@@ -111,8 +111,8 @@ namespace Aetherium.Items
             VoidImmunityBuff.isDebuff = false;
             VoidImmunityBuff.iconSprite = MainAssets.LoadAsset<Sprite>("VoidInstabilityDebuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(VoidInstabilityDebuff));
-            BuffAPI.Add(new CustomBuff(VoidImmunityBuff));
+            ContentAddition.AddBuffDef(VoidInstabilityDebuff);
+            ContentAddition.AddBuffDef(VoidImmunityBuff);
 
         }
 

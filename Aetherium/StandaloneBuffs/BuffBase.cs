@@ -41,7 +41,7 @@ namespace Aetherium.StandaloneBuffs
             BuffDef.isDebuff = IsDebuff;
             BuffDef.iconSprite = BuffIcon;
 
-            BuffAPI.Add(new CustomBuff(BuffDef));
+            ContentAddition.AddBuffDef(BuffDef);
         }
 
         public abstract void Hooks();

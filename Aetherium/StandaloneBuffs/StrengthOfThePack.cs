@@ -46,7 +46,7 @@ namespace Aetherium.StandaloneBuffs
             WolvenVengeance.isDebuff = false;
             WolvenVengeance.iconSprite = MainAssets.LoadAsset<Sprite>("BlasterSwordBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(WolvenVengeance));
+            ContentAddition.AddBuffDef(WolvenVengeance);
 
             WolvenPower = ScriptableObject.CreateInstance<RoR2.BuffDef>();
             WolvenPower.name = "Strength of the Pack : Endurance";
@@ -55,7 +55,7 @@ namespace Aetherium.StandaloneBuffs
             WolvenPower.isDebuff = false;
             WolvenPower.iconSprite = MainAssets.LoadAsset<Sprite>("BlasterSwordBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(WolvenPower));
+            ContentAddition.AddBuffDef(WolvenPower);
         }
 
         public List<TeamComponent> TeammatesWithStrengthOfThePack(CharacterBody body)

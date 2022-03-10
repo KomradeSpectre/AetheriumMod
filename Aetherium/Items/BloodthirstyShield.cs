@@ -3,7 +3,7 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
-using ItemStats;
+using ItemStats; 
 using ItemStats.Stat;
 using ItemStats.ValueFormatters;
 using System.Linq;

@@ -115,9 +115,9 @@ namespace Aetherium.Equipment
 
             JarChargeSphere.AddComponent<NetworkIdentity>();
             if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
-            EffectAPI.AddEffect(JarChargeSphere);
+            ContentAddition.AddEffect(JarChargeSphere);
 
-            //JarOrbProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>())
+            //JarOrbProjectile = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>())
 
             JarOrb = MainAssets.LoadAsset<GameObject>("JarOfReshapingOrb.prefab");
 
@@ -129,8 +129,8 @@ namespace Aetherium.Equipment
 
             var orbEffect = JarOrb.AddComponent<OrbEffect>();
 
-            orbEffect.startEffect = Resources.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
-            orbEffect.endEffect = Resources.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
+            orbEffect.startEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ShieldBreakEffect");
+            orbEffect.endEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/MuzzleFlashes/MuzzleFlashMageIce");
             orbEffect.startVelocity1 = new Vector3(-10, 10, -10);
             orbEffect.startVelocity2 = new Vector3(10, 13, 10);
             orbEffect.endVelocity1 = new Vector3(-10, 0, -10);
@@ -140,14 +140,14 @@ namespace Aetherium.Equipment
             JarOrb.AddComponent<NetworkIdentity>();
 
             if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
-            EffectAPI.AddEffect(JarOrb);
+            ContentAddition.AddEffect(JarOrb);
 
             OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
         }
 
         private void CreateProjectile()
         {
-            JarProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
+            JarProjectile = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/PaladinRocket"), "JarOfReshapingProjectile", true);
 
             var model = MainAssets.LoadAsset<GameObject>("JarOfReshapingProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
@@ -166,15 +166,15 @@ namespace Aetherium.Equipment
             var impactExplosion = JarProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
             impactExplosion.destroyOnEnemy = true;
             impactExplosion.destroyOnWorld = true;
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/BrittleDeath");
+            impactExplosion.impactEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/BrittleDeath");
             impactExplosion.blastRadius = 4;
             impactExplosion.blastProcCoefficient = 1f;
 
             // register it for networking
             if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
-
+            
             // add it to the projectile catalog or it won't work in multiplayer
-            ProjectileAPI.Add(JarProjectile);
+            ContentAddition.AddProjectile(JarProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

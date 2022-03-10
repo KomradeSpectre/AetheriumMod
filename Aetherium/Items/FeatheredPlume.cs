@@ -80,7 +80,7 @@ namespace Aetherium.Items
             SpeedBuff.isDebuff = false;
             SpeedBuff.iconSprite = MainAssets.LoadAsset<Sprite>("FeatheredPlumeBuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(SpeedBuff));
+            ContentAddition.AddBuffDef(SpeedBuff);
 
         }
 

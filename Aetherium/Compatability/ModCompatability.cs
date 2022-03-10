@@ -437,7 +437,8 @@ namespace Aetherium.Compatability
             }
         }
 
-        internal static class TILER2Compat
+        /* 
+        internal static class TILER2Compat TODO i dont know what this is supposed to be doing
         {
             public static bool IsTILER2Installed => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.ThinkInvisible.TILER2");
 
@@ -451,7 +452,7 @@ namespace Aetherium.Compatability
 
                 TILER2.FakeInventory.blacklist.Add(itemDef);
             }
-        }
+        }*/
 
         internal static class ModdedCharacterDisplayCompat
         {

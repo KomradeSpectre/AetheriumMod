@@ -209,7 +209,7 @@ namespace Aetherium.Artifacts
 
                                     if (summonedThing)
                                     {
-                                        EffectManager.SimpleEffect(Resources.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
+                                        EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
 
                                         var summonBody = summonedThing.GetBody();
                                         if (summonBody)
@@ -310,7 +310,7 @@ namespace Aetherium.Artifacts
         {
             if (!resource)
             {
-                resource = Resources.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
+                resource = LegacyResourcesAPI.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
             }
             children.Add(new ChildData(childName, count, resource));
         }
