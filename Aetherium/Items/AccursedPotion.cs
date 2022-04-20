@@ -92,7 +92,7 @@ namespace Aetherium.Items
         {
             AccursedPotionGulp = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             AccursedPotionGulp.eventName = "Aetherium_Gulp";
-            SoundAPI.AddNetworkedSoundEvent(AccursedPotionGulp);
+            R2API.ContentAddition.AddNetworkSoundEventDef(AccursedPotionGulp);
         }
 
         private void CreateBuff()

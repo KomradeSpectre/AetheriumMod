@@ -113,7 +113,7 @@ namespace Aetherium.Items
             ToolbeltRepairSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             ToolbeltRepairSound.eventName = "Aetherium_Duplicate_Bot";
 
-            SoundAPI.AddNetworkedSoundEvent(ToolbeltRepairSound);
+            R2API.ContentAddition.AddNetworkSoundEventDef(ToolbeltRepairSound);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -379,6 +379,29 @@ namespace Aetherium.Items
             if (IsItemStatsModInstalled)
             {
                 CreateEngineersToolbeltStatDef();
+            }
+
+            var commandoModel = BodyCatalog.FindBodyPrefab("CommandoBody").GetComponentInChildren<CharacterModel>();
+            if (commandoModel)
+            {
+                commandoModel.itemDisplayRuleSet.SetDisplayRuleGroup(ItemDef, new DisplayRuleGroup { rules = new ItemDisplayRule[]
+                        {
+
+                            new RoR2.ItemDisplayRule
+                            {
+                                ruleType = ItemDisplayRuleType.ParentedPrefab,
+                                followerPrefab = ItemBodyModelPrefab,
+                                childName = "Chest",
+                                localPos = new Vector3(0F, -0.043F, 0F),
+                                localAngles = new Vector3(0F, 90F, 0F),
+                                localScale = new Vector3(0.22F, 0.22F, 0.22F)
+                            }
+
+                        }
+                        });
+
+                commandoModel.itemDisplayRuleSet.GenerateRuntimeValues();
+                
             }
         }
 

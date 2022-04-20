@@ -65,7 +65,7 @@ namespace Aetherium.Items
         {
             CreateConfig(config);
             CreateLang();
-            CreateAchievement();
+            //CreateAchievement();
             CreateItem();
             Hooks();
         }

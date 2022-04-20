@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 1736046275
+CRC: 3147147546
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: bd3e0d2cf0d3e85c4e23d550cf5cf244
+    Hash: 9a97c4b7c234cf811fcefef4856342f9
   TypeTreeHash:
     serializedVersion: 2
-    Hash: cb07a82761072bcaf60b07ebe3d8cb0b
+    Hash: dd0cd73cccbb394c450a2bfd89420b51
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -43,16 +43,14 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 108
   Script: {instanceID: 0}
-- Class: 109
-  Script: {instanceID: 0}
 - Class: 111
   Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: f8258ea15b8f74c4889ce485d21cbbb1, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: acf56a9163ee82942812c6b58bb387f8, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 03f19f2389ee8c54f85e98d60af517ef, type: 3}
-- Class: 114
-  Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: a450a6f634bea4e44a44079d6a4b1a36, type: 3}
 - Class: 115
@@ -73,13 +71,16 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 330
   Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Shaders/3D Shaders/ToonUnlit.shader
 - Assets/Animations/Torus.002.controller
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrb.mat
 - Assets/Textures/Material Textures/explosionParticleEffect.png
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesign.prefab
+- Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle3.png
 - Assets/Textures/Material Textures/JarOfReshapingSpikeNormal.png
+- Assets/Textures/Material Textures/From Others/Bord/autimecia_hat_grey.png
 - Assets/Shaders/3D Shaders/intersection.shader
 - Assets/Models/Prefabs/Item/InspiringDrone/InspiringDroneTracker.prefab
 - Assets/Animations/ThrusterLAfterburner.controller
@@ -128,6 +129,7 @@ Assets:
 - Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png
 - Assets/Models/Prefabs/Item/WitchesRing/PickupWitchesRing.prefab
 - Assets/Shaders/3D Shaders/CelShader.shader
+- Assets/Textures/Material Textures/VoidLarvaDiffuse.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltMetal.mat
 - Assets/Textures/Material Textures/RadialFlowMap.png
 - Assets/Textures/Material Textures/simple_blood.png
@@ -144,6 +146,7 @@ Assets:
 - Assets/Textures/Icons/Buff/By Others/Ragon/SoulLinkedDebuffIcon.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordGold.mat
 - Assets/Models/Prefabs/Item/BlasterSword/PickupBlasterSwordAlt.prefab
+- Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle2.png
 - Assets/Shaders/3D Shaders/StylizedGlass.shader
 - Assets/Textures/Materials/Item/SharkTeeth/SharkTeethBoneOld.mat
 - Assets/Shaders/3D Shaders/TransparentFresnel.shader
@@ -200,6 +203,7 @@ Assets:
 - Assets/Models/Raw Models/By Others/Ragon/belltotemdisplaybell.blend
 - Assets/Textures/Material Textures/soulpincylinderdiffuse.png
 - Assets/Animations/JarOfReshapingAbsorbIdle.anim
+- Assets/Textures/Materials/Equipment/Faust/matHatPurple.mat
 - Assets/Shaders/3D Shaders/FireParticleShader.shader
 - Assets/Shaders/3D Shaders/FractalSoup.shader
 - Assets/Models/Raw Models/BlasterSwordAltProjectile.blend
@@ -222,6 +226,7 @@ Assets:
 - Assets/Models/Prefabs/Item/ShieldingCore/PickupShieldingCore.prefab
 - Assets/Textures/Icons/Artifact/ArtifactOfTheJourneyEnabledIcon.png
 - Assets/Textures/Material Textures/flameparticle.png
+- Assets/Animations/TrilbySpin.anim
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingEffectInnerRim.mat
 - Assets/Textures/Icons/Artifact/ArtifactOfTheNightmareDisabledIcon.png
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusion.png
@@ -233,12 +238,14 @@ Assets:
 - Assets/Shaders/3D Shaders/ToonMetal.shader
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierActiveField.mat
 - Assets/Textures/Materials/Miscellaneous/New Material.mat
+- Assets/Models/Prefabs/Equipment/Faust/DisplayFaust.prefab
 - Assets/Animations/PheromoneSacInner.anim
 - Assets/Textures/Icons/Item/NailBombIconTier1.png
 - Assets/Animations/InspiringDrone.controller
 - Assets/Textures/Material Textures/NailBombNormal.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltBuckle.mat
 - Assets/Textures/Material Textures/AlienMagnetRingNormal.png
+- Assets/Textures/Materials/Bodies/VoidLarva/New Material.mat
 - Assets/Textures/Material Textures/JarOfReshapingCrystalNormal.png
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierMain.mat
 - Assets/Textures/Material Textures/DefaultRamp.png
@@ -254,6 +261,8 @@ Assets:
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldOmega.mat
 - Assets/Textures/Material Textures/nailbomb-wick-texture.jpg
 - Assets/753network/Crystallize/Ramp Rainbow.png
+- Assets/Animations/VoidLarvaDeath.anim
+- Assets/Textures/Icons/Achievement/ShieldingCoreAchievementIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingPowerCore.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
 - Assets/Models/Raw Models/BlasterSwordAlt.blend
@@ -275,11 +284,12 @@ Assets:
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgsolidparallax.shader
 - Assets/Shaders/3D Shaders/NewUnlitShader.shader
 - Assets/Textures/Materials/Interactables/BuffBrazier/BuffBrazierOrbIcon.mat
+- Assets/Textures/Materials/Equipment/Faust/matHatGrey 1.mat
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureWhiteEmission.png
 - Assets/Textures/Materials/Equipment/BellTotem/matSoundwave.mat
 - Assets/Textures/Material Textures/AccursedPotionShellNormal.png
 - Assets/Animations/BellTotemAppear.anim
-- Assets/Shaders/3D Shaders/Flow.cginc
+- Assets/Animations/ReticuleHolder.controller
 - Assets/Textures/Material Textures/GreenToDarkGreenRamp.png
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSword.prefab
 - Assets/Textures/Material Textures/From Others/Dotflare/brazier_Diffuse.png
@@ -384,6 +394,7 @@ Assets:
 - Assets/Textures/Icons/Item/InspiringDroneIconTier3.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodthirstyShieldCenter.mat
 - Assets/Models/Raw Models/JarOfReshapingAbsorbEffect.blend
+- Assets/Textures/Material Textures/From Others/Bord/autimecia_hat_wing.png
 - Assets/Models/Raw Models/textures/Material.001 Base Color.png
 - Assets/Textures/Material Textures/ShieldingCoreEnergyFlow.png
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignHolderTexture.mat
@@ -411,6 +422,7 @@ Assets:
 - Assets/Shaders/3D Shaders/DepthIntersectionGlow.shader
 - Assets/Animations/JarOfReshapingAbsorbExit.anim
 - Assets/Models/Raw Models/BuffBrazierBuffOrb.fbx
+- Assets/Animations/TrilbyDisappear.anim
 - Assets/Animations/BellTotemRinging.anim
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Icons/Buff/By Others/FOG/AffixAbyssalBuffIcon.png
@@ -434,6 +446,7 @@ Assets:
 - Assets/Animations/ShieldingCoreCentrifuge.anim
 - Assets/Textures/Icons/Artifact/ArtifactOfLeonidsDisabledIcon.png
 - Assets/Textures/Material Textures/plume normal.png
+- Assets/Models/Prefabs/Equipment/Faust/HatOrb.prefab
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveCogEnergy.mat
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt.prefab
 - Assets/Textures/Material Textures/414-bump.jpg
@@ -452,6 +465,7 @@ Assets:
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveBlueSmoke.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltWeirdScrewMesh.mat
 - Assets/Models/Raw Models/By Others/Ragon/AccursedPotion.blend
+- Assets/Animations/void larva.controller
 - Assets/Textures/Materials/Item/UnstableDesign/UnstableDesignBackTexture.mat
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveSpark.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgsnowtopped.shader
@@ -464,7 +478,9 @@ Assets:
 - Assets/Animations/InspiringDroneChest.anim
 - Assets/Textures/Material Textures/GoldRamp.png
 - Assets/Textures/Material Textures/WitchesRingNormal.png
+- Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle4.png
 - Assets/Animations/SoulPinDisplayFlashOut.anim
+- Assets/Animations/animTrilby.controller
 - Assets/Animations/JarOfReshapingProjectileSecondary.anim
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgforwardplanet.shader
 - Assets/Animations/SoulPin.controller
@@ -475,6 +491,7 @@ Assets:
 - Assets/Models/Raw Models/BuffBrazierSphere.blend
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
 - Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedHeartEffect.prefab
+- Assets/Animations/VoidLarvaIdle.anim
 - Assets/Textures/Materials/Miscellaneous/FractureInner.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartVeins.mat
 - Assets/Textures/Icons/Interactable/BuffBrazier/BuffBrazierIndicatorIcon.png
@@ -522,6 +539,7 @@ Assets:
 - Assets/Textures/Icons/Item/VoidheartIcon.png
 - Assets/Animations/DisplayJarOfReshaping.controller
 - Assets/Textures/Material Textures/4793.jpg
+- Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle1.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBeltClasp.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignRolledUp.prefab
 - Assets/Textures/Material Textures/bloodthirstyshieldcenterdiffuse.png
@@ -531,6 +549,7 @@ Assets:
 - Assets/Textures/Materials/Item/Voidheart/VoidheartHeart.mat
 - Assets/Textures/Material Textures/BlueToWhiteRamp.png
 - Assets/Animations/NailBombProjectile.controller
+- Assets/Models/Prefabs/Equipment/Faust/DisplayFaustVictim.prefab
 - Assets/Models/Raw Models/UnstableDesign.blend
 - Assets/Animations/InspiringDroneUpperArmR.anim
 - Assets/Textures/Material Textures/WeightedAnkletNormal.png
@@ -567,6 +586,7 @@ Assets:
 - Assets/Shaders/3D Shaders/SonarFx.shader
 - Assets/Shaders/3D Shaders/Hologram.shader
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdistortion.shader
+- Assets/Textures/Materials/Equipment/Faust/matHatTrail.mat
 - Assets/Textures/Icons/Item/EngineersToolbeltIcon.png
 - Assets/Textures/Material Textures/soulpinrodnormal.png
 - Assets/Models/Raw Models/By Others/Ragon/plume.obj
@@ -575,6 +595,7 @@ Assets:
 - Assets/Models/Raw Models/NailBombSubProjectile.blend
 - Assets/Textures/Material Textures/SoulExtractionCircleDiffuse.png
 - Assets/Textures/Material Textures/From Others/Filterforge/VortexBumpMap.jpg
+- Assets/Animations/FaustReticuleMovement.anim
 - Assets/Textures/Material Textures/AccursedPotionShellDiffuse.png
 - Assets/Textures/Materials/Item/NailBomb/NailBombMetalMaterial.mat
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletMetal.mat
@@ -620,6 +641,7 @@ Assets:
 - Assets/Textures/Material Textures/10089 - Copy.jpg
 - Assets/Shaders/3D Shaders/ToonSpecularShader.shader
 - Assets/Textures/Material Textures/zenith normal.png
+- Assets/Animations/VoidLarvaMove.anim
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodthirstyShieldMetal.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEarBase.mat
 - Assets/Textures/Icons/Item/Sacred Flame.png
@@ -628,6 +650,7 @@ Assets:
 - Assets/Textures/Material Textures/BlackToWhiteSlowGradient.png
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/DisplayJarOfReshaping.prefab
 - Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png
+- Assets/Animations/TrilbyBeamDisappear.anim
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorMaterialGears.mat
 - Assets/Shaders/3D Shaders/LavaShader.shader
 - Assets/Textures/Material Textures/belltotemnormal.png
@@ -635,6 +658,7 @@ Assets:
 - Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedTrail.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordAltHandle.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgdamagenumber.shader
+- Assets/Textures/Materials/Equipment/Faust/matHatWings.mat
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingAbsorb.mat
 - Assets/Textures/Material Textures/Purple Crystal.jpg
 - Assets/Models/Raw Models/BlasterSwordProjectile.blend
@@ -651,6 +675,7 @@ Assets:
 - Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureDetailMask.png
 - Assets/Textures/Material Textures/From Others/HG/texCloudDifferenceBW2.png
 - Assets/Textures/Materials/Item/Voidheart/VoidheartBlack.mat
+- Assets/Animations/TrilbyBeam.anim
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneEyes.mat
 - Assets/Textures/Icons/Item/BloodthirstyShieldIcon.png
 - Assets/Models/Raw Models/BuffBrazierBuffOrb.blend
@@ -659,6 +684,7 @@ Assets:
 - Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedTrailEffect.prefab
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOld.prefab
 - Assets/Animations/InspiringDroneUpperArmL.controller
+- Assets/Animations/TrilbyFire.anim
 - Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedHeartMaterial.mat
 - Assets/Shaders/3D Shaders/AuraGhostOutline.shader
 - Assets/Models/Prefabs/Item/WeightedAnklet/PickupWeightedAnklet.prefab
@@ -703,12 +729,14 @@ Assets:
 - Assets/Textures/Materials/Item/WitchesRing/WitchesRingSkullMaterial 1.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordProjectileBinding.mat
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeMain.mat
+- Assets/Models/Raw Models/By Others/Ragon/void larva.blend
 - Assets/Textures/Material Textures/8bee108.jpg
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingCeramic.mat
 - Assets/Textures/Material Textures/BuffBrazierRamp1.png
 - Assets/Models/Prefabs/Item/NailBomb/DisplayNailBomb.prefab
 - Assets/Textures/Icons/Achievement/UnstableDesignAchievementIcon.png
 - Assets/Animations/NailBombExitIdle.anim
+- Assets/Textures/Material Textures/From Others/Bord/autimecia_hat.png
 - Assets/Textures/Icons/Item/UnstableDesignIcon.png
 - Assets/Models/Prefabs/Equipment/BellTotem/BellTotem.prefab
 - Assets/Models/Raw Models/By Others/Ragon/soul circle.obj
@@ -726,6 +754,7 @@ Assets:
 - Assets/Animations/ThrusterLAfterburner.anim
 - Assets/Textures/Materials/Item/HexPendulum/HexTotemTextureEye.mat
 - Assets/Textures/Icons/Buff/By Others/Ragon/NailBombNailCooldownIcon.png
+- Assets/Textures/Material Textures/VoidLarvaNormal.png
 - Assets/Textures/Icons/Item/WitchesRingIcon.png
 - Assets/Textures/Materials/Item/BloodthirstyShield/BloodSoakedShieldMain.mat
 - Assets/Textures/Material Textures/14601-normal.jpg
@@ -747,7 +776,7 @@ Assets:
 - Assets/Textures/Icons/Item/InspiringDroneIconTier2.png
 - Assets/Models/Raw Models/By Others/Ragon/jar.fbx
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveSmoke.mat
-- Assets/Models/Raw Models/InspiringDroneTracker.blend
+- Assets/Models/Raw Models/By Others/Ragon/void larva.fbx
 - Assets/Models/Prefabs/Item/NailBomb/NailBombShrapnelEffect.prefab
 - Assets/Shaders/3D Shaders/IridescencePealescent.shader
 - Assets/Shaders/3D Shaders/StylizedLavaShader.shader
@@ -757,5 +786,6 @@ Assets:
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneScreen.mat
 - Assets/Textures/Material Textures/WaterTextureMask 1.png
 - Assets/Shaders/3D Shaders/TriplanarMapping.shader
+- Assets/Models/Prefabs/Equipment/Faust/PickupFaust.prefab
 - Assets/Textures/Material Textures/PearlescentRainbow.png
 Dependencies: []

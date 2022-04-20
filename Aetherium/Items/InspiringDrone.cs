@@ -24,7 +24,6 @@ namespace Aetherium.Items
 {
     public class InspiringDrone : ItemBase<InspiringDrone>
     {
-        public static ConfigOption<bool> RequireUnlock;
         public static ConfigOption<bool> IsGreenRarity;
         public static ConfigOption<bool> SetAllStatValuesAtOnce;
         public static ConfigOption<float> AllStatValueGrantedPercentage;
@@ -351,7 +350,8 @@ namespace Aetherium.Items
                     localScale = new Vector3(0.125F, 0.125F, 0.125F)
                 }
             });
-            return rules;
+            //return rules;
+            return new ItemDisplayRuleDict();
         }
 
         public override void Hooks()
@@ -367,7 +367,7 @@ namespace Aetherium.Items
         {
             if (IsItemStatsModInstalled)
             {
-                CreateInspiringDroneStatDef();
+                //CreateInspiringDroneStatDef();
             }
         }
 
@@ -479,7 +479,7 @@ namespace Aetherium.Items
             return true;
         }
 
-        public class BotStatTracker : MonoBehaviour
+        public class BotStatTracker : NetworkBehaviour
         {
             public float AttackSpeedBoost;
             public float DamageBoost;
@@ -493,7 +493,10 @@ namespace Aetherium.Items
             public CharacterMaster BotMaster;
             public CharacterBody BotOwnerBody;
             public CharacterBody BotBody;
+
+            [SyncVar]
             public float TeleportTimer = 0f;
+
             public int BoostCount = -1;
             public List<int> BotSkillStocks = new List<int>();
             public List<float> BotRechargeIntervals = new List<float>();

@@ -325,6 +325,7 @@ namespace Aetherium.Items
             On.RoR2.HealthComponent.Heal += Voidheart30PercentTimebomb;
             On.RoR2.CharacterBody.FixedUpdate += VoidheartOverlayManager;
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
+            On.RoR2.CharacterBody.Awake += PreventVoidheartFromKillingPlayer;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
             RoR2Application.onLoad += OnLoadModCompat;
         }
@@ -349,6 +350,14 @@ namespace Aetherium.Items
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
+            if (self)
+            {
+                var inventoryCount = GetCount(self);
+                if (inventoryCount > 0)
+                {
+                    self.AddTimedBuff(VoidImmunityBuff, 3f);
+                }
+            }
             var cacheComponent = self.GetComponent<VoidHeartCacheHealthComponent>();
             if (!cacheComponent) 
             {
@@ -404,7 +413,7 @@ namespace Aetherium.Items
                     }
                 }
 
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.body.master.currentLifeStopwatch > 7 && !self.body.HasBuff(VoidImmunityBuff))
+                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.GetComponent<VoidheartPrevention>().InternalTimer >= 7f && !self.body.HasBuff(VoidImmunityBuff))
                 {
                     RoR2.DamageInfo damageInfo = new RoR2.DamageInfo
                     {
@@ -462,7 +471,6 @@ namespace Aetherium.Items
         public class VoidHeartCacheHealthComponent : MonoBehaviour
         {
             public float LastMaxHealth;
-
         }
 
         private void VoidheartAnnihilatesItselfOnDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
@@ -477,6 +485,34 @@ namespace Aetherium.Items
                     self.inventory.RemoveItem(ItemDef, InventoryCount);
                 }
             }
+        }
+
+        public class VoidheartPrevention : MonoBehaviour
+        {
+            public float InternalTimer = 0f;
+
+            private void Update()
+            {
+                InternalTimer += Time.deltaTime;
+            }
+
+            public void ResetTimer()
+            {
+                InternalTimer = 0f;
+            }
+        }
+
+        private void PreventVoidheartFromKillingPlayer(On.RoR2.CharacterBody.orig_Awake orig, RoR2.CharacterBody self)
+        {
+            //First just run the normal awake stuff
+            orig(self);
+            //If I somehow lack the Prevention, give me one
+            if (!self.gameObject.GetComponent<VoidheartPrevention>())
+            {
+                self.gameObject.AddComponent<VoidheartPrevention>();
+            }
+            //And reset the timer
+            self.gameObject.GetComponent<VoidheartPrevention>().ResetTimer();
         }
     }
 }

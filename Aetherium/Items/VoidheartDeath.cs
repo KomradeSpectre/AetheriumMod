@@ -29,9 +29,9 @@ namespace Aetherium.Items
             if (this.muzzleTransform)
             {
                 this.portalPosition = new Vector3?(this.muzzleTransform.position);
-                if (GenericCharacterDeath.voidDeathEffect)
+                if (DeathState.voidDeathEffect)
                 {
-                    this.deathPreExplosionInstance = UnityEngine.Object.Instantiate<GameObject>(GenericCharacterDeath.voidDeathEffect, this.muzzleTransform.position, this.muzzleTransform.rotation);
+                    this.deathPreExplosionInstance = UnityEngine.Object.Instantiate<GameObject>(DeathState.voidDeathEffect, this.muzzleTransform.position, this.muzzleTransform.rotation);
                     this.deathPreExplosionInstance.transform.parent = this.muzzleTransform;
                     this.deathPreExplosionInstance.transform.localScale = Vector3.one * voidExplosionRadius;
                     ScaleParticleSystemDuration component = this.deathPreExplosionInstance.GetComponent<ScaleParticleSystemDuration>();
@@ -145,9 +145,9 @@ namespace Aetherium.Items
                         //characterBody2.healthComponent.Suicide(base.gameObject, base.gameObject, DamageType.VoidDeath);
                     }
                 }
-                if (GenericCharacterDeath.voidDeathEffect)
+                if (DeathState.voidDeathEffect)
                 {
-                    EffectManager.SpawnEffect(GenericCharacterDeath.voidDeathEffect, new EffectData
+                    EffectManager.SpawnEffect(DeathState.voidDeathEffect, new EffectData
                     {
                         origin = base.transform.position,
                         scale = voidExplosionRadius

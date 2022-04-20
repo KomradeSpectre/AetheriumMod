@@ -68,6 +68,10 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public EliteDef EliteDef;
 
+        public virtual float HealthMultiplier { get; set; } = 1;
+
+        public virtual float DamageMultiplier { get; set; } = 1;
+
         public abstract void Init(ConfigFile config);
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();
@@ -163,6 +167,8 @@ namespace Aetherium.Equipment.EliteEquipment
             EliteDef.name = "AETHERIUM_ELITE_" + EliteAffixToken;
             EliteDef.modifierToken = "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER";
             EliteDef.eliteEquipmentDef = EliteEquipmentDef;
+            EliteDef.healthBoostCoefficient = HealthMultiplier;
+            EliteDef.damageBoostCoefficient = DamageMultiplier;
 
             var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
             if (!CanAppearInEliteTiers.All(x => baseEliteTierDefs.Contains(x)))

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using RoR2.Achievements;
+using HarmonyLib;
+using On.RoR2.Items;
 
 namespace Aetherium.Items
 {
@@ -42,6 +44,8 @@ namespace Aetherium.Items
         public abstract Sprite ItemIcon { get; }
 
         public ItemDef ItemDef;
+
+        public virtual string CorruptsItem { get; set; } = null;
 
         public virtual UnlockableDef ItemUnlockableDef { get; set; } = null;
 
@@ -149,6 +153,48 @@ namespace Aetherium.Items
             if (!body || !body.inventory) { return 0; }
 
             return body.inventory.GetItemCount(itemDef);
-        }        
+        }
+
+        internal static void RegisterVoidPairings(ContagiousItemManager.orig_Init orig)
+        {
+            var voidTiers = new ItemTier[]
+{
+                ItemTier.VoidBoss,
+                ItemTier.VoidTier1,
+                ItemTier.VoidTier2,
+                ItemTier.VoidTier3
+};
+
+            foreach (KeyValuePair<ItemBase, bool> itemPair in AetheriumPlugin.ItemStatusDictionary)
+            {
+                if (itemPair.Value == true)
+                {
+                    var item = itemPair.Key;
+
+                    if (item.ItemDef && voidTiers.Any(x => item.ItemDef.tier == x))
+                    {
+
+                        var itemToCorrupt = ItemCatalog.itemDefs.Where(x => x.nameToken == item.CorruptsItem).First();
+                        if (!itemToCorrupt)
+                        {
+                            AetheriumPlugin.ModLogger.LogError($"Tried to add {item.ItemName} in a Void item tier but no relationship was set for what it corrupts or could not be found. Aborting!");
+                            continue;
+                        }
+
+                        var pair = new ItemDef.Pair[]
+                        {
+                            new ItemDef.Pair
+                            {
+                                itemDef1 = itemToCorrupt,
+                                itemDef2 = item.ItemDef,
+                            }
+                        };
+
+                        ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem] = ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem].AddRangeToArray(pair);
+                    }
+                }
+                orig();
+            }
+        }
     }
 }

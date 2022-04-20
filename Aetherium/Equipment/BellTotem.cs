@@ -184,7 +184,7 @@ namespace Aetherium.Equipment
         {
             BellRingingSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             BellRingingSound.eventName = "Aetherium_Ring_Bell";
-            SoundAPI.AddNetworkedSoundEvent(BellRingingSound);
+            R2API.ContentAddition.AddNetworkSoundEventDef(BellRingingSound);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

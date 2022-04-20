@@ -20,6 +20,8 @@ namespace Aetherium.Interactables
 {
     public class BuffBrazier : InteractableBase<BuffBrazier>
     {
+        public ConfigOption<bool> EnableBuffCatalogSelection;
+
         public override string InteractableName => "Buff Brazier";
 
         public override string InteractableContext => "Purchase the strength of the sacred flames?";
@@ -42,13 +44,18 @@ namespace Aetherium.Interactables
 
         public override void Init(ConfigFile config)
         {
+            CreateConfig(config);
             CreateLang();
             CreateEffect();
             CreateNetworkObjects();
-            CreateBaseCuratedBuffList();
             CreateInteractable();
             CreateInteractableSpawnCard();
             Hooks();
+        }
+
+        private void CreateConfig(ConfigFile config)
+        {
+            EnableBuffCatalogSelection = config.ActiveBind<bool>("Interactable: " + InteractableName, "Enable All BuffCatalog Entries for Flame Selection?", false, "If set to true, the Buff Brazier will select buffs from the entire buff catalog instead of the curated list.");
         }
 
         private void CreateEffect()
@@ -196,7 +203,7 @@ namespace Aetherium.Interactables
 
             RoR2.DirectorCard directorCard = new RoR2.DirectorCard
             {
-                selectionWeight = 4,
+                selectionWeight = 1000,
                 spawnCard = InteractableSpawnCard,
                 //allowAmbushSpawn = true, TODO removed i think?
             };
@@ -208,6 +215,13 @@ namespace Aetherium.Interactables
             On.RoR2.PurchaseInteraction.GetDisplayName += AppendBuffName;
             On.RoR2.TeleporterInteraction.OnInteractionBegin += SpendFlame;
             On.RoR2.PurchaseInteraction.GetInteractability += StopInteractionIfRedundant;
+            On.RoR2.Run.Start += CreateCuratedBuffList;
+        }
+
+        private void CreateCuratedBuffList(On.RoR2.Run.orig_Start orig, Run self)
+        {
+            orig(self);
+            CreateBaseCuratedBuffList();
         }
 
         private Interactability StopInteractionIfRedundant(On.RoR2.PurchaseInteraction.orig_GetInteractability orig, PurchaseInteraction self, Interactor activator)
@@ -350,6 +364,27 @@ namespace Aetherium.Interactables
 
         private void CreateBaseCuratedBuffList()
         {
+            if (EnableBuffCatalogSelection)
+            {
+                foreach(BuffDef buff in BuffCatalog.buffDefs)
+                {
+                    if(buff.iconSprite == null || String.IsNullOrWhiteSpace(buff.name)) { continue; }
+
+                    var buffColor = buff.buffColor;
+
+                    if(buff.buffColor == Color.white)
+                    {
+                        var r = UnityEngine.Random.Range(40, 192);
+                        var g = UnityEngine.Random.Range(40, 192);
+                        var b = UnityEngine.Random.Range(40, 192);
+                        buffColor = new Color32((byte)r, (byte)g, (byte)b, 255);
+                    }
+
+                    AddCuratedBuffType(buff.name, buff, buffColor, UnityEngine.Random.Range(1, 4), buff.isDebuff);
+                }
+
+                return;
+            }
             //War Buff
             AddCuratedBuffType("Warcry", RoR2Content.Buffs.WarCryBuff, new Color32(255, 0, 0, 255), 1, false);
 
@@ -368,11 +403,11 @@ namespace Aetherium.Interactables
             //Slowdown Debuff
             AddCuratedBuffType("80 Percent Slowdown", RoR2Content.Buffs.Slow80, new Color32(179, 154, 61, 255), 1.5f, true);
 
-            if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
+            /*if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
             {
                 //Strength of the Pack
                 AddCuratedBuffType("Strength of the Pack", StandaloneBuffs.StrengthOfThePack.instance.BuffDef, StandaloneBuffs.StrengthOfThePack.instance.Color, 1.5f, false);
-            }
+            }*/
 
             if (StandaloneBuffs.DoubleXPDoubleGold.instance != null && StandaloneBuffs.DoubleXPDoubleGold.instance.BuffDef)
             {

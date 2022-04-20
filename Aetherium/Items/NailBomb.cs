@@ -89,7 +89,7 @@ namespace Aetherium.Items
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
-            CreateAchievement();
+            //CreateAchievement();
             CreateLang();
             CreateBuff();
             CreateEffect();
@@ -143,7 +143,7 @@ namespace Aetherium.Items
 
             NailBombTracerSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             NailBombTracerSound.eventName = "Aetherium_Nailbomb_Nail_Impact";
-            SoundAPI.AddNetworkedSoundEvent(NailBombTracerSound);
+            R2API.ContentAddition.AddNetworkSoundEventDef(NailBombTracerSound);
 
             var normalEffectComponent = NailBombNailEffect.GetComponent<EffectComponent>();
             normalEffectComponent.soundName = "Aetherium_Nailbomb_Nail_Impact";
@@ -262,8 +262,8 @@ namespace Aetherium.Items
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayNailBomb.prefab");
-            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]

@@ -71,7 +71,7 @@ namespace Aetherium.Artifacts
                     int stageOrder = nextStageScene.stageOrder;
                     foreach (SceneDef sceneDef in SceneCatalog.allSceneDefs)
                     {
-                        if (sceneDef.destinations.Length > 0)
+                        if (sceneDef.destinationsGroup.sceneEntries.Length > 0)
                         {
                             list.Add(sceneDef);
                         }

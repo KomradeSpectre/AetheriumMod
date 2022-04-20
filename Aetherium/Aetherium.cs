@@ -1,7 +1,7 @@
-﻿#define DEBUG
+﻿#undef DEBUG
 #undef DEBUGMULTIPLAYER
-#define DEBUGMATERIALS
-#define DEBUGHELPERS
+#undef DEBUGMATERIALS
+#undef DEBUGHELPERS
 
 using Aetherium.Artifacts;
 using Aetherium.StandaloneBuffs;
@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using HG;
 
 namespace Aetherium
 {
@@ -81,6 +82,8 @@ namespace Aetherium
             #if DEBUG
             R2API.Utils.CommandHelper.AddToConsoleWhenReady();
             #endif
+
+            R2API.Utils.CommandHelper.AddToConsoleWhenReady();
 
             #if DEBUGMULTIPLAYER
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
@@ -185,6 +188,7 @@ namespace Aetherium
                 }
 
                 IL.RoR2.ShopTerminalBehavior.GenerateNewPickupServer_bool += ItemBase.BlacklistFromPrinter;
+                On.RoR2.Items.ContagiousItemManager.Init += ItemBase.RegisterVoidPairings;
             }
 
             var disableEquipment = Config.ActiveBind<bool>("Equipment", "Disable All Equipment?", false, "Do you wish to disable every equipment in Aetherium?");

@@ -31,7 +31,7 @@ namespace Aetherium.Items
             "Experiment Log #476951-b\n" +
             "Subject Matter: Unknown Omni-Magnetic Xenomineral" +
 
-            "\n<indent=5%>I'm recoding this video log in complete awe of the discovery before us. What we understood about magnetic properties of minerals had generally revealed to us that there a variety" +
+            "\n<indent=5%>I'm recording this video log in complete awe of the discovery before us. What we understood about magnetic properties of minerals had generally revealed to us that there a variety" +
             "of materials that were not able to be affected in any large scale manner by standard magnetics. One of these would be flesh. If I drop this neodymium magnet on my arm like so...You notice that" +
             "nothing of note happens. The magnet just falls right onto the table. This is what we've known as our normal for magnetics, but this mineral seems to rewrite that constant.\n" +
 

@@ -52,6 +52,10 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override float Cooldown => 2;
 
+        public override float HealthMultiplier => 2;
+
+        public override float DamageMultiplier => 1.5f;
+
         public HashSet<string> NoAbyssalControllerForTheseBodies = new HashSet<string>()
         {
             "GrandParentBody",
@@ -105,8 +109,6 @@ namespace Aetherium.Equipment.EliteEquipment
                 new CombatDirector.EliteTierDef()
                 {
                     costMultiplier = CombatDirector.baseEliteCostMultiplier * CostMultiplierOfElite,
-                    //damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * DamageMultiplierOfElite, TODO Moved into EliteDef and i dont know where that is
-                    //healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * HealthMultiplierOfElite,
                     eliteTypes = Array.Empty<EliteDef>(),
                     isAvailable = SetAvailability
                 }

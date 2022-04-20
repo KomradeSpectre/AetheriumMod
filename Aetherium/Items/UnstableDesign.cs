@@ -109,7 +109,7 @@ namespace Aetherium.Items
             CreateSound();
             CreateTargetingPrefabs();
             CreateSpawncard();
-            CreateAchievement();
+            //CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -137,11 +137,11 @@ namespace Aetherium.Items
         {
             LostTargetSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             LostTargetSound.eventName = "Aetherium_Lost_Target";
-            SoundAPI.AddNetworkedSoundEvent(LostTargetSound);
+            R2API.ContentAddition.AddNetworkSoundEventDef(LostTargetSound);
 
             SearchCrySound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             SearchCrySound.eventName = "Aetherium_Search_Cry";
-            SoundAPI.AddNetworkedSoundEvent(SearchCrySound);
+            R2API.ContentAddition.AddNetworkSoundEventDef(SearchCrySound);
 
         }
 
@@ -197,8 +197,8 @@ namespace Aetherium.Items
 
             masterPrefab.bodyPrefab = LunarChimeraBodyPrefab;
             LunarChimeraSpawnCard.prefab = LunarChimeraMasterPrefab;
-            RoR2.MasterCatalog.getAdditionalEntries += list => list.Add(LunarChimeraMasterPrefab);
-            RoR2.BodyCatalog.getAdditionalEntries += list => list.Add(LunarChimeraBodyPrefab);
+            R2API.ContentAddition.AddMaster(LunarChimeraMasterPrefab);
+            R2API.ContentAddition.AddBody(LunarChimeraBodyPrefab);
             NetworkingAPI.RegisterMessageType<AssignOwner>();
         }
 

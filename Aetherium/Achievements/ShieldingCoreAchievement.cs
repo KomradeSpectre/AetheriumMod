@@ -15,7 +15,7 @@ namespace Aetherium.Achievements
         public override string AchievementLangToken => "SHIELDING_CORE";
         public override string AchievementDescription => "Have over half of your health as shields.";
         public override string AchievementPrerequisiteID => "";
-        public override Sprite AchievementIcon => null;
+        public override Sprite AchievementIcon => MainAssets.LoadAsset<Sprite>("ShieldingCoreIcon.png");
         public override bool ServerTracked => true;
 
         public override void Init()

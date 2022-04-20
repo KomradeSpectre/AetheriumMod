@@ -46,6 +46,8 @@ namespace Aetherium.Items
         public override ItemTier Tier => ItemTier.Tier1;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
 
+        public override string CorruptsItem => "ITEM_NAIL_BOMB_NAME";
+
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("FeatheredPlume.prefab");
         public override Sprite ItemIcon => UseNewIcons ? MainAssets.LoadAsset<Sprite>("FeatheredPlumeIconAlt.png") : MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
 
@@ -87,10 +89,9 @@ namespace Aetherium.Items
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
             ItemBodyModelPrefab = ItemModel;
-            ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemBodyModelPrefab.GetComponent<RoR2.ItemDisplay>().rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
+            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab, true);
 
-            Vector3 generalScale = new Vector3(0.4f, 0.4f, 0.4f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
 
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]

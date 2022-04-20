@@ -174,7 +174,7 @@ namespace Aetherium.Compatability
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(FeatheredPlume.instance.ItemDef.itemIndex, FeatheredPlumeStatDefs);
             }
 
-            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            /*[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void CreateInspiringDroneStatDef()
             {
                 ItemStats.ItemStatDef InspiringDroneStatDefs = new ItemStats.ItemStatDef();
@@ -233,7 +233,7 @@ namespace Aetherium.Compatability
                 }
 
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(InspiringDrone.instance.ItemDef.itemIndex, InspiringDroneStatDefs);
-            }
+            }*/
 
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void CreateNailBombStatDef()

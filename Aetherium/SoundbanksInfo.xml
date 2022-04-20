@@ -1,114 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="11" SoundbankVersion="132">
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="12" SoundbankVersion="135">
 	<RootPaths>
-		<ProjectRoot>C:\Users\Jonathan Church\OneDrive\Documents\WwiseProjects\aetherium-sounds\</ProjectRoot>
-		<SourceFilesRoot>C:\Users\Jonathan Church\OneDrive\Documents\WwiseProjects\aetherium-sounds\.cache\Windows\</SourceFilesRoot>
+		<ProjectRoot>C:\Users\Jonathan Church\Documents\WwiseProjects\aetherium-sounds\</ProjectRoot>
+		<SourceFilesRoot>C:\Users\Jonathan Church\Documents\WwiseProjects\aetherium-sounds\.cache\Windows\</SourceFilesRoot>
 		<SoundBanksRoot>C:\PC GAMEs\Aetherium\Aetherium\</SoundBanksRoot>
 		<ExternalSourcesInputFile></ExternalSourcesInputFile>
-		<ExternalSourcesOutputRoot>C:\Users\Jonathan Church\OneDrive\Documents\WwiseProjects\aetherium-sounds\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
+		<ExternalSourcesOutputRoot>C:\Users\Jonathan Church\Documents\WwiseProjects\aetherium-sounds\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
 	</RootPaths>
 	<DialogueEvents/>
 	<StreamedFiles/>
 	<MediaFilesNotInAnyBank/>
 	<SoundBanks>
-		<SoundBank Id="1355168291" Language="SFX">
+		<SoundBank Id="1355168291" Language="SFX" Hash="477531825">
 			<ObjectPath>Init</ObjectPath>
 			<ShortName>Init</ShortName>
 			<Path>Init.bnk</Path>
 		</SoundBank>
-		<SoundBank Id="3841639201" Language="SFX">
+		<SoundBank Id="3841639201" Language="SFX" Hash="1510612562">
 			<ObjectPath>\SoundBanks\Default Work Unit\AetheriumSounds</ObjectPath>
 			<ShortName>AetheriumSounds</ShortName>
 			<Path>AetheriumSounds.bnk</Path>
 			<IncludedEvents>
-				<Event Id="760500611" Name="Aetherium_Brazier_Fire_Play" ObjectPath="\Events\Default Work Unit\Interactables\Buff Brazier\Aetherium_Brazier_Fire_Play"/>
+				<Event Id="760500611" Name="Aetherium_Brazier_Fire_Play" ObjectPath="\Events\Default Work Unit\Interactables\Buff Brazier\Aetherium_Brazier_Fire_Play">
+					<IncludedMemoryFiles>
+						<File Id="820489558" Language="SFX">
+							<ShortName>BrazierFire4.wav</ShortName>
+							<Path>SFX\BrazierFire4_0D5756A9.wem</Path>
+						</File>
+						<File Id="835179323" Language="SFX">
+							<ShortName>BrazierFire3.wav</ShortName>
+							<Path>SFX\BrazierFire3_0D5756A9.wem</Path>
+						</File>
+						<File Id="888887504" Language="SFX">
+							<ShortName>BrazierFire1.wav</ShortName>
+							<Path>SFX\BrazierFire1_0D5756A9.wem</Path>
+						</File>
+						<File Id="1002046592" Language="SFX">
+							<ShortName>BrazierFire2.wav</ShortName>
+							<Path>SFX\BrazierFire2_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 				<Event Id="3116942153" Name="Aetherium_Brazier_Fire_Stop" ObjectPath="\Events\Default Work Unit\Interactables\Buff Brazier\Aetherium_Brazier_Fire_Stop"/>
-				<Event Id="3262989765" Name="Aetherium_Duplicate_Bot" ObjectPath="\Events\Default Work Unit\Items\Engineers Toolbelt\Aetherium_Duplicate_Bot"/>
-				<Event Id="3270049672" Name="Aetherium_Gulp" ObjectPath="\Events\Default Work Unit\Items\AccursedPotion\Aetherium_Gulp"/>
-				<Event Id="3530772414" Name="Aetherium_Lost_Target" ObjectPath="\Events\Default Work Unit\Items\Unstable Design\Aetherium_Lost_Target"/>
-				<Event Id="3476199716" Name="Aetherium_Nailbomb_Nail_Impact" ObjectPath="\Events\Default Work Unit\Items\Nail Bomb\Aetherium_Nailbomb_Nail_Impact"/>
-				<Event Id="2041039699" Name="Aetherium_Progression_Squelch" ObjectPath="\Events\Default Work Unit\Artifact\Artifact of Progression\Aetherium_Progression_Squelch"/>
-				<Event Id="3224075990" Name="Aetherium_Ring_Bell" ObjectPath="\Events\Default Work Unit\Equipment\Bell Totem\Aetherium_Ring_Bell"/>
-				<Event Id="1204392089" Name="Aetherium_Search_Cry" ObjectPath="\Events\Default Work Unit\Items\Unstable Design\Aetherium_Search_Cry"/>
+				<Event Id="3262989765" Name="Aetherium_Duplicate_Bot" ObjectPath="\Events\Default Work Unit\Items\Engineers Toolbelt\Aetherium_Duplicate_Bot">
+					<IncludedMemoryFiles>
+						<File Id="802418392" Language="SFX">
+							<ShortName>EngineersToolbeltDuplicate1.wav</ShortName>
+							<Path>SFX\EngineersToolbeltDuplicate1_0D5756A9.wem</Path>
+						</File>
+						<File Id="902728536" Language="SFX">
+							<ShortName>EngineersToolbeltDuplicate2.wav</ShortName>
+							<Path>SFX\EngineersToolbeltDuplicate2_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3270049672" Name="Aetherium_Gulp" ObjectPath="\Events\Default Work Unit\Items\AccursedPotion\Aetherium_Gulp">
+					<IncludedMemoryFiles>
+						<File Id="694968336" Language="SFX">
+							<ShortName>AccursedPotionGulp2.wav</ShortName>
+							<Path>SFX\AccursedPotionGulp2_0D5756A9.wem</Path>
+						</File>
+						<File Id="867080358" Language="SFX">
+							<ShortName>AccursedPotionGulp1.wav</ShortName>
+							<Path>SFX\AccursedPotionGulp1_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3530772414" Name="Aetherium_Lost_Target" ObjectPath="\Events\Default Work Unit\Items\Unstable Design\Aetherium_Lost_Target">
+					<IncludedMemoryFiles>
+						<File Id="323142587" Language="SFX">
+							<ShortName>UnstableDesignCry1.wav</ShortName>
+							<Path>SFX\UnstableDesignCry1_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3476199716" Name="Aetherium_Nailbomb_Nail_Impact" ObjectPath="\Events\Default Work Unit\Items\Nail Bomb\Aetherium_Nailbomb_Nail_Impact">
+					<IncludedMemoryFiles>
+						<File Id="239600675" Language="SFX">
+							<ShortName>nailimpact.wav</ShortName>
+							<Path>SFX\nailimpact_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="2041039699" Name="Aetherium_Progression_Squelch" ObjectPath="\Events\Default Work Unit\Artifact\Artifact of Progression\Aetherium_Progression_Squelch">
+					<IncludedMemoryFiles>
+						<File Id="106047812" Language="SFX">
+							<ShortName>squelch3.wav</ShortName>
+							<Path>SFX\squelch3_0D5756A9.wem</Path>
+						</File>
+						<File Id="445925564" Language="SFX">
+							<ShortName>squelch2.wav</ShortName>
+							<Path>SFX\squelch2_0D5756A9.wem</Path>
+						</File>
+						<File Id="898158736" Language="SFX">
+							<ShortName>squelch1.wav</ShortName>
+							<Path>SFX\squelch1_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3224075990" Name="Aetherium_Ring_Bell" ObjectPath="\Events\Default Work Unit\Equipment\Bell Totem\Aetherium_Ring_Bell">
+					<IncludedMemoryFiles>
+						<File Id="621907727" Language="SFX">
+							<ShortName>BellF5.wav</ShortName>
+							<Path>SFX\BellF5_0D5756A9.wem</Path>
+						</File>
+						<File Id="682657855" Language="SFX">
+							<ShortName>BellD5.wav</ShortName>
+							<Path>SFX\BellD5_0D5756A9.wem</Path>
+						</File>
+						<File Id="712337403" Language="SFX">
+							<ShortName>BellG5.wav</ShortName>
+							<Path>SFX\BellG5_0D5756A9.wem</Path>
+						</File>
+						<File Id="999919567" Language="SFX">
+							<ShortName>BellC5.wav</ShortName>
+							<Path>SFX\BellC5_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1204392089" Name="Aetherium_Search_Cry" ObjectPath="\Events\Default Work Unit\Items\Unstable Design\Aetherium_Search_Cry">
+					<IncludedMemoryFiles>
+						<File Id="139764465" Language="SFX">
+							<ShortName>UnstableDesignCry3.wav</ShortName>
+							<Path>SFX\UnstableDesignCry3_0D5756A9.wem</Path>
+						</File>
+						<File Id="800569276" Language="SFX">
+							<ShortName>UnstableDesignCry2.wav</ShortName>
+							<Path>SFX\UnstableDesignCry2_0D5756A9.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 			</IncludedEvents>
-			<IncludedMemoryFiles>
-				<File Id="106047812" Language="SFX">
-					<ShortName>squelch3.wav</ShortName>
-					<Path>SFX\squelch3_A1793BE9.wem</Path>
-				</File>
-				<File Id="139764465" Language="SFX">
-					<ShortName>UnstableDesignCry3.wav</ShortName>
-					<Path>SFX\UnstableDesignCry3_A1793BE9.wem</Path>
-				</File>
-				<File Id="239600675" Language="SFX">
-					<ShortName>nailimpact.wav</ShortName>
-					<Path>SFX\nailimpact_A1793BE9.wem</Path>
-				</File>
-				<File Id="323142587" Language="SFX">
-					<ShortName>UnstableDesignCry1.wav</ShortName>
-					<Path>SFX\UnstableDesignCry1_A1793BE9.wem</Path>
-				</File>
-				<File Id="445925564" Language="SFX">
-					<ShortName>squelch2.wav</ShortName>
-					<Path>SFX\squelch2_A1793BE9.wem</Path>
-				</File>
-				<File Id="621907727" Language="SFX">
-					<ShortName>BellF5.wav</ShortName>
-					<Path>SFX\BellF5_A1793BE9.wem</Path>
-				</File>
-				<File Id="682657855" Language="SFX">
-					<ShortName>BellD5.wav</ShortName>
-					<Path>SFX\BellD5_A1793BE9.wem</Path>
-				</File>
-				<File Id="694968336" Language="SFX">
-					<ShortName>AccursedPotionGulp2.wav</ShortName>
-					<Path>SFX\AccursedPotionGulp2_A1793BE9.wem</Path>
-				</File>
-				<File Id="712337403" Language="SFX">
-					<ShortName>BellG5.wav</ShortName>
-					<Path>SFX\BellG5_A1793BE9.wem</Path>
-				</File>
-				<File Id="800569276" Language="SFX">
-					<ShortName>UnstableDesignCry2.wav</ShortName>
-					<Path>SFX\UnstableDesignCry2_A1793BE9.wem</Path>
-				</File>
-				<File Id="802418392" Language="SFX">
-					<ShortName>EngineersToolbeltDuplicate1.wav</ShortName>
-					<Path>SFX\EngineersToolbeltDuplicate1_A1793BE9.wem</Path>
-				</File>
-				<File Id="820489558" Language="SFX">
-					<ShortName>BrazierFire4.wav</ShortName>
-					<Path>SFX\BrazierFire4_A1793BE9.wem</Path>
-				</File>
-				<File Id="835179323" Language="SFX">
-					<ShortName>BrazierFire3.wav</ShortName>
-					<Path>SFX\BrazierFire3_A1793BE9.wem</Path>
-				</File>
-				<File Id="867080358" Language="SFX">
-					<ShortName>AccursedPotionGulp1.wav</ShortName>
-					<Path>SFX\AccursedPotionGulp1_A1793BE9.wem</Path>
-				</File>
-				<File Id="888887504" Language="SFX">
-					<ShortName>BrazierFire1.wav</ShortName>
-					<Path>SFX\BrazierFire1_A1793BE9.wem</Path>
-				</File>
-				<File Id="898158736" Language="SFX">
-					<ShortName>squelch1.wav</ShortName>
-					<Path>SFX\squelch1_A1793BE9.wem</Path>
-				</File>
-				<File Id="902728536" Language="SFX">
-					<ShortName>EngineersToolbeltDuplicate2.wav</ShortName>
-					<Path>SFX\EngineersToolbeltDuplicate2_A1793BE9.wem</Path>
-				</File>
-				<File Id="999919567" Language="SFX">
-					<ShortName>BellC5.wav</ShortName>
-					<Path>SFX\BellC5_A1793BE9.wem</Path>
-				</File>
-				<File Id="1002046592" Language="SFX">
-					<ShortName>BrazierFire2.wav</ShortName>
-					<Path>SFX\BrazierFire2_A1793BE9.wem</Path>
-				</File>
-			</IncludedMemoryFiles>
+			<GameParameters>
+				<GameParameter Id="3673881719" Name="Volume_SFX" ObjectPath="\Game Parameters\Default Work Unit\Volume_SFX"/>
+			</GameParameters>
 		</SoundBank>
 	</SoundBanks>
 </SoundBanksInfo>

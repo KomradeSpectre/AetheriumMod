@@ -23,14 +23,6 @@ namespace Aetherium.Artifacts
 
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheNightmareDisabledIcon.png");
 
-        public List<ItemDef> HeresyItemList = new List<ItemDef>()
-        {
-            RoR2Content.Items.LunarPrimaryReplacement,
-            RoR2Content.Items.LunarSecondaryReplacement,
-            RoR2Content.Items.LunarUtilityReplacement,
-            RoR2Content.Items.LunarSpecialReplacement
-        };
-
         public override void Init(ConfigFile config)
         {
             CreateLang();
@@ -53,26 +45,40 @@ namespace Aetherium.Artifacts
 
                 if (!self.isBoss && self.teamIndex != TeamIndex.Player && self.inventory && !hereticCacheComponent)
                 {
-                    var itemsToGiveEnemy = HeresyItemList.Where(x => body.inventory.GetItemCount(x) <= 0).Shuffle(Run.instance.stageRng).Take(Run.instance.stageRng.RangeInt(1, 5));
-
-                    foreach(ItemDef item in itemsToGiveEnemy)
+                    ItemDef[] heresyItems = new ItemDef[]
                     {
-                        self.inventory.GiveItem(item);
+                        RoR2Content.Items.LunarPrimaryReplacement,
+                        RoR2Content.Items.LunarSecondaryReplacement,
+                        RoR2Content.Items.LunarUtilityReplacement,
+                        RoR2Content.Items.LunarSpecialReplacement
+                    };
+
+                    var itemsToGiveEnemy = heresyItems.Where(x => body.inventory.GetItemCount(x) <= 0).Shuffle(Run.instance.stageRng).Take(Run.instance.stageRng.RangeInt(1, 5));
+
+                    foreach (ItemDef item in itemsToGiveEnemy)
+                    {
+                        body.inventory.GiveItem(item);
+                    }
+
+                    foreach (ItemDef item in itemsToGiveEnemy)
+                    {
+                        body.inventory.GiveItem(item);
                     }
 
                     var uniqueHeresyItemCount = 0;
 
-                    foreach(ItemDef itemDef in HeresyItemList)
+                    foreach (ItemDef itemDef in heresyItems)
                     {
                         var count = body.inventory.GetItemCount(itemDef);
-                        if(count > 0)
+                        if (count > 0)
                         {
                             uniqueHeresyItemCount++;
                             continue;
                         }
                     }
 
-                    if(uniqueHeresyItemCount >= 4)
+
+                    if (uniqueHeresyItemCount >= 4)
                     {
                         var hereticCache = self.gameObject.AddComponent<NightmareHereticCache>();
 

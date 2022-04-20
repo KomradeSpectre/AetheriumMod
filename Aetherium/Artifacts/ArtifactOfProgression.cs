@@ -71,7 +71,7 @@ namespace Aetherium.Artifacts
             ProgressionSquelchEvent = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             ProgressionSquelchEvent.eventName = "Aetherium_Progression_Squelch";
 
-            SoundAPI.AddNetworkedSoundEvent(ProgressionSquelchEvent);
+            R2API.ContentAddition.AddNetworkSoundEventDef(ProgressionSquelchEvent);
         }
 
         private void CreateBuff()

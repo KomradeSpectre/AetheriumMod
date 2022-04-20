@@ -25,6 +25,13 @@
     <Compile Remove="Items\BloodDiamond.cs" />
     <Compile Remove="Items\ObliterballAndChain.cs" />
     <Compile Remove="Items\RicochetTest.cs" />
+    <Compile Remove="Items\VoidItems\FrenziedWarbot.cs" />
+    <Compile Remove="Items\VoidItems\RazorfinWing.cs" />
+    <Compile Remove="Items\VoidItems\ScientistsNanites.cs" />
+    <Compile Remove="Items\VoidItems\Shichishito.cs" />
+    <Compile Remove="Items\VoidItems\UmbralAspis.cs" />
+    <Compile Remove="StandaloneBuffs\StrengthOfThePack.cs" />
+    <Compile Remove="Utils\Components\MaterialControllerComponentsGetter.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Items\VoidItems\" />
     <Folder Include="lib\" />
     <Folder Include="obj\" />
     <Folder Include="Utils\Scripts\" />
@@ -52,8 +60,9 @@
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.4.19" />
-    <PackageReference Include="BetterUI" Version="2.4.4" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.1-r.1" />
+    <PackageReference Include="BetterUI" Version="2.5.10" />
+    <PackageReference Include="R2API" Version="4.3.5" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.2-r.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
   </ItemGroup>
 
@@ -61,17 +70,16 @@
     <Reference Include="InLobbyConfig, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>lib\InLobbyConfig.dll</HintPath>
     </Reference>
+    <Reference Include="ItemStats">
+      <HintPath>lib\ItemStats.dll</HintPath>
+    </Reference>
     <Reference Include="MMHOOK_RoR2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>lib\MMHOOK_RoR2.dll</HintPath>
     </Reference>
-    <Reference Include="R2API, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\R2API.dll</HintPath>
-    </Reference>
   </ItemGroup>
-  <!--TODO couldnt get this operation to work, did steal the unetpatcher from debugtoolkit
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;..\lib\UnityEngine.CoreModule.dll&quot; &quot;..\lib\UnityEngine.Networking.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;$(NuGetPackageRoot)\unityengine.modules\2019.4.26\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(NuGetPackageRoot)\riskofrain2.gamelibs\1.2.1-r.1\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />
   </Target>
-  -->
 	
 </Project>
