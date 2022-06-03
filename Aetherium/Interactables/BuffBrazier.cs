@@ -195,7 +195,7 @@ namespace Aetherium.Interactables
             InteractableSpawnCard.hullSize = HullClassification.Golem;
             InteractableSpawnCard.nodeGraphType = RoR2.Navigation.MapNodeGroup.GraphType.Ground;
             InteractableSpawnCard.requiredFlags = RoR2.Navigation.NodeFlags.None;
-            InteractableSpawnCard.forbiddenFlags = RoR2.Navigation.NodeFlags.NoShrineSpawn;
+            InteractableSpawnCard.forbiddenFlags = RoR2.Navigation.NodeFlags.NoShrineSpawn | RoR2.Navigation.NodeFlags.NoChestSpawn;
             InteractableSpawnCard.directorCreditCost = 20;
             InteractableSpawnCard.occupyPosition = true;
             InteractableSpawnCard.orientToFloor = false;
@@ -203,7 +203,7 @@ namespace Aetherium.Interactables
 
             RoR2.DirectorCard directorCard = new RoR2.DirectorCard
             {
-                selectionWeight = 1000,
+                selectionWeight = 4,
                 spawnCard = InteractableSpawnCard,
                 //allowAmbushSpawn = true, TODO removed i think?
             };

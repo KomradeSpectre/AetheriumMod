@@ -332,7 +332,7 @@ namespace Aetherium.Items
         {
             if (IsItemStatsModInstalled)
             {
-                CreateAccursedPotionStatDef();
+                //CreateAccursedPotionStatDef();
             }
 
             if (IsBetterUIInstalled)

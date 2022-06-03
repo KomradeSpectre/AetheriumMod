@@ -479,7 +479,7 @@ namespace Aetherium.Items
             return true;
         }
 
-        public class BotStatTracker : NetworkBehaviour
+        public class BotStatTracker : MonoBehaviour
         {
             public float AttackSpeedBoost;
             public float DamageBoost;
@@ -494,7 +494,6 @@ namespace Aetherium.Items
             public CharacterBody BotOwnerBody;
             public CharacterBody BotBody;
 
-            [SyncVar]
             public float TeleportTimer = 0f;
 
             public int BoostCount = -1;

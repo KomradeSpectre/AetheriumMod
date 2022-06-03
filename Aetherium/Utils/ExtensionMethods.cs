@@ -16,11 +16,11 @@ namespace Aetherium.Utils
             }
         }
 
-        public static void FilterOutItemWielders(this BullseyeSearch search, ItemDef itemDef)
+        public static void FilterOutItemWielders(this BullseyeSearch search, ItemDef item)
         {
             if (search.candidatesEnumerable.Any())
             {
-                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(itemDef));
+                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(item));
             }
         }
 

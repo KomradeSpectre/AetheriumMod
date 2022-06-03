@@ -11,6 +11,11 @@ namespace Aetherium.Effect
     {
         public override void Begin()
         {
+            if(target && target.healthComponent && target.healthComponent.body && target.healthComponent.body.inventory)
+            {
+                target.healthComponent.body.inventory.GiveItem(Equipment.Faust.instance.DeactivatedFaustItem);
+            }
+
             duration = distanceToTarget / speed;
             if (Equipment.Faust.OrbFaust)
             {

@@ -62,6 +62,7 @@ namespace Aetherium.Items
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("VoidheartIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
+        public static GameObject VoidPortal;
 
         public RoR2.UI.HealthBarStyle HealthBarStyle;
 
@@ -381,6 +382,8 @@ namespace Aetherium.Items
                 componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier;
                 componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
                 componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration;
+                componentVoidheartDeath.intendedDuration = 4;
+                componentVoidheartDeath.shrinkDuration = 0.3f;
                 componentVoidheartDeath.Init();
 
                 var tempDestroyOnDeath = self.destroyOnBodyDeath;

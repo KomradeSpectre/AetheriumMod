@@ -705,7 +705,7 @@ namespace Aetherium.Items
             LimiterReleaseItemDef.loreToken = "";
             LimiterReleaseItemDef.canRemove = false;
             LimiterReleaseItemDef.hidden = true;
-            LimiterReleaseItemDef.tier = ItemTier.NoTier;
+            LimiterReleaseItemDef.deprecatedTier = ItemTier.NoTier;
 
             ItemAPI.Add(new CustomItem(LimiterReleaseItemDef, CreateLimiterItemDisplayRules()));
         }

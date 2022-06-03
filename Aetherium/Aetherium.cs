@@ -12,7 +12,6 @@ using Aetherium.Interactables;
 using Aetherium.Items;
 using Aetherium.Utils;
 using BepInEx;
-using InLobbyConfig.Fields;
 using R2API;
 using R2API.Networking;
 using R2API.Utils;
@@ -41,7 +40,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.6";
+        public const string ModVer = "0.6.8";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -77,6 +76,9 @@ namespace Aetherium
         public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
 
+        //Debug Stuff
+        public static List<Material> SwappedMaterials = new List<Material>();
+
         private void Awake()
         {
             #if DEBUG
@@ -96,7 +98,10 @@ namespace Aetherium
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
-            }            
+            }
+
+            //Material shader autoconversion
+            ShaderConversion(MainAssets);
 
             using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.AetheriumSounds.bnk"))
             {
@@ -104,9 +109,6 @@ namespace Aetherium
                 bankStream.Read(bytes, 0, bytes.Length);
                 SoundAPI.SoundBanks.Add(bytes);
             }
-
-            //Material shader autoconversion
-            ShaderConversion(MainAssets);
 
             #if DEBUGMATERIALS
             AttachControllerFinderToObjects(MainAssets);
@@ -375,7 +377,11 @@ namespace Aetherium
             foreach (Material material in materialAssets)
             {
                 var replacementShader = LegacyResourcesAPI.Load<Shader>(ShaderLookup[material.shader.name.ToLowerInvariant()]); // TODO this might not be correct
-                if (replacementShader) { material.shader = replacementShader; }
+                if (replacementShader) 
+                {
+                    material.shader = replacementShader;
+                    SwappedMaterials.Add(material);
+                }
             }
         }
 

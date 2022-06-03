@@ -21,18 +21,27 @@ namespace Aetherium.Artifacts
 
         public override string ArtifactLangTokenName => "ARTIFACT_OF_THE_TYRANT";
 
-        public override string ArtifactDescription => $"Any time Mithrix spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
+        public override string ArtifactDescription => $"Any time a route-ending boss spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantEnabledIcon.png");
 
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantDisabledIcon.png");
 
-        public string[] MithrixNames = new string[] 
+        public string[] RouteEnderBossNames = new string[] 
         {
             "BrotherBody",
             "BrotherGlassBody",
             "BrotherHauntBody",
-            "BrotherHurtBody"
+            "BrotherHurtBody",
+            "MiniVoidRaidCrabBody",
+            "MiniVoidRaidCrabBodyBase",
+            "MiniVoidRaidCrabBodyPhase1",
+            "MiniVoidRaidCrabBodyPhase2",
+            "MiniVoidRaidCrabBodyPhase3",
+            "ScavLunar1Body",
+            "ScavLunar2Body",
+            "ScavLunar3Body",
+            "ScavLunar4Body",
         };
 
         public List<string> BlacklistedAffixes = new List<string>()
@@ -50,7 +59,7 @@ namespace Aetherium.Artifacts
 
         private void CreateConfig(ConfigFile config)
         {
-            NumberOfEliteAffixesToGiveMithrix = config.ActiveBind<int>("Artifact: " + ArtifactName, "Number of Elite Affixes to Give Mithrix", 1, "How many elite statuses should Mithrix be granted by us?");
+            NumberOfEliteAffixesToGiveMithrix = config.ActiveBind<int>("Artifact: " + ArtifactName, "Number of Elite Affixes to Give Route-Ending Bosses", 1, "How many elite statuses should Route-Ending bosses be granted by us?");
 
             var blacklistString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Affixes String", "", "What affixes should be blacklisted from Artifact of the Tyrant? (generally no spaces, comma delimited)");
 
@@ -76,7 +85,7 @@ namespace Aetherium.Artifacts
 
             if (ArtifactEnabled && NetworkServer.active && body)
             {
-                if (MithrixNames.Any(x => body.name.Contains(x)))
+                if (RouteEnderBossNames.Any(x => body.name.Contains(x)))
                 {
                     var eliteDefs = EliteCatalog.eliteDefs.Where(x => x.eliteEquipmentDef && x.eliteEquipmentDef.passiveBuffDef && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.name));
 

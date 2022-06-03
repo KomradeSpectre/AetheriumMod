@@ -38,6 +38,15 @@ namespace Aetherium.Compatability
             {
                 BetterUI.Buffs.RegisterBuffInfo(buffDef, nameToken, descriptionToken);
             }
+
+            public static void CreateAccursedPotionStatDef()
+            {
+                BetterUI.ItemStats.ItemStat SipCooldownStatDef = new BetterUI.ItemStats.ItemStat
+                {
+                    nameToken = "AETHERIUM_ITEM_STAT_DEF_ACCURSED_POTION_SIP",
+
+                };
+            }
         }
 
         internal static class ItemStatsModCompat

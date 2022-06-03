@@ -53,29 +53,17 @@
 
   <ItemGroup>
     <Folder Include="Items\VoidItems\" />
-    <Folder Include="lib\" />
     <Folder Include="obj\" />
     <Folder Include="Utils\Scripts\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Core" Version="5.4.19" />
-    <PackageReference Include="BetterUI" Version="2.5.10" />
-    <PackageReference Include="R2API" Version="4.3.5" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.2-r.0" />
+    <PackageReference Include="BetterUI" Version="2.6.1" />
+    <PackageReference Include="ItemStatsMod" Version="2.2.2" />
+    <PackageReference Include="MMHOOK.RoR2" Version="2022.4.19" />
+    <PackageReference Include="R2API" Version="4.3.21" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.3.1-r.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="InLobbyConfig, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\InLobbyConfig.dll</HintPath>
-    </Reference>
-    <Reference Include="ItemStats">
-      <HintPath>lib\ItemStats.dll</HintPath>
-    </Reference>
-    <Reference Include="MMHOOK_RoR2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\MMHOOK_RoR2.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
