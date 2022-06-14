@@ -24,6 +24,8 @@ namespace Aetherium.MyEntityStates
 
 		private Vector3 blinkStart = Vector3.zero;
 
+		public Vector3 lastBlinkPosition;
+
 		public float duration = 0.2f;
 
 		public float blinkDistance = 10f;

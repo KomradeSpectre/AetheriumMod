@@ -7,7 +7,6 @@
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
     <Compile Remove="Achievements\WeightedAnkletAchievement.cs" />
-    <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixBenevolent.cs" />
@@ -61,8 +60,8 @@
     <PackageReference Include="BetterUI" Version="2.6.1" />
     <PackageReference Include="ItemStatsMod" Version="2.2.2" />
     <PackageReference Include="MMHOOK.RoR2" Version="2022.4.19" />
-    <PackageReference Include="R2API" Version="4.3.21" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.3.1-r.0" />
+    <PackageReference Include="R2API" Version="4.4.1" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
   </ItemGroup>
 

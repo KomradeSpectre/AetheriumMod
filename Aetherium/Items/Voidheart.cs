@@ -69,6 +69,12 @@ namespace Aetherium.Items
         public static BuffDef VoidInstabilityDebuff { get; private set; }
         public static BuffDef VoidImmunityBuff { get; private set; }
 
+        public List<string> RevivalItems = new List<string>()
+        {
+            "ExtraLife",
+            "ExtraLifeVoid"
+        };
+
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -89,6 +95,18 @@ namespace Aetherium.Items
             VoidHeartAdditionalTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Percentage Raise in Ticking Time Bomb Threshold per Additional Heart of the Void", 0.05f, "How much additional percentage should we add to the ticking time bomb threshold per stack of Heart of the Void? (Default: 0.05 (5%))");
             VoidHeartMaxTickingTimeBombHealthThreshold = config.ActiveBind<float>("Item: " + ItemName, "Absolute Max Ticking Time Bomb Threshold", 0.99f, "How high should our maximum ticking time bomb health threshold be? (Default: 0.99 (99%))");
             VoidHeartCooldownDebuffDuration = config.ActiveBind("Item: " + ItemName, "Duration of Heart of the Void Cooldown After Use", 30f, "How should long should our Heart of the Void usage cooldown duration be? (Default: 30 (30 seconds))");
+
+            var blacklistString = config.ActiveBind<string>("Item: " + ItemName, "Revival Items", "", "What revival items should be consumed before Heart of the Void activates? (generally no spaces, comma delimited) E.g.: ExtraLife,ExtraLifeConsumed");
+
+            if (!string.IsNullOrWhiteSpace(blacklistString))
+            {
+                var blacklistedStringArray = blacklistString.ToString().Split(',');
+
+                foreach (string blacklistedEntry in blacklistedStringArray)
+                {
+                    RevivalItems.Add(blacklistedEntry);
+                }
+            }
         }
 
         private void CreateUnlockable()
@@ -370,28 +388,45 @@ namespace Aetherium.Items
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
         {
             var InventoryCount = GetCount(body);
-            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff) && body.inventory.GetItemCount(RoR2Content.Items.ExtraLife) <= 0)
+            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
             {
-                GameObject explosion = new GameObject();
-                explosion.transform.position = body.transform.position;
+                bool hasBlacklistedRevivalItems = false;
+                foreach (var item in RevivalItems)
+                {
+                    var blackListedItem = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(item));
+                    if (blackListedItem)
+                    {
+                        var itemCount = body.inventory.GetItemCount(blackListedItem);
+                        if(itemCount > 0)
+                        {
+                            hasBlacklistedRevivalItems = true;
+                        }
+                    }
+                }
 
-                var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
-                componentVoidheartDeath.toReviveMaster = self;
-                componentVoidheartDeath.toReviveBody = body;
-                componentVoidheartDeath.voidExplosionRadius = VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (InventoryCount - 1));
-                componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier;
-                componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
-                componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration;
-                componentVoidheartDeath.intendedDuration = 4;
-                componentVoidheartDeath.shrinkDuration = 0.3f;
-                componentVoidheartDeath.Init();
+                if (!hasBlacklistedRevivalItems)
+                {
+                    GameObject explosion = new GameObject();
+                    explosion.transform.position = body.transform.position;
 
-                var tempDestroyOnDeath = self.destroyOnBodyDeath;
-                self.destroyOnBodyDeath = false;
-                orig(self, body);
-                self.destroyOnBodyDeath = tempDestroyOnDeath;
-                self.preventGameOver = true;
-                return;
+                    var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
+                    componentVoidheartDeath.toReviveMaster = self;
+                    componentVoidheartDeath.toReviveBody = body;
+                    componentVoidheartDeath.voidExplosionRadius = VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (InventoryCount - 1));
+                    componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier;
+                    componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
+                    componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration;
+                    componentVoidheartDeath.intendedDuration = 4;
+                    componentVoidheartDeath.shrinkDuration = 0.3f;
+                    componentVoidheartDeath.Init();
+
+                    var tempDestroyOnDeath = self.destroyOnBodyDeath;
+                    self.destroyOnBodyDeath = false;
+                    orig(self, body);
+                    self.destroyOnBodyDeath = tempDestroyOnDeath;
+                    self.preventGameOver = true;
+                    return;
+                }
             }
             orig(self, body);
         }
@@ -482,11 +517,11 @@ namespace Aetherium.Items
             var InventoryCount = GetCount(self);
             if (InventoryCount > 0 && self.master)
             {
-                if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                /*if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
                     //Unga bunga, voidheart not like deployables. POP!
                     self.inventory.RemoveItem(ItemDef, InventoryCount);
-                }
+                }*/
             }
         }
 

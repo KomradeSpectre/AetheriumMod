@@ -87,7 +87,7 @@ namespace Aetherium.Artifacts
             {
                 if (RouteEnderBossNames.Any(x => body.name.Contains(x)))
                 {
-                    var eliteDefs = EliteCatalog.eliteDefs.Where(x => x.eliteEquipmentDef && x.eliteEquipmentDef.passiveBuffDef && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.name));
+                    var eliteDefs = EliteCatalog.eliteDefs.Where(x => x.eliteEquipmentDef && x.eliteEquipmentDef.passiveBuffDef && !BlacklistedAffixes.Contains(x.name) && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.name) && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.passiveBuffDef.name));
 
                     var selectedEliteDefs = eliteDefs.Where(x => !body.HasBuff(x.eliteEquipmentDef.passiveBuffDef)).Shuffle(Run.instance.stageRng).Take(NumberOfEliteAffixesToGiveMithrix);
 

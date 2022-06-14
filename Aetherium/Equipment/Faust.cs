@@ -16,6 +16,8 @@ using RoR2.Projectile;
 using UnityEngine.Networking;
 using Aetherium.Utils.Components;
 using RoR2.UI;
+using R2API.Networking.Interfaces;
+using R2API.Networking;
 
 namespace Aetherium.Equipment
 {
@@ -35,7 +37,7 @@ namespace Aetherium.Equipment
 
         public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("PickupFaust.prefab");
 
-        public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
+        public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("FaustIcon.png");
 
         public static GameObject ItemBodyModelPrefab;
 
@@ -49,20 +51,65 @@ namespace Aetherium.Equipment
 
         public static SkillDef BrokenSkill;
 
+        public static Dictionary<string, string> MithrixHurtTokens = new Dictionary<string, string>();
+
+        public static Dictionary<string, string> MithrixTokens = new Dictionary<string, string>();
+
         public override void Init(ConfigFile config)
         {
             CreateLang();
+            CreateMithrixLang();
+            CreateNetworking();
             CreateSkill();
             CreateTargeting();
             CreateProjectile();
             CreateEquipment();
             CreateFaustItem();
             CreateFaustDisplayRules();
+
             Hooks();
+        }
+
+        private void CreateMithrixLang()
+        {
+
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP1", "THIS...PUNY...HAT...WON'T...SAVE...YOU...");
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP2", "GET...THIS THING...OFF OF ME!!");
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP3", "WHO TURNED OUT THE LIGHTS?!");
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP4", "I...WILL SHATTER YOU INTO INNUMERABLE PIECES...AND I WILL...BE FASHIONABLE...");
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP5", "I DON'T NEED TO SEE YOU TO OBLITERATE YOU!");
+            MithrixHurtTokens.Add("AETHERIUM_BROTHER_HURT_FAUST_EQUIP6", "COME TO ME MY CHIMERAS! BURN THIS HORRIBLE THING OFF!");
+
+            foreach (KeyValuePair<string, string> value in MithrixHurtTokens)
+            {
+                LanguageAPI.Add(value.Key, value.Value);
+            }
+
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP1", "I-Is this a hat?!");
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP2", "Which one of you insects threw this at me?!");
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP3", "I already have my crown! I have no need of another!");
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP4", "Did you put glue on this?!");
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP5", "Who made this vile thing? No, it couldn't possibly be...");
+            MithrixTokens.Add("AETHERIUM_BROTHER_FAUST_EQUIP6", "Of all the weapons to bring into battle...this?");
+
+
+            foreach (KeyValuePair<string, string> value in MithrixTokens)
+            {
+                LanguageAPI.Add(value.Key, value.Value);
+            }
+        }
+
+        private void CreateNetworking()
+        {
+            NetworkingAPI.RegisterMessageType<SyncFaustComponentAddition>();
+            NetworkingAPI.RegisterMessageType<SyncFaustComponentRemoval>();
         }
 
         private void CreateSkill()
         {
+            LanguageAPI.Add("AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_SKILL_NAME", "Sealed Skill");
+            LanguageAPI.Add("AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_DESCRIPTION", "This skill has been sealed by an external force! You are unable to use it!");
+
             BrokenSkill = new SkillDef
             {
                 skillName = "BROKEN",
@@ -146,6 +193,8 @@ namespace Aetherium.Equipment
             ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayFaust.prefab");
             var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab, true);
+
+
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlAutimecia", new RoR2.ItemDisplayRule[]
@@ -863,7 +912,10 @@ namespace Aetherium.Equipment
 
             ItemAPI.Add(new CustomItem(FaustItem, CreateFaustDisplayRules()));
             ItemAPI.Add(new CustomItem(DeactivatedFaustItem, new ItemDisplayRule[] { }));
-            
+
+            FaustVictimItems.Add(FaustItem);
+            FaustVictimItems.Add(DeactivatedFaustItem);
+
         }
 
         private ItemDisplayRuleDict CreateFaustDisplayRules()
@@ -872,7 +924,7 @@ namespace Aetherium.Equipment
             var fedoraRainbow = victimBodyModelPrefab.transform.Find("EmptyTransformer/ScaleTransform/Hat").gameObject.AddComponent<RainbowComponent>();
             fedoraRainbow.changeEmission = true;
             fedoraRainbow.hueRate = 1f;
-            fedoraRainbow.value = 1.3f;
+            fedoraRainbow.value = 4f;
             var itemDisplay = victimBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(victimBodyModelPrefab, true);
 
@@ -1569,6 +1621,7 @@ namespace Aetherium.Equipment
             On.RoR2.EquipmentSlot.Update += FilterOutHatWearers;
             On.RoR2.CharacterBody.OnEquipmentGained += GiveFaustController;
             On.RoR2.CharacterBody.OnEquipmentLost += RemoveFaustController;
+            On.RoR2.CharacterBody.Start += CheckForInheritedFaust;
         }
 
         private void GiveFaustController(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
@@ -1591,6 +1644,25 @@ namespace Aetherium.Equipment
                 }
             }
             orig(self, equipmentDef);
+        }
+
+        private void CheckForInheritedFaust(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            if (self.inventory)
+            {
+                var faustInventoryCount = self.inventory.GetItemCount(FaustItem);
+                var deactivatedFaustInventoryCount = self.inventory.GetItemCount(DeactivatedFaustItem);
+                if(faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
+                {
+                    var victimFaustComponent = self.gameObject.GetComponent<FaustComponent>();
+                    if (!victimFaustComponent)
+                    {
+                        self.inventory.RemoveItem(FaustItem, faustInventoryCount);
+                        self.inventory.RemoveItem(DeactivatedFaustItem, deactivatedFaustInventoryCount);
+                    }
+                }
+            }
         }
 
         protected override bool ActivateEquipment(EquipmentSlot slot)
@@ -1630,7 +1702,7 @@ namespace Aetherium.Equipment
                 var targetingComponent = self.GetComponent<TargetingControllerComponent>();
                 if (targetingComponent)
                 {
-                    targetingComponent.AdditionalBullseyeFunctionality = (bullseyeSearch) => bullseyeSearch.FilterOutItemWielders(DeactivatedFaustItem);
+                    targetingComponent.AdditionalBullseyeFunctionality = (bullseyeSearch) => bullseyeSearch.FilterOutItemWielders(FaustVictimItems);
                 }
             }
         }
@@ -1675,6 +1747,9 @@ namespace Aetherium.Equipment
             public float stopwatch;
             public float CheckDuration = 3;
 
+            public int CurrentMoneyMakingHitsCount = 0;
+            public int MoneyMakingHitCap = 50;
+
             public int skillSealSeed;
 
             public bool BeginDestruction;
@@ -1718,9 +1793,12 @@ namespace Aetherium.Equipment
                     if (speechDriver)
                     {
                         bool isHurt = speechDriver.gameObject.name.ToLowerInvariant().Contains("hurt");
+
+                        var chosenMithrixLine = isHurt ? MithrixHurtTokens.ElementAt(UnityEngine.Random.Range(0, MithrixHurtTokens.Count)).Key : MithrixTokens.ElementAt(UnityEngine.Random.Range(0, MithrixHurtTokens.Count)).Key;
+
                         speechDriver.characterSpeechController.EnqueueSpeech(new CharacterSpeechController.SpeechInfo()
                         {
-                            token = isHurt ? "BROTHERHURT_AUTIMECIA_FAUST" : "BROTHER_AUTIMECIA_FAUST",
+                            token = chosenMithrixLine,
                             duration = 2,
                             maxWait = 0.5f,
                             priority = 10000,
@@ -1738,13 +1816,35 @@ namespace Aetherium.Equipment
                 {
                     faustController.AddBargain(this);
                 }
+
+                if (NetworkServer.active)
+                {
+                    if (attacker)
+                    {
+                        var attackerNetID = attacker.GetComponent<NetworkIdentity>();
+                        var victimNetID = GetComponent<NetworkIdentity>();
+
+                        if (victimNetID && attackerNetID)
+                        {
+                            new SyncFaustComponentAddition(victimNetID.netId, attackerNetID.netId, skillSealSeed).Send(R2API.Networking.NetworkDestination.Clients);
+                        }
+                    }
+                }
             }
 
             private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport)
             {
-                if (damageReport.victim.gameObject == gameObject && attacker && damageReport.attackerBody && damageReport.attacker == attacker)
+                if (damageReport.victim.gameObject == gameObject && attacker && damageReport.attackerBody && !damageReport.isFriendlyFire)
                 {
-                    DropExtraGold(damageReport.attackerBody);
+                    if(CurrentMoneyMakingHitsCount < MoneyMakingHitCap)
+                    {
+                        DropExtraGold(damageReport.attackerBody);
+                        CurrentMoneyMakingHitsCount++;
+                    }
+                    else
+                    {
+                        BeginDestruction = true;
+                    }
                 }
             }
 
@@ -1836,6 +1936,106 @@ namespace Aetherium.Equipment
 
                 if (inventory)
                     inventory.RemoveItem(Faust.instance.FaustItem);
+            }
+
+            public void OnDestroy()
+            {
+                if (NetworkServer.active)
+                {
+                    var victimNetID = GetComponent<NetworkIdentity>();
+
+                    if (victimNetID)
+                    {
+                        new SyncFaustComponentRemoval(victimNetID.netId).Send(R2API.Networking.NetworkDestination.Clients);
+                    }
+                }
+            }
+        }
+
+        public class SyncFaustComponentAddition : INetMessage
+        {
+            public NetworkInstanceId VictimID;
+            public NetworkInstanceId AttackerID;
+            public int SkillSealSeed;
+
+            public SyncFaustComponentAddition()
+            {
+
+            }
+
+            public SyncFaustComponentAddition(NetworkInstanceId victimID, NetworkInstanceId attackerID, int skillSealSeed)
+            {
+                VictimID = victimID;
+                AttackerID = attackerID;
+                SkillSealSeed = skillSealSeed;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(VictimID);
+                writer.Write(AttackerID);
+                writer.Write(SkillSealSeed);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                VictimID = reader.ReadNetworkId();
+                AttackerID = reader.ReadNetworkId();
+                SkillSealSeed = reader.ReadInt32();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+
+                var victimGameObject = RoR2.Util.FindNetworkObject(VictimID);
+                var attackerGameObject = RoR2.Util.FindNetworkObject(AttackerID);
+                if (victimGameObject && attackerGameObject)
+                {
+                    var faustComponent = victimGameObject.AddComponent<FaustComponent>();
+                    faustComponent.attacker = attackerGameObject;
+                    faustComponent.skillSealSeed = SkillSealSeed;
+                }
+            }
+        }
+
+        public class SyncFaustComponentRemoval : INetMessage
+        {
+            public NetworkInstanceId VictimID;
+
+            public SyncFaustComponentRemoval()
+            {
+
+            }
+
+            public SyncFaustComponentRemoval(NetworkInstanceId victimID)
+            {
+                VictimID = victimID;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(VictimID);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                VictimID = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if (NetworkServer.active) return;
+
+                var victimGameObject = RoR2.Util.FindNetworkObject(VictimID);
+                if (victimGameObject)
+                {
+                    var faustComponents = victimGameObject.GetComponents<FaustComponent>();
+                    foreach(var faustComponent in faustComponents)
+                    {
+                        UnityEngine.Object.Destroy(faustComponent);
+                    }
+                }
             }
         }
     }

@@ -1330,7 +1330,7 @@ namespace Aetherium.Items
 
         private void FireTheSwordOnBulletAttack(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
         {
-            if(self.weapon && BlacklistedBulletAttackWeapons.Contains(self.weapon.name.Replace("(Clone)", "")))
+            if(self != null && self.weapon && BlacklistedBulletAttackWeapons.Contains(self.weapon.name.Replace("(Clone)", "")))
             {
                 orig(self);
                 return;
@@ -1368,9 +1368,13 @@ namespace Aetherium.Items
                                     ChildLocator childLocator = weaponModelLocator.modelTransform.GetComponent<ChildLocator>();
                                     if (childLocator)
                                     {
-                                        if (self.muzzleName != "")
+                                        if (!string.IsNullOrWhiteSpace(self.muzzleName))
                                         {
-                                            MuzzleTransform = childLocator.FindChild(self.muzzleName).position;
+                                            var child = childLocator.FindChild(self.muzzleName);
+                                            if (child)
+                                            {
+                                                MuzzleTransform = child.position;
+                                            }
                                         }
                                     }
                                 }

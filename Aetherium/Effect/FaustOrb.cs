@@ -41,6 +41,13 @@ namespace Aetherium.Effect
                     var faust = healthComponent.body.gameObject.AddComponent<FaustComponent>();
                     faust.attacker = attacker;
 
+                    var inventory = healthComponent.body.inventory;
+                    if (inventory)
+                    {
+                        var deactivatedFaustItemCount = inventory.GetItemCount(Equipment.Faust.instance.DeactivatedFaustItem);
+                        inventory.RemoveItem(Equipment.Faust.instance.DeactivatedFaustItem, deactivatedFaustItemCount);
+                    }
+
                     SetStateOnHurt setStateOnHurt = healthComponent.GetComponent<SetStateOnHurt>();
                     if (setStateOnHurt)
                     {

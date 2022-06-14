@@ -1273,6 +1273,8 @@ namespace Aetherium.Equipment.EliteEquipment
 
             public bool IsFlyer;
 
+            public Vector3 LastPosition;
+
             public void Start()
             {
                 BodyStateMachine = GetComponents<EntityStateMachine>().Where(x => x.customName == "Body").FirstOrDefault();
@@ -1368,14 +1370,26 @@ namespace Aetherium.Equipment.EliteEquipment
                                     }
                                 }
 
-                                var blinkState = new MyEntityStates.AbyssalDash();
-                                blinkState.duration = BlinkStateDuration;
-                                blinkState.blinkDistance = BlinkDistance;
-                                var jumped = BodyStateMachine.SetInterruptState(blinkState, EntityStates.InterruptPriority.Any);
-
-                                if (!jumped && ExhaustionStacks > 0)
+                                if((LastPosition - Body.corePosition).magnitude > 0.1f)
                                 {
-                                    ExhaustionStacks--;
+                                    var blinkState = new MyEntityStates.AbyssalDash();
+                                    blinkState.duration = BlinkStateDuration;
+                                    blinkState.blinkDistance = BlinkDistance;
+                                    var jumped = BodyStateMachine.SetInterruptState(blinkState, EntityStates.InterruptPriority.Any);
+
+                                    if (jumped)
+                                    {
+                                        LastPosition = Body.corePosition;
+                                    }
+
+                                    if (!jumped && ExhaustionStacks > 0)
+                                    {
+                                        ExhaustionStacks--;
+                                    }
+                                }
+                                else
+                                {
+                                    TimeBetweenJumps = 2f;
                                 }
                             }
                             else

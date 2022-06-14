@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 439739238
+CRC: 3603582676
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 1e4c47365f42a0861e2a83c119fedbb6
+    Hash: 18c246f63f49a120319ed10d92edd373
   TypeTreeHash:
     serializedVersion: 2
     Hash: dd0cd73cccbb394c450a2bfd89420b51
@@ -718,6 +718,7 @@ Assets:
 - Assets/Textures/Material Textures/AccursedPotionGlassNormal.png
 - Assets/Animations/NailBombSubProjectile.controller
 - Assets/Textures/Material Textures/ShieldingCoreNormal.png
+- Assets/Textures/Icons/Equipment/FaustIcon.png
 - Assets/Shaders/3D Shaders/DoubleTexGlobalPosition.shader
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDollMaterial.mat
 - Assets/Textures/Icons/Buff/ProgressionStartBuffIcon.png
@@ -740,6 +741,7 @@ Assets:
 - Assets/Models/Prefabs/Item/WitchesRing/DisplayWitchesRing.prefab
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Animations/ThrusterRAfterburner.anim
+- Assets/Models/Raw Models/By Others/Ragon/faustb.fbx
 - Assets/Textures/Materials/Miscellaneous/MiscBlack.mat
 - Assets/Models/Prefabs/Item/SharkTeeth/SharkTeeth.prefab
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingOrb.prefab

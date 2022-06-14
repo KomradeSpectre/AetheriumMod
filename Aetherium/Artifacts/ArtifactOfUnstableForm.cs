@@ -82,8 +82,34 @@ namespace Aetherium.Artifacts
 
                         foreach(CharacterMaster master in mastersToTransform)
                         {
-                            var bodyString = BodyCatalog.bodyPrefabs[Run.instance.stageRng.RangeInt(0, BodyCatalog.bodyPrefabs.Length)].name;
-                            master.TransformBody(bodyString);
+                            var body = master.GetBody();
+                            if (body)
+                            {
+                                Vector3 chosenPosition = body.corePosition;
+
+                                var masterPrefab = MasterCatalog.masterPrefabs[Run.instance.stageRng.RangeInt(0, BodyCatalog.bodyPrefabs.Length)];
+
+                                AetheriumPlugin.ModLogger.LogInfo($"Chosen MasterPrefab is: {masterPrefab}");
+
+                                if (masterPrefab)
+                                {
+                                    CharacterMaster summonedTransformation = new MasterSummon()
+                                    {
+                                        masterPrefab = masterPrefab,
+                                        position = chosenPosition,
+                                        rotation = body.transform.rotation,
+                                        summonerBodyObject = master.gameObject,
+                                        ignoreTeamMemberLimit = true,
+                                    }.Perform();
+
+                                    if (summonedTransformation)
+                                    {
+                                        summonedTransformation.inventory.CopyItemsFrom(body.inventory);
+                                        summonedTransformation.inventory.CopyEquipmentFrom(body.inventory);
+                                        UnityEngine.Object.Destroy(body.gameObject);
+                                    }
+                                }
+                            }
                         }
                     }
 

@@ -24,6 +24,21 @@ namespace Aetherium.Utils
             }
         }
 
+        public static void FilterOutItemWielders(this BullseyeSearch search, List<ItemDef> items)
+        {
+            List<BullseyeSearch.CandidateInfo> temporaryList = search.candidatesEnumerable.ToList();
+
+            if (temporaryList.Any())
+            {
+                foreach(ItemDef item in items)
+                {
+                    temporaryList.RemoveAll(x => x.hurtBox && x.hurtBox.DoesHurtboxHaveItem(item));
+                }
+
+                search.candidatesEnumerable = temporaryList;
+            }        
+        }
+
         public static bool DoesHurtboxHaveItem(this HurtBox hurtbox, ItemDef item)
         {
             if (!hurtbox.healthComponent || !hurtbox.healthComponent.body || !item)
