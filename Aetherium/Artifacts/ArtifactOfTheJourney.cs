@@ -2,6 +2,7 @@
 using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using RoR2;
 using UnityEngine;
@@ -69,13 +70,13 @@ namespace Aetherium.Artifacts
                 if (nextStageScene != null)
                 {
                     int stageOrder = nextStageScene.stageOrder;
-                    foreach (SceneDef sceneDef in SceneCatalog.allSceneDefs)
-                    {
-                        if (sceneDef.destinationsGroup.sceneEntries.Length > 0)
-                        {
-                            list.Add(sceneDef);
-                        }
-                    }
+                    list = new List<SceneDef>(SceneCatalog.allSceneDefs)
+                        .Where(sd => 
+                            sd.destinationsGroup.sceneEntries.Length > 0 &&
+                                (!sd.requiredExpansion 
+                                || Run.instance.IsExpansionEnabled(sd.requiredExpansion))
+                                )
+                        .ToList();
                 }
                 foreach (SeerStationController seerStationController in self.seerStations)
                 {
