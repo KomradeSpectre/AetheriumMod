@@ -34,6 +34,7 @@ Discord: https://www.discord.gg/WNap5qcPf6
 | Icon | Equipment | Description | Type | Original Idea by |
 |:-|-|------|-|-|
 |![](https://i.imgur.com/RUky7N5.png)| **Jar of Reshaping** | On activation, `absorb projectiles` in a `20m` radius for `3` second(s). Upon success, `fire all of the projectiles` out of the jar upon next activation. The damage traits of each projectiles fired from the jar `depends on the bullets you absorbed`. After all the projectiles have been fired from the jar, it will need to cool down. | Normal | Me |
+|![](https://i.imgur.com/gkVAlPv.png)| **Bell Totem** | On use, spawn an interactable bell totem at the chosen position. When activated, trigger a shockwave with a radius of 25m that stuns and sends enemies flying away from it. Additionally, any On Shrine Use effects will be activated. 2 second(s) between equipment uses, 1 second(s) between totem activations, and only one totem can be spawned per activator. | Normal | Ragon, modified slightly by me |
 
 ----
 ## Elite Equipment (and elites) (so far):
