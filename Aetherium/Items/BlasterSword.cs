@@ -564,18 +564,18 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName =  "NeedlerItems",
-                    localPos =   new Vector3(0.47427F, -0.17845F, -0.01515F), 
-                    localAngles =new Vector3(0F, 0F, 91.16087F),
+                    childName = "NeedlerItems",
+                    localPos = new Vector3(0.43976F, -0.17905F, -0.03793F),
+                    localAngles = new Vector3(3.90256F, 4.49459F, 90.19315F),
                     localScale = new Vector3(0.14598F, 0.13813F, 0.14598F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName =  "NeedlerItems",
-                    localPos =   new Vector3(0.48428F, 0.2955F, -0.01517F), 
-                    localAngles =new Vector3(0F, 0F, 88.8F),
+                    childName = "NeedlerItems",
+                    localPos = new Vector3(0.44118F, 0.32155F, -0.00379F),
+                    localAngles = new Vector3(3.90256F, 4.4946F, 87.44079F),
                     localScale = new Vector3(0.14598F, 0.13813F, 0.14598F)
                 },
             });
@@ -914,56 +914,56 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "HMGItems",
-                    localPos = new Vector3(1.18834F, 0.13045F, -0.00015F),
-                    localAngles = new Vector3(0F, 0F, 90F),
-                    localScale = new Vector3(0.04056F, 0.04056F, 0.04056F)
+                    childName =  "ShotgunItems",
+                    localPos =   new Vector3(1.14057F, -0.01415F, 0.05927F),
+                    localAngles =new Vector3(0F, 0F, 90F),
+                    localScale = new Vector3(0.07379F, 0.07379F, 0.07379F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ShotgunItems",
-                    localPos = new Vector3(-0.24187F, -0.04017F, 0.03557F),
-                    localAngles = new Vector3(0F, 0F, 180F),
-                    localScale = new Vector3(0.00805F, 0.00805F, 0.00805F)
+                    childName =  "SSGBarrelItems",
+                    localPos =   new Vector3(-0.00527F, 1.13731F, 0.0219F),
+                    localAngles =new Vector3(0F, 90F, 180F),
+                    localScale = new Vector3(0.07379F, 0.07379F, 0.07379F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ShotgunItems",
-                    localPos = new Vector3(-0.21169F, -0.04017F, 0.03557F),
-                    localAngles = new Vector3(0F, 0F, 180F),
-                    localScale = new Vector3(0.00805F, 0.00805F, 0.00805F)
+                    childName =  "HMGItems",
+                    localPos =   new Vector3(1.07765F, -0.01496F, 0.05527F),
+                    localAngles =new Vector3(0F, 0F, 90F),
+                    localScale = new Vector3(0.06306F, 0.07538F, 0.06306F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "ShotgunItems",
-                    localPos = new Vector3(0.93573F, 0.16214F, -0.00004F),
-                    localAngles = new Vector3(0F, 0F, 90F),
-                    localScale = new Vector3(0.06807F, 0.06807F, 0.06807F)
+                    childName =  "HammerHeadFront",
+                    localPos =   new Vector3(0.00013F, 0.01796F, -0.38599F),
+                    localAngles =new Vector3(0F, 90F, 90F),
+                    localScale = new Vector3(0.14598F, 0.13813F, 0.14598F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "SSGBarrelItems",
-                    localPos = new Vector3(0.00002F, 0.99703F, 0.02013F),
-                    localAngles = new Vector3(0F, 0F, 180F),
-                    localScale = new Vector3(0.06807F, 0.06807F, 0.06807F)
+                    childName = "NeedlerItems",
+                    localPos = new Vector3(0.43976F, -0.17905F, -0.03793F),
+                    localAngles = new Vector3(3.90256F, 4.49459F, 90.19315F),
+                    localScale = new Vector3(0.14598F, 0.13813F, 0.14598F)
                 },
                 new RoR2.ItemDisplayRule
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "HammerBase",
-                    localPos = new Vector3(0.00026F, 1.82899F, -0.53876F),
-                    localAngles = new Vector3(0F, 90F, 90F),
-                    localScale = new Vector3(0.03257F, 0.03257F, 0.03257F)
-                }
+                    childName = "NeedlerItems",
+                    localPos = new Vector3(0.44118F, 0.32155F, -0.00379F),
+                    localAngles = new Vector3(3.90256F, 4.4946F, 87.44079F),
+                    localScale = new Vector3(0.14598F, 0.13813F, 0.14598F)
+                },
             });
             rulesAlt.Add("NemesisEnforcerBody", new RoR2.ItemDisplayRule[]
             {

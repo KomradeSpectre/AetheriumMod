@@ -332,9 +332,9 @@ namespace Aetherium.Items
                 {
                     ruleType = ItemDisplayRuleType.ParentedPrefab,
                     followerPrefab = ItemBodyModelPrefab,
-                    childName = "Base",
-                    localPos = new Vector3(1.61061F, 1.02247F, 1.87389F),
-                    localAngles = new Vector3(90F, 0F, 0F),
+                    childName = "Root",
+                    localPos = new Vector3(1.46491F, 1.11523F, -0.9641F),
+                    localAngles = new Vector3(33.40712F, 357.51F, 265.4841F),
                     localScale = new Vector3(0.125F, 0.125F, 0.125F)
                 }
             });
