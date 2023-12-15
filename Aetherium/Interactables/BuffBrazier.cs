@@ -133,6 +133,8 @@ namespace Aetherium.Interactables
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
 
+            AddExpansionComponentToInteractable(InteractableBodyModelPrefab);
+
             var pingInfoProvider = InteractableBodyModelPrefab.AddComponent<PingInfoProvider>();
             pingInfoProvider.pingIconOverride = MainAssets.LoadAsset<Sprite>("BuffBrazierShrineIcon.png");
 
@@ -189,7 +191,7 @@ namespace Aetherium.Interactables
         public void CreateInteractableSpawnCard()
         {
             InteractableSpawnCard = ScriptableObject.CreateInstance<RoR2.InteractableSpawnCard>();
-            InteractableSpawnCard.name = "iscBuffBrazier";
+            InteractableSpawnCard.name = "AETHERIUM_iscBuffBrazier";
             InteractableSpawnCard.prefab = InteractableBodyModelPrefab;
             InteractableSpawnCard.sendOverNetwork = true;
             InteractableSpawnCard.hullSize = HullClassification.Golem;
@@ -207,7 +209,14 @@ namespace Aetherium.Interactables
                 spawnCard = InteractableSpawnCard,
                 //allowAmbushSpawn = true, TODO removed i think?
             };
-            DirectorAPI.Helpers.AddNewInteractable(directorCard, DirectorAPI.InteractableCategory.Shrines);
+
+            DirectorAPI.DirectorCardHolder directorCardHolder = new DirectorAPI.DirectorCardHolder
+            {
+                Card = directorCard,
+                InteractableCategory = DirectorAPI.InteractableCategory.Shrines,
+            };
+
+            DirectorAPI.Helpers.AddNewInteractable(directorCardHolder);
         }
 
         private void Hooks()

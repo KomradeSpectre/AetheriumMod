@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using R2API;
+using RoR2;
 using System;
 using UnityEngine;
 
@@ -32,6 +33,15 @@ namespace Aetherium.Interactables
         {
             LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_NAME", InteractableName);
             LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_CONTEXT", InteractableContext);
+        }
+
+        public void AddExpansionComponentToInteractable(GameObject interactable)
+        {
+            if (!interactable) { return; }
+
+            var expansionComponent = interactable.AddComponent<RoR2.ExpansionManagement.ExpansionRequirementComponent>();
+            expansionComponent.requiredExpansion = AetheriumPlugin.AetheriumExpansionDef;
+
         }
     }
 }

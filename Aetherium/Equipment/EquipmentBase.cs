@@ -77,6 +77,7 @@ namespace Aetherium.Equipment
             EquipmentDef.enigmaCompatible = EnigmaCompatible;
             EquipmentDef.isBoss = IsBoss;
             EquipmentDef.isLunar = IsLunar;
+            EquipmentDef.requiredExpansion = AetheriumPlugin.AetheriumExpansionDef;
 
             ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules()));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;

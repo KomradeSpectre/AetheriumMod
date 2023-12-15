@@ -336,27 +336,30 @@ namespace Aetherium.Items
         {
             orig(self);
 
-            var shieldComponent = self.GetComponent<ShieldedCoreComponent>();
-            if (!shieldComponent) { shieldComponent = self.gameObject.AddComponent<ShieldedCoreComponent>(); }
-
-            var newInventoryCount = GetCount(self);
-            var IsShielded = self.healthComponent.shield > 0;
-
-            bool IsDifferent = false;
-            if (shieldComponent.cachedInventoryCount != newInventoryCount)
+            if(self && self.healthComponent)
             {
-                IsDifferent = true;
-                shieldComponent.cachedInventoryCount = newInventoryCount;
-            }
-            if (shieldComponent.cachedIsShielded != IsShielded)
-            {
-                IsDifferent = true;
-                shieldComponent.cachedIsShielded = IsShielded;
-            }
+                var shieldComponent = self.GetComponent<ShieldedCoreComponent>();
+                if (!shieldComponent) { shieldComponent = self.gameObject.AddComponent<ShieldedCoreComponent>(); }
 
-            if (!IsDifferent) return;
+                var newInventoryCount = GetCount(self);
+                var IsShielded = self.healthComponent.shield > 0;
 
-            self.statsDirty = true;
+                bool IsDifferent = false;
+                if (shieldComponent.cachedInventoryCount != newInventoryCount)
+                {
+                    IsDifferent = true;
+                    shieldComponent.cachedInventoryCount = newInventoryCount;
+                }
+                if (shieldComponent.cachedIsShielded != IsShielded)
+                {
+                    IsDifferent = true;
+                    shieldComponent.cachedIsShielded = IsShielded;
+                }
+
+                if (!IsDifferent) return;
+
+                self.statsDirty = true;
+            }
         }
 
         private void ShieldedCoreArmorCalc(RoR2.CharacterBody sender, StatHookEventArgs args)

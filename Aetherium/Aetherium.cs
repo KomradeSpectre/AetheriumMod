@@ -10,6 +10,7 @@ using Aetherium.Equipment;
 using Aetherium.Equipment.EliteEquipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
+using Aetherium.Survivors;
 using Aetherium.Utils;
 using BepInEx;
 using R2API;
@@ -23,6 +24,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using HG;
+using RoR2.ExpansionManagement;
 
 namespace Aetherium
 {
@@ -35,7 +37,7 @@ namespace Aetherium
     [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), //nameof(BuffAPI), nameof(ResourcesAPI), nameof(EffectAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(LoadoutAPI),   
                               nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
                               nameof(NetworkingAPI), nameof(DirectorAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI),
-                              nameof(CommandHelper))]
+                              nameof(CommandHelper), nameof(DamageAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
@@ -65,8 +67,11 @@ namespace Aetherium
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
         public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
+        public List<SurvivorBase> Survivors = new List<SurvivorBase>();
 
         public static HashSet<ItemDef> BlacklistedFromPrinter = new HashSet<ItemDef>();
+
+        public static ExpansionDef AetheriumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
 
         // For modders that seek to know whether or not one of the items or equipment are enabled for use in...I dunno, adding grip to Blaster Sword?
         public static Dictionary<ArtifactBase, bool> ArtifactStatusDictionary = new Dictionary<ArtifactBase, bool>();
@@ -75,6 +80,7 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
+        public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
 
         //Debug Stuff
         public static List<Material> SwappedMaterials = new List<Material>();
@@ -102,6 +108,8 @@ namespace Aetherium
 
             //Material shader autoconversion
             ShaderConversion(MainAssets);
+
+            GenerateExpansionDef();
 
             using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.AetheriumSounds.bnk"))
             {
@@ -213,6 +221,26 @@ namespace Aetherium
                 }
             }
 
+            var disableSurvivor = Config.ActiveBind<bool>("Survivor", "Disable All Survivors?", false, "Do you wish to disable every survivor in Aetherium?");
+            if (!disableEquipment)
+            {
+                //Equipment Initialization
+                var SurvivorTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(SurvivorBase)));
+
+                ModLogger.LogInfo("-----------------SURVIVORS---------------------");
+
+                foreach (var survivorType in SurvivorTypes)
+                {
+                    SurvivorBase survivor = (SurvivorBase)System.Activator.CreateInstance(survivorType);
+                    if (ValidateSurvivor(survivor, Survivors))
+                    {
+                        survivor.Init(Config);
+
+                        ModLogger.LogInfo("Survivor: " + survivor.SurvivorName + " Initialized!");
+                    }
+                }
+            }
+
             //Equipment Initialization
             var EliteEquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EliteEquipmentBase)));
 
@@ -274,6 +302,19 @@ namespace Aetherium
                     body.inventory.GiveItem(item.Key.ItemDef);
                 }
             }
+        }
+
+        public void GenerateExpansionDef()
+        {
+            LanguageAPI.Add("AETHERIUM_EXPANSION_DEF_NAME", "Aetherium");
+            LanguageAPI.Add("AETHERIUM_EXPANSION_DEF_DESCRIPTION", "A whole world of weird items, equipment, elites, and interactables await you.");
+
+            AetheriumExpansionDef.descriptionToken = "AETHERIUM_EXPANSION_DEF_DESCRIPTION";
+            AetheriumExpansionDef.nameToken = "AETHERIUM_EXPANSION_DEF_NAME";
+            AetheriumExpansionDef.iconSprite = MainAssets.LoadAsset<Sprite>("AetheriumActiveIconAlt.png");
+            AetheriumExpansionDef.disabledIconSprite = MainAssets.LoadAsset<Sprite>("AetheriumInactiveIconAlt.png");
+
+            R2API.ContentAddition.AddExpansionDef(AetheriumExpansionDef);
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
@@ -365,6 +406,20 @@ namespace Aetherium
             if (enabled)
             {
                 interactableList.Add(interactable);
+                return true;
+            }
+            return false;
+        }
+
+        public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
+        {
+            var enabled = Config.Bind<bool>("Survivor: " + survivor.SurvivorName, "Enable Survivor?", true, "Should this survivor be enabled?").Value;
+
+            SurvivorStatusDictionary.Add(survivor, enabled);
+
+            if (enabled)
+            {
+                survivorList.Add(survivor);
                 return true;
             }
             return false;

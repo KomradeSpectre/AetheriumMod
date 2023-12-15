@@ -110,6 +110,7 @@ namespace Aetherium.Equipment.EliteEquipment
             EliteEquipmentDef.isBoss = IsBoss;
             EliteEquipmentDef.isLunar = IsLunar;
             EliteEquipmentDef.passiveBuffDef = EliteBuffDef;
+            EliteEquipmentDef.requiredExpansion = AetheriumExpansionDef;
 
             ItemAPI.Add(new CustomEquipment(EliteEquipmentDef, CreateItemDisplayRules()));
 

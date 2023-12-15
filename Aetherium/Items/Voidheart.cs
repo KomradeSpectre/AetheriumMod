@@ -15,6 +15,9 @@ using static Aetherium.Compatability.ModCompatability.ItemStatsModCompat;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
+using System;
 
 namespace Aetherium.Items
 {
@@ -63,6 +66,7 @@ namespace Aetherium.Items
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject VoidPortal;
+        public static DamageAPI.ModdedDamageType VoidHeartDamage;
 
         public RoR2.UI.HealthBarStyle HealthBarStyle;
 
@@ -81,6 +85,7 @@ namespace Aetherium.Items
             CreateUnlockable();
             CreateLang();
             CreateBuff();
+            CreateDamageType();
             CreateItem();
             Hooks();
         }
@@ -132,6 +137,12 @@ namespace Aetherium.Items
 
             ContentAddition.AddBuffDef(VoidInstabilityDebuff);
             ContentAddition.AddBuffDef(VoidImmunityBuff);
+
+        }
+
+        public void CreateDamageType()
+        {
+            VoidHeartDamage = DamageAPI.ReserveDamageType();
 
         }
 
@@ -346,6 +357,7 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.Awake += PreventVoidheartFromKillingPlayer;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
+            IL.RoR2.HealthComponent.TakeDamage += InterceptPlanula;
             RoR2Application.onLoad += OnLoadModCompat;
         }
 
@@ -461,9 +473,10 @@ namespace Aetherium.Items
                         position = self.transform.position,
                         procChainMask = procChainMask,
                         procCoefficient = 0f,
-                        damageColorIndex = DamageColorIndex.Default,
-                        damageType = DamageType.Generic
+                        damageColorIndex = DamageColorIndex.Default
                     };
+                    DamageAPI.AddModdedDamageType(damageInfo, VoidHeartDamage);
+                    ModLogger.LogError($"DamageInfo {(DamageAPI.HasModdedDamageType(damageInfo, VoidHeartDamage) ? "has" : "does not have")} our custom damage type.");
                     self.TakeDamage(damageInfo);
                     return orig(self, 0, procChainMask, nonRegen);
                 }
@@ -489,6 +502,24 @@ namespace Aetherium.Items
                 VoidheartCooldownTracker.Body = self;
             }
             orig(self);
+        }
+
+        private void InterceptPlanula(ILContext il)
+        {
+            var c = new ILCursor(il);
+            ILLabel label = null;
+
+            c.GotoNext(MoveType.After,
+                x => x.MatchLdarg(0),
+                x => x.MatchLdflda<RoR2.HealthComponent>("itemCounts"),
+                x => x.MatchLdfld<RoR2.HealthComponent.ItemCounts>("parentEgg"), 
+                x => x.MatchLdcI4(0), 
+                x => x.MatchBle(out label));
+
+            c.Emit(OpCodes.Ldarg_1);
+            c.EmitDelegate<Func<DamageInfo, bool>>(damageInfo =>
+                !DamageAPI.HasModdedDamageType(damageInfo, VoidHeartDamage));
+            c.Emit(OpCodes.Brfalse, label);
         }
 
         public class VoidheartCooldown : MonoBehaviour

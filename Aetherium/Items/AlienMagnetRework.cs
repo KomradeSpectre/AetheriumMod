@@ -10,14 +10,17 @@ namespace Aetherium.Items
 {
     public class AlienMagnet : ItemBase<AlienMagnet>
     {
-        public ConfigOption<float> TimeToDecayLiftStacks;
-        public ConfigOption<float> BaseDurationOfLevitationDebuff;
-        public ConfigOption<float> AdditionalDurationOfLevitationDebuff;
-        public ConfigOption<bool> UseOldAlienMagnet;
-        public ConfigOption<float> StartingForceMultiplier;
-        public ConfigOption<float> AdditionalForceMultiplier;
-        public ConfigOption<float> MinimumForceMultiplier;
-        public ConfigOption<float> MaximumForceMultiplier;
+        public static ConfigOption<float> TimeToDecayLiftStacks;
+        public static ConfigOption<float> BaseDurationOfLevitationDebuff;
+        public static ConfigOption<float> AdditionalDurationOfLevitationDebuff;
+        public static ConfigOption<bool> UseOldAlienMagnet;
+        public static ConfigOption<float> StartingForceMultiplier;
+        public static ConfigOption<float> AdditionalForceMultiplier;
+        public static ConfigOption<float> MinimumForceMultiplier;
+        public static ConfigOption<float> MaximumForceMultiplier;
+
+        public static BuffDef NailBombCooldownDebuff;
+        public static BuffDef NailBombImmunityBuff;
 
         public override string ItemName => "Alien Magnet";
         public override string ItemLangTokenName => "ALIEN_MAGNET";
@@ -33,9 +36,9 @@ namespace Aetherium.Items
 
         public override bool CanRemove => false;
 
-        public static BuffIndex LiftStackDebuff;
+        public static BuffDef LiftStackDebuff;
         public static Sprite LiftStackDebuffIcon;
-        public static BuffIndex LevitationDebuff;
+        public static BuffDef LevitationDebuff;
 
         public static GameObject ItemBodyModelPrefab;
         public static GameObject ItemFollowerPrefab;
@@ -73,40 +76,31 @@ namespace Aetherium.Items
 
         private void CreateBuff()
         {
-            var liftStackDebuff = new RoR2.BuffDef
-            {
-                name = "Aetherium: Alien Magnet Lift Stacks Debuff",
-                buffColor = new Color(255, 255, 255),
-                isDebuff = true,
-                canStack = true,
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AlienMagnetLiftDebuffIcon.png"
-            };
-            LiftStackDebuff = BuffAPI.Add(new CustomBuff(liftStackDebuff));
+            LiftStackDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            LiftStackDebuff.name = "Aetherium: Alien Magnet Lift Stacks Debuff";
+            LiftStackDebuff.buffColor = new Color(255, 255, 255);
+            LiftStackDebuff.canStack = false;
+            LiftStackDebuff.isDebuff = true;
+            LiftStackDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AlienMagnetLiftDebuffIcon.png");
 
-            var levitationDebuff = new RoR2.BuffDef
-            {
-                name = "Aetherium: Alien Magnet Levitation Debuff",
-                buffColor = new Color(255, 255, 255),
-                isDebuff = true,
-                canStack = false,
-                iconPath = "@Aetherium:Assets/Textures/Icons/Buff/AlienMagnetLevitationDebuffIcon.png"
-            };
-            LevitationDebuff = BuffAPI.Add(new CustomBuff(levitationDebuff));
+            ContentAddition.AddBuffDef(LiftStackDebuff);
+
+            LevitationDebuff = ScriptableObject.CreateInstance<BuffDef>();
+            LevitationDebuff.name = "Aetherium: Alien Magnet Levitation Debuff";
+            LevitationDebuff.buffColor = new Color(255, 255, 255);
+            LevitationDebuff.canStack = false;
+            LevitationDebuff.isDebuff = true;
+            LevitationDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AlienMagnetLevitationDebuffIcon");
+
+            ContentAddition.AddBuffDef(LevitationDebuff);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
-            ItemBodyModelPrefab = Resources.Load<GameObject>("@Aetherium:Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnetTracker.prefab");
-            ItemFollowerPrefab = Resources.Load<GameObject>(ItemModelPath);
-
-            var ItemFollower = ItemBodyModelPrefab.AddComponent<ItemFollowerSmooth>();
-            ItemFollower.itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
-            ItemFollower.itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
-            ItemFollower.followerPrefab = ItemFollowerPrefab;
-            ItemFollower.targetObject = ItemBodyModelPrefab;
-            ItemFollower.distanceDampTime = 0.10f;
-            ItemFollower.distanceMaxSpeed = 100;
-            ItemFollower.SmoothingNumber = 0.25f;
+            ItemModel.AddComponent<AlienMagnetAnimationController>();
+            ItemBodyModelPrefab = ItemModel;
+            var itemDisplay = ItemBodyModelPrefab.AddComponent<ItemDisplay>();
+            itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict(new RoR2.ItemDisplayRule[]
             {
@@ -238,12 +232,12 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.FixedUpdate += LevitationDebuffManager;
         }
 
-        private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        /*private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             if (self.HasBuff(LevitationDebuff))
             {
                 var heightConstant = 10;
-                var rayHit = MiscUtils.RaycastToFloor(self.footPosition, heightConstant * 2);
+                var rayHit = MiscUtils.RaycastToDirection(self.footPosition, heightConstant * 2, Vector3.down);
                 if(rayHit != null)
                 {
                     var magnitude = (self.footPosition - rayHit.Value).magnitude;
@@ -263,6 +257,38 @@ namespace Aetherium.Items
                 }
             }
             orig(self);
+        }*/
+
+        private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        {
+            var targetHeight = 10f; // Adjust this to your desired levitation height
+            var rayHit = MiscUtils.RaycastToDirection(self.footPosition, targetHeight, Vector3.down);
+
+            if (rayHit != null)
+            {
+                var heightDifference = targetHeight - rayHit.Value.y;
+
+                var rigidbody = self.rigidbody;
+
+                if (rigidbody)
+                {
+                    var forceDirection = Vector3.up * heightDifference;
+                    var forceMagnitude = 10f; // Adjust this as needed
+                    var massFactor = rigidbody.mass; // Adjust the factor to your liking
+
+                    if (heightDifference > 0)
+                    {
+                        // Apply upward force
+                        rigidbody.AddForce(forceDirection * forceMagnitude * massFactor, ForceMode.Force);
+                    }
+                    else
+                    {
+                        // Damping force to bring the entity back down
+                        var dampingForce = -rigidbody.velocity * 5f; // Adjust the damping factor as needed
+                        rigidbody.AddForce(dampingForce, ForceMode.Force);
+                    }
+                }
+            }
         }
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
@@ -318,7 +344,7 @@ namespace Aetherium.Items
                                         {
                                             foreach(var buff in body.timedBuffs)
                                             {
-                                                if(buff.buffIndex == LiftStackDebuff)
+                                                if(BuffCatalog.GetBuffDef(buff.buffIndex) == LiftStackDebuff)
                                                 {
                                                     buff.timer = TimeToDecayLiftStacks;
                                                 }
@@ -348,6 +374,29 @@ namespace Aetherium.Items
         {
             public float OriginalMass;
             public float OriginalDrag;
+        }
+
+        public class AlienMagnetAnimationController : MonoBehaviour
+        {
+            public void Start()
+            {
+                var animators = gameObject.GetComponentsInChildren<Animator>();
+                foreach (Animator animator in animators)
+                {
+                    switch (animator.gameObject.name)
+                    {
+                        case ("AnimationControl"):
+                            animator.Play("BaseLayer.AlienMagnetMain");
+                            break;
+                        case ("Torus.002"):
+                            animator.Play("BaseLayer.AlienMagnetBlueTorus");
+                            break;
+                        case ("Torus.003"):
+                            animator.Play("BaseLayer.AlienMagnetRedTorus");
+                            break;
+                    }
+                }
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Aetherium.Items.VoidItems
 
         public override string ItemPickupDesc => "On purchase, chance to send out a few homing nanite swarms that convert enemies touched into decaying drones or turrets. Corrupts Engineer's Toolbelts.";
 
-        public override string ItemFullDescription => "On purchase, gain a [x] percent chance to fire out [x] nanite swarm projectiles towards nearby enemies. When the nanites impact an enemy, they transform into a drone/turret.";
+        public override string ItemFullDescription => "On purchase, gain a [x] percent chance to fire out [x] nanite swarm projectile(s) towards nearby enemies. If any land the killing blow on an enemy, they transform into a drone or turret.";
 
         public override string ItemLore => "";
 

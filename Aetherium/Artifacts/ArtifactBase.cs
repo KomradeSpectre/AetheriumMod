@@ -52,6 +52,7 @@ namespace Aetherium.Artifacts
             ArtifactDef.descriptionToken = "ARTIFACT_" + ArtifactLangTokenName + "_DESCRIPTION";
             ArtifactDef.smallIconSelectedSprite = ArtifactEnabledIcon;
             ArtifactDef.smallIconDeselectedSprite = ArtifactDisabledIcon;
+            ArtifactDef.requiredExpansion = AetheriumPlugin.AetheriumExpansionDef;
 
             ContentAddition.AddArtifactDef(ArtifactDef);
         }

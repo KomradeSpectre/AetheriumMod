@@ -87,6 +87,7 @@ namespace Aetherium.Items
             ItemDef.hidden = false;
             ItemDef.canRemove = CanRemove;
             ItemDef.deprecatedTier = Tier;
+            ItemDef.requiredExpansion = AetheriumPlugin.AetheriumExpansionDef;
 
             if(ItemTags.Length > 0) { ItemDef.tags = ItemTags; }
 

@@ -9,9 +9,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
@@ -706,6 +703,7 @@ namespace Aetherium.Items
             LimiterReleaseItemDef.canRemove = false;
             LimiterReleaseItemDef.hidden = true;
             LimiterReleaseItemDef.deprecatedTier = ItemTier.NoTier;
+            LimiterReleaseItemDef.requiredExpansion = AetheriumExpansionDef;
 
             ItemAPI.Add(new CustomItem(LimiterReleaseItemDef, CreateLimiterItemDisplayRules()));
         }

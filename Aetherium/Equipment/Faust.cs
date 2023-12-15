@@ -110,30 +110,29 @@ namespace Aetherium.Equipment
             LanguageAPI.Add("AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_SKILL_NAME", "Sealed Skill");
             LanguageAPI.Add("AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_DESCRIPTION", "This skill has been sealed by an external force! You are unable to use it!");
 
-            BrokenSkill = new SkillDef
-            {
-                skillName = "BROKEN",
-                skillNameToken = "AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_SKILL_NAME",
-                skillDescriptionToken = "AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_DESCRIPTION",
-                icon = MainAssets.LoadAsset<Sprite>("SealedSkill.png"),
-                activationState = new EntityStates.SerializableEntityStateType(typeof(MyEntityStates.Faust.BrokenSkillState)),
-                activationStateMachineName = "Weapon",
-                baseMaxStock = 1,
-                baseRechargeInterval = 1f,
-                beginSkillCooldownOnSkillEnd = true,
-                canceledFromSprinting = false,
-                forceSprintDuringState = false,
-                fullRestockOnAssign = true,
-                interruptPriority = EntityStates.InterruptPriority.Skill,
-                resetCooldownTimerOnUse = false,
-                isCombatSkill = true,
-                mustKeyPress = true,
-                cancelSprintingOnActivation = false,
-                rechargeStock = 1,
-                requiredStock = 1,
-                stockToConsume = 1,
-                keywordTokens = new string[] { },
-            };
+            BrokenSkill = ScriptableObject.CreateInstance<SkillDef>();
+            BrokenSkill.skillName = "BROKEN";
+            BrokenSkill.skillNameToken = "AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_SKILL_NAME";
+            BrokenSkill.skillDescriptionToken = "AETHERIUM_EQUIPMENT_" + EquipmentLangTokenName + "_BROKEN_DESCRIPTION";
+            BrokenSkill.icon = MainAssets.LoadAsset<Sprite>("SealedSkill.png");
+            BrokenSkill.activationState = new EntityStates.SerializableEntityStateType(typeof(MyEntityStates.Faust.BrokenSkillState));
+            BrokenSkill.activationStateMachineName = "Weapon";
+            BrokenSkill.baseMaxStock = 1;
+            BrokenSkill.baseRechargeInterval = 1f;
+            BrokenSkill.beginSkillCooldownOnSkillEnd = true;
+            BrokenSkill.canceledFromSprinting = false;
+            BrokenSkill.forceSprintDuringState = false;
+            BrokenSkill.fullRestockOnAssign = true;
+            BrokenSkill.interruptPriority = EntityStates.InterruptPriority.Skill;
+            BrokenSkill.resetCooldownTimerOnUse = false;
+            BrokenSkill.isCombatSkill = true;
+            BrokenSkill.mustKeyPress = true;
+            BrokenSkill.cancelSprintingOnActivation = false;
+            BrokenSkill.rechargeStock = 1;
+            BrokenSkill.requiredStock = 1;
+            BrokenSkill.stockToConsume = 1;
+            BrokenSkill.keywordTokens = new string[] { };
+
             R2API.ContentAddition.AddSkillDef(BrokenSkill);
         }
 
@@ -899,6 +898,7 @@ namespace Aetherium.Equipment
             FaustItem.canRemove = false;
             FaustItem.hidden = true;
             FaustItem.deprecatedTier = ItemTier.NoTier;
+            FaustItem.requiredExpansion = AetheriumExpansionDef;
 
             DeactivatedFaustItem = ScriptableObject.CreateInstance<ItemDef>();
             DeactivatedFaustItem.name = "HIDDEN_ITEM_FAUST_DEBILITATOR_DEACTIVATED";
@@ -909,6 +909,7 @@ namespace Aetherium.Equipment
             DeactivatedFaustItem.canRemove = false;
             DeactivatedFaustItem.hidden = true;
             DeactivatedFaustItem.deprecatedTier = ItemTier.NoTier;
+            DeactivatedFaustItem.requiredExpansion = AetheriumExpansionDef;
 
             ItemAPI.Add(new CustomItem(FaustItem, CreateFaustDisplayRules()));
             ItemAPI.Add(new CustomItem(DeactivatedFaustItem, new ItemDisplayRule[] { }));
@@ -1838,7 +1839,7 @@ namespace Aetherium.Equipment
                 {
                     if(CurrentMoneyMakingHitsCount < MoneyMakingHitCap)
                     {
-                        DropExtraGold(damageReport.attackerBody);
+                        DropExtraGold(damageReport, damageReport.attackerBody);
                         CurrentMoneyMakingHitsCount++;
                     }
                     else
@@ -1848,15 +1849,25 @@ namespace Aetherium.Equipment
                 }
             }
 
-            public void DropExtraGold(CharacterBody attackerBody)
+            public void DropExtraGold(DamageReport damageReport, CharacterBody attackerBody)
             {
                 var corePosition = characterBody.corePosition;
                 var rewards = gameObject.GetComponent<DeathRewards>();
 
-                if (rewards)
+                if (damageReport != null && damageReport.victimBody && rewards)
                 {
-                    var goldRewarded = (uint)Math.Max(1, rewards.goldReward * 1);
-                    var expRewarded = (uint)Math.Max(0, rewards.expReward * 1);
+                    var difficultyCoefficient = Run.instance.difficultyCoefficient;
+
+                    // Adjust these constants to balance the rewards
+                    const float goldMultiplier = 0.5f; // Modify as needed
+                    const float expMultiplier = 0.2f; // Modify as needed
+
+                    var goldRewarded = (uint)(rewards.goldReward * difficultyCoefficient * goldMultiplier);
+                    var expRewarded = (uint)(rewards.expReward * difficultyCoefficient * expMultiplier);
+
+                    //var goldRewarded = (uint)Math.Max(1, rewards.goldReward * 1);
+                    //var expRewarded = (uint)Math.Max(0, rewards.expReward * 1);
+                    ModLogger.LogMessage($"Difficulty Coefficient is {difficultyCoefficient}, Gold Reward is {goldRewarded}");
 
                     ExperienceManager.instance.AwardExperience(corePosition, attackerBody, expRewarded);
 

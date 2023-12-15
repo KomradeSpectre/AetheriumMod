@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3603582676
+CRC: 1252589021
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 18c246f63f49a120319ed10d92edd373
+    Hash: 02028d2823282055fccfbf330e210be3
   TypeTreeHash:
     serializedVersion: 2
-    Hash: dd0cd73cccbb394c450a2bfd89420b51
+    Hash: 61f1583c34aa22f9c667a070ffc2a2bf
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -53,6 +53,12 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 03f19f2389ee8c54f85e98d60af517ef, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: a450a6f634bea4e44a44079d6a4b1a36, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 261c50d8a80898e4ebf2e8e415ea6766, type: 3}
+- Class: 114
+  Script: {fileID: -517518216, guid: efe1256b12e4e924a8818fc4dfa711dd, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 751bd37d2e55f5f448dbb0d97812d9ba, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 120
@@ -127,6 +133,7 @@ Assets:
 - Assets/Textures/Icons/Item/WeightedAnkletIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingProjectileSecondary.mat
 - Assets/Textures/Icons/Buff/VoidInstabilityDebuffIcon.png
+- Assets/Textures/Icons/Expansion/AetheriumActiveIcon.png
 - Assets/Models/Prefabs/Item/WitchesRing/PickupWitchesRing.prefab
 - Assets/Shaders/3D Shaders/CelShader.shader
 - Assets/Textures/Material Textures/VoidLarvaDiffuse.png
@@ -213,6 +220,7 @@ Assets:
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordEnergyGlow.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartSphereMat.mat
 - Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedOverlay.mat
+- Assets/Animations/Survivor/animKoaleskController.controller
 - Assets/Textures/Material Textures/3989-bump.jpg
 - Assets/Models/Raw Models/UnstableDesignTargetingSphere.blend
 - Assets/Textures/Materials/Miscellaneous/Gem Glass.mat
@@ -223,6 +231,7 @@ Assets:
 - Assets/Textures/Material Textures/From Others/Filterforge/VortexNormalMap.jpg
 - Assets/Shaders/3D Shaders/Rim + Texture.shader
 - Assets/Animations/belltotemdisplaybell.controller
+- Assets/Models/Prefabs/Survivors/CapsuleManSurvivorDisplay.prefab
 - Assets/Models/Prefabs/Elite Equipment/AffixAbyssal/PickupAffixAbyssal.prefab
 - Assets/Textures/Icons/Buff/WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png
 - Assets/Models/Prefabs/Item/ShieldingCore/PickupShieldingCore.prefab
@@ -280,6 +289,7 @@ Assets:
 - Assets/Animations/HexPendulum.controller
 - Assets/Textures/Material Textures/From Others/HG/texChainTrailMask.png
 - Assets/Textures/Material Textures/From Others/HG/texBasicMask.png
+- Assets/Animations/Survivor/animHenryMenu.controller
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingIndicator.prefab
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordBladeOuterAlt.mat
 - Assets/Textures/Icons/Buff/ProgressionHalfBuffIcon.png
@@ -366,6 +376,7 @@ Assets:
 - Assets/Textures/Material Textures/BuffBrazierNormal.png
 - Assets/Textures/Material Textures/WitchesRingSkull.png
 - Assets/Textures/Material Textures/WeirdPurpleRamp.png
+- Assets/Models/Raw Models/By Others/Ragon/Survivor_Koalesk_Mesh.fbx
 - Assets/Textures/Material Textures/JarOfReshapingHandleNormal.png
 - Assets/Textures/Materials/Item/NailBomb/NailBombDisplayMaterial.mat
 - Assets/Animations/EnergyBlade.controller
@@ -409,6 +420,7 @@ Assets:
 - Assets/Textures/Material Textures/AffixAbyssalDiffuse.png
 - Assets/Textures/Materials/Item/BlasterSword/BlasterSwordCoreGlass.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryCap.mat
+- Assets/Models/Prefabs/Survivors/Koalesk/KoaleskDisplay.prefab
 - Assets/Textures/Material Textures/3989-bump - Copy.jpg
 - Assets/Textures/Material Textures/BuffBrazierRamp.png
 - Assets/Textures/Materials/Item/NailBomb/NailBombShrapnelEffect 1.mat
@@ -464,6 +476,7 @@ Assets:
 - Assets/Textures/Material Textures/ClothRamp.png
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingProjectile.prefab
 - Assets/Animations/HexPendulum.anim
+- Assets/Textures/Icons/Expansion/AetheriumInactiveIcon.png
 - Assets/Shaders/3D Shaders/2sidednormal.shader
 - Assets/Textures/Materials/Item/AlienMagnet/AlienMagnetGem.mat
 - Assets/Animations/JarOfReshapingProjectileMain.controller
@@ -471,6 +484,7 @@ Assets:
 - Assets/Textures/Material Textures/BuffBrazierCloud2.png
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBatteryBody.mat
 - Assets/Textures/Materials/Equipment/SoulPin/SoulPinParticleTrail.mat
+- Assets/Animations/Survivor/Idle.anim
 - Assets/Textures/Materials/Item/ZenithAccelerator/ZenithAcceleratorAdditiveBlueSmoke.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidheartExplosionRingMat.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltWeirdScrewMesh.mat
@@ -484,6 +498,7 @@ Assets:
 - Assets/Animations/BuffBrazierFireIcon.anim
 - Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalMat.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneHeadsetWireTexture.mat
+- Assets/Models/Prefabs/Survivors/Koalesk/mdlKoalesk.prefab
 - Assets/Textures/Materials/Item/Voidheart/VoidheartExplosionTrail.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgwavycloth.shader
 - Assets/Animations/InspiringDroneChest.anim
@@ -538,6 +553,7 @@ Assets:
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAlt 1.prefab
 - Assets/Textures/Material Textures/bloodthirstyshieldgenericnormal.png
 - Assets/Textures/Material Textures/UnstableDesignBackTexture.png
+- Assets/Textures/Icons/Expansion/AetheriumInactiveIconAlt.png
 - Assets/Models/Prefabs/Equipment/SoulPin/SoulPinFadeOut.anim
 - Assets/Textures/Materials/Item/ShieldingCore/ShieldingCoreEnergy.mat
 - Assets/Textures/Icons/Equipment/JarOfReshapingIcon.png
@@ -549,6 +565,8 @@ Assets:
 - Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
 - Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveInner.mat
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltHandle.mat
+- Assets/Textures/Icons/Expansion/AetheriumActiveIconAlt.png
+- Assets/Animations/Survivor/animKoaleskMenu.controller
 - Assets/Textures/Icons/Item/VoidheartIcon.png
 - Assets/Animations/DisplayJarOfReshaping.controller
 - Assets/Textures/Material Textures/4793.jpg
@@ -631,6 +649,7 @@ Assets:
 - Assets/Textures/Materials/Equipment/PheromoneSac/PheromoneSacHiveOuter.mat
 - Assets/Shaders/3D Shaders/Distortion.shader
 - Assets/Models/Raw Models/By Others/Ragon/heart of the void.blend
+- Assets/Animations/Survivor/animHenry.controller
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/fx/hgopaquecloudremap.shader
 - Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalPickup.mat
 - Assets/Textures/Material Textures/BlueToTransparentRampInner.png
@@ -754,6 +773,7 @@ Assets:
 - Assets/Textures/Material Textures/8bee108.jpg
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingCeramic.mat
 - Assets/Textures/Material Textures/BuffBrazierRamp1.png
+- Assets/Models/Prefabs/Survivors/mdlCapsuleManSurvivor.prefab
 - Assets/Models/Prefabs/Item/NailBomb/DisplayNailBomb.prefab
 - Assets/Textures/Icons/Achievement/UnstableDesignAchievementIcon.png
 - Assets/Animations/NailBombExitIdle.anim

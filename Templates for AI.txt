@@ -1,0 +1,16 @@
+I need some ideas for interesting non-elemental, non-temporal related elites laidout in the following sections:
+
+Elite Equipment Name:
+Elite Name:
+
+Elite Power: (this one should be a passive to player and npc alike)
+
+On Use Equipment Power:
+
+Visual Description:
+
+Logbook Snippet:
+
+Implementation Details:
+
+-----------------------------------
