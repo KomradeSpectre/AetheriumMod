@@ -194,8 +194,8 @@ namespace Aetherium.Items
                         ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem] = ItemCatalog.itemRelationships[DLC1Content.ItemRelationshipTypes.ContagiousItem].AddRangeToArray(pair);
                     }
                 }
-                orig();
             }
+            orig();
         }
     }
 }
