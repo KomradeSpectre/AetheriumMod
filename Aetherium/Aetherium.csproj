@@ -8,9 +8,12 @@
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
     <Compile Remove="Achievements\WeightedAnkletAchievement.cs" />
     <Compile Remove="Artifacts\ArtifactOfIndecision.cs" />
+    <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
+    <Compile Remove="Effect\HungeringConsumptionOrb.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixBenevolent.cs" />
+    <Compile Remove="Equipment\EliteEquipment\AffixHungering.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixHypercharged.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixMagnetic.cs" />
     <Compile Remove="Equipment\EliteEquipment\AffixRallying.cs" />
@@ -20,16 +23,18 @@
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
     <Compile Remove="Interactables\BuffBrazierOld.cs" />
-    <Compile Remove="Items\AlienMagnet.cs" />
+    <Compile Remove="Interactables\BuffBrazierOldOld.cs" />
     <Compile Remove="Items\AlienMagnetRework.cs" />
     <Compile Remove="Items\BloodDiamond.cs" />
     <Compile Remove="Items\ObliterballAndChain.cs" />
     <Compile Remove="Items\RicochetTest.cs" />
     <Compile Remove="Items\VoidItems\FrenziedWarbot.cs" />
+    <Compile Remove="Items\VoidItems\PhasewindFeather.cs" />
     <Compile Remove="Items\VoidItems\RazorfinWing.cs" />
     <Compile Remove="Items\VoidItems\ScientistsNanites.cs" />
     <Compile Remove="Items\VoidItems\Shichishito.cs" />
     <Compile Remove="Items\VoidItems\UmbralAspis.cs" />
+    <Compile Remove="StandaloneBuffs\DefensiveMatrix.cs" />
     <Compile Remove="StandaloneBuffs\StrengthOfThePack.cs" />
     <Compile Remove="Survivors\TestCharacter.cs" />
     <Compile Remove="Utils\Components\MaterialControllerComponentsGetter.cs" />
@@ -53,7 +58,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Items\VoidItems\" />
+    <Folder Include="Items\VoidItems\Tier3\" />
+    <Folder Include="Items\VoidItems\Tier2\" />
+    <Folder Include="MyEntityStates\Survivors\Koalesk\Misc\" />
+    <Folder Include="MyEntityStates\Survivors\Koalesk\Special\" />
+    <Folder Include="MyEntityStates\Survivors\Koalesk\Utility\" />
     <Folder Include="obj\" />
   </ItemGroup>
 

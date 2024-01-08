@@ -19,6 +19,7 @@ namespace Aetherium.Equipment.EliteEquipment
         public ConfigOption<float> DurationOfLightningStormBuff;
         public ConfigOption<float> LightningStrikeCooldown;
         public ConfigOption<int> AmountOfLightningStrikesPerBarrage;
+        public ConfigOption<float> CostMultiplierOfElite;
 
         public override string EliteEquipmentName => "Their Reminder";
 
@@ -63,6 +64,7 @@ namespace Aetherium.Equipment.EliteEquipment
             DurationOfLightningStormBuff = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Duration of Lightning Storm Buff", 5f, "Duration of the Lightning Storm Buff upon activation of the affix item.");
             LightningStrikeCooldown = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Duration Between Strikes on Lightning Storm Buff", 1f, "Duration between the strikes while Lightning Storm Buff is active.");
             AmountOfLightningStrikesPerBarrage = config.ActiveBind<int>("Elite Equipment: " + EliteEquipmentName, "Amount of Lightning Strikes per Barrage", 16, "How many lightning strikes should be in each strike period of the Lightning Storm Buff?");
+            CostMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Cost Multiplier of Elite", 2.5f, "How many times higher than the base elite cost should the cost of this elite be? (Do not set this to 0, only warning haha.)");
         }
 
         public void CreateBuff()
@@ -72,7 +74,7 @@ namespace Aetherium.Equipment.EliteEquipment
             LightningStormBuff.buffColor = new Color32(255, 255, 255, byte.MaxValue);
             LightningStormBuff.canStack = false;
 
-            BuffAPI.Add(new CustomBuff(LightningStormBuff));
+            ContentAddition.AddBuffDef(LightningStormBuff);
         }
 
         public void CreateProjectile()
@@ -93,7 +95,7 @@ namespace Aetherium.Equipment.EliteEquipment
             if (HyperchargedProjectile) PrefabAPI.RegisterNetworkPrefab(HyperchargedProjectile);
 
             // add it to the projectile catalog or it won't work in multiplayer 
-            ProjectileAPI.Add(HyperchargedProjectile);
+            ContentAddition.AddProjectile(HyperchargedProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -107,9 +109,7 @@ namespace Aetherium.Equipment.EliteEquipment
             {
                 new CombatDirector.EliteTierDef()
                 {
-                    costMultiplier = CombatDirector.baseEliteCostMultiplier * 6,
-                    damageBoostCoefficient = CombatDirector.baseEliteDamageBoostCoefficient * 3,
-                    healthBoostCoefficient = CombatDirector.baseEliteHealthBoostCoefficient * 4.5f,
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * CostMultiplierOfElite,
                     eliteTypes = Array.Empty<EliteDef>(),
                     isAvailable = SetAvailability
                 }

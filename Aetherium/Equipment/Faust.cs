@@ -1745,11 +1745,13 @@ namespace Aetherium.Equipment
             public SkillLocator skillLocator;
             public Inventory inventory;
 
+            public float BonusMultiplier = 0.03f;
+
             public float stopwatch;
             public float CheckDuration = 3;
 
             public int CurrentMoneyMakingHitsCount = 0;
-            public int MoneyMakingHitCap = 50;
+            public int MoneyMakingHitCap = 200;
 
             public int skillSealSeed;
 
@@ -1857,17 +1859,12 @@ namespace Aetherium.Equipment
                 if (damageReport != null && damageReport.victimBody && rewards)
                 {
                     var difficultyCoefficient = Run.instance.difficultyCoefficient;
+                    var damageCoefficient = damageReport.damageInfo.damage / attackerBody.damage;
 
-                    // Adjust these constants to balance the rewards
-                    const float goldMultiplier = 0.5f; // Modify as needed
-                    const float expMultiplier = 0.2f; // Modify as needed
+                    var goldRewarded = (uint)Math.Max(1, rewards.goldReward * (damageCoefficient * BonusMultiplier));
+                    var expRewarded = (uint)Math.Max(0, rewards.expReward * (damageCoefficient * BonusMultiplier));
 
-                    var goldRewarded = (uint)(rewards.goldReward * difficultyCoefficient * goldMultiplier);
-                    var expRewarded = (uint)(rewards.expReward * difficultyCoefficient * expMultiplier);
-
-                    //var goldRewarded = (uint)Math.Max(1, rewards.goldReward * 1);
-                    //var expRewarded = (uint)Math.Max(0, rewards.expReward * 1);
-                    ModLogger.LogMessage($"Difficulty Coefficient is {difficultyCoefficient}, Gold Reward is {goldRewarded}");
+                    ModLogger.LogInfo($"Our Gold and XP per hit on {damageReport.victimBody.GetDisplayName()} is: \nGold:{goldRewarded}\nXP:{expRewarded}");
 
                     ExperienceManager.instance.AwardExperience(corePosition, attackerBody, expRewarded);
 

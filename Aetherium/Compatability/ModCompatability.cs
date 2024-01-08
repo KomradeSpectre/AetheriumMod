@@ -43,13 +43,12 @@ namespace Aetherium.Compatability
             {
                 BetterUI.ItemStats.ItemStat SipCooldownStatDef = new BetterUI.ItemStats.ItemStat
                 {
-                    nameToken = "AETHERIUM_ITEM_STAT_DEF_ACCURSED_POTION_SIP",
-
+                    nameToken = "AETHERIUM_ITEM_STAT_DEF_ACCURSED_POTION_SIP"
                 };
             }
         }
 
-        internal static class ItemStatsModCompat
+        /*internal static class ItemStatsModCompat
         {
             public static bool IsItemStatsModInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dev.ontrigger.itemstats");
 
@@ -183,7 +182,7 @@ namespace Aetherium.Compatability
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(FeatheredPlume.instance.ItemDef.itemIndex, FeatheredPlumeStatDefs);
             }
 
-            /*[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void CreateInspiringDroneStatDef()
             {
                 ItemStats.ItemStatDef InspiringDroneStatDefs = new ItemStats.ItemStatDef();
@@ -242,7 +241,7 @@ namespace Aetherium.Compatability
                 }
 
                 ItemStats.ItemStatsMod.AddCustomItemStatDef(InspiringDrone.instance.ItemDef.itemIndex, InspiringDroneStatDefs);
-            }*/
+            }
 
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void CreateNailBombStatDef()
@@ -446,7 +445,7 @@ namespace Aetherium.Compatability
             }
         }
 
-        /* 
+        
         internal static class TILER2Compat TODO i dont know what this is supposed to be doing
         {
             public static bool IsTILER2Installed => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.ThinkInvisible.TILER2");

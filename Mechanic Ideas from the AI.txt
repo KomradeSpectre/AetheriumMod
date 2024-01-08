@@ -1,3 +1,0 @@
-Champion of Time Elite:
-
-    Effect: Enemies with this modifier have the ability to rewind time, restoring their health and teleporting back to a previous location. Players must deal continuous damage to prevent the rewind.

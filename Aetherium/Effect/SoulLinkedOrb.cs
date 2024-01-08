@@ -25,7 +25,7 @@ namespace Aetherium.Effect
                     rootObject = Target
                 };
                 //effectData.SetChildLocatorTransformReference(Target, Index);
-                EffectManager.SpawnEffect(StandaloneBuffs.SoulLinked.SoulLinkedOrbEffect, effectData, true);
+                EffectManager.SpawnEffect(StandaloneBuffs.Tier2.SoulLinked.SoulLinkedOrbEffect, effectData, true);
             }
         }
     }

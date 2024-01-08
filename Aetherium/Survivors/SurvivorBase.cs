@@ -12,6 +12,17 @@ using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Survivors
 {
+    public abstract class SurvivorBase<T> : SurvivorBase where T : SurvivorBase<T>
+    {
+        public static T instance { get; private set; }
+
+        public SurvivorBase()
+        {
+            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting SurvivorBase was instantiated twice");
+            instance = this as T;
+        }
+    }
+
     public abstract class SurvivorBase
     {
         //Language Tokens and Text for Survivor
@@ -74,6 +85,7 @@ namespace Aetherium.Survivors
         //Important
         public SurvivorDef SurvivorDef;
         public GameObject SurvivorBodyPrefab;
+        public CharacterBody SurvivorCharacterBody;
         public virtual string CharacterNameToClone { get; set; } = "Commando"; //Modding's favorite base character.
         public virtual UnlockableDef SurvivorUnlockDef { get; set; } = null;
         public virtual float DesiredSelectScreenSortPosition { get; set; } = 100f; //Desired place in the Character Select Screen
@@ -188,32 +200,31 @@ namespace Aetherium.Survivors
             GameObject NewBodyPrefab = PrefabAPI.InstantiateClone(ClonedBody, SurvivorBodyName); //Our Prefab for the Body, cloned from Commando's.
 
             //Character Body Setup
-            CharacterBody CharacterBody = CharacterBodySetup(NewBodyPrefab);
+            SurvivorCharacterBody = CharacterBodySetup(NewBodyPrefab);
 
 
-            if (!SurvivorBodyModelPrefab)
+            if (!this.SurvivorBodyModelPrefab)
             {
                 ModLogger.LogError($"There's no model for this survivor, we can't continue. Aborting!");
                 return null;
             }
 
             //Model Setup
-            var model = PrefabAPI.InstantiateClone(SurvivorBodyModelPrefab, SurvivorBodyModelPrefab.name, false); //Our character model prefab.
-            CharacterChildLocatorSwap(model);
-            Transform ModelBaseTransform = ModelTransformSetup(NewBodyPrefab, model.transform, ModelBasePosition, CameraPivotPosition, AimOriginPosition);
-            ModelLocator ModelLocator = ModelLocatorSetup(NewBodyPrefab, ModelBaseTransform, model.transform);
-            CharacterDirection CharacterDirection = CharacterDirectionSetup(NewBodyPrefab, ModelBaseTransform, model.transform);
-            FootstepHandler FootstepHandler = FootstepHandlerSetup(model);
-            RagdollController ragdollController = RagdollSetup(model);
+            CharacterChildLocatorSwap(SurvivorBodyModelPrefab);
+            Transform ModelBaseTransform = ModelTransformSetup(NewBodyPrefab, SurvivorBodyModelPrefab.transform, ModelBasePosition, CameraPivotPosition, AimOriginPosition);
+            ModelLocator ModelLocator = ModelLocatorSetup(NewBodyPrefab, ModelBaseTransform, SurvivorBodyModelPrefab.transform);
+            CharacterDirection CharacterDirection = CharacterDirectionSetup(NewBodyPrefab, ModelBaseTransform, SurvivorBodyModelPrefab.transform);
+            FootstepHandler FootstepHandler = FootstepHandlerSetup(SurvivorBodyModelPrefab);
+            RagdollController ragdollController = RagdollSetup(SurvivorBodyModelPrefab);
             SetupCharacterModel(NewBodyPrefab);
 
             //Camera and Aiming Setup
             CameraTargetParams CameraTargetParams = CameraTargetSetup(NewBodyPrefab);
-            AimAnimator AimAnimator = AimAnimatorSetup(NewBodyPrefab, model);
+            AimAnimator AimAnimator = AimAnimatorSetup(NewBodyPrefab, SurvivorBodyModelPrefab);
 
             //Character Physics Setup
             CapsuleCollider CapsuleCollider = BasicCapsuleColliderSetup(NewBodyPrefab);
-            HurtBoxGroup MainHurtboxGroup = MainHurtboxSetup(NewBodyPrefab, model);
+            HurtBoxGroup MainHurtboxGroup = MainHurtboxSetup(NewBodyPrefab, SurvivorBodyModelPrefab);
 
             return NewBodyPrefab;
         }

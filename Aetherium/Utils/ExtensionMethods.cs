@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Aetherium.Utils
 {
@@ -65,6 +67,42 @@ namespace Aetherium.Utils
             }
 
             return hurtbox.healthComponent.body.isElite;
+        }
+
+        public static void ApplyForceImpulseFixed(this CharacterMotor characterMotor, in PhysForceInfo physForceInfo)
+        {
+            if (NetworkServer.active && !characterMotor.hasEffectiveAuthority)
+            {
+                characterMotor.CallRpcApplyForceImpulse(physForceInfo);
+            }
+            else
+            {
+                Vector3 force = physForceInfo.force;
+                if (!physForceInfo.massIsOne)
+                {
+                    force *= 1f / characterMotor.mass;
+                }
+
+                if (characterMotor.mass == 0.0)
+                {
+                    return;
+                }                    
+
+                if (force.y < 6.0 && characterMotor.isGrounded && !physForceInfo.ignoreGroundStick)
+                {
+                    force.y = 0.0f;
+                }
+                if (force.y > 0.0)
+                {
+                    characterMotor.Motor.ForceUnground();
+                }
+                characterMotor.velocity += force;
+                if (!physForceInfo.disableAirControlUntilCollision)
+                {
+                    return;
+                }
+                characterMotor.disableAirControlUntilCollision = true;
+            }
         }
     }
 }

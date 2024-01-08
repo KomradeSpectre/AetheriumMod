@@ -89,7 +89,7 @@ namespace Aetherium.Utils
 
         public static void RefreshTimedBuffs(CharacterBody body, BuffDef buffDef, float duration)
         {
-            if(!body || body.GetBuffCount(buffDef) <= 0) { return; }
+            if (!body || body.GetBuffCount(buffDef) <= 0) { return; }
             foreach (var buff in body.timedBuffs)
             {
                 if (buffDef.buffIndex == buff.buffIndex)
@@ -111,32 +111,6 @@ namespace Aetherium.Utils
                     i++;
                 }
             }
-        }
-
-        public static void AddBuffAndDot(BuffDef buff, float duration, int stackCount, RoR2.CharacterBody body)
-        {
-            RoR2.DotController.DotIndex index = (RoR2.DotController.DotIndex)Array.FindIndex(RoR2.DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
-            for (int y = 0; y < stackCount; y++)
-            {
-                if (index != RoR2.DotController.DotIndex.None)
-                {
-                    RoR2.DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f);
-                }
-                else
-                {
-                    if (NetworkServer.active)
-                    {
-                        body.AddTimedBuff(buff.buffIndex, duration);
-                    }
-                }
-            }
-        }
-
-        public static DotController.DotIndex FindAssociatedDotForBuff(BuffDef buff)
-        {
-            RoR2.DotController.DotIndex index = (RoR2.DotController.DotIndex)Array.FindIndex(RoR2.DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
-
-            return index;
         }
     }
 }

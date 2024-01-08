@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using RoR2.Navigation;
-using static Aetherium.Utils.MiscUtils;
+using static Aetherium.Utils.MiscHelpers;
 using static Aetherium.AetheriumPlugin;
 using R2API;
 

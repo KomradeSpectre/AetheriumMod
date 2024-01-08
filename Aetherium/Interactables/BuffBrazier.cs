@@ -292,7 +292,7 @@ namespace Aetherium.Interactables
             var body = args.GetSenderBody();
             if (body && body.inputBank)
             {
-                var surfaceAlignmentInfo = Utils.MiscUtils.GetAimSurfaceAlignmentInfo(body.inputBank.GetAimRay(), LayerIndex.world.mask, 10000);
+                var surfaceAlignmentInfo = Utils.MiscHelpers.GetAimSurfaceAlignmentInfo(body.inputBank.GetAimRay(), LayerIndex.world.mask, 10000);
                 if (surfaceAlignmentInfo.Count > 0)
                 {
                     var brazier = UnityEngine.Object.Instantiate(BuffBrazier.InteractableBodyModelPrefab, surfaceAlignmentInfo["Position"], Util.QuaternionSafeLookRotation(surfaceAlignmentInfo["Forward"], surfaceAlignmentInfo["Up"]));
@@ -342,9 +342,8 @@ namespace Aetherium.Interactables
         /// <param name="color">The base color of all the effects related to the buff flame orb and field.</param>
         /// <param name="costMultiplier">What multiplier should we apply to the base cost of the interactable for this flame?</param>
         /// <param name="isDebuff">Is the provided buffdef a buff or a debuff?</param>
-        public void AddCuratedBuffType(string displayName, BuffDef buffDef, Color32 color, float costMultiplier, bool isDebuff)
+        public static void AddCuratedBuffType(string displayName, BuffDef buffDef, Color32 color, float costMultiplier, bool isDebuff)
         {
-            CharacterBody body = new CharacterBody();
             if (String.IsNullOrWhiteSpace(displayName))
             {
                 ModLogger.LogError($"Provided displayName {displayName} is null, empty, or only contains whitespace characters! Aborting adding to curated brazier buff list!");
@@ -394,7 +393,10 @@ namespace Aetherium.Interactables
 
                 return;
             }
-            //War Buff
+            //No Cooldown Buff
+            AddCuratedBuffType("Brainstalks", RoR2Content.Buffs.NoCooldowns, new Color32(196, 7, 125, 255), 99, false);
+
+            /*War Buff
             AddCuratedBuffType("Warcry", RoR2Content.Buffs.WarCryBuff, new Color32(255, 0, 0, 255), 1, false);
 
             //Cripple Debuff
@@ -406,31 +408,14 @@ namespace Aetherium.Interactables
             //Super Leech Buff
             AddCuratedBuffType("Super Leech", RoR2Content.Buffs.LifeSteal, new Color32(255, 0, 68, 255), 2, false);
 
-            //No Cooldown Buff
-            AddCuratedBuffType("Brainstalks", RoR2Content.Buffs.NoCooldowns, new Color32(196, 7, 125, 255), 4, false);
-
             //Slowdown Debuff
             AddCuratedBuffType("80 Percent Slowdown", RoR2Content.Buffs.Slow80, new Color32(179, 154, 61, 255), 1.5f, true);
 
-            /*if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
+            if(StandaloneBuffs.StrengthOfThePack.instance != null && StandaloneBuffs.StrengthOfThePack.instance.BuffDef)
             {
                 //Strength of the Pack
                 AddCuratedBuffType("Strength of the Pack", StandaloneBuffs.StrengthOfThePack.instance.BuffDef, StandaloneBuffs.StrengthOfThePack.instance.Color, 1.5f, false);
             }*/
-
-            if (StandaloneBuffs.DoubleXPDoubleGold.instance != null && StandaloneBuffs.DoubleXPDoubleGold.instance.BuffDef)
-            {
-                //DoubleXPDoubleGold
-                AddCuratedBuffType("Double XP and Double Gold", StandaloneBuffs.DoubleXPDoubleGold.instance.BuffDef, StandaloneBuffs.DoubleXPDoubleGold.instance.Color, 1, false);
-            }
-
-            if (StandaloneBuffs.SoulLinked.instance != null && StandaloneBuffs.SoulLinked.instance.BuffDef)
-            {
-                //DoubleXPDoubleGold
-                AddCuratedBuffType("Soul Linked", StandaloneBuffs.SoulLinked.instance.BuffDef, StandaloneBuffs.SoulLinked.instance.Color, 1.25f, true);
-            }
-
-            
         }
 
         public abstract class BuffBrazierOrbVisualBase : NetworkBehaviour
@@ -611,7 +596,7 @@ namespace Aetherium.Interactables
                     if (CharacterBody)
                     {
                         CircleOffset += Time.deltaTime;
-                        PointsChosen = Utils.MathHelpers.DistributePointsEvenlyAroundCircle(FlameOrbs.Count, 0.5f + CharacterBody.radius, CharacterBody.corePosition, CircleOffset);
+                        PointsChosen = Utils.MathHelpers.DistributePointsEvenlyAroundCircle(FlameOrbs.Count, 0.5f + CharacterBody.radius, CharacterBody.corePosition, Mathf.PI * 2, CircleOffset);
 
                         for (int i = 0; i < FlameOrbs.Count; i++)
                         {
@@ -625,7 +610,7 @@ namespace Aetherium.Interactables
                 else
                 {
                     CircleOffset += Time.deltaTime;
-                    PointsChosen = Utils.MathHelpers.DistributePointsEvenlyAroundCircle(FlameOrbs.Count, 1.5f, gameObject.transform.position + new Vector3(0, 1.5f, 0), CircleOffset);
+                    PointsChosen = Utils.MathHelpers.DistributePointsEvenlyAroundCircle(FlameOrbs.Count, 1.5f, gameObject.transform.position + new Vector3(0, 1.5f, 0), Mathf.PI * 2, CircleOffset);
 
                     for (int i = 0; i < FlameOrbs.Count; i++)
                     {

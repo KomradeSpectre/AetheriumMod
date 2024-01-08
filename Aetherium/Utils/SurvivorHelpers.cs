@@ -10,7 +10,7 @@ namespace Aetherium.Utils
 {
     internal class SurvivorHelpers
     {
-        public static CharacterModel.RendererInfo[] CharacterRendererInfoSetup(GameObject model, bool debugmode = false)
+        public static CharacterModel.RendererInfo[] CharacterRendererInfoSetup(GameObject model, bool debugmode = true)
         {
             List<Renderer> AllRenderers = new List<Renderer>();
 
@@ -111,6 +111,63 @@ namespace Aetherium.Utils
             skillLocator.special = specialSkill;
 
             return skillLocator;
+        }
+
+        public static void SetupAttackHitbox(GameObject prefab, Transform hitboxTransform, string hitboxName)
+        {
+            ModLogger.LogError($"Prefab: {prefab}\nHitBox Transform: {hitboxTransform}\nHitBox Name: {hitboxName}");
+            HitBoxGroup hitBoxGroup = prefab.AddComponent<HitBoxGroup>();
+
+            HitBox hitBox = hitboxTransform.gameObject.AddComponent<HitBox>();
+            hitboxTransform.gameObject.layer = LayerIndex.projectile.intVal;
+
+            hitBoxGroup.hitBoxes = new HitBox[]
+            {
+                hitBox
+            };
+
+            hitBoxGroup.groupName = hitboxName;
+            ModLogger.LogError($"HitboxGroup: {hitBoxGroup}\nHitBox: {hitBox}");
+        }
+
+        public static void AddSkillToFamily(SkillFamily skillFamily, SkillDef skillDef, UnlockableDef unlockableDef = null)
+        {
+            Array.Resize(ref skillFamily.variants, skillFamily.variants.Length + 1);
+
+            skillFamily.variants[skillFamily.variants.Length - 1] = new SkillFamily.Variant
+            {
+                skillDef = skillDef,
+                unlockableDef = unlockableDef,
+                viewableNode = new ViewablesCatalog.Node(skillDef.skillNameToken, false, null)
+            };
+        }
+
+        /// <summary>
+        /// This method gets the dot product of the move vector and aim direction to determine the player's input direction if possible.
+        /// </summary>
+        /// <param name="inputBank">The InputBank of the character.</param>
+        /// <returns>The normalized dot product of the movement direction. From this we can determine movement input direction.</returns>
+        public static string InputForwardOrBack(InputBankTest inputBank)
+        {
+            if (!inputBank)
+            {
+                ModLogger.LogError($"We have no inputBank, we can't determine the dot product from a non-existing move vector!");
+                return "null";
+            }
+
+            var dotProduct = Vector3.Dot(inputBank.aimDirection.normalized, inputBank.moveVector.normalized);
+            if (dotProduct >= 0)
+            {
+                return "Forward";
+            }
+            else if (dotProduct < 0)
+            {
+                return "Back";
+            }
+            else
+            {
+                return "null";
+            }
         }
     }
 }

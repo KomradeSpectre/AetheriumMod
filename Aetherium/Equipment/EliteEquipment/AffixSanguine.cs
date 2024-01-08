@@ -9,12 +9,13 @@ using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Utils.MiscUtils;
+using static Aetherium.Utils.MiscHelpers;
 using RoR2.CharacterAI;
 using R2API.Networking.Interfaces;
 using UnityEngine.Networking;
 using R2API.Networking;
 using Aetherium.Utils;
+using static R2API.DamageAPI;
 
 namespace Aetherium.Equipment.EliteEquipment
 {
@@ -1125,11 +1126,16 @@ namespace Aetherium.Equipment.EliteEquipment
                 var body = damageInfo.attacker.GetComponent<CharacterBody>();
                 if (body && body.inventory && (body.inventory.currentEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.inventory.alternateEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.HasBuff(EliteBuffDef)))
                 {
-                    if(!damageInfo.damageType.HasFlag(DamageType.BleedOnHit))
+                    InflictDotInfo dotInfo = new InflictDotInfo()
                     {
-                        damageInfo.damageType |= DamageType.BleedOnHit;
-                    }
-
+                        attackerObject = damageInfo.attacker,
+                        victimObject = victim,
+                        totalDamage = damageInfo.damage * 0.5f,
+                        damageMultiplier = 1f,
+                        dotIndex = DotController.DotIndex.Bleed,
+                        maxStacksFromAttacker = 10
+                    };
+                    DotController.InflictDot(ref dotInfo);
                 }
             }
             orig(self, damageInfo, victim);

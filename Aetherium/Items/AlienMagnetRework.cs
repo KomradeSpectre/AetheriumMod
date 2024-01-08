@@ -232,34 +232,36 @@ namespace Aetherium.Items
             On.RoR2.CharacterBody.FixedUpdate += LevitationDebuffManager;
         }
 
-        /*private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             if (self.HasBuff(LevitationDebuff))
             {
                 var heightConstant = 10;
-                var rayHit = MiscUtils.RaycastToDirection(self.footPosition, heightConstant * 2, Vector3.down);
+                var rayHit = MiscHelpers.RaycastToDirection(self.footPosition, heightConstant * 2, Vector3.down);
                 if(rayHit != null)
                 {
                     var magnitude = (self.footPosition - rayHit.Value).magnitude;
                     var speed = ((1 - (magnitude / heightConstant)) * 3) - Physics.gravity.y;
-                    var characterMotor = self.GetComponent<CharacterMotor>();
+                    var characterMotor = self.GetComponent<IPhysMotor>();
                     var rigidbody = self.rigidbody;
 
-                    if (characterMotor)
+                    if (characterMotor != null)
                     {
-                        characterMotor.Motor.ForceUnground();
-                        characterMotor.velocity += Vector3.up * speed * Time.deltaTime;
-                    }
-                    else if (rigidbody)
-                    {
-                        rigidbody.velocity += Vector3.up * speed * Time.deltaTime;
+                        var targetPos = self.healthComponent.transform.position + new Vector3(0, 10, 0);
+                        var velVec = (targetPos - self.transform.position);
+                        characterMotor.ApplyForceImpulse(new PhysForceInfo
+                        {
+                            force = (velVec.normalized * 8f - characterMotor.velocity) * characterMotor.mass,
+                            ignoreGroundStick = true,
+                            disableAirControlUntilCollision = false
+                        });
                     }
                 }
             }
             orig(self);
-        }*/
+        }
 
-        private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        /*private void LevitationDebuffManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             var targetHeight = 10f; // Adjust this to your desired levitation height
             var rayHit = MiscUtils.RaycastToDirection(self.footPosition, targetHeight, Vector3.down);
@@ -269,6 +271,11 @@ namespace Aetherium.Items
                 var heightDifference = targetHeight - rayHit.Value.y;
 
                 var rigidbody = self.rigidbody;
+                self.characterMotor.ApplyForceImpulse(new PhysForceInfo()
+                {
+                    ignoreGroundStick = true,
+
+                });
 
                 if (rigidbody)
                 {
@@ -289,7 +296,7 @@ namespace Aetherium.Items
                     }
                 }
             }
-        }
+        }*/
 
         private void GetOverHere(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
@@ -303,6 +310,7 @@ namespace Aetherium.Items
                         int ItemCount = GetCount(attackerBody);
                         if (ItemCount > 0)
                         {
+                            /*
                             //Thanks Chen for fixing this.
                             float mass;
                             if (self.body.characterMotor) mass = self.body.characterMotor.mass;
@@ -310,7 +318,37 @@ namespace Aetherium.Items
                             else mass = 1f;
 
                             var forceCalc = Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier);
-                            damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
+                            damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;*/
+
+                            //var forceCalc = Mathf.Clamp(StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)), MinimumForceMultiplier, MaximumForceMultiplier);
+
+                            var forceCalc = (StartingForceMultiplier + (AdditionalForceMultiplier * (ItemCount - 1)));
+                            var physInfo = new PhysForceInfo()
+                            {
+                                massIsOne = true,
+                                disableAirControlUntilCollision = true,
+                                ignoreGroundStick = true,
+                                force = Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc,
+                            };
+
+                            if (self && self.body)
+                            {
+                                var characterMotor = self.body.characterMotor;
+                                if (characterMotor && (characterMotor.velocity + physInfo.force).magnitude <= forceCalc)
+                                {
+                                    characterMotor.ApplyForceImpulse(physInfo);
+                                    orig(self, damageInfo);
+                                    return;
+                                }
+
+                                var rigidBodyMotor = self.body.GetComponent<RigidbodyMotor>();
+                                if (rigidBodyMotor && (rigidBodyMotor.rigid.velocity + physInfo.force).magnitude <= forceCalc)
+                                {
+                                    rigidBodyMotor.ApplyForceImpulse(physInfo);
+                                    orig(self, damageInfo);
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
@@ -330,7 +368,7 @@ namespace Aetherium.Items
                         {
                             var mass = body.rigidbody.mass;
 
-                            int AmountOfStacksToLift = (int) (mass * (0.05f));
+                            int AmountOfStacksToLift = 10;
 
                             AmountOfStacksToLift = Mathf.Clamp(AmountOfStacksToLift - (inventoryCount - 1), 1, int.MaxValue);
                             if (!body.HasBuff(LevitationDebuff))

@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using RoR2;
 using R2API;
-using static Aetherium.Utils.MiscUtils;
+using static Aetherium.Utils.MiscHelpers;
 using static Aetherium.AetheriumPlugin;
 using UnityEngine.Networking;
 using Aetherium.Utils;
