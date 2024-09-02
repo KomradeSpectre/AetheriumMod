@@ -104,9 +104,9 @@ namespace Aetherium.Items.Tier3
 
         /*private void CreateAchievement()
         {
-            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_NAME", "Sword from the Stone");
-            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_DESC", "High up in the Abyssal Depths, find the legendary sword stuck in the stone and prove you possess the knightly valor required to wield it.");
-            LanguageAPI.Add("AETHERIUM_" + ItemLangTokenName + "_UNLOCKABLE_NAME", "Sword from the Stone");
+            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_NAME", "Sword from the Stone");
+            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_DESC", "High up in the Abyssal Depths, find the legendary sword stuck in the stone and prove you possess the knightly valor required to wield it.");
+            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_UNLOCKABLE_NAME", "Sword from the Stone");
 
             UnlockablesAPI.AddUnlockable<BlasterSwordAchievement>(true);
         }*/

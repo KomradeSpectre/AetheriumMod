@@ -10,7 +10,7 @@ namespace Aetherium.Utils
 {
     internal class SurvivorHelpers
     {
-        public static CharacterModel.RendererInfo[] CharacterRendererInfoSetup(GameObject model, bool debugmode = true)
+        public static CharacterModel.RendererInfo[] CharacterRendererInfoSetup(GameObject model, bool debugmode = false)
         {
             List<Renderer> AllRenderers = new List<Renderer>();
 

@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
 using Aetherium.Utils;
+using Aetherium.States.Equipment.BellTotem;
 using RoR2.Audio;
 
 namespace Aetherium.Equipment
@@ -118,8 +119,8 @@ namespace Aetherium.Equipment
 
         public void CreateInteractable()
         {
-            LanguageAPI.Add("INTERACTABLE_BELL_TOTEM_NAME", "Bell Totem");
-            LanguageAPI.Add("INTERACTABLE_BELL_TOTEM_CONTEXT", "Ring the Bell?");
+            Language.Language.Add("INTERACTABLE_BELL_TOTEM_NAME", "Bell Totem");
+            Language.Language.Add("INTERACTABLE_BELL_TOTEM_CONTEXT", "Ring the Bell?");
 
             InteractableBodyModelPrefab = MainAssets.LoadAsset<GameObject>("BellTotem.prefab");
             InteractableBodyModelPrefab.AddComponent<NetworkIdentity>();
@@ -136,8 +137,8 @@ namespace Aetherium.Equipment
 
             var entityStateMachine = InteractableBodyModelPrefab.AddComponent<EntityStateMachine>();
             entityStateMachine.customName = "Body";
-            entityStateMachine.initialStateType.stateType = typeof(MyEntityStates.BellTotem.BellTotemAppearState);
-            entityStateMachine.mainStateType.stateType = typeof(MyEntityStates.BellTotem.BellTotemMainState);
+            entityStateMachine.initialStateType.stateType = typeof(BellTotemAppearState);
+            entityStateMachine.mainStateType.stateType = typeof(BellTotemMainState);
 
             var networkStateMachine = InteractableBodyModelPrefab.AddComponent<NetworkStateMachine>();
             networkStateMachine.stateMachines = new EntityStateMachine[]{ entityStateMachine };
@@ -172,10 +173,10 @@ namespace Aetherium.Equipment
                 }
             };
             
-            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemAppearState>(out _);
-            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemDisappearState>(out _);
-            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemMainState>(out _);
-            ContentAddition.AddEntityState<MyEntityStates.BellTotem.BellTotemRingingState>(out _);
+            ContentAddition.AddEntityState<BellTotemAppearState>(out _);
+            ContentAddition.AddEntityState<BellTotemDisappearState>(out _);
+            ContentAddition.AddEntityState<BellTotemMainState>(out _);
+            ContentAddition.AddEntityState<BellTotemRingingState>(out _);
             
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
@@ -493,9 +494,9 @@ namespace Aetherium.Equipment
                 var BellTotemCache = body.GetComponent<BellTotemCache>();
                 if (BellTotemCache)
                 {
-                    if (BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is MyEntityStates.BellTotem.BellTotemDisappearState))
+                    if (BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is BellTotemDisappearState))
                     {
-                        BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new MyEntityStates.BellTotem.BellTotemDisappearState());
+                        BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new BellTotemDisappearState());
                     }
 
                     var hitPlace = Physics.Raycast(new Ray(slot.inputBank.aimOrigin, slot.inputBank.aimDirection), out RaycastHit raycastHit, 1000, LayerIndex.world.mask, QueryTriggerInteraction.Ignore);
@@ -586,9 +587,9 @@ namespace Aetherium.Equipment
                 {
                     LastActivator = body;
 
-                    if (BellTotemStateMachine.state is MyEntityStates.BellTotem.BellTotemMainState)
+                    if (BellTotemStateMachine.state is BellTotemMainState)
                     {
-                        BellTotemStateMachine.SetNextState(new MyEntityStates.BellTotem.BellTotemRingingState());
+                        BellTotemStateMachine.SetNextState(new BellTotemRingingState());
                     }
                 }
             }
@@ -597,7 +598,7 @@ namespace Aetherium.Equipment
             {
                 if (NetworkServer.active)
                 {
-                    if (!(BellTotemStateMachine.state is MyEntityStates.BellTotem.BellTotemMainState))
+                    if (!(BellTotemStateMachine.state is BellTotemMainState))
                     {
                         PurchaseInteraction.SetAvailable(false);
                     }
@@ -614,9 +615,9 @@ namespace Aetherium.Equipment
                         }
                     }
 
-                    if (!Owner && !(BellTotemStateMachine.state is MyEntityStates.BellTotem.BellTotemDisappearState))
+                    if (!Owner && !(BellTotemStateMachine.state is BellTotemDisappearState))
                     {
-                        BellTotemStateMachine.SetNextState(new MyEntityStates.BellTotem.BellTotemDisappearState());
+                        BellTotemStateMachine.SetNextState(new BellTotemDisappearState());
                     }
                 }
             }

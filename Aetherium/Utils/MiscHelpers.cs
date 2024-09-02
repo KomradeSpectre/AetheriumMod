@@ -197,5 +197,41 @@ namespace Aetherium.Utils
             return index;
         }
 
+        public static void PullEnemiesTowardsBody(CharacterBody target, CharacterBody victim, float maxVelocity)
+        {
+            if(!target || !victim || !victim.rigidbody)
+            {
+                return;
+            }
+
+            Vector3 directionToPlayer = (target.corePosition - victim.corePosition).normalized;
+            Vector3 projectedVelocity = Vector3.Project(victim.rigidbody.velocity, directionToPlayer);
+
+            float velocityDifference = Mathf.Max(0, maxVelocity - projectedVelocity.magnitude);
+            var desiredForce = directionToPlayer * velocityDifference;
+
+            var physInfo = new PhysForceInfo()
+            {
+                massIsOne = true,
+                disableAirControlUntilCollision = true,
+                ignoreGroundStick = true,
+                force = desiredForce,
+            };
+
+            var characterMotor = victim.characterMotor;
+            if (characterMotor)
+            {
+                characterMotor.ApplyForceImpulseFixed(physInfo);
+                return;
+            }
+
+            var rigidBodyMotor = victim.GetComponent<RigidbodyMotor>();
+            if (rigidBodyMotor)
+            {
+                rigidBodyMotor.ApplyForceImpulse(physInfo);
+                return;
+            }
+        }
+
     }
 }

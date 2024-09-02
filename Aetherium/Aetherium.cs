@@ -7,9 +7,10 @@ using Aetherium.Artifacts;
 using Aetherium.StandaloneBuffs;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
-using Aetherium.Equipment.EliteEquipment;
+using Aetherium.EliteEquipment;
 using Aetherium.Interactables;
 using Aetherium.Items;
+using Aetherium.Language;
 using Aetherium.Survivors;
 using Aetherium.Utils;
 using BepInEx;
@@ -43,6 +44,8 @@ namespace Aetherium
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
         public const string ModVer = "0.6.8";
+
+        public static AetheriumPlugin Instance;
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 
@@ -87,6 +90,10 @@ namespace Aetherium
 
         private void Awake()
         {
+            Instance = this;
+
+            Language.Language.Init();
+
             #if DEBUG
             R2API.Utils.CommandHelper.AddToConsoleWhenReady();
             #endif
@@ -289,6 +296,8 @@ namespace Aetherium
 
             ModLogger.LogInfo("-----------------------------------------------");
 
+            Language.Language.CreateLanguageFile("AetheriumLanguage.txt");
+
         }
 
         [ConCommand(commandName = "give_aetherium_items", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives all enabled Aetherium items to the sender.")]
@@ -306,8 +315,8 @@ namespace Aetherium
 
         public void GenerateExpansionDef()
         {
-            LanguageAPI.Add("AETHERIUM_EXPANSION_DEF_NAME", "Aetherium");
-            LanguageAPI.Add("AETHERIUM_EXPANSION_DEF_DESCRIPTION", "A whole world of weird items, equipment, elites, and interactables await you.");
+            Language.Language.Add("AETHERIUM_EXPANSION_DEF_NAME", "Aetherium");
+            Language.Language.Add("AETHERIUM_EXPANSION_DEF_DESCRIPTION", "A whole world of weird items, equipment, elites, and interactables await you.");
 
             AetheriumExpansionDef.descriptionToken = "AETHERIUM_EXPANSION_DEF_DESCRIPTION";
             AetheriumExpansionDef.nameToken = "AETHERIUM_EXPANSION_DEF_NAME";

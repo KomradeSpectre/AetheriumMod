@@ -31,8 +31,8 @@ namespace Aetherium.Interactables
 
         protected void CreateLang()
         {
-            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_NAME", InteractableName);
-            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_CONTEXT", InteractableContext);
+            Language.Language.Add("INTERACTABLE_" + InteractableLangToken + "_NAME", InteractableName);
+            Language.Language.Add("INTERACTABLE_" + InteractableLangToken + "_CONTEXT", InteractableContext);
         }
 
         public void AddExpansionComponentToInteractable(GameObject interactable)

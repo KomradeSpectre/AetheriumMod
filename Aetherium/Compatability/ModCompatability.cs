@@ -28,8 +28,8 @@ namespace Aetherium.Compatability
                 string nameToken = isBuff ? $"BUFF_{langTokenName}_NAME" : $"DEBUFF_{langTokenName}_NAME";
                 string descToken = isBuff ? $"BUFF_{langTokenName}_DESC" : $"DEBUFF_{langTokenName}_DESC";
 
-                LanguageAPI.Add(nameToken, name);
-                LanguageAPI.Add(descToken, description);
+                Language.Language.Add(nameToken, name);
+                Language.Language.Add(descToken, description);
 
                 return Tuple.Create(nameToken, descToken);
             }

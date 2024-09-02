@@ -61,10 +61,10 @@ namespace Aetherium.Items
 
         protected void CreateLang()
         {
-            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
-            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
-            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
-            LanguageAPI.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);
+            Language.Language.Add("ITEM_" + ItemLangTokenName + "_NAME", ItemName);
+            Language.Language.Add("ITEM_" + ItemLangTokenName + "_PICKUP", ItemPickupDesc);
+            Language.Language.Add("ITEM_" + ItemLangTokenName + "_DESCRIPTION", ItemFullDescription);
+            Language.Language.Add("ITEM_" + ItemLangTokenName + "_LORE", ItemLore);
         }
 
         public abstract ItemDisplayRuleDict CreateItemDisplayRules();

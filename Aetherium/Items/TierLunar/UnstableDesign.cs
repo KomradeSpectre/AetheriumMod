@@ -180,7 +180,7 @@ namespace Aetherium.Items.TierLunar
 
             if (LunarChimeraBodyPrefab)
             {
-                LanguageAPI.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"The Unstable Design");
+                Language.Language.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"The Unstable Design");
 
                 var body = LunarChimeraBodyPrefab.GetComponent<CharacterBody>();
                 body.baseNameToken = "AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME";

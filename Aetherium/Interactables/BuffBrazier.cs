@@ -12,6 +12,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Aetherium.Utils;
+using Aetherium.States.Interactable.BuffBrazier;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Interactables.BuffBrazier;
 using static Aetherium.Interactables.BuffBrazierManager;
@@ -140,8 +141,8 @@ namespace Aetherium.Interactables
 
             var entityStateMachine = InteractableBodyModelPrefab.AddComponent<EntityStateMachine>();
             entityStateMachine.customName = "Body";
-            entityStateMachine.initialStateType.stateType = typeof(MyEntityStates.BuffBrazier.BuffBrazierMainState);
-            entityStateMachine.mainStateType.stateType = typeof(MyEntityStates.BuffBrazier.BuffBrazierMainState);
+            entityStateMachine.initialStateType.stateType = typeof(BuffBrazierMainState);
+            entityStateMachine.mainStateType.stateType = typeof(BuffBrazierMainState);
 
             var networkStateMachine = InteractableBodyModelPrefab.AddComponent<NetworkStateMachine>();
             networkStateMachine.stateMachines = new EntityStateMachine[] { entityStateMachine };
@@ -183,8 +184,8 @@ namespace Aetherium.Interactables
 
             var billboard = InteractableBodyModelPrefab.transform.Find("Fire Icon").gameObject.AddComponent<Billboard>();
 
-            ContentAddition.AddEntityState<MyEntityStates.BuffBrazier.BuffBrazierMainState>(out _);
-            ContentAddition.AddEntityState<MyEntityStates.BuffBrazier.BuffBrazierPurchased>(out _);
+            ContentAddition.AddEntityState<BuffBrazierMainState>(out _);
+            ContentAddition.AddEntityState<BuffBrazierPurchased>(out _);
             PrefabAPI.RegisterNetworkPrefab(InteractableBodyModelPrefab);
         }
 
@@ -903,9 +904,9 @@ namespace Aetherium.Interactables
 
                 LastActivator = body;
 
-                if (BuffBrazierStateMachine.state is MyEntityStates.BuffBrazier.BuffBrazierMainState)
+                if (BuffBrazierStateMachine.state is BuffBrazierMainState)
                 {
-                    BuffBrazierStateMachine.SetNextState(new MyEntityStates.BuffBrazier.BuffBrazierPurchased());
+                    BuffBrazierStateMachine.SetNextState(new BuffBrazierPurchased());
 
                     var orb = new Effect.BuffBrazierFlameOrb()
                     {

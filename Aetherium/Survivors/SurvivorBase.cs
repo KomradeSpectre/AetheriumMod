@@ -23,6 +23,9 @@ namespace Aetherium.Survivors
         }
     }
 
+    /// <summary>
+    /// Mostly sourced, or referenced from, Henry Mod. https://github.com/ArcPh1r3/HenryTutorial
+    /// </summary>
     public abstract class SurvivorBase
     {
         //Language Tokens and Text for Survivor
@@ -86,6 +89,7 @@ namespace Aetherium.Survivors
         public SurvivorDef SurvivorDef;
         public GameObject SurvivorBodyPrefab;
         public CharacterBody SurvivorCharacterBody;
+        public ChildLocator SurvivorChildLocator;
         public virtual string CharacterNameToClone { get; set; } = "Commando"; //Modding's favorite base character.
         public virtual UnlockableDef SurvivorUnlockDef { get; set; } = null;
         public virtual float DesiredSelectScreenSortPosition { get; set; } = 100f; //Desired place in the Character Select Screen
@@ -97,12 +101,12 @@ namespace Aetherium.Survivors
 
         protected void CreateLang()
         {
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_NAME", SurvivorName);
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_BODY_NAME", SurvivorBodyName);
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_BODY_SUBTITLE", SurvivorSubtitle);
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_DESCRIPTION", SurvivorDescription);
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_OUTRO_TEXT", SurvivorEndingSuccessText);
-            LanguageAPI.Add("SURVIVOR_" + SurvivorLangToken + "_OUTRO_FAILURE_TEXT", SurvivorEndingFailureText);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_NAME", SurvivorName);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_BODY_NAME", SurvivorBodyName);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_BODY_SUBTITLE", SurvivorSubtitle);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_DESCRIPTION", SurvivorDescription);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_OUTRO_TEXT", SurvivorEndingSuccessText);
+            Language.Language.Add("SURVIVOR_" + SurvivorLangToken + "_OUTRO_FAILURE_TEXT", SurvivorEndingFailureText);
         }
 
         protected void CreateBodyAndDisplay()
@@ -210,7 +214,7 @@ namespace Aetherium.Survivors
             }
 
             //Model Setup
-            CharacterChildLocatorSwap(SurvivorBodyModelPrefab);
+            SurvivorChildLocator = CharacterChildLocatorSwap(SurvivorBodyModelPrefab);
             Transform ModelBaseTransform = ModelTransformSetup(NewBodyPrefab, SurvivorBodyModelPrefab.transform, ModelBasePosition, CameraPivotPosition, AimOriginPosition);
             ModelLocator ModelLocator = ModelLocatorSetup(NewBodyPrefab, ModelBaseTransform, SurvivorBodyModelPrefab.transform);
             CharacterDirection CharacterDirection = CharacterDirectionSetup(NewBodyPrefab, ModelBaseTransform, SurvivorBodyModelPrefab.transform);
@@ -244,7 +248,7 @@ namespace Aetherium.Survivors
             }
 
             //Character Identity
-            characterBody.name = SurvivorName;
+            characterBody.name = SurvivorBodyName;
             characterBody.baseNameToken = "SURVIVOR_" + SurvivorLangToken + "_NAME";
             characterBody.subtitleNameToken = "SURVIVOR_" + SurvivorLangToken + "_BODY_SUBTITLE";
             characterBody.portraitIcon = SurvivorPortraitIcon;
@@ -280,7 +284,7 @@ namespace Aetherium.Survivors
             return characterBody;
         }
 
-        public void CharacterChildLocatorSwap(GameObject model)
+        public ChildLocator CharacterChildLocatorSwap(GameObject model)
         {
             var childLocatorCustom = model.GetComponent<ChildLocatorCustom>();
             if (childLocatorCustom)
@@ -288,9 +292,10 @@ namespace Aetherium.Survivors
                 var childLocator = model.AddComponent<ChildLocator>();
                 childLocator.transformPairs = childLocatorCustom.transformPairs.Select(x => new ChildLocator.NameTransformPair(){ name = x.name, transform = x.transform }).ToArray();
                 UnityEngine.Object.DestroyImmediate(childLocatorCustom);
+                return childLocator;
             }
 
-            return;
+            return null;
         }
 
         /// <summary>

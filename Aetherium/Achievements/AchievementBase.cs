@@ -45,9 +45,9 @@ namespace Aetherium.Achievements
 
         public void RegisterLang()
         {
-            LanguageAPI.Add($"AETHERIUM_{AchievementLangToken}_ACHIEVEMENT_NAME", AchievementName);
-            LanguageAPI.Add($"AETHERIUM_{AchievementLangToken}_ACHIEVEMENT_DESC", AchievementDescription);
-            LanguageAPI.Add($"AETHERIUM_{AchievementLangToken}_UNLOCKABLE_NAME", AchievementName);
+            Language.Language.Add($"AETHERIUM_{AchievementLangToken}_ACHIEVEMENT_NAME", AchievementName);
+            Language.Language.Add($"AETHERIUM_{AchievementLangToken}_ACHIEVEMENT_DESC", AchievementDescription);
+            Language.Language.Add($"AETHERIUM_{AchievementLangToken}_UNLOCKABLE_NAME", AchievementName);
         }
 
         public override void OnInstall()

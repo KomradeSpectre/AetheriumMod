@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3695906985
+CRC: 2364126647
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9f045123c7c5c25cb9f67ebd20869e5d
+    Hash: af4eccfa0210cdbad8c7b6e32ab8291d
   TypeTreeHash:
     serializedVersion: 2
-    Hash: e32057b3651f15ff994e86b16c89e284
+    Hash: af5c5af9f82618d1fb621b413c1e55c4
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -55,10 +55,6 @@ ClassTypes:
   Script: {fileID: 11500000, guid: a450a6f634bea4e44a44079d6a4b1a36, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 261c50d8a80898e4ebf2e8e415ea6766, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 669abf0bda58dea40ac15be4a6c1bf14, type: 3}
-- Class: 114
-  Script: {fileID: -960361785, guid: efe1256b12e4e924a8818fc4dfa711dd, type: 3}
 - Class: 114
   Script: {fileID: -517518216, guid: efe1256b12e4e924a8818fc4dfa711dd, type: 3}
 - Class: 115
@@ -119,10 +115,12 @@ Assets:
 - Assets/Textures/Material Textures/testnoise.jpg
 - Assets/Shaders/3D Shaders/LayeredParallax.shader
 - Assets/Textures/Materials/Survivors/Koalesk/BodyBlack.mat
+- Assets/Models/Prefabs/Survivors/Koalesk/mdlKoalesk.prefab
 - Assets/Textures/Material Textures/From Others/HG/texCloudWaterRipples.png
 - Assets/Models/Prefabs/Equipment/JarOfReshaping/JarOfReshapingAbsorbEffect.prefab
 - Assets/Models/Raw Models/By Others/HG/Body_low_0.asset
 - Assets/Textures/Materials/Item/WeightedAnklet/WeightedAnkletCrystal.mat
+- Assets/Textures/Icons/Skill/KoaleskAbility_ScarletGarden.png
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOrbEffect.prefab
 - Assets/Textures/Materials/Item/WeightedAnklet/LimiterReleaseTrail.mat
 - Assets/Models/Prefabs/Equipment/BellTotem/NoSpawnAllowedEffect.prefab
@@ -205,6 +203,7 @@ Assets:
 - Assets/Textures/Material Textures/rampAffixAbyssal.png
 - Assets/Shaders/3D Shaders/WaterShader.shader
 - Assets/Textures/Icons/Item/SharkTeethIcon.png
+- Assets/Textures/Icons/Skill/KoaleskAbility_DarkThorn.png
 - Assets/Shaders/3D Shaders/DistanceAwareOutline.shader
 - Assets/Animations/InspiringDroneThrusterPlume.controller
 - Assets/Textures/Icons/Item/BlasterKatanaIcon.png
@@ -284,6 +283,7 @@ Assets:
 - Assets/Textures/Materials/Survivors/Koalesk/BodyGold.mat
 - Assets/753network/Crystallize/Ramp Rainbow.png
 - Assets/Animations/VoidLarvaDeath.anim
+- Assets/Textures/Materials/Survivors/Koalesk/DarkThornProjectileMaterial.mat
 - Assets/Textures/Icons/Achievement/ShieldingCoreAchievementIcon.png
 - Assets/Textures/Materials/Equipment/JarOfReshaping/JarOfReshapingPowerCore.mat
 - Assets/Models/Prefabs/Item/UnstableDesign/UnstableDesignTargetingSphere.prefab
@@ -337,6 +337,7 @@ Assets:
 - Assets/Textures/Materials/Survivors/Koalesk/BodyBone.mat
 - Assets/Textures/Materials/Item/Voidheart/VoidHeartParticle.mat
 - Assets/Models/Raw Models/By Others/IcosphereHighres.asset
+- Assets/Textures/Icons/Skill/KoaleskAbility_ShadowDance.png
 - Assets/Models/Raw Models/By Others/Ragon/abyssalAspectSingle.fbx
 - Assets/Textures/Material Textures/RadialFlowMap.jpg
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltPouchClothTop.mat
@@ -347,6 +348,7 @@ Assets:
 - Assets/Animations/BellTotemIdle.anim
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltBelt.mat
 - Assets/Textures/Icons/Item/AlienMagnetIcon.png
+- Assets/Textures/Material Textures/texRampDarkClaw.png
 - Assets/Textures/Material Textures/7029.jpg
 - Assets/Models/Prefabs/Item/ZenithAccelerator/PickupZenithAccelerator.prefab
 - Assets/Textures/Material Textures/From Others/HG/texOmniExplosion2Mask.png
@@ -384,6 +386,7 @@ Assets:
 - Assets/Textures/Material Textures/10587 - Copy.jpg
 - Assets/Models/Raw Models/By Others/Ragon/shielding core v2.blend
 - Assets/Textures/Material Textures/SoulLinkedHeartIcon.png
+- Assets/Textures/Icons/Skill/KoaleskAbility_GraveStake.png
 - Assets/Textures/Material Textures/LightningRamp.png
 - Assets/Shaders/3D Shaders/Lava Lamp (Unlit).shader
 - Assets/Textures/Material Textures/BuffBrazierNormal.png
@@ -409,6 +412,7 @@ Assets:
 - Assets/Models/Prefabs/Equipment/BellTotem/BellTotemDisplay.prefab
 - Assets/Textures/Material Textures/soulpinsymbolnormal.png
 - Assets/Textures/Material Textures/VoidheartHeartNormal.png
+- Assets/Models/Prefabs/Survivors/Koalesk/KoaleskDisplay.prefab
 - Assets/Models/Prefabs/Item/BloodthirstyShield/BloodthirstyShield.prefab
 - Assets/Textures/Material Textures/10587.jpg
 - Assets/Textures/Material Textures/GenericDustRamp.png
@@ -454,6 +458,7 @@ Assets:
 - Assets/Animations/JarOfReshapingAbsorbExit.anim
 - Assets/Models/Raw Models/BuffBrazierBuffOrb.fbx
 - Assets/Animations/TrilbyDisappear.anim
+- Assets/Models/Prefabs/Survivors/Koalesk/KoaleskDarkThornProjectile.prefab
 - Assets/Animations/BellTotemRinging.anim
 - Assets/Textures/Material Textures/WitchesRingOcclusionMap.png
 - Assets/Textures/Icons/Buff/By Others/FOG/AffixAbyssalBuffIcon.png
@@ -476,6 +481,7 @@ Assets:
 - Assets/Textures/Materials/Item/AlienMagnet/AlienMagnetRing.mat
 - Assets/Shaders/FlowMap.shader
 - Assets/Models/Prefabs/Item/ZenithAccelerator/ZenithAcceleratorWithCoolParticleEffects.prefab
+- Assets/Textures/Material Textures/From Others/HG/texRampPurpleLightning.png
 - Assets/Models/Raw Models/By Others/Ragon/faust.blend
 - Assets/Animations/ShieldingCoreCentrifuge.anim
 - Assets/Textures/Icons/Artifact/ArtifactOfLeonidsDisabledIcon.png
@@ -515,12 +521,10 @@ Assets:
 - Assets/Animations/BuffBrazierFireIcon.anim
 - Assets/Textures/Materials/Elite Equipment/AffixAbyssal/AffixAbyssalMat.mat
 - Assets/Textures/Materials/Item/InspiringDrone/InspiringDroneHeadsetWireTexture.mat
-- Assets/Models/Prefabs/Survivors/Koalesk/mdlKoalesk.prefab
 - Assets/Textures/Materials/Item/Voidheart/VoidheartExplosionTrail.mat
 - Assets/Shaders/3D Shaders/Hopoo Fakes (KingEnderBrine)/deffered/hgwavycloth.shader
 - Assets/Animations/InspiringDroneChest.anim
 - Assets/Textures/Material Textures/GoldRamp.png
-- Assets/Models/Raw Models/By Others/Ragon/Koalesk_pizza_drama_edition.fbx
 - Assets/Textures/Material Textures/WitchesRingNormal.png
 - Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle4.png
 - Assets/Animations/SoulPinDisplayFlashOut.anim
@@ -532,6 +536,7 @@ Assets:
 - Assets/Shaders/3D Shaders/StencilShield.shader
 - Assets/Models/Prefabs/Item/BlasterSword/BlasterSwordAltProjectile.prefab
 - Assets/Models/Raw Models/NailBomb.blend
+- Assets/Textures/Icons/Skill/KoaleskAbility_RoseThorn.png
 - Assets/Models/Raw Models/BuffBrazierSphere.blend
 - Assets/Textures/Material Textures/13021-ambientocclusion.jpg
 - Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedHeartEffect.prefab
@@ -585,7 +590,6 @@ Assets:
 - Assets/Textures/Materials/Item/EngineersToolbelt/EngineersToolbeltHandle.mat
 - Assets/Textures/Icons/Expansion/AetheriumActiveIconAlt.png
 - Assets/Textures/Icons/Item/VoidheartIcon.png
-- Assets/Models/Prefabs/Survivors/Koalesk/KoaleskDisplay.prefab
 - Assets/Animations/DisplayJarOfReshaping.controller
 - Assets/Textures/Material Textures/4793.jpg
 - Assets/Textures/Material Textures/From Others/Ragon/FaustHatReticle1.png
@@ -744,6 +748,7 @@ Assets:
 - Assets/Models/Prefabs/Standalone Buffs/SoulLinked/SoulLinkedTrailEffect.prefab
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierOld.prefab
 - Assets/Animations/InspiringDroneUpperArmL.controller
+- Assets/Textures/Icons/Skill/KoaleskAbility_DeadOfNight.png
 - Assets/Animations/TrilbyFire.anim
 - Assets/Textures/Materials/StandaloneBuffs/SoulLinked/SoulLinkedHeartMaterial.mat
 - Assets/Shaders/3D Shaders/AuraGhostOutline.shader
@@ -783,6 +788,7 @@ Assets:
 - Assets/Models/Prefabs/Item/WitchesRing/DisplayWitchesRing.prefab
 - Assets/Textures/Materials/Miscellaneous/Ring Main.mat
 - Assets/Animations/ThrusterRAfterburner.anim
+- Assets/Models/Raw Models/By Others/Ragon/koalesk.fbx
 - Assets/Models/Raw Models/By Others/Ragon/faustb.fbx
 - Assets/Textures/Icons/Buff/By Others/OpenAI/DefensiveMatrix.png
 - Assets/Textures/Materials/Miscellaneous/MiscBlack.mat
@@ -815,8 +821,10 @@ Assets:
 - Assets/Models/Prefabs/Interactables/BuffBrazier/ShrineTest.prefab
 - Assets/Models/Prefabs/Item/AlienMagnet/AlienMagnetTracker.prefab
 - Assets/Animations/InspiringDroneUpperArmR.controller
+- Assets/Textures/Icons/Skill/KoaleskAbility_BloodyStake.png
 - Assets/Models/Prefabs/Interactables/BuffBrazier/BuffBrazierActiveField.prefab
 - Assets/Animations/ThrusterLAfterburner.anim
+- Assets/Textures/Icons/Skill/KoaleskAbility_FlowerDance.png
 - Assets/Textures/Materials/Item/HexPendulum/HexTotemTextureEye.mat
 - Assets/Textures/Icons/Buff/By Others/Ragon/NailBombNailCooldownIcon.png
 - Assets/Textures/Material Textures/VoidLarvaNormal.png

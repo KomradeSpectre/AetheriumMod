@@ -40,8 +40,8 @@ namespace Aetherium.Artifacts
 
         protected void CreateLang()
         {
-            LanguageAPI.Add("ARTIFACT_" + ArtifactLangTokenName + "_NAME", ArtifactName);
-            LanguageAPI.Add("ARTIFACT_" + ArtifactLangTokenName + "_DESCRIPTION", ArtifactDescription);
+            Language.Language.Add("ARTIFACT_" + ArtifactLangTokenName + "_NAME", ArtifactName);
+            Language.Language.Add("ARTIFACT_" + ArtifactLangTokenName + "_DESCRIPTION", ArtifactDescription);
         }
 
         protected void CreateArtifact()

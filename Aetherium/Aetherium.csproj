@@ -12,13 +12,13 @@
     <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Effect\HungeringConsumptionOrb.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixBenevolent.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixHungering.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixHypercharged.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixMagnetic.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixRallying.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixSteadfast.cs" />
-    <Compile Remove="Equipment\EliteEquipment\AffixTarred.cs" />
+    <Compile Remove="EliteEquipment\AffixBenevolent.cs" />
+    <Compile Remove="EliteEquipment\AffixHungering.cs" />
+    <Compile Remove="EliteEquipment\AffixHypercharged.cs" />
+    <Compile Remove="EliteEquipment\AffixMagnetic.cs" />
+    <Compile Remove="EliteEquipment\AffixRallying.cs" />
+    <Compile Remove="EliteEquipment\AffixSteadfast.cs" />
+    <Compile Remove="EliteEquipment\AffixTarred.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
@@ -28,6 +28,7 @@
     <Compile Remove="Items\BloodDiamond.cs" />
     <Compile Remove="Items\ObliterballAndChain.cs" />
     <Compile Remove="Items\RicochetTest.cs" />
+    <Compile Remove="Items\Tier2\EmpathicResonator.cs" />
     <Compile Remove="Items\VoidItems\FrenziedWarbot.cs" />
     <Compile Remove="Items\VoidItems\PhasewindFeather.cs" />
     <Compile Remove="Items\VoidItems\RazorfinWing.cs" />
@@ -60,9 +61,10 @@
   <ItemGroup>
     <Folder Include="Items\VoidItems\Tier3\" />
     <Folder Include="Items\VoidItems\Tier2\" />
-    <Folder Include="MyEntityStates\Survivors\Koalesk\Misc\" />
-    <Folder Include="MyEntityStates\Survivors\Koalesk\Special\" />
-    <Folder Include="MyEntityStates\Survivors\Koalesk\Utility\" />
+    <Folder Include="Skills\" />
+    <Folder Include="States\Item\" />
+    <Folder Include="States\Survivor\Koalesk\Misc\" />
+    <Folder Include="States\Survivor\Koalesk\Special\" />
     <Folder Include="obj\" />
   </ItemGroup>
 
@@ -77,6 +79,10 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;$(NuGetPackageRoot)\unityengine.modules\2019.4.26\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(NuGetPackageRoot)\riskofrain2.gamelibs\1.2.4-r.0\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if not exist &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot; mkdir &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot;" />
   </Target>
 	
 </Project>

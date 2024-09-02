@@ -54,10 +54,10 @@ namespace Aetherium.Equipment
         #region Normal Equipment Setup
         protected void CreateLang()
         {
-            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
-            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
-            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
-            LanguageAPI.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
+            Language.Language.Add("EQUIPMENT_" + EquipmentLangTokenName + "_NAME", EquipmentName);
+            Language.Language.Add("EQUIPMENT_" + EquipmentLangTokenName + "_PICKUP", EquipmentPickupDesc);
+            Language.Language.Add("EQUIPMENT_" + EquipmentLangTokenName + "_DESCRIPTION", EquipmentFullDescription);
+            Language.Language.Add("EQUIPMENT_" + EquipmentLangTokenName + "_LORE", EquipmentLore);
         }
 
         protected void CreateEquipment()
