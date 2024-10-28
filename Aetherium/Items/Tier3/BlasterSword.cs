@@ -1378,7 +1378,8 @@ namespace Aetherium.Items.Tier3
 
         private void FireTheSwordOnProjectiles(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, RoR2.Projectile.ProjectileManager self, FireProjectileInfo fireProjectileInfo)
         {
-            if (!RecursionPrevention && !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
+            if (!RecursionPrevention && fireProjectileInfo.projectilePrefab != null &&
+                !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
             {
                 var projectileOwner = fireProjectileInfo.owner;
                 if (projectileOwner)
