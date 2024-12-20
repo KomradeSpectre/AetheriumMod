@@ -98,7 +98,7 @@ namespace Aetherium.Equipment.EliteEquipment
             CreateLang();
             CreateEquipment();
             //CreateEliteTiers();
-            SetupElite();
+            CreateElite();
             RegisterEntityState();
             CreateNetworking();
             Hooks();

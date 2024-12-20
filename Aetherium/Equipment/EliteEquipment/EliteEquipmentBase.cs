@@ -110,9 +110,13 @@ namespace Aetherium.Equipment.EliteEquipment
         {
             EliteBuffDef = ScriptableObject.CreateInstance<BuffDef>();
             EliteBuffDef.name = EliteAffixToken;
-            EliteBuffDef.buffColor = EliteBuffColor;
             EliteBuffDef.canStack = false;
+            EliteBuffDef.isCooldown = false;
+            EliteBuffDef.isDebuff = false;
+            EliteBuffDef.buffColor = EliteColor;
             EliteBuffDef.iconSprite = EliteBuffIcon;
+
+            ContentAddition.AddBuffDef(EliteBuffDef);
 
             EliteEquipmentDef = ScriptableObject.CreateInstance<EquipmentDef>();
             EliteEquipmentDef.name = "AETHERIUM_ELITE_EQUIPMENT_" + EliteAffixToken;
@@ -198,7 +202,7 @@ namespace Aetherium.Equipment.EliteEquipment
             }
         }
 
-        /*protected void CreateElite()
+        protected void CreateElite()
         {
             EliteDef = ScriptableObject.CreateInstance<EliteDef>();
             EliteDef.name = "AETHERIUM_ELITE_" + EliteAffixToken;
@@ -207,33 +211,34 @@ namespace Aetherium.Equipment.EliteEquipment
             EliteDef.healthBoostCoefficient = HealthMultiplier;
             EliteDef.damageBoostCoefficient = DamageMultiplier;
 
-            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
-            if (!CanAppearInEliteTiers.All(x => baseEliteTierDefs.Contains(x)))
+            var tierDefs = GetVanillaEliteTierDef(EliteTierDef);
+            if (tierDefs is null)
             {
-                var distinctEliteTierDefs = CanAppearInEliteTiers.Except(baseEliteTierDefs);
-
-                foreach (EliteTierDef eliteTierDef in distinctEliteTierDefs)
-                {
-                    var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= eliteTierDef.costMultiplier);
-                    if (indexToInsertAt >= 0)
-                    {
-                        EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
-                    }
-                    else
-                    {
-                        EliteAPI.AddCustomEliteTier(eliteTierDef);                        
-                    }
-                    baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
-                }
+                ModLogger.LogError("Failed to get vanilla elite tier definitions.");
+                return;
             }
 
-            EliteAPI.Add(new CustomElite(EliteDef, CanAppearInEliteTiers));
+            var customElite = new CustomElite("AETHERIUM_ELITE_" + EliteAffixToken, EliteEquipmentDef, EliteColor, "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", tierDefs, EliteRamp);
 
-            EliteBuffDef.eliteDef = EliteDef;
+            if (EliteTierDef < EliteTier.T2)
+            {
+                customElite.EliteDef.healthBoostCoefficient = 4f;
+                customElite.EliteDef.damageBoostCoefficient = 2f;
+            }
+            else
+            {
+                customElite.EliteDef.healthBoostCoefficient = 18f;
+                customElite.EliteDef.damageBoostCoefficient = 6f;
+            }
+
+            EliteAPI.Add(customElite);
+
+            EliteBuffDef.eliteDef = customElite.EliteDef;
             ContentAddition.AddBuffDef(EliteBuffDef);
-        }*/
+        }
 
-        public virtual CustomElite SetupElite()
+
+        /*public virtual CustomElite SetupElite()
         {
             var tierDefs = this.GetVanillaEliteTierDef(this.EliteTierDef);
             if (tierDefs is null)
@@ -264,8 +269,12 @@ namespace Aetherium.Equipment.EliteEquipment
 
             EliteAPI.Add(customElite);
 
+            CustomEliteDef.EliteDef.modifierToken = "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER";
+            CustomEliteDef.EliteDef = CustomEliteDef.EliteDef;
+            ContentAddition.AddBuffDef(EliteBuffDef);
+
             return customElite;
-        }
+        }*/
 
         private IEnumerable<CombatDirector.EliteTierDef> GetVanillaEliteTierDef(EliteTier tier)
         {
