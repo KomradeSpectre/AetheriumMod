@@ -40,7 +40,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.8.3";
+        public const string ModVer = "0.8.4";
 
         internal static BepInEx.Logging.ManualLogSource ModLogger;
 

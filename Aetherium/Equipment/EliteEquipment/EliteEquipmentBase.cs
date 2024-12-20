@@ -3,7 +3,7 @@ using R2API;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static RoR2.CombatDirector;
+using RoR2;
 using UnityEngine;
 using System.Linq;
 using BepInEx.Configuration;
@@ -45,6 +45,26 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public virtual bool IsLunar { get; } = false;
 
+        public enum EliteTier
+        {
+            Invalid,
+            T1,
+            T1Honor,
+            T1Upgrade,
+            T1UpgradeHonor,
+            T2,
+            Lunar
+        }
+
+        public abstract EliteTier EliteTierDef { get; }
+
+        public abstract Color EliteColor { get; }
+
+        public abstract Texture2D EliteRamp { get; }
+
+        public virtual CustomElite CustomEliteDef { get; set; }
+        public virtual CustomElite CustomEliteDefHonor { get; set; }
+
         public abstract GameObject EliteEquipmentModel { get; }
         public abstract Sprite EliteEquipmentIcon { get; }
 
@@ -62,9 +82,9 @@ namespace Aetherium.Equipment.EliteEquipment
         /// <summary>
         /// If not overriden, the elite can spawn in all tiers defined.
         /// </summary>
-        public virtual EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
+        public virtual CombatDirector.EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
 
-        public virtual Material EliteMaterial { get; set;} = null;
+        public virtual Material EliteMaterial { get; set; } = null;
 
         public EliteDef EliteDef;
 
@@ -178,7 +198,7 @@ namespace Aetherium.Equipment.EliteEquipment
             }
         }
 
-        protected void CreateElite()
+        /*protected void CreateElite()
         {
             EliteDef = ScriptableObject.CreateInstance<EliteDef>();
             EliteDef.name = "AETHERIUM_ELITE_" + EliteAffixToken;
@@ -211,9 +231,67 @@ namespace Aetherium.Equipment.EliteEquipment
 
             EliteBuffDef.eliteDef = EliteDef;
             ContentAddition.AddBuffDef(EliteBuffDef);
+        }*/
+
+        public virtual CustomElite SetupElite()
+        {
+            var tierDefs = this.GetVanillaEliteTierDef(this.EliteTierDef);
+            if (tierDefs is null)
+                return null;
+
+            var customElite = new CustomElite("AETHERIUM_ELITE_" + this.EliteAffixToken, this.EliteEquipmentDef, this.EliteColor, "AETHERIUM_ELITE_" + this.EliteAffixToken + "_MODIFIER", tierDefs, this.EliteRamp);
+            if (this.EliteTierDef < EliteTier.T2)
+            {
+                tierDefs = this.GetVanillaEliteTierDef(this.EliteTierDef + 1);
+                if (tierDefs != null)
+                {
+                    var customHonorElite = new CustomElite("AETHERIUM_ELITE_" + this.EliteAffixToken +"_HONOR", this.EliteEquipmentDef, this.EliteColor, "AETHERIUM_ELITE_" + this.EliteAffixToken + "_MODIFIER", tierDefs, this.EliteRamp);
+
+                    customHonorElite.EliteDef.healthBoostCoefficient = 2.5f;
+                    customHonorElite.EliteDef.damageBoostCoefficient = 1.5f;
+
+                    EliteAPI.Add(customHonorElite);
+                }
+
+                customElite.EliteDef.healthBoostCoefficient = 4f;
+                customElite.EliteDef.damageBoostCoefficient = 2f;
+            }
+            else
+            {
+                customElite.EliteDef.healthBoostCoefficient = 18f;
+                customElite.EliteDef.damageBoostCoefficient = 6f;
+            }
+
+            EliteAPI.Add(customElite);
+
+            return customElite;
         }
 
+        private IEnumerable<CombatDirector.EliteTierDef> GetVanillaEliteTierDef(EliteTier tier)
+        {
+            // 0 - none
+            // 1 - t1
+            // 2 - t1 honor
+            // 3 - t1 + gold
+            // 4 - t1 + gold honor
+            // 5 - t2
+            // 6 - lunar
 
+            if (tier == EliteTier.Invalid)
+            {
+                ModLogger.LogError("Invalid tier");
+                ModLogger.LogDebug(new System.Diagnostics.StackTrace());
+
+                return null;
+            }
+
+            List<CombatDirector.EliteTierDef> tierDefs = new List<CombatDirector.EliteTierDef>() { EliteAPI.VanillaEliteTiers[(int)tier] };
+
+            if (this.EliteTierDef is EliteTier.T1 or EliteTier.T1Honor)
+                tierDefs.Add(EliteAPI.VanillaEliteTiers[(int)tier + 2]);
+
+            return tierDefs;
+        }
 
         protected bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
         {

@@ -16,6 +16,7 @@ using UnityEngine.Networking;
 using R2API.Networking;
 using Aetherium.Utils;
 using static R2API.DamageAPI;
+using UnityEngine.AddressableAssets;
 
 namespace Aetherium.Equipment.EliteEquipment
 {
@@ -57,6 +58,10 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override float DamageMultiplier => 1.5f;
 
+        public override EliteTier EliteTierDef => (EliteTier)1;
+        public override Color EliteColor => new Color(195, 33, 72, 255);
+        public override Texture2D EliteRamp => Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Common/ColorRamps/texRampImp.png").WaitForCompletion();
+
         public HashSet<string> NoAbyssalControllerForTheseBodies = new HashSet<string>()
         {
             "GrandParentBody",
@@ -92,8 +97,8 @@ namespace Aetherium.Equipment.EliteEquipment
             CreateConfig(config);
             CreateLang();
             CreateEquipment();
-            CreateEliteTiers();
-            CreateElite();
+            //CreateEliteTiers();
+            SetupElite();
             RegisterEntityState();
             CreateNetworking();
             Hooks();
@@ -103,23 +108,23 @@ namespace Aetherium.Equipment.EliteEquipment
         {
             BlinkStateDuration = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Duration of the Abyssal Dash State", 0.2f, "How long (in second(s)) should it take for the abyssal dash of this equipment to fully complete?");
             BlinkDistance = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Max Distance to Cover in a Single Abyssal Dash", 10f, "How far out should the Abyssal Dash check for a node to teleport towards?");
-            CostMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Cost Multiplier of Elite", 1f, "How many times higher than the base elite cost should the cost of this elite be? (Do not set this to 0, only warning haha.)");
-            DamageMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Damage Multiplier of Elite", 1f, "How many times higher than the base elite damage boost should the damage of this elite be?");
-            HealthMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Health Multiplier of Elite", 2f, "How many times higher than the base elite health boost should the health of this elite be?");
+            //CostMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Cost Multiplier of Elite", 1f, "How many times higher than the base elite cost should the cost of this elite be? (Do not set this to 0, only warning haha.)");
+            //DamageMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Damage Multiplier of Elite", 1f, "How many times higher than the base elite damage boost should the damage of this elite be?");
+            //HealthMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Health Multiplier of Elite", 2f, "How many times higher than the base elite health boost should the health of this elite be?");
             ForcedDurationBetweenPlayerBlinks = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Forced Cooldown Duration Between Player Blinks", 2f, "What should the duration of forced cooldown for the abyssal dash ability be for players?");
         }
 
         private void CreateEliteTiers()
         {
-            CanAppearInEliteTiers = new CombatDirector.EliteTierDef[]
-            {
+            CanAppearInEliteTiers = CombatDirector.eliteTiers;
+            /*{
                 new CombatDirector.EliteTierDef()
                 {
                     costMultiplier = CombatDirector.baseEliteCostMultiplier * CostMultiplierOfElite,
                     eliteTypes = Array.Empty<EliteDef>(),
                     isAvailable = SetAvailability
                 }
-            };
+            };*/
         }
 
         private bool SetAvailability(SpawnCard.EliteRules arg)
