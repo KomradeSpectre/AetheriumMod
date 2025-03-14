@@ -356,12 +356,20 @@ namespace Aetherium.Items.Tier3
             R2API.RecalculateStatsAPI.GetStatCoefficients += AddBoostsToBot;
             On.RoR2.CharacterBody.OnInventoryChanged += RemoveItemFromDeployables;
             On.RoR2.CharacterBody.OnInventoryChanged += UpdateAllTrackers;
+            On.RoR2.CharacterBody.GetDisplayName += CharacterBody_GetDisplayName;
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
-            RoR2Application.onLoad += OnLoadModCompat;
         }
 
-        private void OnLoadModCompat()
+        private string CharacterBody_GetDisplayName(On.RoR2.CharacterBody.orig_GetDisplayName orig, CharacterBody self)
         {
+            var text = orig(self);
+            if (IsDroneSupported(self.master))
+            {
+                var tracker = self.master.GetComponent<BotStatTracker>();
+                if (tracker && tracker.BoostCount > 0)
+                    return $"Inspired {text}";
+            }
+            return text;
         }
 
         private void CharacterBody_onBodyStartGlobal(CharacterBody obj)
@@ -425,27 +433,15 @@ namespace Aetherium.Items.Tier3
             }
         }
 
-        private bool IsDroneSupported(CharacterMaster botMaster)
-        {
-            return IsDroneSupported(botMaster.name);
-        }
+        private bool IsDroneSupported(CharacterMaster botMaster) => botMaster ? IsDroneSupported(botMaster.name) : false;
 
-        private bool IsDroneSupported(string botMasterName)
-        {
-            return DronesList.Exists((droneSubstring) => { return botMasterName.Contains(droneSubstring); });
-        }
+        private bool IsDroneSupported(string botMasterName) => DronesList.Exists(botMasterName.Contains);
 
-        private bool IsDroneTeleportBanned(CharacterMaster botMaster)
-        {
-            return IsDroneTeleportBanned(botMaster.name);
-        }
+        private bool IsDroneTeleportBanned(CharacterMaster botMaster) => botMaster ? IsDroneTeleportBanned(botMaster.name) : false;
 
-        private bool IsDroneTeleportBanned(string botMasterName)
-        {
-            return BannedTeleportDrones.Exists((droneSubstring) => { return botMasterName.Contains(droneSubstring); });
-        }
+        private bool IsDroneTeleportBanned(string botMasterName) => BannedTeleportDrones.Exists(botMasterName.Contains);
 
-        
+
         /// <summary>
         /// Allows a custom drone to be Inspired by Inspiring Drone.
         /// </summary>
@@ -479,7 +475,7 @@ namespace Aetherium.Items.Tier3
             public float RegenBoost;
             public float ArmorBoost;
             public float MoveSpeedBoost;
-            public string BotName;
+
             public CharacterMaster BotOwnerMaster;
             public CharacterMaster BotMaster;
             public CharacterBody BotOwnerBody;
@@ -493,22 +489,18 @@ namespace Aetherium.Items.Tier3
             public List<int> DefaultSkillStocks = new List<int>();
             public List<float> DefaultRechargeIntervals = new List<float>();
 
-            private string OriginalName = "";
             private bool forceRecalculateOnSpawn = true;
             private bool reassignBodies = false;
             private readonly string[] BlacklistedStockBots = { "Drone2", "EmergencyDrone", "FlameDrone", "EquipmentDrone" };
 
             public static BotStatTracker GetOrAddComponent(CharacterMaster bot, CharacterMaster owner, CharacterBody botBody, CharacterBody ownerBody)
             {
-                BotStatTracker tracker = bot.gameObject.GetComponent<BotStatTracker>();
-                if (!tracker)
-                {
+                if (!bot.TryGetComponent<BotStatTracker>(out var tracker))
                     tracker = bot.gameObject.AddComponent<BotStatTracker>();
-                    tracker.BotMaster = bot;
-                    tracker.BotOwnerMaster = owner;
-                }
+
                 tracker.BotBody = botBody;
                 tracker.BotOwnerBody = ownerBody;
+
                 return tracker;
             }
 
@@ -523,7 +515,6 @@ namespace Aetherium.Items.Tier3
                 int inventoryCount = instance.GetCount(BotOwnerBody);
                 if (BoostCount != inventoryCount)
                 {
-                    if (OriginalName == "") OriginalName = BotBody.GetDisplayName();
                     BoostCount = inventoryCount;
                     DamageBoost = CalculateStat(BotOwnerBody.damage, DamageGrantedPercentage);
                     AttackSpeedBoost = CalculateStat(BotOwnerBody.attackSpeed, AttackSpeedGrantedPercentage);
@@ -532,9 +523,6 @@ namespace Aetherium.Items.Tier3
                     RegenBoost = CalculateStat(BotOwnerBody.regen, RegenGrantedPercentage);
                     ArmorBoost = CalculateStat(BotOwnerBody.armor, ArmorGrantedPercentage);
                     MoveSpeedBoost = CalculateStat(BotOwnerBody.moveSpeed, MovementSpeedGrantedPercentage);
-                    BotName = "";
-                    if (BoostCount > 0) BotName += "Inspired ";
-                    BotName += OriginalName;
 
                     //Add stock to bots that can use it.
                     if (!IsBlacklisted())
@@ -574,7 +562,6 @@ namespace Aetherium.Items.Tier3
                 args.armorAdd += ArmorBoost;
                 BotBody.moveSpeed += MoveSpeedBoost;
                 BotBody.acceleration = BotBody.moveSpeed * (BotBody.baseAcceleration / BotBody.baseMoveSpeed);
-                BotBody.baseNameToken = BotName;
 
                 //We increase the stock and cut down the time between recharging the stocks.
                 if (!IsBlacklisted() && BotSkillStocks.Count > 0 && BotRechargeIntervals.Count > 0)
@@ -588,7 +575,6 @@ namespace Aetherium.Items.Tier3
                 }
             }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Used by UnityEngine")]
             private void FixedUpdate()
             {
                 if (reassignBodies)
@@ -676,7 +662,7 @@ namespace Aetherium.Items.Tier3
                 }, RoR2Application.rng));
                 if (gameObject)
                 {
-                    TeleportHelper.TeleportBody(BotBody, gameObject.transform.position);
+                    TeleportHelper.TeleportBody(BotBody, gameObject.transform.position, true);
                     GameObject teleportEffectPrefab = Run.instance.GetTeleportEffectPrefab(BotBody.gameObject);
                     if (teleportEffectPrefab)
                     {

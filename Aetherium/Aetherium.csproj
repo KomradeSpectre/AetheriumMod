@@ -5,6 +5,20 @@
     <LangVersion>latestMajor</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;IDE0051</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;IDE0051</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Weaver\**" />
+    <EmbeddedResource Remove="Weaver\**" />
+    <None Remove="Weaver\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
     <Compile Remove="Achievements\WeightedAnkletAchievement.cs" />
@@ -80,8 +94,6 @@
     <Folder Include="MyEntityStates\Survivors\Koalesk\Misc\" />
     <Folder Include="MyEntityStates\Survivors\Koalesk\Special\" />
     <Folder Include="MyEntityStates\Survivors\Koalesk\Utility\" />
-    <Folder Include="libs\" />
-    <Folder Include="obj\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -95,8 +107,8 @@
     <PackageReference Include="MMHOOK.RoR2" Version="2024.12.10">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="R2API.RecalculateStats" Version="1.4.*" />
-    <PackageReference Include="R2API.Director" Version="2.1.*" />
+    <PackageReference Include="R2API.RecalculateStats" Version="1.5.0" />
+    <PackageReference Include="R2API.Director" Version="2.3.2" />
     <PackageReference Include="R2API.Elites" Version="1.0.*" />
     <PackageReference Include="R2API.Prefab" Version="1.0.*" />
     <PackageReference Include="R2API.DamageType" Version="1.1.*" />
@@ -111,15 +123,9 @@
   
   <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="AK.Wwise.Unity.API">
-      <HintPath>E:\SteamLibrary\steamapps\common\Risk of Rain 2\Risk of Rain 2_Data\Managed\AK.Wwise.Unity.API.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call &quot;$(ProjectDir)weave.bat&quot;" />
+    <Exec Command="./weave.bat $(TargetDir)" />
   </Target>
 	
 </Project>

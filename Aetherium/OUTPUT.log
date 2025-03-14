@@ -1,0 +1,26 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : Friday, January 17, 2025 1:17:17 AM
+   Source : C:\Users\golde\Documents\GitHub\_MISC\Aetherium\Aetherium\Weaver\
+     Dest : C:\Users\golde\Documents\GitHub\_MISC\Aetherium\Aetherium\Aetherium.dll.prepatch\
+
+    Files : Aetherium.pdb.prepatch
+	    
+  Options : /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	  New Dir          0	C:\Users\golde\Documents\GitHub\_MISC\Aetherium\Aetherium\Weaver\
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         1         1         0         0         0         0
+   Files :         0         0         0         0         0         0
+   Bytes :         0         0         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+   Ended : Friday, January 17, 2025 1:17:17 AM
+
