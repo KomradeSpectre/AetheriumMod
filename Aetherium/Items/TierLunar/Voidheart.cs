@@ -3,13 +3,8 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
-
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -356,20 +351,7 @@ namespace Aetherium.Items.TierLunar
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.Awake += PreventVoidheartFromKillingPlayer;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
-            IL.RoR2.HealthComponent.TakeDamage += InterceptPlanula;
-            RoR2Application.onLoad += OnLoadModCompat;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var voidInstabilityDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_INSTABILITY_DEBUFF", VoidInstabilityDebuff.name, "You don't feel quite all there. Your molecules are shifting around erratically and it feels like the Heart isn't responding right now.", false);
-                RegisterBuffInfo(VoidInstabilityDebuff, voidInstabilityDebuffInfo.Item1, voidInstabilityDebuffInfo.Item2);
-
-                var voidImmunityBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_IMMUNITY_BUFF", VoidImmunityBuff.name, "In this moment, the Heart almost feels symbiotically integrated into you. It doesn't feel like it'll hurt you for the moment.");
-                RegisterBuffInfo(VoidImmunityBuff, voidImmunityBuffInfo.Item1, voidImmunityBuffInfo.Item2);
-            }
+            //IL.RoR2.HealthComponent.TakeDamage += InterceptPlanula;
         }
 
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
@@ -394,7 +376,7 @@ namespace Aetherium.Items.TierLunar
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
         {
             var InventoryCount = GetCount(body);
-            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
+            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
             {
                 bool hasBlacklistedRevivalItems = false;
                 foreach (var item in RevivalItems)
@@ -483,13 +465,13 @@ namespace Aetherium.Items.TierLunar
             if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
-                RoR2.TemporaryOverlay overlay = self.modelLocator.modelTransform.gameObject.AddComponent<RoR2.TemporaryOverlay>();
+                var overlay = TemporaryOverlayManager.AddOverlay(self.modelLocator.modelTransform.gameObject);
                 overlay.duration = VoidHeartCooldownDebuffDuration;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 overlay.animateShaderAlpha = true;
                 overlay.destroyComponentOnEnd = true;
                 overlay.originalMaterial = MainAssets.LoadAsset<Material>("VoidheartPlaceholderTexture.mat");
-                overlay.AddToCharacerModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
+                overlay.AddToCharacterModel(self.modelLocator.modelTransform.GetComponent<RoR2.CharacterModel>());
                 var VoidheartCooldownTracker = self.gameObject.AddComponent<Voidheart.VoidheartCooldown>();
                 VoidheartCooldownTracker.Overlay = overlay;
                 VoidheartCooldownTracker.Body = self;
@@ -497,13 +479,13 @@ namespace Aetherium.Items.TierLunar
             orig(self);
         }
 
-        private void InterceptPlanula(ILContext il)
+        /*private void InterceptPlanula(ILContext il)
         {
             var c = new ILCursor(il);
             ILLabel label = null;
 
             c.GotoNext(MoveType.After,
-                x => x.MatchLdarg(0),
+                x => x.MatchLdarg(1),
                 x => x.MatchLdflda<RoR2.HealthComponent>("itemCounts"),
                 x => x.MatchLdfld<RoR2.HealthComponent.ItemCounts>("parentEgg"), 
                 x => x.MatchLdcI4(0), 
@@ -513,19 +495,19 @@ namespace Aetherium.Items.TierLunar
             c.EmitDelegate<Func<DamageInfo, bool>>(damageInfo =>
                 !DamageAPI.HasModdedDamageType(damageInfo, VoidHeartDamage));
             c.Emit(OpCodes.Brfalse, label);
-        }
+        }*/
 
         public class VoidheartCooldown : MonoBehaviour
         {
-            public RoR2.TemporaryOverlay Overlay;
+            public RoR2.TemporaryOverlayInstance Overlay;
             public RoR2.CharacterBody Body;
 
             public void FixedUpdate()
             {
                 if (!Body.HasBuff(VoidInstabilityDebuff))
                 {
-                    UnityEngine.Object.Destroy(Overlay);
                     UnityEngine.Object.Destroy(this);
+                    Overlay.CleanupEffect();
                 }
             }
         }

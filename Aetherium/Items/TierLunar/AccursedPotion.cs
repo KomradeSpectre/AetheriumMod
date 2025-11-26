@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MiscHelpers;
 using static Aetherium.Utils.MathHelpers;
@@ -325,18 +324,6 @@ namespace Aetherium.Items.TierLunar
         {
             On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;
             On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
-            RoR2Application.onLoad += OnLoadModCompatability;
-        }
-
-        public void OnLoadModCompatability()
-        {
-            if (IsBetterUIInstalled)
-            {
-                //BetterUI Buff Description Compat
-                var sipCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SIP_COOLDOWN", AccursedPotionSipCooldownDebuff.name, "The potion's cap has sealed itself in place. You are safe for now.", false);
-
-                RegisterBuffInfo(AccursedPotionSipCooldownDebuff, sipCooldownDebuffInfo.Item1, sipCooldownDebuffInfo.Item2);
-            }
         }
 
         private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)

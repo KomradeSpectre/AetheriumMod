@@ -3,15 +3,11 @@ using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using UnityEngine;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.MiscHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -305,17 +301,6 @@ namespace Aetherium.Items.Tier1
         {
             On.RoR2.HealthComponent.TakeDamage += CalculateSpeedReward;
             GetStatCoefficients += AddSpeedReward;
-            RoR2Application.onLoad += OnLoadModCompat;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var speedBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_SPEED_BUFF", SpeedBuff.name, "The pain triggers a release of adrenaline in your veins from the feathers. You feel quicker!");
-
-                RegisterBuffInfo(SpeedBuff, speedBuffInfo.Item1, speedBuffInfo.Item2);
-            }
         }
 
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)

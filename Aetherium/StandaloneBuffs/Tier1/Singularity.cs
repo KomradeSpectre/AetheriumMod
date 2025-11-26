@@ -7,7 +7,6 @@ using System.Text;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Interactables.BuffBrazier;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 
 using System.Linq;
 using UnityEngine.Networking;
@@ -32,25 +31,10 @@ namespace Aetherium.StandaloneBuffs.Tier1
 
         public override void Hooks()
         {
-            On.RoR2.HoldoutZoneController.FixedUpdate += PullTowardsCentralPoint;
-            RoR2Application.onLoad += OnLoadModCompat;
+            On.RoR2.HoldoutZoneController.Update += PullTowardsCentralPoint;
         }
 
-        private void OnLoadModCompat()
-        {
-            if (Compatability.ModCompatability.BetterUICompat.IsBetterUIInstalled)
-            {
-                var buffInfo = CreateBetterUIBuffInformation($"AETHERIUM_SINGULARITY_DEBUFF", BuffName, "You're drawn to the center of any active charging field while in it's radius!");
-                RegisterBuffInfo(BuffDef, buffInfo.Item1, buffInfo.Item2);
-            }
-
-            if (Aetherium.Interactables.BuffBrazier.instance != null)
-            {
-                AddCuratedBuffType("Singularity Field", BuffDef, Color, 1.25f, true);
-            }
-        }
-
-        private void PullTowardsCentralPoint(On.RoR2.HoldoutZoneController.orig_FixedUpdate orig, HoldoutZoneController self)
+        private void PullTowardsCentralPoint(On.RoR2.HoldoutZoneController.orig_Update orig, HoldoutZoneController self)
         {
             if (NetworkServer.active)
             {

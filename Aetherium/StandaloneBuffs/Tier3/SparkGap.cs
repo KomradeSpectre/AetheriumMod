@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using static Aetherium.Interactables.BuffBrazier;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.AetheriumPlugin;
 using UnityEngine;
 using BepInEx.Configuration;
@@ -30,23 +29,8 @@ namespace Aetherium.StandaloneBuffs.Tier3
 
         public override void Hooks()
         {
-            RoR2Application.onLoad += OnLoadModCompat;
             On.RoR2.CharacterBody.OnBuffFirstStackGained += AddSparkController;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += RemoveSparkController;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var buffInfo = CreateBetterUIBuffInformation($"AETHERIUM_SPARK_GAP_BUFF", BuffName, "You have an electrical field that arcs to nearby allies with this buff, damaging enemies caught in the path.");
-                RegisterBuffInfo(BuffDef, buffInfo.Item1, buffInfo.Item2);
-            }
-
-            if (Aetherium.Interactables.BuffBrazier.instance != null)
-            {
-                AddCuratedBuffType("Spark Gap", BuffDef, Color, 1.25f, false);
-            }
         }
 
         private void AddSparkController(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)

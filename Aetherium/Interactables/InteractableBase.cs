@@ -25,6 +25,8 @@ namespace Aetherium.Interactables
 
         public abstract string InteractableLangToken { get; }
 
+        public abstract string InteractableInspectDesc { get; }
+
         public abstract GameObject InteractableModel { get; }
 
         public abstract void Init(ConfigFile config);
@@ -33,6 +35,8 @@ namespace Aetherium.Interactables
         {
             Language.Language.Add("INTERACTABLE_" + InteractableLangToken + "_NAME", InteractableName);
             Language.Language.Add("INTERACTABLE_" + InteractableLangToken + "_CONTEXT", InteractableContext);
+            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_INSPECT", InteractableInspectDesc);
+            LanguageAPI.Add("INTERACTABLE_" + InteractableLangToken + "_TITLE", InteractableName);
         }
 
         public void AddExpansionComponentToInteractable(GameObject interactable)

@@ -1645,7 +1645,7 @@ namespace Aetherium.Equipment
 
         private void GiveFaustController(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if(equipmentDef == EquipmentDef && self)
+            if (equipmentDef == EquipmentDef && self)
             {
                 var faustController = self.gameObject.AddComponent<FaustControllerComponent>();
             }
@@ -1672,7 +1672,7 @@ namespace Aetherium.Equipment
             {
                 var faustInventoryCount = self.inventory.GetItemCount(FaustItem);
                 var deactivatedFaustInventoryCount = self.inventory.GetItemCount(DeactivatedFaustItem);
-                if(faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
+                if (faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
                 {
                     var victimFaustComponent = self.gameObject.GetComponent<FaustComponent>();
                     if (!victimFaustComponent)
@@ -1857,7 +1857,7 @@ namespace Aetherium.Equipment
             {
                 if (damageReport.victim.gameObject == gameObject && attacker && damageReport.attackerBody && !damageReport.isFriendlyFire)
                 {
-                    if(CurrentMoneyMakingHitsCount < MoneyMakingHitCap)
+                    if (CurrentMoneyMakingHitsCount < MoneyMakingHitCap)
                     {
                         DropExtraGold(damageReport, damageReport.attackerBody);
                         CurrentMoneyMakingHitsCount++;
@@ -1902,9 +1902,9 @@ namespace Aetherium.Equipment
             public void FixedUpdate()
             {
                 stopwatch += Time.fixedDeltaTime;
-                if(stopwatch >= CheckDuration && !BeginDestruction)
+                if (stopwatch >= CheckDuration && !BeginDestruction)
                 {
-                    if(faustController && !faustController.activeBargains.Contains(this))
+                    if (faustController && !faustController.activeBargains.Contains(this))
                     {
                         BeginDestruction = true;
                     }
@@ -1912,7 +1912,7 @@ namespace Aetherium.Equipment
                     stopwatch = 0;
                 }
 
-                if(BeginDestruction)
+                if (BeginDestruction)
                 {
                     if (this.skillLocator)
                     {
@@ -1930,7 +1930,7 @@ namespace Aetherium.Equipment
                     if (inventory)
                     {
                         var inventoryCount = inventory.GetItemCount(Faust.instance.FaustItem);
-                        if(inventoryCount > 0)
+                        if (inventoryCount > 0)
                         {
                             inventory.RemoveItem(Faust.instance.FaustItem, inventoryCount);
                         }
@@ -2057,7 +2057,7 @@ namespace Aetherium.Equipment
                 if (victimGameObject)
                 {
                     var faustComponents = victimGameObject.GetComponents<FaustComponent>();
-                    foreach(var faustComponent in faustComponents)
+                    foreach (var faustComponent in faustComponents)
                     {
                         UnityEngine.Object.Destroy(faustComponent);
                     }

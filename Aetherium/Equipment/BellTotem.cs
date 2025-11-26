@@ -85,7 +85,7 @@ namespace Aetherium.Equipment
             effectComponent.applyScale = true;
 
             var destroyOnParticleEnd = BellSoundwaveEffect.AddComponent<DestroyOnParticleEnd>();
-            destroyOnParticleEnd.ps = BellSoundwaveEffect.transform.Find("Wave").gameObject.GetComponent<ParticleSystem>();
+            destroyOnParticleEnd.trackedParticleSystem = BellSoundwaveEffect.transform.Find("Wave").gameObject.GetComponent<ParticleSystem>();
 
             var vfxAttributes = BellSoundwaveEffect.AddComponent<RoR2.VFXAttributes>();
             vfxAttributes.vfxIntensity = RoR2.VFXAttributes.VFXIntensity.Low;
@@ -110,7 +110,7 @@ namespace Aetherium.Equipment
             secondaryVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
 
             var secondaryDestroyOnParticleEnd = NoBellSpawnEffect.AddComponent<DestroyOnParticleEnd>();
-            secondaryDestroyOnParticleEnd.ps = NoBellSpawnEffect.GetComponent<ParticleSystem>();
+            secondaryDestroyOnParticleEnd.trackedParticleSystem = NoBellSpawnEffect.GetComponent<ParticleSystem>();
 
             if (NoBellSpawnEffect) PrefabAPI.RegisterNetworkPrefab(NoBellSpawnEffect);
             ContentAddition.AddEffect(NoBellSpawnEffect);
@@ -121,6 +121,8 @@ namespace Aetherium.Equipment
         {
             Language.Language.Add("INTERACTABLE_BELL_TOTEM_NAME", "Bell Totem");
             Language.Language.Add("INTERACTABLE_BELL_TOTEM_CONTEXT", "Ring the Bell?");
+            LanguageAPI.Add("INTERACTABLE_BELL_TOTEM_INSPECT", "Once activated it stuns and sends enemies flying back.");
+            LanguageAPI.Add("INTERACTABLE_BELL_TOTEM_TITLE", "Bell Totem");
 
             InteractableBodyModelPrefab = MainAssets.LoadAsset<GameObject>("BellTotem.prefab");
             InteractableBodyModelPrefab.AddComponent<NetworkIdentity>();
@@ -134,6 +136,15 @@ namespace Aetherium.Equipment
             purchaseInteraction.setUnavailableOnTeleporterActivated = false;
             purchaseInteraction.isShrine = true;
             purchaseInteraction.isGoldShrine = false;
+
+            var inspect = ScriptableObject.CreateInstance<InspectDef>();
+            var info = inspect.Info = new RoR2.UI.InspectInfo();
+            info.DescriptionToken = "INTERACTABLE_BELL_TOTEM_INSPECT";
+            info.TitleToken = "INTERACTABLE_BELL_TOTEM_TITLE";
+            inspect.Info = info;
+
+            var giip = InteractableBodyModelPrefab.gameObject.AddComponent<GenericInspectInfoProvider>();
+            giip.InspectInfo = inspect;
 
             var entityStateMachine = InteractableBodyModelPrefab.AddComponent<EntityStateMachine>();
             entityStateMachine.customName = "Body";

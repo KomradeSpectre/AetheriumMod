@@ -14,7 +14,7 @@ namespace Aetherium.Utils
         {
             if (search.candidatesEnumerable.Any())
             {
-                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && x.hurtBox.IsHurtboxAnElite());
+                search.candidatesEnumerable = (List<BullseyeSearch.CandidateInfo>)search.candidatesEnumerable.Where(x => x.hurtBox && x.hurtBox.IsHurtboxAnElite());
             }
         }
 
@@ -22,7 +22,7 @@ namespace Aetherium.Utils
         {
             if (search.candidatesEnumerable.Any())
             {
-                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(item));
+                search.candidatesEnumerable = (List<BullseyeSearch.CandidateInfo>)search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(item));
             }
         }
 

@@ -5,9 +5,6 @@ using R2API.Utils;
 using RoR2;
 using System;
 using UnityEngine;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;

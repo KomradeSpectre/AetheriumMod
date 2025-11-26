@@ -237,7 +237,7 @@ namespace Aetherium.Items.TierLunar
                         damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection | DamageType.BypassArmor;
                         //var healthBefore = characterBody.healthComponent.health; //debug
                         characterBody2.healthComponent.TakeDamage(damageInfo);
-                        if (!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }
+                        if (!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }
 
                         //characterBody2.healthComponent.Suicide(base.gameObject, base.gameObject, DamageType.VoidDeath);
                     }

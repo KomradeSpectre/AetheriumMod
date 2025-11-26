@@ -7,13 +7,9 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Aetherium.Utils;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 
 using RoR2.Projectile;
 using UnityEngine.Networking;
@@ -47,7 +43,7 @@ namespace Aetherium.Items.Tier1
 
         public override string ItemPickupDesc => UseAlternateImplementation ? $"Occasionally drop a shrapnel grenade from your position that explodes after a delay." : $"Attacks that deal <style=cIsDamage>high damage</style> release a shrapnel grenade that explodes after a delay.";
 
-        public override string ItemFullDescription => UseAlternateImplementation ? $"After {NailBombDropDelay} second(s) <style=cStack>(-{FloatToPercentageString(DurationPercentageReducedByWithAdditionalStacks)} per stack)</style> you will drop a shrapnel grenade from your current position that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack). The shrapnel has a high chance to trigger On-Hit effects." : $"Attacks that deal {FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more release a shrapnel grenade that explodes for {AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack)</style>. Enemies hit that launched a nail bomb are granted {NailBombAbsurdityLimiterCooldown} second(s) of immunity to the effect.";
+        public override string ItemFullDescription => UseAlternateImplementation ? $"After <style=cIsDamage>{NailBombDropDelay}</style> second(s) <style=cStack>(-{FloatToPercentageString(DurationPercentageReducedByWithAdditionalStacks)} per stack)</style> you will drop <style=cIsDamage>a shrapnel grenade from your current position</style> that explodes for <style=cIsDamage>{AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage</style> <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack)</style>. The shrapnel has a high chance to trigger <style=cIsDamage>On-Hit</style> effects." : $"Attacks that deal <style=cIsDamage>{FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more</style> release a <style=cIsDamage>shrapnel grenade</style> that explodes for <style=cIsDamage>{AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage</style> <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack)</style>. Enemies hit that launched a nail bomb are granted <style=cIsUtility>{NailBombAbsurdityLimiterCooldown} second(s) of immunity</style> to the effect.";
 
         public override string ItemLore => "[Attached to this box is a strange note covered in letters cut from various sources.]\n\n" +
             "Hello there!\n\n" +
@@ -156,7 +152,7 @@ namespace Aetherium.Items.Tier1
             shrapnelEffectComponent.applyScale = true;
 
             var particleKiller = NailBombShrapnelEffect.AddComponent<DestroyOnParticleEnd>();
-            particleKiller.ps = NailBombShrapnelEffect.GetComponent<ParticleSystem>();
+            particleKiller.trackedParticleSystem = NailBombShrapnelEffect.GetComponent<ParticleSystem>();
 
             var shrapnelVFXComponent = NailBombShrapnelEffect.AddComponent<VFXAttributes>();
             shrapnelVFXComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
@@ -475,8 +471,6 @@ namespace Aetherium.Items.Tier1
 
         public override void Hooks()
         {
-            RoR2Application.onLoad += OnLoadModCompat;
-
             if (UseAlternateImplementation)
             {
                 On.RoR2.CharacterBody.FixedUpdate += FireNailBombFromBody;
@@ -484,15 +478,6 @@ namespace Aetherium.Items.Tier1
             else
             {
                 On.RoR2.GlobalEventManager.OnHitEnemy += FireNailBomb;
-            }
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var bombCooldownDebuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_BOMB_COOLDOWN", NailBombCooldownDebuff.name, "You've run out of materials to create another Nail Bomb, keep looking around!", false);
-                RegisterBuffInfo(NailBombCooldownDebuff, bombCooldownDebuffInfo.Item1, bombCooldownDebuffInfo.Item2);
             }
         }
 

@@ -4,9 +4,6 @@ using R2API;
 using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;

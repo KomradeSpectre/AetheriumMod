@@ -175,7 +175,7 @@ namespace Aetherium.Items
                     if (item.ItemDef && voidTiers.Any(x => item.ItemDef.tier == x))
                     {
 
-                        var itemToCorrupt = ItemCatalog.itemDefs.Where(x => x.nameToken == item.CorruptsItem).FirstOrDefault();
+                        var itemToCorrupt = ItemCatalog.allItemDefs.Where(x => x.nameToken == item.CorruptsItem).FirstOrDefault();
                         if (!itemToCorrupt)
                         {
                             AetheriumPlugin.ModLogger.LogError($"Tried to add {item.ItemName} in a Void item tier but no relationship was set for what it corrupts or could not be found. Aborting!");

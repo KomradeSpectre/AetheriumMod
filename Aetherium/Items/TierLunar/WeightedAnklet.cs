@@ -14,8 +14,6 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
 using static RoR2.Navigation.MapNodeGroup;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
-//using static Aetherium.Compatability.ModCompatability.TILER2Compat; TODO
 
 using System.Runtime.CompilerServices;
 using static R2API.RecalculateStatsAPI;
@@ -715,7 +713,6 @@ namespace Aetherium.Items.TierLunar
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;
             On.RoR2.HealthComponent.TakeDamage += ReduceKnockback;
-            RoR2Application.onLoad += OnLoadModCompat;
 
             var methodBlast = typeof(RoR2.BlastAttack).GetMethod("HandleHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             new MonoMod.RuntimeDetour.Hook(methodBlast, new Action<Action<RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>, RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>((orig, self, hitPoints) =>
@@ -822,27 +819,6 @@ namespace Aetherium.Items.TierLunar
 
             }));
 
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var limiterReleaseBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_BONUS_BUFF", LimiterReleaseBuffDef.name, "A weight has been lifted from you. Your training has made you much stronger than you once were.");
-                RegisterBuffInfo(LimiterReleaseBuffDef, limiterReleaseBuffInfo.Item1, limiterReleaseBuffInfo.Item2);
-
-                var dodgeBuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_BUFF", LimiterReleaseDodgeBuffDef.name, "You can sense certain attacks around you, and move behind the attacker.");
-                RegisterBuffInfo(LimiterReleaseDodgeBuffDef, dodgeBuffInfo.Item1, dodgeBuffInfo.Item2);
-
-                var dodgeCooldownDebuffInfo = CreateBetterUIBuffInformation($"LIMITER_RELEASE_DODGE_COOLDOWN_DEBUFF", LimiterReleaseDodgeCooldownDebuffDef.name, "For the moment, you can no longer dodge out of the way of certain attacks automatically.", false);
-                RegisterBuffInfo(LimiterReleaseDodgeCooldownDebuffDef, dodgeCooldownDebuffInfo.Item1, dodgeCooldownDebuffInfo.Item2);
-            }
-
-            /*
-            if (IsTILER2Installed) TODO
-            {
-                BlacklistItemFromFakeInventory(ItemDef);
-            }*/
         }
 
         private void RemoveWeightedAnkletAndLimitersFromDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)

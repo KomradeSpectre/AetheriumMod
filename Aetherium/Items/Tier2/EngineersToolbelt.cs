@@ -64,7 +64,7 @@ namespace Aetherium.Items.Tier2
 
         public override ItemTier Tier => ItemTier.Tier2;
 
-        public override bool AIBlacklisted => true;
+        public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.AIBlacklist, ItemTag.Utility, ItemTag.InteractableRelated };
 
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("EngineersToolbelt.prefab");
 
@@ -84,7 +84,8 @@ namespace Aetherium.Items.Tier2
             "FlameDrone",
             "MegaDrone",
             "DroneMissile",
-            "Turret1"
+            "Turret1",
+            "DroneCommander"
         };
 
         public override void Init(ConfigFile config)

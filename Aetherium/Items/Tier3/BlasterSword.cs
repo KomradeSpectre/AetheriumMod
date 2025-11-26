@@ -10,14 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using ItemStats;
-using ItemStats.Stat;
-using ItemStats.ValueFormatters;
 
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 
 using System.Runtime.CompilerServices;
 
@@ -987,8 +983,6 @@ namespace Aetherium.Items.Tier3
 
         public override void Hooks()
         {
-            RoR2.RoR2Application.onLoad += OnLoadModCompat;
-
             On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
             IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
             IL.EntityStates.Treebot.TreebotFlower.TreebotFlower2Projectile.RootPulse += FireSwordsFromFlower;
@@ -996,16 +990,6 @@ namespace Aetherium.Items.Tier3
             On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
             On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (IsBetterUIInstalled)
-            {
-                var activationBuffInfo = CreateBetterUIBuffInformation($"{ItemLangTokenName}_ACTIVATION_BUFF", BlasterSwordActiveBuff.name, "You feel a power welling up from within! The Blaster Sword will grant you its strength.");
-
-                RegisterBuffInfo(BlasterSwordActiveBuff, activationBuffInfo.Item1, activationBuffInfo.Item2);
-            }
         }
 
         private void FireSwordsFromFlower(ILContext il)
@@ -1394,7 +1378,8 @@ namespace Aetherium.Items.Tier3
 
         private void FireTheSwordOnProjectiles(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, RoR2.Projectile.ProjectileManager self, FireProjectileInfo fireProjectileInfo)
         {
-            if (!RecursionPrevention && !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
+            if (!RecursionPrevention && fireProjectileInfo.projectilePrefab != null &&
+                !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
             {
                 var projectileOwner = fireProjectileInfo.owner;
                 if (projectileOwner)

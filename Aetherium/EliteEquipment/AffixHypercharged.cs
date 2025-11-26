@@ -126,13 +126,13 @@ namespace Aetherium.Equipment.EliteEquipment
             RecalculateStatsAPI.GetStatCoefficients += CalculateStatsForAffix;
             On.RoR2.CharacterBody.FixedUpdate += ManageLightningStrikes;
             On.RoR2.GlobalEventManager.OnHitAll += SpawnLightning;
-            On.RoR2.EquipmentSlot.FixedUpdate += TeachAIToUseAffixItem;
+            On.RoR2.EquipmentSlot.Update += TeachAIToUseAffixItem;
         }
 
-        private void TeachAIToUseAffixItem(On.RoR2.EquipmentSlot.orig_FixedUpdate orig, EquipmentSlot self)
+        private void TeachAIToUseAffixItem(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
         {
             orig(self);
-            if(self.equipmentIndex == EliteEquipmentDef.equipmentIndex && self.cooldownTimer <= 0)
+            if (self.equipmentIndex == EliteEquipmentDef.equipmentIndex && self.cooldownTimer <= 0)
             {
                 var body = self.characterBody;
                 if (body)
@@ -143,7 +143,7 @@ namespace Aetherium.Equipment.EliteEquipment
                         self.PerformEquipmentAction(EliteEquipmentDef);
                     }
                 }
-            }         
+            }
         }
 
         private void CalculateStatsForAffix(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
@@ -204,11 +204,11 @@ namespace Aetherium.Equipment.EliteEquipment
                         var angle = theta * i;
                         var radius = 20 + Run.instance.runRNG.RangeFloat(-15, 15);
                         var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + self.corePosition.x), self.corePosition.y + 1, (float)(radius * Math.Sin(angle) + self.corePosition.z));
-                        var raycastedChosen = MiscUtils.RaycastToDirection(positionChosen, 1000f, Vector3.down);
+                        /*var raycastedChosen = MiscUtils.RaycastToDirection(positionChosen, 1000f, Vector3.down);
                         if (raycastedChosen != null)
                         {
                             positionChosen = raycastedChosen.Value + new Vector3(0, 0.5f, 0);
-                        }
+                        }*/
                         newProjectileInfo.position = positionChosen;
                         newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(positionChosen + Vector3.down);
                         ProjectileManager.instance.FireProjectile(newProjectileInfo);

@@ -7,7 +7,6 @@ using RoR2;
 using System.Linq;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Interactables.BuffBrazier;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using Aetherium.Utils;
 
 
@@ -91,23 +90,7 @@ namespace Aetherium.StandaloneBuffs.Tier3
         public override void Hooks()
         {
             On.RoR2.HealthComponent.TakeDamage += SpreadDamage;
-            RoR2Application.onLoad += OnLoadModCompat;
         }
-
-        private void OnLoadModCompat()
-        {
-            if (Compatability.ModCompatability.BetterUICompat.IsBetterUIInstalled)
-            {
-                var buffInfo = CreateBetterUIBuffInformation($"AETHERIUM_SOUL_LINKED_DEBUFF", BuffName, "You feel a sense of unity with your allies, but can also feel a portion of their pain!");
-                RegisterBuffInfo(BuffDef, buffInfo.Item1, buffInfo.Item2);
-            }
-
-            if (Aetherium.Interactables.BuffBrazier.instance != null)
-            {
-                AddCuratedBuffType("Soul Linked", BuffDef, Color, 1.5f, true);
-            }
-        }
-
 
         private void SpreadDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {

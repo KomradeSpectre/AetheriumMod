@@ -1,8 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latestMajor</LangVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;IDE0051</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;IDE0051</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Weaver\**" />
+    <EmbeddedResource Remove="Weaver\**" />
+    <None Remove="Weaver\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Achievements\BlasterSwordAchievement.cs" />
@@ -10,6 +25,7 @@
     <Compile Remove="Artifacts\ArtifactOfIndecision.cs" />
     <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
+    <Compile Remove="Effect\FaustOrb.cs" />
     <Compile Remove="Effect\HungeringConsumptionOrb.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="EliteEquipment\AffixBenevolent.cs" />
@@ -35,8 +51,11 @@
     <Compile Remove="Items\VoidItems\ScientistsNanites.cs" />
     <Compile Remove="Items\VoidItems\Shichishito.cs" />
     <Compile Remove="Items\VoidItems\UmbralAspis.cs" />
+    <Compile Remove="Items\VoidItems\Tier1\ShatterSpike.cs" />
     <Compile Remove="StandaloneBuffs\DefensiveMatrix.cs" />
     <Compile Remove="StandaloneBuffs\StrengthOfThePack.cs" />
+    <Compile Remove="StandaloneBuffs\Tier2\PrecisionProtocol.cs" />
+    <Compile Remove="StandaloneBuffs\Tier3\SparkGap.cs" />
     <Compile Remove="Survivors\TestCharacter.cs" />
     <Compile Remove="Utils\Components\MaterialControllerComponentsGetter.cs" />
   </ItemGroup>
@@ -65,20 +84,38 @@
     <Folder Include="States\Item\" />
     <Folder Include="States\Survivor\Koalesk\Misc\" />
     <Folder Include="States\Survivor\Koalesk\Special\" />
-    <Folder Include="obj\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BetterUI" Version="2.7.6" />
-    <PackageReference Include="ItemStatsMod" Version="2.2.2" />
-    <PackageReference Include="MMHOOK.RoR2" Version="2022.9.20" />
-    <PackageReference Include="R2API" Version="5.0.5" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
+    <PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.6-r.0" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" />
+    <PackageReference Include="MMHOOK.RoR2" Version="2024.12.10">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    <PackageReference Include="R2API.RecalculateStats" Version="1.5.0" />
+    <PackageReference Include="R2API.Director" Version="2.3.2" />
+    <PackageReference Include="R2API.Elites" Version="1.0.*" />
+    <PackageReference Include="R2API.Prefab" Version="1.0.*" />
+    <PackageReference Include="R2API.DamageType" Version="1.1.*" />
+    <PackageReference Include="R2API.Sound" Version="1.0.*" />
+    <PackageReference Include="R2API.Core" Version="5.1.*" />
+    <PackageReference Include="R2API.Items" Version="1.0.*" />
+    <PackageReference Include="R2API.Unlockable" Version="1.0.*" />
+    <PackageReference Include="R2API.CommandHelper" Version="1.0.*" />
+    <PackageReference Include="R2API.Language" Version="1.0.*" />
+    <PackageReference Include="R2API.Orb" Version="1.0.*" />
+    <PackageReference Include="R2API.Networking" Version="1.0.*" />
+  
+  <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
-
+  
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;NetworkWeaver\Patching\&quot; /Y&#xD;&#xA;cd $(ProjectDir)\NetworkWeaver\&#xD;&#xA;Unity.UNetWeaver.exe &quot;$(NuGetPackageRoot)\unityengine.modules\2019.4.26\lib\netstandard2.0\UnityEngine.CoreModule.dll&quot; &quot;$(NuGetPackageRoot)\riskofrain2.gamelibs\1.2.4-r.0\lib\netstandard2.0\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;Patched/&quot; &quot;Patching\$(TargetFileName)&quot; &quot;$(ProjectDir)\lib&quot;&#xD;&#xA;xcopy &quot;Patched\$(TargetFileName)&quot; &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium&quot; /Y&#xD;&#xA;RD /S /Q &quot;Patched&quot;&#xD;&#xA;RD /S /Q &quot;Patching&quot;" />
+    <Exec Command="./weave.bat $(TargetDir)" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

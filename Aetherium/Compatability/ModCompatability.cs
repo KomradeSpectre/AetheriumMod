@@ -19,7 +19,7 @@ namespace Aetherium.Compatability
             public static bool IsArtifactOfTheKingInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Blobface.ArtifactKing");
         }
 
-        internal static class BetterUICompat
+        /*internal static class BetterUICompat
         {
             public static bool IsBetterUIInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.xoxfaby.BetterUI");
 
@@ -46,7 +46,7 @@ namespace Aetherium.Compatability
                     nameToken = "AETHERIUM_ITEM_STAT_DEF_ACCURSED_POTION_SIP"
                 };
             }
-        }
+        }*/
 
         /*internal static class ItemStatsModCompat
         {

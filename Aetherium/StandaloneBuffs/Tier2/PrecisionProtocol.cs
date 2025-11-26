@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static Aetherium.Interactables.BuffBrazier;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using static Aetherium.AetheriumPlugin;
 using System.Linq;
 using Aetherium.Utils.Components;
@@ -29,21 +28,6 @@ namespace Aetherium.StandaloneBuffs.Tier2
         {
             On.RoR2.BulletAttack.Fire += ReduceBulletAttackSpreadAndAddCrit;
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += NormalizeSpeedAndAddCrit;
-            RoR2Application.onLoad += OnLoadModCompat;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (Compatability.ModCompatability.BetterUICompat.IsBetterUIInstalled)
-            {
-                var buffInfo = CreateBetterUIBuffInformation($"AETHERIUM_PRECISION_PROTOCOL_BUFF", BuffName, "All your hitscan attacks have zero spread, and your projectiles have normalized speed. Both will always critical hit.");
-                RegisterBuffInfo(BuffDef, buffInfo.Item1, buffInfo.Item2);
-            }
-
-            if (Aetherium.Interactables.BuffBrazier.instance != null)
-            {
-                AddCuratedBuffType("Precision Protocol", BuffDef, Color, 1.5f, false);
-            }
         }
 
         private void ReduceBulletAttackSpreadAndAddCrit(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)

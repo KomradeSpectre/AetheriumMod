@@ -465,7 +465,7 @@ namespace Aetherium.Survivors
                         characterModel.body = characterPrefab.GetComponent<CharacterBody>();
                         characterModel.autoPopulateLightInfos = true;
                         characterModel.invisibilityCount = 0;
-                        characterModel.temporaryOverlays = new List<TemporaryOverlay>();
+                        characterModel.temporaryOverlays = new List<TemporaryOverlayInstance>();
                         var modelObject = characterModel.gameObject;
 
                         characterModel.baseRendererInfos = SurvivorHelpers.CharacterRendererInfoSetup(modelObject);

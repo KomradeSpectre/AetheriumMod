@@ -1,7 +1,5 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
-using ItemStats;
-using ItemStats.Stat;
 using R2API;
 using RoR2;
 using System.Collections.Generic;
@@ -318,64 +316,79 @@ namespace Aetherium.Items.TierLunar
         {
             if (damageInfo?.attacker)
             {
-                var attackerBody = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
-                if (attackerBody)
+                if (self.body)
                 {
-                    int ItemCount = GetCount(attackerBody);
-                    if (ItemCount > 0)
+                    var attackerBody = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
+                    if (attackerBody)
                     {
-                        if (UseOldFunctionality)
+                        int ItemCount = GetCount(attackerBody);
+                        if (ItemCount > 0)
                         {
-                            //Thanks Chen for fixing this.
-                            float mass;
-                            if (self.body.characterMotor) mass = (self.body.characterMotor as IPhysMotor).mass;
-                            else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
-                            else mass = 1f;
-
-                            var forceCalc = Mathf.Clamp(OldStartingForceMultiplier + (OldAdditionalForceMultiplier * (ItemCount - 1)), OldMinimumForceMultiplier, OldMaximumForceMultiplier);
-                            damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
-                        }
-                        else
-                        {
-
-                            var forceCalc = (NewStartingForceMultiplier + (NewAdditionalForceMultiplier * (ItemCount - 1)));
-
-
-                            if (self && self.body)
+                            if (UseOldFunctionality)
                             {
-                                Vector3 directionToPlayer = (attackerBody.corePosition - self.body.corePosition).normalized;
-                                Vector3 projectedVelocity = Vector3.Project(self.body.rigidbody.velocity, directionToPlayer);
+                                //Thanks Chen for fixing this.
+                                float mass;
+                                if (self.body.characterMotor) mass = (self.body.characterMotor as IPhysMotor).mass;
+                                else if (self.body.rigidbody) mass = self.body.rigidbody.mass;
+                                else mass = 1f;
 
-                                float maxVelocity = 5 * ItemCount;
+                                var forceCalc = Mathf.Clamp(OldStartingForceMultiplier + (OldAdditionalForceMultiplier * (ItemCount - 1)), OldMinimumForceMultiplier, OldMaximumForceMultiplier);
+                                damageInfo.force += Vector3.Normalize(attackerBody.corePosition - self.body.corePosition) * forceCalc * mass;
+                            }
+                            else
+                            {
+                                var forceCalc = (NewStartingForceMultiplier + (NewAdditionalForceMultiplier * (ItemCount - 1)));
 
-                                float velocityDifference = Mathf.Max(0, maxVelocity - projectedVelocity.magnitude);
-                                var desiredForce = directionToPlayer * velocityDifference;
-
-                                var physInfo = new PhysForceInfo()
+                                if (self)
                                 {
-                                    massIsOne = true,
-                                    disableAirControlUntilCollision = true,
-                                    ignoreGroundStick = true,
-                                    force = desiredForce,
-                                };
+                                    if (self.body)
+                                    {
+                                        if (self.body.rigidbody)
+                                        {
+                                            if (self.body.rigidbody.velocity != null)
+                                            {
+                                                Vector3 directionToPlayer = (attackerBody.corePosition - self.body.corePosition).normalized;
+                                                Vector3 projectedVelocity = Vector3.Project(self.body.rigidbody.velocity, directionToPlayer);
 
-                                var characterMotor = self.body.characterMotor;
-                                if (characterMotor)
-                                {
-                                    characterMotor.ApplyForceImpulseFixed(physInfo);
-                                    orig(self, damageInfo);
-                                    return;
-                                }
+                                                float maxVelocity = 5 * ItemCount;
 
-                                var rigidBodyMotor = self.body.GetComponent<RigidbodyMotor>();
-                                if (rigidBodyMotor)
-                                {
-                                    rigidBodyMotor.ApplyForceImpulse(physInfo);
-                                    orig(self, damageInfo);
-                                    return;
+                                                float velocityDifference = Mathf.Max(0, maxVelocity - projectedVelocity.magnitude);
+                                                if (velocityDifference != null)
+                                                {
+                                                    var desiredForce = directionToPlayer * velocityDifference;
+
+                                                    if (desiredForce != null)
+                                                    {
+                                                        var physInfo = new PhysForceInfo()
+                                                        {
+                                                            massIsOne = true,
+                                                            disableAirControlUntilCollision = true,
+                                                            ignoreGroundStick = true,
+                                                            force = desiredForce,
+                                                        };
+
+                                                        var characterMotor = self.body.characterMotor;
+                                                        if (characterMotor && characterMotor != null)
+                                                        {
+                                                            characterMotor.ApplyForceImpulseFixed(physInfo);
+                                                            orig(self, damageInfo);
+                                                            return;
+                                                        }
+
+                                                        var rigidBodyMotor = self.body.GetComponent<RigidbodyMotor>();
+                                                        if (rigidBodyMotor && rigidBodyMotor != null)
+                                                        {
+                                                            rigidBodyMotor.ApplyForceImpulse(physInfo);
+                                                            orig(self, damageInfo);
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            
                         }
                     }
                 }

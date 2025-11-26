@@ -42,6 +42,9 @@ namespace Aetherium.Artifacts
             "ScavLunar2Body",
             "ScavLunar3Body",
             "ScavLunar4Body",
+            "FalseSonBossBody",
+            "FalseSonBossBodyLunarShard",
+            "FalseSonBossBodyBrokenLunarShard",
         };
 
         public List<string> BlacklistedAffixes = new List<string>()

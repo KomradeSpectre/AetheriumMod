@@ -5,7 +5,6 @@ using System.Text;
 using UnityEngine;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Interactables.BuffBrazier;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
 using RoR2;
 
 namespace Aetherium.StandaloneBuffs.Tier1
@@ -27,21 +26,6 @@ namespace Aetherium.StandaloneBuffs.Tier1
         public override void Hooks()
         {
             On.RoR2.DeathRewards.OnKilledServer += DoubleXPAndGold;
-            RoR2Application.onLoad += OnLoadModCompat;
-        }
-
-        private void OnLoadModCompat()
-        {
-            if (Compatability.ModCompatability.BetterUICompat.IsBetterUIInstalled)
-            {
-                var buffInfo = CreateBetterUIBuffInformation($"AETHERIUM_DOUBLE_GOLD_DOUBLE_XP_BUFF", BuffName, "All kills done by you grant double gold and double xp to you.");
-                RegisterBuffInfo(BuffDef, buffInfo.Item1, buffInfo.Item2);
-            }
-
-            if (Aetherium.Interactables.BuffBrazier.instance != null)
-            {
-                AddCuratedBuffType("Double Gold and Double XP", BuffDef, Color, 1.25f, false);
-            }
         }
 
         private void DoubleXPAndGold(On.RoR2.DeathRewards.orig_OnKilledServer orig, RoR2.DeathRewards self, RoR2.DamageReport damageReport)

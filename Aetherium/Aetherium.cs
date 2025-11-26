@@ -26,24 +26,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using HG;
 using RoR2.ExpansionManagement;
+using System.IO;
 
 namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency("com.bepis.r2api")]
-    //[BepInDependency(TILER2.TILER2Plugin.ModGuid, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("dev.ontrigger.itemstats", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.xoxfaby.BetterUI", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(LanguageAPI), //nameof(BuffAPI), nameof(ResourcesAPI), nameof(EffectAPI), nameof(ProjectileAPI), nameof(ArtifactAPI), nameof(LoadoutAPI),   
-                              nameof(PrefabAPI), nameof(SoundAPI), nameof(OrbAPI),
-                              nameof(NetworkingAPI), nameof(DirectorAPI), nameof(RecalculateStatsAPI), nameof(UnlockableAPI), nameof(EliteAPI),
-                              nameof(CommandHelper), nameof(DamageAPI))]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.6.8";
+        public const string ModVer = "0.8.5";
 
         public static AetheriumPlugin Instance;
 
@@ -70,7 +64,7 @@ namespace Aetherium
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
         public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
-        public List<SurvivorBase> Survivors = new List<SurvivorBase>();
+        //public List<SurvivorBase> Survivors = new List<SurvivorBase>();
 
         public static HashSet<ItemDef> BlacklistedFromPrinter = new HashSet<ItemDef>();
 
@@ -83,7 +77,7 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
-        public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
+        //public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
 
         //Debug Stuff
         public static List<Material> SwappedMaterials = new List<Material>();
@@ -98,12 +92,12 @@ namespace Aetherium
             R2API.Utils.CommandHelper.AddToConsoleWhenReady();
             #endif
 
-            R2API.Utils.CommandHelper.AddToConsoleWhenReady();
+            //R2API.Utils.CommandHelper.AddToConsoleWhenReady();
 
-            #if DEBUGMULTIPLAYER
+#if DEBUGMULTIPLAYER
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
             On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
-            #endif
+#endif
 
             ModLogger = this.Logger;
             MainConfig = Config;
@@ -125,9 +119,9 @@ namespace Aetherium
                 SoundAPI.SoundBanks.Add(bytes);
             }
 
-            #if DEBUGMATERIALS
+#if DEBUGMATERIALS
             AttachControllerFinderToObjects(MainAssets);
-            #endif
+#endif
 
             //Core Initializations
             var CoreModuleTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(CoreModule)));
@@ -228,7 +222,7 @@ namespace Aetherium
                 }
             }
 
-            var disableSurvivor = Config.ActiveBind<bool>("Survivor", "Disable All Survivors?", false, "Do you wish to disable every survivor in Aetherium?");
+            /*var disableSurvivor = Config.ActiveBind<bool>("Survivor", "Disable All Survivors?", false, "Do you wish to disable every survivor in Aetherium?");
             if (!disableEquipment)
             {
                 //Equipment Initialization
@@ -246,7 +240,7 @@ namespace Aetherium
                         ModLogger.LogInfo("Survivor: " + survivor.SurvivorName + " Initialized!");
                     }
                 }
-            }
+            }*/
 
             //Equipment Initialization
             var EliteEquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EliteEquipmentBase)));
@@ -420,7 +414,7 @@ namespace Aetherium
             return false;
         }
 
-        public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
+        /*public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
         {
             var enabled = Config.Bind<bool>("Survivor: " + survivor.SurvivorName, "Enable Survivor?", true, "Should this survivor be enabled?").Value;
 
@@ -432,7 +426,7 @@ namespace Aetherium
                 return true;
             }
             return false;
-        }
+        }*/
 
         public static void ShaderConversion(AssetBundle assets)
         {
