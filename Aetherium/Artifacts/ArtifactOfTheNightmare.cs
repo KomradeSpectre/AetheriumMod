@@ -39,11 +39,11 @@ namespace Aetherium.Artifacts
         {
             orig(self, body);
 
-            if (NetworkServer.active && ArtifactEnabled)
+            if(NetworkServer.active && ArtifactEnabled)
             {
                 var hereticCacheComponent = self.GetComponent<NightmareHereticCache>();
 
-                if (!self.isBoss && self.teamIndex != TeamIndex.Player && self.inventory && !hereticCacheComponent)
+                if(!self.isBoss && self.teamIndex != TeamIndex.Player && self.inventory && !hereticCacheComponent)
                 {
                     ItemDef[] heresyItems = new ItemDef[]
                     {
@@ -70,7 +70,7 @@ namespace Aetherium.Artifacts
                     foreach (ItemDef itemDef in heresyItems)
                     {
                         var count = body.inventory.GetItemCount(itemDef);
-                        if (count > 0)
+                        if(count > 0)
                         {
                             uniqueHeresyItemCount++;
                             continue;
@@ -78,12 +78,12 @@ namespace Aetherium.Artifacts
                     }
 
 
-                    if (uniqueHeresyItemCount >= 4)
+                    if(uniqueHeresyItemCount >= 4)
                     {
                         var hereticCache = self.gameObject.AddComponent<NightmareHereticCache>();
 
                         var originalBodyDeathRewards = body.GetComponent<DeathRewards>();
-                        if (originalBodyDeathRewards)
+                        if(originalBodyDeathRewards)
                         {
                             hereticCache.GoldReward = originalBodyDeathRewards.goldReward;
                             hereticCache.ExpReward = originalBodyDeathRewards.expReward;
@@ -91,11 +91,11 @@ namespace Aetherium.Artifacts
                     }
                 }
 
-                if (hereticCacheComponent)
+                if(hereticCacheComponent)
                 {
                     var deathRewards = body.GetComponent<DeathRewards>();
 
-                    if (!deathRewards)
+                    if(!deathRewards)
                     {
                         deathRewards = body.gameObject.AddComponent<DeathRewards>();
                     }

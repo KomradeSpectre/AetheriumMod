@@ -37,7 +37,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.8.5";
+        public const string ModVer = "0.9.0";
 
         public static AetheriumPlugin Instance;
 
@@ -64,7 +64,7 @@ namespace Aetherium
         public List<EquipmentBase> Equipments = new List<EquipmentBase>();
         public List<EliteEquipmentBase> EliteEquipments = new List<EliteEquipmentBase>();
         public List<InteractableBase> Interactables = new List<InteractableBase>();
-        //public List<SurvivorBase> Survivors = new List<SurvivorBase>();
+        public List<SurvivorBase> Survivors = new List<SurvivorBase>();
 
         public static HashSet<ItemDef> BlacklistedFromPrinter = new HashSet<ItemDef>();
 
@@ -77,7 +77,7 @@ namespace Aetherium
         public static Dictionary<EquipmentBase, bool> EquipmentStatusDictionary = new Dictionary<EquipmentBase, bool>();
         public static Dictionary<EliteEquipmentBase, bool> EliteEquipmentStatusDictionary = new Dictionary<EliteEquipmentBase, bool>();
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
-        //public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
+        public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
 
         //Debug Stuff
         public static List<Material> SwappedMaterials = new List<Material>();
@@ -96,7 +96,7 @@ namespace Aetherium
 
 #if DEBUGMULTIPLAYER
             Logger.LogWarning("DEBUG mode is enabled! Ignore this message if you are actually debugging.");
-            On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
+            On.RoR2.Networking.NetworkManagerSystemSteam.OnClientConnect += (s, u, t) => { };
 #endif
 
             ModLogger = this.Logger;
@@ -140,7 +140,7 @@ namespace Aetherium
             //Achievement
 
             var disableArtifacts = Config.ActiveBind<bool>("Artifacts", "Disable All Artifacts?", false, "Do you wish to disable every artifact in Aetherium?");
-            if (!disableArtifacts)
+            if(!disableArtifacts)
             {
                 //Artifact Initialization
                 var ArtifactTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactBase)));
@@ -150,7 +150,7 @@ namespace Aetherium
                 foreach (var artifactType in ArtifactTypes)
                 {
                     ArtifactBase artifact = (ArtifactBase)Activator.CreateInstance(artifactType);
-                    if (ValidateArtifact(artifact, Artifacts))
+                    if(ValidateArtifact(artifact, Artifacts))
                     {
                         artifact.Init(Config);
 
@@ -160,7 +160,7 @@ namespace Aetherium
             }
 
             var disableBuffs = Config.ActiveBind<bool>("Buffs", "Disable All Standalone Buffs?", false, "Do you wish to disable every standalone buff in Aetherium?");
-            if (!disableBuffs)
+            if(!disableBuffs)
             {
                 //Standalone Buff Initialization
                 var BuffTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(BuffBase)));
@@ -170,7 +170,7 @@ namespace Aetherium
                 foreach (var buffType in BuffTypes)
                 {
                     BuffBase buff = (BuffBase)Activator.CreateInstance(buffType);
-                    if (ValidateBuff(buff, Buffs))
+                    if(ValidateBuff(buff, Buffs))
                     {
                         buff.Init(Config);
 
@@ -180,7 +180,7 @@ namespace Aetherium
             }
 
             var disableItems = Config.ActiveBind<bool>("Items", "Disable All Items?", false, "Do you wish to disable every item in Aetherium?");
-            if (!disableItems)
+            if(!disableItems)
             {
                 //Item Initialization
                 var ItemTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ItemBase)));
@@ -190,7 +190,7 @@ namespace Aetherium
                 foreach (var itemType in ItemTypes)
                 {
                     ItemBase item = (ItemBase)System.Activator.CreateInstance(itemType);
-                    if (ValidateItem(item, Items))
+                    if(ValidateItem(item, Items))
                     {
                         item.Init(Config);
 
@@ -203,7 +203,7 @@ namespace Aetherium
             }
 
             var disableEquipment = Config.ActiveBind<bool>("Equipment", "Disable All Equipment?", false, "Do you wish to disable every equipment in Aetherium?");
-            if (!disableEquipment)
+            if(!disableEquipment)
             {
                 //Equipment Initialization
                 var EquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EquipmentBase)));
@@ -213,7 +213,7 @@ namespace Aetherium
                 foreach (var equipmentType in EquipmentTypes)
                 {
                     EquipmentBase equipment = (EquipmentBase)System.Activator.CreateInstance(equipmentType);
-                    if (ValidateEquipment(equipment, Equipments))
+                    if(ValidateEquipment(equipment, Equipments))
                     {
                         equipment.Init(Config);
 
@@ -222,8 +222,8 @@ namespace Aetherium
                 }
             }
 
-            /*var disableSurvivor = Config.ActiveBind<bool>("Survivor", "Disable All Survivors?", false, "Do you wish to disable every survivor in Aetherium?");
-            if (!disableEquipment)
+            var disableSurvivor = Config.ActiveBind<bool>("Survivor", "Disable All Survivors?", false, "Do you wish to disable every survivor in Aetherium?");
+            if(!disableSurvivor)
             {
                 //Equipment Initialization
                 var SurvivorTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(SurvivorBase)));
@@ -233,14 +233,14 @@ namespace Aetherium
                 foreach (var survivorType in SurvivorTypes)
                 {
                     SurvivorBase survivor = (SurvivorBase)System.Activator.CreateInstance(survivorType);
-                    if (ValidateSurvivor(survivor, Survivors))
+                    if(ValidateSurvivor(survivor, Survivors))
                     {
                         survivor.Init(Config);
 
                         ModLogger.LogInfo("Survivor: " + survivor.SurvivorName + " Initialized!");
                     }
                 }
-            }*/
+            }
 
             //Equipment Initialization
             var EliteEquipmentTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(EliteEquipmentBase)));
@@ -250,7 +250,7 @@ namespace Aetherium
             foreach (var eliteEquipmentType in EliteEquipmentTypes)
             {
                 EliteEquipmentBase eliteEquipment = (EliteEquipmentBase)System.Activator.CreateInstance(eliteEquipmentType);
-                if (ValidateEliteEquipment(eliteEquipment, EliteEquipments))
+                if(ValidateEliteEquipment(eliteEquipment, EliteEquipments))
                 {
                     eliteEquipment.Init(Config);
 
@@ -276,21 +276,19 @@ namespace Aetherium
             ModLogger.LogInfo("-----------------------------------------------");
             ModLogger.LogInfo("AETHERIUM INITIALIZATIONS DONE");
 
-            if (ArtifactStatusDictionary.Count > 0) { ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}"); }
+            if(ArtifactStatusDictionary.Count > 0) { ModLogger.LogInfo($"Artifacts Enabled: {ArtifactStatusDictionary.Count}"); }
 
-            if (BuffStatusDictionary.Count > 0) { ModLogger.LogInfo($"Standalone Buffs Enabled: {BuffStatusDictionary.Count}"); }
+            if(BuffStatusDictionary.Count > 0) { ModLogger.LogInfo($"Standalone Buffs Enabled: {BuffStatusDictionary.Count}"); }
 
-            if (ItemStatusDictionary.Count > 0) { ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}"); }
+            if(ItemStatusDictionary.Count > 0) { ModLogger.LogInfo($"Items Enabled: {ItemStatusDictionary.Count}"); }
 
-            if (EquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}"); }
+            if(EquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Equipment Enabled: {EquipmentStatusDictionary.Count}"); }
 
-            if (EliteEquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Elite Equipment Enabled: {EliteEquipmentStatusDictionary.Count}"); }
+            if(EliteEquipmentStatusDictionary.Count > 0){ ModLogger.LogInfo($"Elite Equipment Enabled: {EliteEquipmentStatusDictionary.Count}"); }
 
-            if (InteractableStatusDictionary.Count > 0){ ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}"); }
+            if(InteractableStatusDictionary.Count > 0){ ModLogger.LogInfo($"Interactables Enabled: {InteractableStatusDictionary.Count}"); }
 
             ModLogger.LogInfo("-----------------------------------------------");
-
-            Language.Language.CreateLanguageFile("AetheriumLanguage.txt");
 
         }
 
@@ -298,7 +296,7 @@ namespace Aetherium
         public static void CCGiveAllAetheriumItems(ConCommandArgs args)
         {
             var body = args.TryGetSenderBody();
-            if (body && body.inventory)
+            if(body && body.inventory)
             {
                 foreach(var item in ItemStatusDictionary.Where(x => x.Value == true))
                 {
@@ -326,7 +324,7 @@ namespace Aetherium
 
             ArtifactStatusDictionary.Add(artifact, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 artifactList.Add(artifact);
             }
@@ -339,7 +337,7 @@ namespace Aetherium
 
             BuffStatusDictionary.Add(buff, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 buffList.Add(buff);
             }
@@ -355,14 +353,14 @@ namespace Aetherium
 
             ItemStatusDictionary.Add(item, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 itemList.Add(item);
-                if (aiBlacklist)
+                if(aiBlacklist)
                 {
                     item.AIBlacklisted = true;
                 }
-                if (printerBlacklist)
+                if(printerBlacklist)
                 {
                     item.PrinterBlacklisted = true;
                 }
@@ -378,7 +376,7 @@ namespace Aetherium
 
             EquipmentStatusDictionary.Add(equipment, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 equipmentList.Add(equipment);
                 return true;
@@ -392,7 +390,7 @@ namespace Aetherium
 
             EliteEquipmentStatusDictionary.Add(eliteEquipment, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 eliteEquipmentList.Add(eliteEquipment);
                 return true;
@@ -406,7 +404,7 @@ namespace Aetherium
 
             InteractableStatusDictionary.Add(interactable, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 interactableList.Add(interactable);
                 return true;
@@ -414,19 +412,19 @@ namespace Aetherium
             return false;
         }
 
-        /*public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
+        public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
         {
             var enabled = Config.Bind<bool>("Survivor: " + survivor.SurvivorName, "Enable Survivor?", true, "Should this survivor be enabled?").Value;
 
             SurvivorStatusDictionary.Add(survivor, enabled);
 
-            if (enabled)
+            if(enabled)
             {
                 survivorList.Add(survivor);
                 return true;
             }
             return false;
-        }*/
+        }
 
         public static void ShaderConversion(AssetBundle assets)
         {
@@ -435,7 +433,7 @@ namespace Aetherium
             foreach (Material material in materialAssets)
             {
                 var replacementShader = LegacyResourcesAPI.Load<Shader>(ShaderLookup[material.shader.name.ToLowerInvariant()]); // TODO this might not be correct
-                if (replacementShader) 
+                if(replacementShader) 
                 {
                     material.shader = replacementShader;
                     SwappedMaterials.Add(material);
@@ -445,7 +443,7 @@ namespace Aetherium
 
         public static void AttachControllerFinderToObjects(AssetBundle assetbundle)
         {
-            if (!assetbundle) { return; }
+            if(!assetbundle) { return; }
 
             var gameObjects = assetbundle.LoadAllAssets<GameObject>();
 

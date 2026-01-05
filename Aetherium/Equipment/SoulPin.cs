@@ -5,13 +5,8 @@ using RoR2.Projectile;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using AK.Wwise;
-
 using static Aetherium.AetheriumPlugin;
-using static Aetherium.CoreModules.ItemHelperModule;
-using static Aetherium.Compatability.ModCompatability.BetterUICompat;
+using UnityEngine;
 using UnityEngine.Networking;
 using Aetherium.Utils;
 
@@ -20,28 +15,19 @@ namespace Aetherium.Equipment
     public class SoulPin : EquipmentBase<SoulPin>
     {
         public override string EquipmentName => "Soul Pin";
-
         public override string EquipmentLangTokenName => "SOUL_PIN";
-
-        public override string EquipmentPickupDesc => "On use, fire the pin out towards an enemy. If that enemy is an elite and dies to you, the pin will transform into its aspect.";
-
-        public override string EquipmentFullDescription => "On use, you can mark an elite enemy. If that elite enemy dies to you, this equipment transforms into its Aspect.";
-
-        public override string EquipmentLore =>
-            
-            $"Found on a scrap of paper in an ornate case along with the device: \"[...] at that point, the binding process will become automatic, " +
+        public override string EquipmentPickupDesc => "On use, fire the pin at a target. If they are elite and you kill them, this equipment transforms into their Aspect.";
+        public override string EquipmentFullDescription => "On use, fire a pin that marks an elite enemy for <style=cIsDamage>60 seconds</style>. If the marked elite dies to you, this equipment <style=cIsUtility>transforms into their Aspect</style>.";
+        public override string EquipmentLore => $"Found on a scrap of paper in an ornate case along with the device: \"[...] at that point, the binding process will become automatic, " +
             $"and all the user needs to do is sever the specimen's connection to its soul.\"";
 
         public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("SoulPinMagicCircle.prefab");
-
         public override Sprite EquipmentIcon => MainAssets.LoadAsset<Sprite>("FeatheredPlumeIcon.png");
 
         public override bool UseTargeting => true;
 
         public static GameObject ItemBodyModelPrefab;
-
         public static GameObject SoulConversionProjectile;
-
         public static BuffDef SoulConversionDebuff;
 
         public override void Init(ConfigFile config)
@@ -49,9 +35,7 @@ namespace Aetherium.Equipment
             CreateLang();
             CreateBuff();
             CreateTargetingIndicator();
-
-            CreateProjectile();
-
+            CreateProjectile(); // Moved up to ensure it exists before creating equipment
             CreateEquipment();
             Hooks();
         }
@@ -65,12 +49,12 @@ namespace Aetherium.Equipment
             SoulConversionDebuff.isDebuff = true;
             SoulConversionDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
 
-            BuffAPI.Add(new CustomBuff(SoulConversionDebuff));
+            ContentAddition.AddBuffDef(SoulConversionDebuff);
         }
 
         private void CreateTargetingIndicator()
         {
-            TargetingIndicatorPrefabBase = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/WoodSpriteIndicator"), "SoulPinIndicator", false);
+            TargetingIndicatorPrefabBase = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/WoodSpriteIndicator"), "SoulPinIndicator", false);
             TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().sprite = MainAssets.LoadAsset<Sprite>("SoulPinReticuleIcon.png");
             TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().color = Color.white;
             TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.identity;
@@ -79,45 +63,40 @@ namespace Aetherium.Equipment
 
         private void CreateProjectile()
         {
-            SoulConversionProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("prefabs/projectiles/MageIceboltExpanded"), "SoulConversionProjectile", true);
+            // Use MageIceboltExpanded as a base for a reliable, straight-flying projectile
+            SoulConversionProjectile = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("prefabs/projectiles/MageIceboltExpanded"), "SoulConversionProjectile", true);
 
+            // Add Ghost (Visuals)
             var model = MainAssets.LoadAsset<GameObject>("SoulPinProjectile.prefab");
             model.AddComponent<NetworkIdentity>();
-            model.AddComponent<RoR2.Projectile.ProjectileGhostController>();
+            model.AddComponent<ProjectileGhostController>();
 
-            var projectileController = SoulConversionProjectile.GetComponent<ProjectileController>();
-            projectileController.ghostPrefab = model;
+            var controller = SoulConversionProjectile.GetComponent<ProjectileController>();
+            controller.ghostPrefab = model;
 
-            var projectileDamage = SoulConversionProjectile.GetComponent<ProjectileDamage>();
-            projectileDamage.damageType = DamageType.Generic;
+            // Setup Damage (0 damage, purely for debuff application)
+            var damage = SoulConversionProjectile.GetComponent<ProjectileDamage>();
+            damage.damageType = DamageType.Generic;
+            damage.damage = 0f;
 
-            var projectileInflictDebuff = SoulConversionProjectile.AddComponent<ProjectileInflictTimedBuff>();
-            projectileInflictDebuff.buffDef = SoulConversionDebuff;
-            projectileInflictDebuff.duration = 60;
+            // Setup Buff Application
+            var buffApplier = SoulConversionProjectile.AddComponent<ProjectileInflictTimedBuff>();
+            buffApplier.buffDef = SoulConversionDebuff;
+            buffApplier.duration = 60f;
 
-            /*var projectileStickOnImpact = SoulConversionProjectile.AddComponent<ProjectileStickOnImpact>();
-            projectileStickOnImpact.alignNormals = false;
-            projectileStickOnImpact.ignoreCharacters = false;
-            projectileStickOnImpact.ignoreWorld = true;
-            projectileStickOnImpact.stickSoundString = "Play_treeBot_m1_impact";*/
+            // Setup Movement (Fast and Straight)
+            var simple = SoulConversionProjectile.GetComponent<ProjectileSimple>();
+            simple.enableVelocityOverLifetime = false;
+            simple.desiredForwardSpeed = 80f;
 
-            var projectileSimple = SoulConversionProjectile.GetComponent<ProjectileSimple>();
-            projectileSimple.enableVelocityOverLifetime = true;
-            projectileSimple.updateAfterFiring = true;
-            projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(1, 70) });
+            // Setup Homing (Crucial for reliability)
+            var steer = SoulConversionProjectile.AddComponent<ProjectileSteerTowardTarget>();
+            steer.rotationSpeed = 100f; // High turn rate to ensure it hits
 
-            var projectileOverlap = SoulConversionProjectile.GetComponent<ProjectileOverlapAttack>();
-
-            /*var projectileSteerTowardsTarget = SoulConversionProjectile.GetComponent<ProjectileSteerTowardTarget>();
-            projectileSteerTowardsTarget.rotationSpeed = 50;*/
+            var targetComponent = SoulConversionProjectile.AddComponent<ProjectileTargetComponent>();
 
             PrefabAPI.RegisterNetworkPrefab(SoulConversionProjectile);
-            ProjectileAPI.Add(SoulConversionProjectile);
-        }
-
-        public void DestroyProjectileParticleSystem()
-        {
-
+            ContentAddition.AddProjectile(SoulConversionProjectile);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -125,6 +104,8 @@ namespace Aetherium.Equipment
             ItemBodyModelPrefab = EquipmentModel;
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab);
+
+            // OPTIMIZED: Uses the new caching display handler
             ItemBodyModelPrefab.AddComponent<SoulPinDisplayHandler>();
 
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
@@ -262,11 +243,12 @@ namespace Aetherium.Equipment
         private void RemoveNonElitesFromTargeting(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
         {
             orig(self);
-            if(self.equipmentIndex == EquipmentDef.equipmentIndex)
+            if (self.equipmentIndex == EquipmentDef.equipmentIndex)
             {
                 var targetingComponent = self.GetComponent<TargetingControllerComponent>();
                 if (targetingComponent)
                 {
+                    // Filter targeting to only lock onto Elites
                     targetingComponent.AdditionalBullseyeFunctionality = (bullseyeSearch) => bullseyeSearch.FilterElites();
                 }
             }
@@ -276,7 +258,8 @@ namespace Aetherium.Equipment
         {
             orig(self, buffDef);
 
-            if (self.HasBuff(SoulConversionDebuff) && !self.isElite)
+            // Safety check: if a non-elite gets the buff (e.g. via explosion radius), remove it.
+            if (buffDef == SoulConversionDebuff && !self.isElite)
             {
                 self.RemoveBuff(SoulConversionDebuff);
             }
@@ -284,163 +267,104 @@ namespace Aetherium.Equipment
 
         private void MorphEquipmentIntoAffix(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, GlobalEventManager self, DamageReport damageReport)
         {
-            if(damageReport.attackerMaster && damageReport.victimBody)
-            {
-                if(damageReport.attackerMaster.inventory.currentEquipmentIndex == EquipmentDef.equipmentIndex && damageReport.victimBody.HasBuff(SoulConversionDebuff))
-                {
-                    var victimEquipmentDef = EquipmentCatalog.GetEquipmentDef(damageReport.victimBody.inventory.GetEquipmentIndex());
+            orig(self, damageReport); // Always run original logic first
 
-                    if (victimEquipmentDef && EliteEquipmentDefs.Any(x => x == victimEquipmentDef))
+            if (!NetworkServer.active) return; // Server only logic
+
+            if (damageReport.attackerMaster && damageReport.victimBody)
+            {
+                // Check if attacker has the Pin active AND victim has the Debuff
+                if (damageReport.attackerMaster.inventory.currentEquipmentIndex == EquipmentDef.equipmentIndex && damageReport.victimBody.HasBuff(SoulConversionDebuff))
+                {
+                    var victimEquipmentIndex = damageReport.victimBody.inventory.GetEquipmentIndex();
+                    var victimEquipmentDef = EquipmentCatalog.GetEquipmentDef(victimEquipmentIndex);
+
+                    // Check if the victim's equipment is an Elite Aspect
+                    if (victimEquipmentDef && victimEquipmentDef.passiveBuffDef && victimEquipmentDef.passiveBuffDef.isElite)
                     {
-                        damageReport.attackerMaster.inventory.GiveEquipmentString(victimEquipmentDef.name);
+                        // Transform the Soul Pin into the Aspect
+                        damageReport.attackerMaster.inventory.SetEquipmentIndex(victimEquipmentIndex);
+
+                        // Visual feedback for the transformation
+                        EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/LevelUpEffect"), damageReport.attackerBody.corePosition, Quaternion.identity, true);
                     }
                 }
             }
-
-            orig(self, damageReport);
         }
 
         protected override bool ActivateEquipment(EquipmentSlot slot)
         {
-            if(!slot.characterBody || !slot.characterBody.inputBank) { return false; }
+            if (!slot.characterBody || !slot.characterBody.inputBank) { return false; }
 
             var targetComponent = slot.GetComponent<TargetingControllerComponent>();
-            var displayTransform = slot.FindActiveEquipmentDisplay();
 
-
+            // Ensure we have a valid target from the targeting system
             if (targetComponent && targetComponent.TargetObject)
             {
-                var chosenHurtbox = targetComponent.TargetFinder.GetResults().First();
-                var closestPoint = chosenHurtbox.collider.ClosestPointOnBounds(targetComponent.TargetObject.transform.position + Vector3.up * 100);
-                closestPoint += Vector3.up * 8;
+                var targetHurtbox = targetComponent.TargetObject.GetComponent<HurtBox>();
+                if (!targetHurtbox) return false;
 
-                BlastAttack blastAttack = new BlastAttack()
+                // FIX: Fire a homing projectile instead of a "Sky Bullet"
+                // This ensures it hits enemies indoors or under cover.
+                ProjectileManager.instance.FireProjectile(new FireProjectileInfo
                 {
-                    
-                };
-
-                BulletAttack bulletAttack = new BulletAttack()
-                {
+                    projectilePrefab = SoulConversionProjectile,
+                    position = slot.characterBody.inputBank.aimOrigin,
+                    rotation = Util.QuaternionSafeLookRotation(slot.characterBody.inputBank.aimDirection),
                     owner = slot.characterBody.gameObject,
-                    origin = closestPoint,
-                    aimVector = -Vector3.up,
-                    filterCallback = HitOnlyElites,
-                    hitCallback = ApplySoulConversionDebuffOnHit,
-                    tracerEffectPrefab = Resources.Load<GameObject>("prefabs/effects/tracers/TracerToolbotRebar.prefab")
-                };
-
-                bulletAttack.Fire();
+                    damage = 0f,
+                    force = 0f,
+                    crit = false,
+                    target = targetComponent.TargetObject // Sets the homing target
+                });
 
                 return true;
             }
             return false;
         }
 
-        private bool HitOnlyElites(ref BulletAttack.BulletHit hitInfo)
-        {
-            var hurtbox = hitInfo.hitHurtBox;
-            if (hurtbox)
-            {
-                var healthComponent = hurtbox.healthComponent;
-                if (healthComponent)
-                {
-                    var body = healthComponent.body;
-                    if (body && body.isElite)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private bool ApplySoulConversionDebuffOnHit(ref BulletAttack.BulletHit hitInfo)
-        {
-            var hurtbox = hitInfo.hitHurtBox;
-            if (hurtbox)
-            {
-                var healthComponent = hurtbox.healthComponent;
-                if (healthComponent)
-                {
-                    var body = healthComponent.body;
-                    if (body)
-                    {
-                        body.AddTimedBuff(SoulConversionDebuff, 60);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
+        // OPTIMIZED: Caches components to avoid GetComponentInParent every frame
         public class SoulPinDisplayHandler : MonoBehaviour
         {
             public RoR2.ItemDisplay ItemDisplay;
-            public RoR2.CharacterMaster OwnerMaster;
             public RoR2.CharacterBody OwnerBody;
+            private CharacterModel.RendererInfo[] rendererInfos;
+
+            public void Start()
+            {
+                ItemDisplay = GetComponentInParent<RoR2.ItemDisplay>();
+                if (ItemDisplay)
+                {
+                    rendererInfos = ItemDisplay.rendererInfos;
+                    var model = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
+                    if (model && model.body)
+                    {
+                        OwnerBody = model.body;
+                    }
+                }
+            }
+
             public void FixedUpdate()
             {
-
-                if (!OwnerMaster || !ItemDisplay)
+                if (OwnerBody && ItemDisplay && rendererInfos != null && rendererInfos.Length > 0)
                 {
-                    ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
-                    if (ItemDisplay)
-                    {
-                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
-                        var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
+                    bool shouldBeVisible = false;
 
-                        if (characterModel)
+                    // Logic: Visible if we have stock (equipment is ready)
+                    if (OwnerBody.equipmentSlot && OwnerBody.equipmentSlot.stock > 0)
+                    {
+                        shouldBeVisible = true;
+                    }
+
+                    // Only toggle if state changes (Optimization)
+                    if (rendererInfos[0].renderer.enabled != shouldBeVisible)
+                    {
+                        for (int i = 0; i < rendererInfos.Length; i++)
                         {
-                            var body = characterModel.body;
-                            if (body)
-                            {
-                                OwnerMaster = body.master;
-                            }
+                            rendererInfos[i].renderer.enabled = shouldBeVisible;
                         }
                     }
                 }
-
-                if (OwnerMaster && !OwnerBody)
-                {
-                    var body = OwnerMaster.GetBody();
-                    if (body)
-                    {
-                        OwnerBody = body;
-                    }
-                    if (!body)
-                    {
-                        UnityEngine.Object.Destroy(this);
-                    }
-                }
-
-                if (OwnerBody && ItemDisplay)
-                {
-                    var slot = OwnerBody.equipmentSlot;
-                    if (slot)
-                    {
-                        if(slot.stock > 0)
-                        {
-                            foreach(CharacterModel.RendererInfo rendererInfo in ItemDisplay.rendererInfos)
-                            {
-                                if (!rendererInfo.renderer.enabled && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
-                                {
-                                    rendererInfo.renderer.enabled = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach(CharacterModel.RendererInfo rendererInfo in ItemDisplay.rendererInfos)
-                            {
-                                if (rendererInfo.renderer.enabled)
-                                {
-                                    rendererInfo.renderer.enabled = false;
-                                }
-                            }
-                        }
-                    }
-                }
-
             }
         }
     }

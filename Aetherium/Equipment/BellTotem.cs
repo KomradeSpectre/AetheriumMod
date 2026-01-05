@@ -93,7 +93,7 @@ namespace Aetherium.Equipment
 
             BellSoundwaveEffect.AddComponent<NetworkIdentity>();
 
-            if (BellSoundwaveEffect) PrefabAPI.RegisterNetworkPrefab(BellSoundwaveEffect);
+            if(BellSoundwaveEffect) PrefabAPI.RegisterNetworkPrefab(BellSoundwaveEffect);
             ContentAddition.AddEffect(BellSoundwaveEffect);
 
             NoBellSpawnEffect = MainAssets.LoadAsset<GameObject>("NoSpawnAllowedEffect.prefab");
@@ -112,7 +112,7 @@ namespace Aetherium.Equipment
             var secondaryDestroyOnParticleEnd = NoBellSpawnEffect.AddComponent<DestroyOnParticleEnd>();
             secondaryDestroyOnParticleEnd.trackedParticleSystem = NoBellSpawnEffect.GetComponent<ParticleSystem>();
 
-            if (NoBellSpawnEffect) PrefabAPI.RegisterNetworkPrefab(NoBellSpawnEffect);
+            if(NoBellSpawnEffect) PrefabAPI.RegisterNetworkPrefab(NoBellSpawnEffect);
             ContentAddition.AddEffect(NoBellSpawnEffect);
 
         }
@@ -475,7 +475,7 @@ namespace Aetherium.Equipment
             if(equipmentDef == EquipmentDef)
             {
                 var bellTotemCache = self.GetComponent<BellTotemCache>();
-                if (!bellTotemCache)
+                if(!bellTotemCache)
                 {
                     self.gameObject.AddComponent<BellTotemCache>();
                 }
@@ -484,10 +484,10 @@ namespace Aetherium.Equipment
 
         private void RemoveBellTotemCache(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EquipmentDef)
+            if(equipmentDef == EquipmentDef)
             {
                 var bellTotemCache = self.GetComponent<BellTotemCache>();
-                if (bellTotemCache)
+                if(bellTotemCache)
                 {
                     UnityEngine.Object.Destroy(bellTotemCache);
                 }
@@ -500,18 +500,18 @@ namespace Aetherium.Equipment
             if(slot.subcooldownTimer < ForcedCooldownBetweenEquipmentUses) { slot.subcooldownTimer = ForcedCooldownBetweenEquipmentUses; }
 
             var body = slot.characterBody;
-            if (body && slot.inputBank)
+            if(body && slot.inputBank)
             {
                 var BellTotemCache = body.GetComponent<BellTotemCache>();
-                if (BellTotemCache)
+                if(BellTotemCache)
                 {
-                    if (BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is BellTotemDisappearState))
+                    if(BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is BellTotemDisappearState))
                     {
                         BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new BellTotemDisappearState());
                     }
 
                     var hitPlace = Physics.Raycast(new Ray(slot.inputBank.aimOrigin, slot.inputBank.aimDirection), out RaycastHit raycastHit, 1000, LayerIndex.world.mask, QueryTriggerInteraction.Ignore);
-                    if (hitPlace)
+                    if(hitPlace)
                     {
                         if(raycastHit.collider && raycastHit.collider.gameObject.name.Contains("BellTotem")) 
                         {
@@ -551,10 +551,10 @@ namespace Aetherium.Equipment
 
             public void UpdateOwner(CharacterBody characterBody)
             {
-                if (!characterBody || !BellTotem) { return; }
+                if(!characterBody || !BellTotem) { return; }
 
                 var bellTotemManager = BellTotem.GetComponent<BellTotemManager>();
-                if (bellTotemManager)
+                if(bellTotemManager)
                 {
                     BellTotemManager = bellTotemManager;
                     BellTotemManager.Owner = characterBody;
@@ -591,14 +591,14 @@ namespace Aetherium.Equipment
 
             public void BellPurchaseAttempt(Interactor interactor)
             {
-                if (!interactor) { return; }
+                if(!interactor) { return; }
 
                 var body = interactor.GetComponent<CharacterBody>();
-                if (body)
+                if(body)
                 {
                     LastActivator = body;
 
-                    if (BellTotemStateMachine.state is BellTotemMainState)
+                    if(BellTotemStateMachine.state is BellTotemMainState)
                     {
                         BellTotemStateMachine.SetNextState(new BellTotemRingingState());
                     }
@@ -607,16 +607,16 @@ namespace Aetherium.Equipment
 
             public void FixedUpdate()
             {
-                if (NetworkServer.active)
+                if(NetworkServer.active)
                 {
-                    if (!(BellTotemStateMachine.state is BellTotemMainState))
+                    if(!(BellTotemStateMachine.state is BellTotemMainState))
                     {
                         PurchaseInteraction.SetAvailable(false);
                     }
                     else
                     {
                         Stopwatch += Time.fixedDeltaTime;
-                        if (Stopwatch >= CooldownBetweenUses)
+                        if(Stopwatch >= CooldownBetweenUses)
                         {
                             PurchaseInteraction.SetAvailable(true);
                         }
@@ -626,7 +626,7 @@ namespace Aetherium.Equipment
                         }
                     }
 
-                    if (!Owner && !(BellTotemStateMachine.state is BellTotemDisappearState))
+                    if(!Owner && !(BellTotemStateMachine.state is BellTotemDisappearState))
                     {
                         BellTotemStateMachine.SetNextState(new BellTotemDisappearState());
                     }

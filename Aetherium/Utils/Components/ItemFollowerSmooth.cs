@@ -42,13 +42,13 @@ namespace Aetherium.Utils
 
         public void Rebuild()
         {
-            if (this.itemDisplay.GetVisibilityLevel() == VisibilityLevel.Invisible)
+            if(this.itemDisplay.GetVisibilityLevel() == VisibilityLevel.Invisible)
             {
-                if (this.followerInstance)
+                if(this.followerInstance)
                 {
                     UnityEngine.Object.Destroy(this.followerInstance);
                 }
-                if (this.followerLineRenderer)
+                if(this.followerLineRenderer)
                 {
                     this.followerLineRenderer.enabled = false;
                     return;
@@ -56,17 +56,17 @@ namespace Aetherium.Utils
             }
             else
             {
-                if (!this.followerInstance)
+                if(!this.followerInstance)
                 {
                     this.followerInstance = UnityEngine.Object.Instantiate<GameObject>(this.followerPrefab, this.targetObject.transform.position, Quaternion.identity);
                     this.followerInstance.transform.localScale = base.transform.localScale;
-                    if (this.followerCurve)
+                    if(this.followerCurve)
                     {
                         this.v0 = this.followerCurve.v0;
                         this.v1 = this.followerCurve.v1;
                     }
                 }
-                if (this.followerLineRenderer)
+                if(this.followerLineRenderer)
                 {
                     this.followerLineRenderer.enabled = true;
                 }
@@ -76,13 +76,13 @@ namespace Aetherium.Utils
         public void Update()
         {
             this.Rebuild();
-            if (this.followerInstance)
+            if(this.followerInstance)
             {
                 Transform transform = this.followerInstance.transform;
                 Transform transform2 = this.targetObject.transform;
                 transform.position = Vector3.SmoothDamp(transform.position, transform2.position, ref this.velocityDistance, this.distanceDampTime);
                 transform.rotation = Quaternion.Slerp(transform.rotation, transform2.rotation, SmoothingNumber);
-                if (this.followerCurve)
+                if(this.followerCurve)
                 {
                     this.followerCurve.v0 = base.transform.TransformVector(this.v0);
                     this.followerCurve.v1 = transform.TransformVector(this.v1);
@@ -93,7 +93,7 @@ namespace Aetherium.Utils
 
         public void OnDestroy()
         {
-            if (this.followerInstance)
+            if(this.followerInstance)
             {
                 UnityEngine.Object.Destroy(this.followerInstance);
             }

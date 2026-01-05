@@ -54,7 +54,7 @@ namespace Aetherium.Achievements
 
             private void CheckIfDiedToOrKilledPefectedLunarChimera(DamageReport report)
             {
-                if (report is null || !report.attackerBody || !report.victimBody) { return; }
+                if(report is null || !report.attackerBody || !report.victimBody) { return; }
 
                 if(report.attackerBodyIndex == BodyCatalog.FindBodyIndex("LunarGolemBody"))
                 {
@@ -68,7 +68,7 @@ namespace Aetherium.Achievements
                 }
                 else if(report.victimBodyIndex == BodyCatalog.FindBodyIndex("LunarGolemBody"))
                 {
-                    if (report.victimBody.inventory && report.victimBody.inventory.currentEquipmentIndex == EquipmentCatalog.FindEquipmentIndex("AffixLunar") || report.victimBody.HasBuff(RoR2Content.Buffs.AffixLunar))
+                    if(report.victimBody.inventory && report.victimBody.inventory.currentEquipmentIndex == EquipmentCatalog.FindEquipmentIndex("AffixLunar") || report.victimBody.HasBuff(RoR2Content.Buffs.AffixLunar))
                     {
                         if(report.attackerBody == base.GetCurrentBody())
                         {

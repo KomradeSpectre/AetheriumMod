@@ -18,7 +18,7 @@ namespace Aetherium.Utils
         //Sourced from source code, couldn't access because it was private, modified a little
         public static Vector3? RaycastToDirection(Vector3 position, float maxDistance, Vector3 direction, int layerIndex = 11)
         {
-            if (Physics.Raycast(new Ray(position, direction), out RaycastHit raycastHit, maxDistance, layerIndex, QueryTriggerInteraction.Ignore))
+            if(Physics.Raycast(new Ray(position, direction), out RaycastHit raycastHit, maxDistance, layerIndex, QueryTriggerInteraction.Ignore))
             {
                 return raycastHit.point;
             }
@@ -41,21 +41,37 @@ namespace Aetherium.Utils
 
             NodeGraph nodesToCheck = checkAirNodes ? SceneInfo.instance.airNodes : SceneInfo.instance.groundNodes;
 
+            // Try the preferred node graph first
             var closestNode = nodesToCheck.FindClosestNode(position, hullClassification);
 
-            if(closestNode != NodeGraph.NodeIndex.invalid)
+            if (closestNode != NodeGraph.NodeIndex.invalid)
             {
                 nodesToCheck.GetNodePosition(closestNode, out ResultPosition);
                 return ResultPosition;
             }
 
-            Debug.LogWarning($"No closest node to be found for XYZ: {position}, returning 0,0,0");
-            return Vector3.zero;
+            // Fallback: if air nodes failed, try ground nodes
+            if (checkAirNodes)
+            {
+                nodesToCheck = SceneInfo.instance.groundNodes;
+                closestNode = nodesToCheck.FindClosestNode(position, hullClassification);
+
+                if (closestNode != NodeGraph.NodeIndex.invalid)
+                {
+                    nodesToCheck.GetNodePosition(closestNode, out ResultPosition);
+                    Debug.LogWarning($"Air node lookup failed for position {position}, falling back to ground node at {ResultPosition}");
+                    return ResultPosition;
+                }
+            }
+
+            // Last resort: return original position instead of Vector3.zero
+            Debug.LogWarning($"No closest node to be found for XYZ: {position}, returning original position");
+            return position;
         }
 
         public static bool TeleportBody(CharacterBody characterBody, GameObject target, GameObject teleportEffect, HullClassification hullClassification, Xoroshiro128Plus rng, float minDistance = 20, float maxDistance = 45, bool teleportAir = false)
         {
-            if (!characterBody){ return false; }
+            if(!characterBody){ return false; }
 
             SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
             spawnCard.hullSize = hullClassification;
@@ -68,11 +84,11 @@ namespace Aetherium.Utils
                 minDistance = minDistance,
                 maxDistance = maxDistance
             }, rng));
-            if (gameObject)
+            if(gameObject)
             {
                 TeleportHelper.TeleportBody(characterBody, gameObject.transform.position);
                 GameObject teleportEffectPrefab = teleportEffect;
-                if (teleportEffectPrefab)
+                if(teleportEffectPrefab)
                 {
                     EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
                 }
@@ -89,12 +105,12 @@ namespace Aetherium.Utils
 
         public static Vector3? AboveTargetVectorFromDamageInfo(DamageInfo damageInfo, float distanceAboveTarget)
         {
-            if (damageInfo.rejected || !damageInfo.attacker) { return null; }
+            if(damageInfo.rejected || !damageInfo.attacker) { return null; }
 
             
             var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
 
-            if (attackerBody)
+            if(attackerBody)
             {
                 RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(attackerBody.teamComponent.teamIndex);
                 HurtBox hurtBox = new RoR2.SphereSearch
@@ -104,7 +120,7 @@ namespace Aetherium.Utils
                     origin = damageInfo.position
                 }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeams).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes().FirstOrDefault();
 
-                if (hurtBox)
+                if(hurtBox)
                 {
                     if(hurtBox.healthComponent && hurtBox.healthComponent.body)
                     {
@@ -113,7 +129,7 @@ namespace Aetherium.Utils
                         var closestPointOnBounds = body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0));
 
                         var raycastPoint = RaycastToDirection(closestPointOnBounds, distanceAboveTarget, Vector3.up);
-                        if (raycastPoint.HasValue)
+                        if(raycastPoint.HasValue)
                         {
                             return raycastPoint.Value;
                         }
@@ -131,12 +147,12 @@ namespace Aetherium.Utils
 
         public static Vector3? AboveTargetBody(CharacterBody body, float distanceAbove)
         {
-            if (!body) { return null; }
+            if(!body) { return null; }
 
             var closestPointOnBounds = body.mainHurtBox.collider.ClosestPointOnBounds(body.transform.position + new Vector3(0, 10000, 0));
 
             var raycastPoint = RaycastToDirection(closestPointOnBounds, distanceAbove, Vector3.up);
-            if (raycastPoint.HasValue)
+            if(raycastPoint.HasValue)
             {
                 return raycastPoint.Value;
             }
@@ -152,7 +168,7 @@ namespace Aetherium.Utils
 
             var didHit = Physics.Raycast(ray, out RaycastHit raycastHit, distance, layerMask, QueryTriggerInteraction.Ignore);
 
-            if (!didHit)
+            if(!didHit)
             {
                 AetheriumPlugin.ModLogger.LogError($"GetAimSurfaceAlignmentInfo did not hit anything in the aim direction on the specified layer.");
                 return null;
@@ -176,13 +192,13 @@ namespace Aetherium.Utils
             RoR2.DotController.DotIndex index = (RoR2.DotController.DotIndex)Array.FindIndex(RoR2.DotController.dotDefs, (dotDef) => dotDef.associatedBuff == buff);
             for (int y = 0; y < stackCount; y++)
             {
-                if (index != RoR2.DotController.DotIndex.None)
+                if(index != RoR2.DotController.DotIndex.None)
                 {
-                    RoR2.DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f);
+                    RoR2.DotController.InflictDot(body.gameObject, body.gameObject, index, duration, 0.25f, (uint?)stackCount);
                 }
                 else
                 {
-                    if (NetworkServer.active)
+                    if(NetworkServer.active)
                     {
                         body.AddTimedBuff(buff.buffIndex, duration);
                     }
@@ -219,14 +235,14 @@ namespace Aetherium.Utils
             };
 
             var characterMotor = victim.characterMotor;
-            if (characterMotor)
+            if(characterMotor)
             {
                 characterMotor.ApplyForceImpulseFixed(physInfo);
                 return;
             }
 
             var rigidBodyMotor = victim.GetComponent<RigidbodyMotor>();
-            if (rigidBodyMotor)
+            if(rigidBodyMotor)
             {
                 rigidBodyMotor.ApplyForceImpulse(physInfo);
                 return;

@@ -13,10 +13,10 @@ namespace Aetherium.Utils.Components
         public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
         {
             AetheriumPlugin.ModLogger.LogError($"We've hit something with the projectile.");
-            if (impactInfo.collider && !impactInfo.collider.GetComponent<HurtBox>())
+            if(impactInfo.collider && !impactInfo.collider.GetComponent<HurtBox>())
             {
                 AetheriumPlugin.ModLogger.LogError($"We're in the hit world check.");
-                if (impactEffect)
+                if(impactEffect)
                 {
                     EffectManager.SpawnEffect(impactEffect, new EffectData
                     {

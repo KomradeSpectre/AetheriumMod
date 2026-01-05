@@ -8,7 +8,7 @@ public class BellTotemDisappearEffect : NetworkBehaviour
 {		
 	public void PlayImpactEffect()
 	{
-        if (NetworkServer.active)
+        if(NetworkServer.active)
         {
             var effectData = new EffectData()
             {

@@ -129,7 +129,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return end * 0.5f * value * value + start;
+        if(value < 1) return end * 0.5f * value * value + start;
         value--;
         return -end * 0.5f * (value * (value - 2) - 1) + start;
     }
@@ -151,7 +151,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return end * 0.5f * value * value * value + start;
+        if(value < 1) return end * 0.5f * value * value * value + start;
         value -= 2;
         return end * 0.5f * (value * value * value + 2) + start;
     }
@@ -173,7 +173,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return end * 0.5f * value * value * value * value + start;
+        if(value < 1) return end * 0.5f * value * value * value * value + start;
         value -= 2;
         return -end * 0.5f * (value * value * value * value - 2) + start;
     }
@@ -195,7 +195,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return end * 0.5f * value * value * value * value * value + start;
+        if(value < 1) return end * 0.5f * value * value * value * value * value + start;
         value -= 2;
         return end * 0.5f * (value * value * value * value * value + 2) + start;
     }
@@ -234,7 +234,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return end * 0.5f * Mathf.Pow(2, 10 * (value - 1)) + start;
+        if(value < 1) return end * 0.5f * Mathf.Pow(2, 10 * (value - 1)) + start;
         value--;
         return end * 0.5f * (-Mathf.Pow(2, -10 * value) + 2) + start;
     }
@@ -256,7 +256,7 @@ public static class EasingFunction
     {
         value /= .5f;
         end -= start;
-        if (value < 1) return -end * 0.5f * (Mathf.Sqrt(1 - value * value) - 1) + start;
+        if(value < 1) return -end * 0.5f * (Mathf.Sqrt(1 - value * value) - 1) + start;
         value -= 2;
         return end * 0.5f * (Mathf.Sqrt(1 - value * value) + 1) + start;
     }
@@ -272,16 +272,16 @@ public static class EasingFunction
     {
         value /= 1f;
         end -= start;
-        if (value < (1 / 2.75f))
+        if(value < (1 / 2.75f))
         {
             return end * (7.5625f * value * value) + start;
         }
-        else if (value < (2 / 2.75f))
+        else if(value < (2 / 2.75f))
         {
             value -= (1.5f / 2.75f);
             return end * (7.5625f * (value) * value + .75f) + start;
         }
-        else if (value < (2.5 / 2.75))
+        else if(value < (2.5 / 2.75))
         {
             value -= (2.25f / 2.75f);
             return end * (7.5625f * (value) * value + .9375f) + start;
@@ -297,7 +297,7 @@ public static class EasingFunction
     {
         end -= start;
         float d = 1f;
-        if (value < d * 0.5f) return EaseInBounce(0, end, value * 2) * 0.5f + start;
+        if(value < d * 0.5f) return EaseInBounce(0, end, value * 2) * 0.5f + start;
         else return EaseOutBounce(0, end, value * 2 - d) * 0.5f + end * 0.5f + start;
     }
 
@@ -322,7 +322,7 @@ public static class EasingFunction
         float s = 1.70158f;
         end -= start;
         value /= .5f;
-        if ((value) < 1)
+        if((value) < 1)
         {
             s *= (1.525f);
             return end * 0.5f * (value * value * (((s) + 1) * value - s)) + start;
@@ -341,11 +341,11 @@ public static class EasingFunction
         float s;
         float a = 0;
 
-        if (value == 0) return start;
+        if(value == 0) return start;
 
-        if ((value /= d) == 1) return start + end;
+        if((value /= d) == 1) return start + end;
 
-        if (a == 0f || a < Mathf.Abs(end))
+        if(a == 0f || a < Mathf.Abs(end))
         {
             a = end;
             s = p / 4;
@@ -367,11 +367,11 @@ public static class EasingFunction
         float s;
         float a = 0;
 
-        if (value == 0) return start;
+        if(value == 0) return start;
 
-        if ((value /= d) == 1) return start + end;
+        if((value /= d) == 1) return start + end;
 
-        if (a == 0f || a < Mathf.Abs(end))
+        if(a == 0f || a < Mathf.Abs(end))
         {
             a = end;
             s = p * 0.25f;
@@ -393,11 +393,11 @@ public static class EasingFunction
         float s;
         float a = 0;
 
-        if (value == 0) return start;
+        if(value == 0) return start;
 
-        if ((value /= d * 0.5f) == 2) return start + end;
+        if((value /= d * 0.5f) == 2) return start + end;
 
-        if (a == 0f || a < Mathf.Abs(end))
+        if(a == 0f || a < Mathf.Abs(end))
         {
             a = end;
             s = p / 4;
@@ -407,7 +407,7 @@ public static class EasingFunction
             s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
         }
 
-        if (value < 1) return -0.5f * (a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
+        if(value < 1) return -0.5f * (a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
         return a * Mathf.Pow(2, -10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) * 0.5f + end + start;
     }
 
@@ -441,7 +441,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return end * value;
         }
@@ -468,7 +468,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return (3f / 2f) * end * value * value;
         }
@@ -495,7 +495,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return 2f * end * value * value * value;
         }
@@ -522,7 +522,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return (5f / 2f) * end * value * value * value * value;
         }
@@ -564,7 +564,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return 5f * NATURAL_LOG_OF_2 * end * Mathf.Pow(2f, 10f * (value - 1));
         }
@@ -591,7 +591,7 @@ public static class EasingFunction
         value /= .5f;
         end -= start;
 
-        if (value < 1)
+        if(value < 1)
         {
             return (end * value) / (2f * Mathf.Sqrt(1f - value * value));
         }
@@ -614,16 +614,16 @@ public static class EasingFunction
         value /= 1f;
         end -= start;
 
-        if (value < (1 / 2.75f))
+        if(value < (1 / 2.75f))
         {
             return 2f * end * 7.5625f * value;
         }
-        else if (value < (2 / 2.75f))
+        else if(value < (2 / 2.75f))
         {
             value -= (1.5f / 2.75f);
             return 2f * end * 7.5625f * value;
         }
-        else if (value < (2.5 / 2.75))
+        else if(value < (2.5 / 2.75))
         {
             value -= (2.25f / 2.75f);
             return 2f * end * 7.5625f * value;
@@ -640,7 +640,7 @@ public static class EasingFunction
         end -= start;
         float d = 1f;
 
-        if (value < d * 0.5f)
+        if(value < d * 0.5f)
         {
             return EaseInBounceD(0, end, value * 2) * 0.5f;
         }
@@ -672,7 +672,7 @@ public static class EasingFunction
         end -= start;
         value /= .5f;
 
-        if ((value) < 1)
+        if((value) < 1)
         {
             s *= (1.525f);
             return 0.5f * end * (s + 1) * value * value + end * value * ((s + 1f) * value - s);
@@ -697,7 +697,7 @@ public static class EasingFunction
         float s;
         float a = 0;
 
-        if (a == 0f || a < Mathf.Abs(end))
+        if(a == 0f || a < Mathf.Abs(end))
         {
             a = end;
             s = p * 0.25f;
@@ -721,7 +721,7 @@ public static class EasingFunction
         float s;
         float a = 0;
 
-        if (a == 0f || a < Mathf.Abs(end))
+        if(a == 0f || a < Mathf.Abs(end))
         {
             a = end;
             s = p / 4;
@@ -731,7 +731,7 @@ public static class EasingFunction
             s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
         }
 
-        if (value < 1)
+        if(value < 1)
         {
             value -= 1;
 
@@ -771,162 +771,162 @@ public static class EasingFunction
     /// <returns>The easing function</returns>
     public static Function GetEasingFunction(Ease easingFunction)
     {
-        if (easingFunction == Ease.EaseInQuad)
+        if(easingFunction == Ease.EaseInQuad)
         {
             return EaseInQuad;
         }
 
-        if (easingFunction == Ease.EaseOutQuad)
+        if(easingFunction == Ease.EaseOutQuad)
         {
             return EaseOutQuad;
         }
 
-        if (easingFunction == Ease.EaseInOutQuad)
+        if(easingFunction == Ease.EaseInOutQuad)
         {
             return EaseInOutQuad;
         }
 
-        if (easingFunction == Ease.EaseInCubic)
+        if(easingFunction == Ease.EaseInCubic)
         {
             return EaseInCubic;
         }
 
-        if (easingFunction == Ease.EaseOutCubic)
+        if(easingFunction == Ease.EaseOutCubic)
         {
             return EaseOutCubic;
         }
 
-        if (easingFunction == Ease.EaseInOutCubic)
+        if(easingFunction == Ease.EaseInOutCubic)
         {
             return EaseInOutCubic;
         }
 
-        if (easingFunction == Ease.EaseInQuart)
+        if(easingFunction == Ease.EaseInQuart)
         {
             return EaseInQuart;
         }
 
-        if (easingFunction == Ease.EaseOutQuart)
+        if(easingFunction == Ease.EaseOutQuart)
         {
             return EaseOutQuart;
         }
 
-        if (easingFunction == Ease.EaseInOutQuart)
+        if(easingFunction == Ease.EaseInOutQuart)
         {
             return EaseInOutQuart;
         }
 
-        if (easingFunction == Ease.EaseInQuint)
+        if(easingFunction == Ease.EaseInQuint)
         {
             return EaseInQuint;
         }
 
-        if (easingFunction == Ease.EaseOutQuint)
+        if(easingFunction == Ease.EaseOutQuint)
         {
             return EaseOutQuint;
         }
 
-        if (easingFunction == Ease.EaseInOutQuint)
+        if(easingFunction == Ease.EaseInOutQuint)
         {
             return EaseInOutQuint;
         }
 
-        if (easingFunction == Ease.EaseInSine)
+        if(easingFunction == Ease.EaseInSine)
         {
             return EaseInSine;
         }
 
-        if (easingFunction == Ease.EaseOutSine)
+        if(easingFunction == Ease.EaseOutSine)
         {
             return EaseOutSine;
         }
 
-        if (easingFunction == Ease.EaseInOutSine)
+        if(easingFunction == Ease.EaseInOutSine)
         {
             return EaseInOutSine;
         }
 
-        if (easingFunction == Ease.EaseInExpo)
+        if(easingFunction == Ease.EaseInExpo)
         {
             return EaseInExpo;
         }
 
-        if (easingFunction == Ease.EaseOutExpo)
+        if(easingFunction == Ease.EaseOutExpo)
         {
             return EaseOutExpo;
         }
 
-        if (easingFunction == Ease.EaseInOutExpo)
+        if(easingFunction == Ease.EaseInOutExpo)
         {
             return EaseInOutExpo;
         }
 
-        if (easingFunction == Ease.EaseInCirc)
+        if(easingFunction == Ease.EaseInCirc)
         {
             return EaseInCirc;
         }
 
-        if (easingFunction == Ease.EaseOutCirc)
+        if(easingFunction == Ease.EaseOutCirc)
         {
             return EaseOutCirc;
         }
 
-        if (easingFunction == Ease.EaseInOutCirc)
+        if(easingFunction == Ease.EaseInOutCirc)
         {
             return EaseInOutCirc;
         }
 
-        if (easingFunction == Ease.Linear)
+        if(easingFunction == Ease.Linear)
         {
             return Linear;
         }
 
-        if (easingFunction == Ease.Spring)
+        if(easingFunction == Ease.Spring)
         {
             return Spring;
         }
 
-        if (easingFunction == Ease.EaseInBounce)
+        if(easingFunction == Ease.EaseInBounce)
         {
             return EaseInBounce;
         }
 
-        if (easingFunction == Ease.EaseOutBounce)
+        if(easingFunction == Ease.EaseOutBounce)
         {
             return EaseOutBounce;
         }
 
-        if (easingFunction == Ease.EaseInOutBounce)
+        if(easingFunction == Ease.EaseInOutBounce)
         {
             return EaseInOutBounce;
         }
 
-        if (easingFunction == Ease.EaseInBack)
+        if(easingFunction == Ease.EaseInBack)
         {
             return EaseInBack;
         }
 
-        if (easingFunction == Ease.EaseOutBack)
+        if(easingFunction == Ease.EaseOutBack)
         {
             return EaseOutBack;
         }
 
-        if (easingFunction == Ease.EaseInOutBack)
+        if(easingFunction == Ease.EaseInOutBack)
         {
             return EaseInOutBack;
         }
 
-        if (easingFunction == Ease.EaseInElastic)
+        if(easingFunction == Ease.EaseInElastic)
         {
             return EaseInElastic;
         }
 
-        if (easingFunction == Ease.EaseOutElastic)
+        if(easingFunction == Ease.EaseOutElastic)
         {
             return EaseOutElastic;
         }
 
-        if (easingFunction == Ease.EaseInOutElastic)
+        if(easingFunction == Ease.EaseInOutElastic)
         {
             return EaseInOutElastic;
         }
@@ -942,162 +942,162 @@ public static class EasingFunction
     /// <returns>The derivative function</returns>
     public static Function GetEasingFunctionDerivative(Ease easingFunction)
     {
-        if (easingFunction == Ease.EaseInQuad)
+        if(easingFunction == Ease.EaseInQuad)
         {
             return EaseInQuadD;
         }
 
-        if (easingFunction == Ease.EaseOutQuad)
+        if(easingFunction == Ease.EaseOutQuad)
         {
             return EaseOutQuadD;
         }
 
-        if (easingFunction == Ease.EaseInOutQuad)
+        if(easingFunction == Ease.EaseInOutQuad)
         {
             return EaseInOutQuadD;
         }
 
-        if (easingFunction == Ease.EaseInCubic)
+        if(easingFunction == Ease.EaseInCubic)
         {
             return EaseInCubicD;
         }
 
-        if (easingFunction == Ease.EaseOutCubic)
+        if(easingFunction == Ease.EaseOutCubic)
         {
             return EaseOutCubicD;
         }
 
-        if (easingFunction == Ease.EaseInOutCubic)
+        if(easingFunction == Ease.EaseInOutCubic)
         {
             return EaseInOutCubicD;
         }
 
-        if (easingFunction == Ease.EaseInQuart)
+        if(easingFunction == Ease.EaseInQuart)
         {
             return EaseInQuartD;
         }
 
-        if (easingFunction == Ease.EaseOutQuart)
+        if(easingFunction == Ease.EaseOutQuart)
         {
             return EaseOutQuartD;
         }
 
-        if (easingFunction == Ease.EaseInOutQuart)
+        if(easingFunction == Ease.EaseInOutQuart)
         {
             return EaseInOutQuartD;
         }
 
-        if (easingFunction == Ease.EaseInQuint)
+        if(easingFunction == Ease.EaseInQuint)
         {
             return EaseInQuintD;
         }
 
-        if (easingFunction == Ease.EaseOutQuint)
+        if(easingFunction == Ease.EaseOutQuint)
         {
             return EaseOutQuintD;
         }
 
-        if (easingFunction == Ease.EaseInOutQuint)
+        if(easingFunction == Ease.EaseInOutQuint)
         {
             return EaseInOutQuintD;
         }
 
-        if (easingFunction == Ease.EaseInSine)
+        if(easingFunction == Ease.EaseInSine)
         {
             return EaseInSineD;
         }
 
-        if (easingFunction == Ease.EaseOutSine)
+        if(easingFunction == Ease.EaseOutSine)
         {
             return EaseOutSineD;
         }
 
-        if (easingFunction == Ease.EaseInOutSine)
+        if(easingFunction == Ease.EaseInOutSine)
         {
             return EaseInOutSineD;
         }
 
-        if (easingFunction == Ease.EaseInExpo)
+        if(easingFunction == Ease.EaseInExpo)
         {
             return EaseInExpoD;
         }
 
-        if (easingFunction == Ease.EaseOutExpo)
+        if(easingFunction == Ease.EaseOutExpo)
         {
             return EaseOutExpoD;
         }
 
-        if (easingFunction == Ease.EaseInOutExpo)
+        if(easingFunction == Ease.EaseInOutExpo)
         {
             return EaseInOutExpoD;
         }
 
-        if (easingFunction == Ease.EaseInCirc)
+        if(easingFunction == Ease.EaseInCirc)
         {
             return EaseInCircD;
         }
 
-        if (easingFunction == Ease.EaseOutCirc)
+        if(easingFunction == Ease.EaseOutCirc)
         {
             return EaseOutCircD;
         }
 
-        if (easingFunction == Ease.EaseInOutCirc)
+        if(easingFunction == Ease.EaseInOutCirc)
         {
             return EaseInOutCircD;
         }
 
-        if (easingFunction == Ease.Linear)
+        if(easingFunction == Ease.Linear)
         {
             return LinearD;
         }
 
-        if (easingFunction == Ease.Spring)
+        if(easingFunction == Ease.Spring)
         {
             return SpringD;
         }
 
-        if (easingFunction == Ease.EaseInBounce)
+        if(easingFunction == Ease.EaseInBounce)
         {
             return EaseInBounceD;
         }
 
-        if (easingFunction == Ease.EaseOutBounce)
+        if(easingFunction == Ease.EaseOutBounce)
         {
             return EaseOutBounceD;
         }
 
-        if (easingFunction == Ease.EaseInOutBounce)
+        if(easingFunction == Ease.EaseInOutBounce)
         {
             return EaseInOutBounceD;
         }
 
-        if (easingFunction == Ease.EaseInBack)
+        if(easingFunction == Ease.EaseInBack)
         {
             return EaseInBackD;
         }
 
-        if (easingFunction == Ease.EaseOutBack)
+        if(easingFunction == Ease.EaseOutBack)
         {
             return EaseOutBackD;
         }
 
-        if (easingFunction == Ease.EaseInOutBack)
+        if(easingFunction == Ease.EaseInOutBack)
         {
             return EaseInOutBackD;
         }
 
-        if (easingFunction == Ease.EaseInElastic)
+        if(easingFunction == Ease.EaseInElastic)
         {
             return EaseInElasticD;
         }
 
-        if (easingFunction == Ease.EaseOutElastic)
+        if(easingFunction == Ease.EaseOutElastic)
         {
             return EaseOutElasticD;
         }
 
-        if (easingFunction == Ease.EaseInOutElastic)
+        if(easingFunction == Ease.EaseInOutElastic)
         {
             return EaseInOutElasticD;
         }

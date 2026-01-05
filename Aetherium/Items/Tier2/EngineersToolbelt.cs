@@ -74,20 +74,6 @@ namespace Aetherium.Items.Tier2
 
         public static NetworkSoundEventDef ToolbeltRepairSound;
 
-        private static readonly List<string> DronesList = new List<string>
-        {
-            "DroneBackup",
-            "Drone1",
-            "Drone2",
-            "EquipmentDrone",
-            "EmergencyDrone",
-            "FlameDrone",
-            "MegaDrone",
-            "DroneMissile",
-            "Turret1",
-            "DroneCommander"
-        };
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
@@ -334,35 +320,35 @@ namespace Aetherium.Items.Tier2
         public override void Hooks()
         {
             On.RoR2.PurchaseInteraction.OnInteractionBegin += DuplicateDronesAndTurrets;
-            //On.RoR2.CharacterAI.BaseAI.OnBodyDeath += ReviveDronesAndTurretsOld;
             On.RoR2.CharacterMaster.OnBodyDeath += ReviveDronesAndTurrets;
-            RoR2Application.onLoad += OnLoadModCompat;
         }
 
         private void ReviveDronesAndTurrets(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, CharacterMaster master, CharacterBody characterBody)
         {
-            if (NetworkServer.active && master && master.IsDeadAndOutOfLivesServer() && IsDroneSupported(master) && characterBody)
+            if(NetworkServer.active && master && characterBody && master.IsDeadAndOutOfLivesServer())
             {
-                MinionOwnership minionOwnership = master.minionOwnership;
-                if (minionOwnership && minionOwnership.ownerMaster)
+                if(!characterBody.bodyFlags.HasFlag(CharacterBody.BodyFlags.Mechanical))
                 {
-                    CharacterBody ownerBody = minionOwnership.ownerMaster.GetBody();
-                    if (ownerBody)
+                    orig(master, characterBody);
+                    return;
+                }
+
+                var minionOwnership = master.minionOwnership;
+                if(minionOwnership?.ownerMaster)
+                {
+                    var ownerBody = minionOwnership.ownerMaster.GetBody();
+                    if(ownerBody)
                     {
                         int inventoryCount = GetCount(ownerBody);
-                        if (inventoryCount > 0)
+                        if(inventoryCount > 0)
                         {
-                            bool shouldWeRevive = Util.CheckRoll(InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount) * 100, minionOwnership.ownerMaster);
-                            if (shouldWeRevive)
+                            float revivalChance = InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount) * 100;
+
+                            if(Util.CheckRoll(revivalChance, minionOwnership.ownerMaster))
                             {
-                                //var engineerRevivalComponent = self.gameObject.GetComponent<EngineersToolbeltRevivalComponent>();
-                                //if (!engineerRevivalComponent) { engineerRevivalComponent = self.gameObject.AddComponent<EngineersToolbeltRevivalComponent>(); }
-
-                                //engineerRevivalComponent.Owner = minionOwnership.ownerMaster;
-                                //engineerRevivalComponent.Master = self.master;
-
                                 master.inventory.GiveItem(RoR2Content.Items.ExtraLife);
-                                if (!characterBody.GetComponent<EngineersToolbeltRevivalFlag>())
+
+                                if(!characterBody.GetComponent<EngineersToolbeltRevivalFlag>())
                                 {
                                     characterBody.gameObject.AddComponent<EngineersToolbeltRevivalFlag>();
                                 }
@@ -371,201 +357,69 @@ namespace Aetherium.Items.Tier2
                     }
                 }
             }
+
             orig(master, characterBody);
-        }
-
-        private void OnLoadModCompat()
-        {
-
-            var commandoModel = BodyCatalog.FindBodyPrefab("CommandoBody").GetComponentInChildren<CharacterModel>();
-            if (commandoModel)
-            {
-                commandoModel.itemDisplayRuleSet.SetDisplayRuleGroup(ItemDef, new DisplayRuleGroup { rules = new ItemDisplayRule[]
-                        {
-
-                            new RoR2.ItemDisplayRule
-                            {
-                                ruleType = ItemDisplayRuleType.ParentedPrefab,
-                                followerPrefab = ItemBodyModelPrefab,
-                                childName = "Chest",
-                                localPos = new Vector3(0F, -0.043F, 0F),
-                                localAngles = new Vector3(0F, 90F, 0F),
-                                localScale = new Vector3(0.22F, 0.22F, 0.22F)
-                            }
-
-                        }
-                        });
-
-                commandoModel.itemDisplayRuleSet.GenerateRuntimeValues();
-                
-            }
         }
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
         {
-            if(NetworkServer.active && activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
+            orig(self, activator);
+
+            if(!NetworkServer.active) return;
+            if(!activator?.gameObject) return;
+            if(self.GetInteractability(activator) != Interactability.Available) return;
+
+            var characterBody = activator.gameObject.GetComponent<CharacterBody>();
+            if(!characterBody) return;
+
+            var inventoryCount = GetCount(characterBody);
+            if(inventoryCount <= 0) return;
+
+            var characterMaster = characterBody.master;
+            if(!characterMaster) return;
+
+            var summonMasterBehavior = self.gameObject.GetComponent<SummonMasterBehavior>();
+            if(!summonMasterBehavior?.masterPrefab) return;
+
+            var masterPrefabMaster = summonMasterBehavior.masterPrefab.GetComponent<CharacterMaster>();
+            if(!masterPrefabMaster?.bodyPrefab) return;
+
+            var duplicationBody = masterPrefabMaster.bodyPrefab.GetComponent<CharacterBody>();
+            if(!duplicationBody) return;
+
+            if(!duplicationBody.bodyFlags.HasFlag(CharacterBody.BodyFlags.Mechanical)) return;
+
+            if(!Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
+                return;
+
+            Vector3 chosenPosition = FindClosestNodeToPosition(
+                RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng),
+                duplicationBody.hullClassification
+            );
+
+            CharacterMaster summonedDrone = new MasterSummon()
             {
-                var characterBody = activator.gameObject.GetComponent<CharacterBody>();
+                masterPrefab = summonMasterBehavior.masterPrefab,
+                position = chosenPosition,
+                rotation = self.transform.rotation,
+                summonerBodyObject = activator.gameObject,
+                ignoreTeamMemberLimit = true,
+            }.Perform();
 
-                if (characterBody)
-                {
-                    var inventoryCount = GetCount(characterBody);
+            if(!summonedDrone) return;
 
-                    if(inventoryCount > 0)
-                    {
-                        var characterMaster = characterBody.master;
-
-                        if (characterMaster)
-                        {
-                            var summonMasterBehavior = self.gameObject.GetComponent<SummonMasterBehavior>();
-
-                            if (summonMasterBehavior)
-                            {
-                                var masterPrefab = summonMasterBehavior.masterPrefab;
-
-                                if (masterPrefab)
-                                {
-                                    var masterPrefabMaster = masterPrefab.GetComponent<CharacterMaster>();
-
-                                    if (masterPrefabMaster && IsDroneSupported(masterPrefabMaster.name))
-                                    {
-                                        var masterPrefabBodyPrefab = masterPrefabMaster.bodyPrefab;
-
-                                        if (masterPrefabBodyPrefab)
-                                        {
-                                            var duplicationBody = masterPrefabBodyPrefab.GetComponent<CharacterBody>();
-
-                                            if (duplicationBody)
-                                            {
-                                                if (Util.CheckRoll(InverseHyperbolicScaling(BaseDuplicationPercentChance, AdditionalDuplicationPercentChance, 1, inventoryCount) * 100, characterBody.master))
-                                                {
-                                                    Vector3 chosenPosition = FindClosestNodeToPosition(RandomPointOnCircle(self.transform.position, 5, Run.instance.stageRng), duplicationBody.hullClassification);
-
-                                                    CharacterMaster summonedDrone = new MasterSummon()
-                                                    {
-                                                        masterPrefab = masterPrefab,
-                                                        position = chosenPosition,
-                                                        rotation = self.transform.rotation,
-                                                        summonerBodyObject = activator.gameObject,
-                                                        ignoreTeamMemberLimit = true,
-                                                    }.Perform();
-
-                                                    if (summonedDrone)
-                                                    {
-                                                        if (masterPrefab.name.Contains("EquipmentDrone"))
-                                                        {
-                                                            summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
-                                                        }
-
-                                                        if (EnableSounds)
-                                                        {
-                                                            EntitySoundManager.EmitSoundServer(ToolbeltRepairSound.akId, summonedDrone.gameObject);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if(summonMasterBehavior.masterPrefab.name.Contains("EquipmentDrone"))
+            {
+                summonedDrone.inventory.CopyEquipmentFrom(characterBody.inventory);
             }
 
-            orig(self, activator);
+            if(EnableSounds)
+            {
+                EntitySoundManager.EmitSoundServer(ToolbeltRepairSound.akId, summonedDrone.gameObject);
+            }
         }
 
-        //private void ReviveDronesAndTurretsOld(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
-        //{
-        //    if (NetworkServer.active && characterBody)
-        //    {
-        //        CharacterMaster master = self.master;
-        //        if (master && master.IsDeadAndOutOfLivesServer() && IsDroneSupported(master))
-        //        {
-        //            MinionOwnership minionOwnership = master.minionOwnership;
-        //            if (minionOwnership && minionOwnership.ownerMaster)
-        //            {
-        //                CharacterBody ownerBody = minionOwnership.ownerMaster.GetBody();
-        //                if (ownerBody)
-        //                {
-        //                    int inventoryCount = GetCount(ownerBody);
-        //                    if (inventoryCount > 0)
-        //                    {
-        //                        bool shouldWeRevive = Util.CheckRoll(InverseHyperbolicScaling(BaseRevivalPercentChance, AdditionalRevivalPercentChance, 1, inventoryCount) * 100, minionOwnership.ownerMaster);
-        //                        if (shouldWeRevive)
-        //                        {
-        //                            //var engineerRevivalComponent = self.gameObject.GetComponent<EngineersToolbeltRevivalComponent>();
-        //                            //if (!engineerRevivalComponent) { engineerRevivalComponent = self.gameObject.AddComponent<EngineersToolbeltRevivalComponent>(); }
 
-        //                            //engineerRevivalComponent.Owner = minionOwnership.ownerMaster;
-        //                            //engineerRevivalComponent.Master = self.master;
-
-        //                            master.destroyOnBodyDeath = false;
-        //                            master.RespawnExtraLife();
-
-        //                            return;
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    orig(self, characterBody);
-        //}
-
-        private bool IsDroneSupported(CharacterMaster botMaster)
-        {
-            return IsDroneSupported(botMaster.name);
-        }
-
-        private bool IsDroneSupported(string botMasterName)
-        {
-            return DronesList.Exists((droneSubstring) => { return botMasterName.Contains(droneSubstring); });
-        }
-
-        /// <summary>
-        /// Allows a custom drone to be revived by Engineer's Toolbelt.
-        /// </summary>
-        /// <param name="bodyName">The CharacterBody name of the custom drone.</param>
-        /// <returns>True if the custom drone is now supported. False if the custom drone is already supported.</returns>
-        public bool AddCustomDrone(string bodyName)
-        {
-            if (DronesList.Exists(item => item == bodyName)) return false;
-            DronesList.Add(bodyName);
-            return true;
-        }
-
-        //public class EngineersToolbeltRevivalComponent : MonoBehaviour
-        //{
-        //    public CharacterMaster Owner;
-        //    public CharacterMaster Master;
-
-        //    public void FixedUpdate()
-        //    {
-        //        if (Master && Master.hasBody && Master.GetBody().healthComponent.alive)
-        //        {
-        //            Master.destroyOnBodyDeath = true;
-
-        //            foreach (BaseAI ai in Master.aiComponents)
-        //            {
-        //                ai.leader.gameObject = Owner.gameObject;
-        //            }
-
-        //            var aiOwnership = Master.GetComponent<AIOwnership>();
-        //            aiOwnership.ownerMaster = Owner;
-
-        //            Master.minionOwnership.SetOwner(Owner);
-        //            Master.teamIndex = Owner.teamIndex;
-        //            UnityEngine.Object.Destroy(this);
-        //        }
-        //    }
-        //}
-
-        /// <summary>
-        /// A component flag for checking if the drone is revived by means of the effect of Engineer's Toolbelt.
-        /// </summary>
         public class EngineersToolbeltRevivalFlag : MonoBehaviour
         {
             public CharacterMaster ownerMaster;

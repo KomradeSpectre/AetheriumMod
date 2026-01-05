@@ -7,27 +7,20 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Aetherium.Utils;
-
-using static Aetherium.AetheriumPlugin;
-using static Aetherium.Utils.MathHelpers;
-
 using RoR2.Projectile;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
+using static Aetherium.Utils.MathHelpers;
 using static Aetherium.Utils.MiscHelpers;
-using System.Runtime.CompilerServices;
-using Aetherium.Utils.Components;
-using System.Linq;
 
 namespace Aetherium.Items.Tier1
 {
     public class NailBomb : ItemBase<NailBomb>
     {
         public static ConfigOption<bool> UseAlternateImplementation;
-
         public static ConfigOption<Vector3> NailBombChildDirectionVector;
         public static ConfigOption<float> NailBombChildMinSpreadAngle;
         public static ConfigOption<float> NailBombChildMaxSpreadAngle;
-
         public static ConfigOption<float> NailBombAbsurdityLimiterCooldown;
         public static ConfigOption<float> PercentDamageThresholdRequiredToActivate;
         public static ConfigOption<int> AmountOfNailsPerNailBomb;
@@ -36,42 +29,19 @@ namespace Aetherium.Items.Tier1
         public static ConfigOption<float> NailBombDropDelay;
         public static ConfigOption<float> DurationPercentageReducedByWithAdditionalStacks;
 
-
         public override string ItemName => "Nail Bomb";
-
         public override string ItemLangTokenName => "NAIL_BOMB";
-
         public override string ItemPickupDesc => UseAlternateImplementation ? $"Occasionally drop a shrapnel grenade from your position that explodes after a delay." : $"Attacks that deal <style=cIsDamage>high damage</style> release a shrapnel grenade that explodes after a delay.";
-
         public override string ItemFullDescription => UseAlternateImplementation ? $"After <style=cIsDamage>{NailBombDropDelay}</style> second(s) <style=cStack>(-{FloatToPercentageString(DurationPercentageReducedByWithAdditionalStacks)} per stack)</style> you will drop <style=cIsDamage>a shrapnel grenade from your current position</style> that explodes for <style=cIsDamage>{AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage</style> <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack)</style>. The shrapnel has a high chance to trigger <style=cIsDamage>On-Hit</style> effects." : $"Attacks that deal <style=cIsDamage>{FloatToPercentageString(PercentDamageThresholdRequiredToActivate)} damage or more</style> release a <style=cIsDamage>shrapnel grenade</style> that explodes for <style=cIsDamage>{AmountOfNailsPerNailBomb}x{FloatToPercentageString(PercentDamagePerNailInNailBomb)} of your damage</style> <style=cStack>(+{FloatToPercentageString(PercentDamageBonusOfAdditionalStacks)} more per stack)</style>. Enemies hit that launched a nail bomb are granted <style=cIsUtility>{NailBombAbsurdityLimiterCooldown} second(s) of immunity</style> to the effect.";
-
-        public override string ItemLore => "[Attached to this box is a strange note covered in letters cut from various sources.]\n\n" +
-            "Hello there!\n\n" +
-
-            "If you're reading this, then the mail service has done their job in sending this parcel to the right person. I just want you to know the following: Screw you! " +
-            "Not only did you steal my job, you took almost all my possessions from me before fleeing to some deep sector of space and now I'm giving you what you forgot to take!\n\n" +
-
-            "That's right, open up the package! See that? You probably did shortly before it went off, but now I imagine you're not reading this anymore if my device worked. If you're not the person I sent this to, and " +
-            "you're only finding the note next to some poor schmuck covered in nails, they got what was coming to them. I've attached the blueprints on how I built this thing in a secret compartment inside the bottom " +
-            "of the box.\n\n" +
-
-            "Bury the body, take the design, and stay quiet about this. It can be our little secret.\n\n" +
-            
-            "Sincerely,\n" +
-            "Jeb Labinsky";
+        public override string ItemLore => "Bury the body, take the design, and stay quiet about this. It can be our little secret.\n\nSincerely,\nJeb Labinsky";
 
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Damage };
-
         public override ItemTier Tier => UseAlternateImplementation ? ItemTier.Tier2 : ItemTier.Tier1;
-
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("PickupNailBomb.prefab");
-
         public override Sprite ItemIcon => UseAlternateImplementation ? MainAssets.LoadAsset<Sprite>("NailBombIconTier2.png") : MainAssets.LoadAsset<Sprite>("NailBombIconTier1.png");
 
         public static GameObject ItemBodyModelPrefab;
-
         public static GameObject NailBombProjectileMain;
-
         public static GameObject NailBombNailEffect;
         public static GameObject NailBombNailTracerEffect;
         public static GameObject NailBombShrapnelEffect;
@@ -79,12 +49,9 @@ namespace Aetherium.Items.Tier1
         public static BuffDef NailBombCooldownDebuff;
         public static BuffDef NailBombImmunityBuff;
 
-        public static NetworkSoundEventDef NailBombTracerSound;
-
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
-            //CreateAchievement();
             CreateLang();
             CreateBuff();
             CreateEffect();
@@ -96,13 +63,11 @@ namespace Aetherium.Items.Tier1
         private void CreateConfig(ConfigFile config)
         {
             UseAlternateImplementation = config.ActiveBind<bool>("Item: " + ItemName, "Use Alternate Item Implementation?", false, "If true, Nail Bomb drops from your position after a delay.");
-
             NailBombChildDirectionVector = config.ActiveBind<Vector3>("Item: " + ItemName, "Nail Bomb Child Direction Vector", Vector3.down, "What world relative vector should we fire the Nail Bomb's child projectiles?");
             NailBombChildMinSpreadAngle = config.ActiveBind<float>("Item: " + ItemName, "Nail Bomb Child Min Spread Angle", 0, "What should be the most minimal spread angle of the Nail Bomb's child projectiles?");
             NailBombChildMaxSpreadAngle = config.ActiveBind<float>("Item: " + ItemName, "Nail Bomb Child Max Spread Angle", 45, "What should be the most maximal spread angle of the Nail Bomb's child projectiles?");
-
             PercentDamageThresholdRequiredToActivate = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Threshold Required to Activate Effect", 1.2f, "What percentage of damage should we deal in a single hit to activate the effect of this item?");
-            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 20, "How many nails should get released upon explosion of the projectile?");
+            AmountOfNailsPerNailBomb = config.ActiveBind<int>("Item: " + ItemName, "Amount of Nails per Nail Bomb", 32, "How many nails should get released upon explosion of the projectile?");
             PercentDamagePerNailInNailBomb = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage per Nail in Nail Bomb", 0.3f, "What percentage of damage should each nail in the nail bomb deal?");
             PercentDamageBonusOfAdditionalStacks = config.ActiveBind<float>("Item: " + ItemName, "Percent Damage Bonus of Additional Stacks", 0.5f, "What additional percentage of the body's damage should be given per additional stacks of Nail Bomb?");
             NailBombAbsurdityLimiterCooldown = config.ActiveBind<float>("Item: " + ItemName, "Cooldown for Nail Bomb Absurdity Limiter", 2, "What should be the immunity duration to the effect of Nail Bomb implementation 1 for enemies? (if 0, you will regret its absurdity)");
@@ -118,7 +83,6 @@ namespace Aetherium.Items.Tier1
             NailBombCooldownDebuff.canStack = false;
             NailBombCooldownDebuff.isDebuff = true;
             NailBombCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
-
             ContentAddition.AddBuffDef(NailBombCooldownDebuff);
 
             NailBombImmunityBuff = ScriptableObject.CreateInstance<BuffDef>();
@@ -127,55 +91,39 @@ namespace Aetherium.Items.Tier1
             NailBombImmunityBuff.canStack = false;
             NailBombImmunityBuff.isDebuff = false;
             NailBombImmunityBuff.iconSprite = MainAssets.LoadAsset<Sprite>("NailBombNailCooldownIcon.png");
-
             ContentAddition.AddBuffDef(NailBombImmunityBuff);
         }
-
 
         public void CreateEffect()
         {
             NailBombNailEffect = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/effects/impacteffects/ImpactNailgun"), "NailBombNailImpact");
-
-            NailBombTracerSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
-            NailBombTracerSound.eventName = "Aetherium_Nailbomb_Nail_Impact";
-            R2API.ContentAddition.AddNetworkSoundEventDef(NailBombTracerSound);
-
-            var normalEffectComponent = NailBombNailEffect.GetComponent<EffectComponent>();
-            normalEffectComponent.soundName = "Aetherium_Nailbomb_Nail_Impact";
-
             NailBombNailEffect.AddComponent<NetworkIdentity>();
+
+            var effectComponent = NailBombNailEffect.GetComponent<EffectComponent>();
+            effectComponent.soundName = "";
 
             NailBombShrapnelEffect = MainAssets.LoadAsset<GameObject>("NailBombShrapnelEffect.prefab");
             NailBombShrapnelEffect.AddComponent<NetworkIdentity>();
-
             var shrapnelEffectComponent = NailBombShrapnelEffect.AddComponent<EffectComponent>();
             shrapnelEffectComponent.applyScale = true;
+            shrapnelEffectComponent.soundName = "Aetherium_Nailbomb_Nail_Impact";
 
             var particleKiller = NailBombShrapnelEffect.AddComponent<DestroyOnParticleEnd>();
             particleKiller.trackedParticleSystem = NailBombShrapnelEffect.GetComponent<ParticleSystem>();
-
             var shrapnelVFXComponent = NailBombShrapnelEffect.AddComponent<VFXAttributes>();
             shrapnelVFXComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
             shrapnelVFXComponent.vfxPriority = VFXAttributes.VFXPriority.Medium;
 
             NailBombNailTracerEffect = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/tracers/TracerToolbotNails"), "NailBombNailTracer");
-
             var vfxComponent = NailBombNailTracerEffect.AddComponent<VFXAttributes>();
             vfxComponent.vfxIntensity = VFXAttributes.VFXIntensity.Low;
             vfxComponent.vfxPriority = VFXAttributes.VFXPriority.Medium;
-
-            var smokeLine = NailBombNailTracerEffect.transform.Find("SmokeLine").gameObject;
-            if (smokeLine) { UnityEngine.Object.Destroy(smokeLine); }
-
+            var smokeLine = NailBombNailTracerEffect.transform.Find("SmokeLine")?.gameObject;
+            if(smokeLine) UnityEngine.Object.Destroy(smokeLine);
             NailBombNailTracerEffect.AddComponent<NetworkIdentity>();
 
-            if (NailBombNailEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailEffect); }
             ContentAddition.AddEffect(NailBombNailEffect);
-
-            if (NailBombShrapnelEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombShrapnelEffect); }
             ContentAddition.AddEffect(NailBombShrapnelEffect);
-
-            if (NailBombNailTracerEffect) { PrefabAPI.RegisterNetworkPrefab(NailBombNailTracerEffect); }
             ContentAddition.AddEffect(NailBombNailTracerEffect);
         }
 
@@ -184,7 +132,7 @@ namespace Aetherium.Items.Tier1
             NailBombProjectileMain = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/EngiGrenadeProjectile"), "NailBombProjectile", true);
 
             var networkIdentityMain = NailBombProjectileMain.GetComponent<NetworkIdentity>();
-            if (!networkIdentityMain) { NailBombProjectileMain.AddComponent<NetworkIdentity>(); }
+            if(!networkIdentityMain) NailBombProjectileMain.AddComponent<NetworkIdentity>();
 
             var model = MainAssets.LoadAsset<GameObject>("NailBombProjectile.prefab");
             model.AddComponent<ProjectileGhostController>();
@@ -204,53 +152,104 @@ namespace Aetherium.Items.Tier1
             velocityRandom.minSpeed = 15;
             velocityRandom.maxSpeed = 20;
 
-            var velocityDetonate = NailBombProjectileMain.AddComponent<ProjectileVelocityDetonate>();
-            velocityDetonate.DetonationEffect = NailBombShrapnelEffect;
-
-            /*var flicker = model.AddComponent<FlickerHGStandardEmission>();
-            flicker.renderers = new Renderer[]
-            {
-                model.transform.Find("_mdlNailBomb/Display").GetComponent<Renderer>()
-            };
-            flicker.StartIntensity = 6;
-            flicker.Interval = 0.01f;*/
-
-
             UnityEngine.Object.Destroy(NailBombProjectileMain.GetComponent<ProjectileImpactExplosion>());
 
-            var impactExplosion = NailBombProjectileMain.AddComponent<ProjectileFixedImpactExplosion>();
-            impactExplosion.ChildBulletAttack = true;
-            impactExplosion.childTracerPrefab = NailBombNailTracerEffect;
-            impactExplosion.childHitEffectPrefab = NailBombNailEffect;
-            impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
-            //impactExplosion.explosionEffect = Resources.Load<GameObject>("prefabs/effects/omnieffect/OmniExplosionVFX.prefab");
-            impactExplosion.blastRadius = 2;
-            impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
-            impactExplosion.fireChildren = true;
-            impactExplosion.MinDeviationAngle = NailBombChildMinSpreadAngle;
-            impactExplosion.MaxDeviationAngle = NailBombChildMaxSpreadAngle;
-            impactExplosion.Direction = NailBombChildDirectionVector;
-            impactExplosion.transformSpace = ProjectileFixedImpactExplosion.TransformSpace.World;
-            impactExplosion.destroyOnEnemy = false;
-            impactExplosion.destroyOnWorld = false;
-            impactExplosion.lifetime = 2;
-            impactExplosion.lifetimeAfterImpact = 0.2f;
+            var detonator = NailBombProjectileMain.AddComponent<NailBombDetonator>();
+            detonator.DetonationEffect = NailBombShrapnelEffect;
+            detonator.TracerEffect = NailBombNailTracerEffect;
+            detonator.HitEffect = NailBombNailEffect;
+            detonator.NailCount = AmountOfNailsPerNailBomb;
+            detonator.DamageCoefficient = PercentDamagePerNailInNailBomb;
+            detonator.MinSpread = NailBombChildMinSpreadAngle;
+            detonator.MaxSpread = NailBombChildMaxSpreadAngle;
+            detonator.Direction = NailBombChildDirectionVector;
+            detonator.Lifetime = 0.5f;
 
             PrefabAPI.RegisterNetworkPrefab(NailBombProjectileMain);
             ContentAddition.AddProjectile(NailBombProjectileMain);
-
         }
 
-        private void CreateAchievement()
+        public class NailBombDetonator : NetworkBehaviour
         {
-            if (RequireUnlock)
+            public GameObject DetonationEffect;
+            public GameObject TracerEffect;
+            public GameObject HitEffect;
+
+            public int NailCount = 20;
+            public float DamageCoefficient = 0.3f;
+            public float MinSpread = 0;
+            public float MaxSpread = 90;
+            public Vector3 Direction = Vector3.down;
+            public float Lifetime = 2f;
+
+            private ProjectileController _projectileController;
+            private ProjectileDamage _projectileDamage;
+            private bool _hasDetonated;
+
+            public void Start()
             {
-                var achievement = new NailBombAchievement();
-                achievement.Init();
-                if (achievement.UnlockableDef)
+                _projectileController = GetComponent<ProjectileController>();
+                _projectileDamage = GetComponent<ProjectileDamage>();
+            }
+
+            public void FixedUpdate()
+            {
+                if(!NetworkServer.active) return;
+
+                Lifetime -= Time.fixedDeltaTime;
+                if(Lifetime <= 0 && !_hasDetonated)
                 {
-                    ItemUnlockableDef = achievement.UnlockableDef;
+                    Detonate();
                 }
+            }
+
+            private void Detonate()
+            {
+                _hasDetonated = true;
+
+                if(DetonationEffect)
+                {
+                    EffectManager.SpawnEffect(DetonationEffect, new EffectData
+                    {
+                        origin = transform.position,
+                        scale = 1f
+                    }, true);
+                }
+
+                if(_projectileController && _projectileController.owner)
+                {
+                    Vector3 fireOrigin = transform.position + (Vector3.up * 0.5f);
+
+                    BulletAttack attack = new BulletAttack
+                    {
+                        owner = _projectileController.owner,
+                        weapon = gameObject,
+                        origin = fireOrigin,                        
+
+                        aimVector = new Vector3(0.001f, -1f, 0.001f).normalized,
+
+                        minSpread = 0,
+                        maxSpread = 45,
+                        spreadPitchScale = 1f,
+                        spreadYawScale = 1f,
+
+                        bulletCount = (uint)NailCount,
+                        damage = _projectileDamage.damage * DamageCoefficient,
+                        force = 300f,
+                        tracerEffectPrefab = TracerEffect,
+                        hitEffectPrefab = HitEffect,
+                        procCoefficient = 0.5f,
+                        isCrit = _projectileDamage.crit,
+                        radius = 1f,
+                        smartCollision = true,
+                        
+                        maxDistance = 20f     
+                    };
+
+                    attack.Fire();
+                }
+
+                Destroy(gameObject);
             }
         }
 
@@ -468,10 +467,9 @@ namespace Aetherium.Items.Tier1
             return rules;
         }
 
-
         public override void Hooks()
         {
-            if (UseAlternateImplementation)
+            if(UseAlternateImplementation)
             {
                 On.RoR2.CharacterBody.FixedUpdate += FireNailBombFromBody;
             }
@@ -483,72 +481,59 @@ namespace Aetherium.Items.Tier1
 
         private void FireNailBombFromBody(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
         {
-            var inventoryCount = GetCount(self);
-            if(inventoryCount > 0 && self)
-            {
-                if (!self.HasBuff(NailBombCooldownDebuff))
-                {
-                    var chosenPosition = AboveTargetBody(self, 3);
-                    FireProjectileInfo fireProjectileInfo = new FireProjectileInfo()
-                    {
-                        projectilePrefab = NailBombProjectileMain,
-                        owner = self.gameObject,
-                        damage = self.damage + (self.damage * (PercentDamageBonusOfAdditionalStacks * (inventoryCount - 1))),
-                        position = chosenPosition.Value,
-                        damageTypeOverride = null,
-                        damageColorIndex = DamageColorIndex.Default,
-                        procChainMask = default
-                    };
-
-                    ProjectileManager.instance.FireProjectile(fireProjectileInfo);
-
-                    self.AddTimedBuff(NailBombCooldownDebuff, NailBombDropDelay / (1 + DurationPercentageReducedByWithAdditionalStacks * (inventoryCount - 1)));
-                }
-            }
-
             orig(self);
+            if(!self || !self.HasBuff(NailBombCooldownDebuff)) return;
+
+            var inventoryCount = GetCount(self);
+            if(inventoryCount > 0)
+            {
+                var chosenPosition = AboveTargetBody(self, 3);
+                FireProjectileInfo fireProjectileInfo = new FireProjectileInfo()
+                {
+                    projectilePrefab = NailBombProjectileMain,
+                    owner = self.gameObject,
+                    damage = self.damage + (self.damage * (PercentDamageBonusOfAdditionalStacks * (inventoryCount - 1))),
+                    position = chosenPosition.Value,
+                    damageTypeOverride = null,
+                    damageColorIndex = DamageColorIndex.Default,
+                    procChainMask = default
+                };
+
+                ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+
+                self.AddTimedBuff(NailBombCooldownDebuff, NailBombDropDelay / (1 + DurationPercentageReducedByWithAdditionalStacks * (inventoryCount - 1)));
+            }
         }
 
         private void FireNailBomb(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject victim)
         {
-            if (damageInfo.rejected || damageInfo.procCoefficient <= 0)
+            if(damageInfo.rejected || damageInfo.procCoefficient <= 0 || !damageInfo.attacker)
             {
                 orig(self, damageInfo, victim);
                 return;
             }
 
-            var attacker = damageInfo.attacker;
-            if (attacker)
+            var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
+            if(attackerBody)
             {
-                var body = attacker.GetComponent<CharacterBody>();
-                var victimBody = victim.GetComponent<CharacterBody>();
-                if (body && victimBody)
+                var inventoryCount = GetCount(attackerBody);
+                if(inventoryCount > 0)
                 {
-                    if(victimBody.HasBuff(NailBombImmunityBuff))
+                    var victimBody = victim.GetComponent<CharacterBody>();
+                    if(victimBody && !victimBody.HasBuff(NailBombImmunityBuff))
                     {
-                        orig(self, damageInfo, victim);
-                        return;
-                    }
-
-                    var InventoryCount = GetCount(body);
-                    if (InventoryCount > 0)
-                    {
-                        if (damageInfo.damage / body.damage >= PercentDamageThresholdRequiredToActivate )
+                        if(damageInfo.damage / attackerBody.damage >= PercentDamageThresholdRequiredToActivate)
                         {
                             var positionChosen = AboveTargetVectorFromDamageInfo(damageInfo, 3);
 
-                            FireProjectileInfo newProjectileLaunch = new FireProjectileInfo()
+                            ProjectileManager.instance.FireProjectile(new FireProjectileInfo
                             {
                                 projectilePrefab = NailBombProjectileMain,
-                                owner = body.gameObject,
-                                damage = body.damage + (body.damage * (PercentDamageBonusOfAdditionalStacks * (InventoryCount - 1))),
-                                position = positionChosen.HasValue ? positionChosen.Value : damageInfo.position,
-                                damageTypeOverride = null,
-                                damageColorIndex = DamageColorIndex.Default,
-                                procChainMask = default,
-                            };
-
-                            ProjectileManager.instance.FireProjectile(newProjectileLaunch);
+                                owner = attackerBody.gameObject,
+                                damage = attackerBody.damage + (attackerBody.damage * (PercentDamageBonusOfAdditionalStacks * (inventoryCount - 1))),
+                                position = positionChosen ?? damageInfo.position,
+                                crit = attackerBody.RollCrit()
+                            });
 
                             victimBody.AddTimedBuff(NailBombImmunityBuff, NailBombAbsurdityLimiterCooldown);
                         }

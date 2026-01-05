@@ -49,7 +49,7 @@ namespace Aetherium.Utils.Easings
             nPts = last - first + 1;
 
             /*  Use heuristic if region only has two Vector2s in it */
-            if (nPts == 2)
+            if(nPts == 2)
             {
                 float dist = (d[first] - d[last]).magnitude / 3.0f;
 
@@ -71,7 +71,7 @@ namespace Aetherium.Utils.Easings
 
             /*  Find max deviation of Vector2s to fitted curve */
             maxError = ComputeMaxError(d, first, last, bezCurve, u, out splitVector2);
-            if (maxError < error)
+            if(maxError < error)
             {
                 result.Add(bezCurve[1]);
                 result.Add(bezCurve[2]);
@@ -82,7 +82,7 @@ namespace Aetherium.Utils.Easings
 
             /*  If error not too large, try some reparameterization  */
             /*  and iteration */
-            if (maxError < iterationError)
+            if(maxError < iterationError)
             {
                 for (i = 0; i < maxIterations; i++)
                 {
@@ -90,7 +90,7 @@ namespace Aetherium.Utils.Easings
                     bezCurve = GenerateBezier(d, first, last, uPrime, tHat1, tHat2);
                     maxError = ComputeMaxError(d, first, last,
                                bezCurve, uPrime, out splitVector2);
-                    if (maxError < error)
+                    if(maxError < error)
                     {
                         result.Add(bezCurve[1]);
                         result.Add(bezCurve[2]);
@@ -181,7 +181,7 @@ namespace Aetherium.Utils.Easings
              * divide by zero in any subsequent NewtonRaphsonRootFind() call. */
             float segLength = (d[first] - d[last]).magnitude;
             float epsilon = 1.0e-6f * segLength;
-            if (alpha_l < epsilon || alpha_r < epsilon)
+            if(alpha_l < epsilon || alpha_r < epsilon)
             {
                 /* fall back on standard (probably inaccurate) formula, and subdivide further if needed. */
                 float dist = segLength / 3.0f;
@@ -261,7 +261,7 @@ namespace Aetherium.Utils.Easings
             numerator = (Q_u.x - P.x) * (Q1_u.x) + (Q_u.y - P.y) * (Q1_u.y);
             denominator = (Q1_u.x) * (Q1_u.x) + (Q1_u.y) * (Q1_u.y) +
                           (Q_u.x - P.x) * (Q2_u.x) + (Q_u.y - P.y) * (Q2_u.y);
-            if (denominator == 0.0f) return u;
+            if(denominator == 0.0f) return u;
 
             /* u = u - f(u)/f'(u) */
             uPrime = u - (numerator / denominator);
@@ -411,7 +411,7 @@ namespace Aetherium.Utils.Easings
                 P = BezierII(3, bezCurve, u[i - first]);
                 v = P - d[i];
                 dist = v.sqrMagnitude;
-                if (dist >= maxDist)
+                if(dist >= maxDist)
                 {
                     maxDist = dist;
                     splitVector2 = i;

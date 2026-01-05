@@ -14,7 +14,7 @@ namespace Aetherium.Effect
 
         public override void Begin()
         {
-            if (Target)
+            if(Target)
             {
                 duration = OverrideDuration;
                 EffectData effectData = new EffectData

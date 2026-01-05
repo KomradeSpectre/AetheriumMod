@@ -15,11 +15,11 @@ namespace Aetherium.States.Survivor.Koalesk.Utility.ShadowDance
         public override void OnEnter()
         {
             var childLocator = GetModelChildLocator();
-            if (childLocator)
+            if(childLocator)
             {
                 var arm = childLocator.FindChild("HandL");
                 var hitPoint = Utils.MiscHelpers.RaycastToDirection(arm ? arm.position : characterBody.corePosition, 500, GetAimRay().direction, LayerIndex.world.intVal);
-                if (hitPoint.HasValue)
+                if(hitPoint.HasValue)
                 {
                     ChosenHitPosition = hitPoint;
                 }
@@ -36,12 +36,12 @@ namespace Aetherium.States.Survivor.Koalesk.Utility.ShadowDance
         {
             base.FixedUpdate();
 
-            if (!IsKeyDownAuthority())
+            if(!IsKeyDownAuthority())
             {
                 outer.SetNextStateToMain();
             }
 
-            if (ChosenHitPosition.HasValue)
+            if(ChosenHitPosition.HasValue)
             {
                 ModLogger.LogError($"D");
                 var closestPointOnSphere = Utils.MathHelpers.ClosestPointOnSphereToPoint(ChosenHitPosition.Value, 10, characterBody.corePosition);
@@ -61,7 +61,7 @@ namespace Aetherium.States.Survivor.Koalesk.Utility.ShadowDance
                 };
 
                 var characterMotor = characterBody.characterMotor;
-                if (characterMotor)
+                if(characterMotor)
                 {
                     characterMotor.ApplyForceImpulseFixed(physInfo);
                 }

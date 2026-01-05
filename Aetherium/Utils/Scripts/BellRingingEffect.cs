@@ -20,7 +20,7 @@ public class BellRingingEffect : NetworkBehaviour
 	public void RingBell()
 	{
 		BellParticleSystem.Play();
-        if (NetworkServer.active)
+        if(NetworkServer.active)
         {
             var bellEffectArea = gameObject.transform.Find("EffectArea").gameObject;
             EntitySoundManager.EmitSoundServer(BellTotem.BellRingingSound.akId, gameObject);
@@ -34,13 +34,13 @@ public class BellRingingEffect : NetworkBehaviour
 
             new RoR2.BlastAttack()
             {
-                attacker = Attacker.gameObject,
+                attacker = Attacker ? Attacker.gameObject : null,
                 position = bellEffectArea.transform.position,
                 damageType = RoR2.DamageType.Stun1s,
                 baseForce = BellTotem.ForceOfBellRinging,
                 radius = BellTotem.RadiusOfBellRinging,
                 inflictor = bellEffectArea,
-                teamIndex = Attacker.teamComponent.teamIndex
+                teamIndex = Attacker ? Attacker.teamComponent.teamIndex : TeamIndex.Player,
             }.Fire();
         }
 	}

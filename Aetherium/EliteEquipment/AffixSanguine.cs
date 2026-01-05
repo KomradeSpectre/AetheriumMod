@@ -17,6 +17,7 @@ using R2API.Networking;
 using Aetherium.Utils;
 using static R2API.DamageAPI;
 using UnityEngine.AddressableAssets;
+using Aetherium.States.EliteEquipment.AffixSanguine;
 
 namespace Aetherium.EliteEquipment
 {
@@ -1132,10 +1133,10 @@ namespace Aetherium.EliteEquipment
 
         private void BleedOnHit(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
-            if (damageInfo.attacker && !damageInfo.rejected)
+            if(damageInfo.attacker && !damageInfo.rejected)
             {
                 var body = damageInfo.attacker.GetComponent<CharacterBody>();
-                if (body && body.inventory && (body.inventory.currentEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.inventory.alternateEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.HasBuff(EliteBuffDef)))
+                if(body && body.inventory && (body.inventory.currentEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.inventory.alternateEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.HasBuff(EliteBuffDef)))
                 {
                     InflictDotInfo dotInfo = new InflictDotInfo()
                     {
@@ -1158,7 +1159,7 @@ namespace Aetherium.EliteEquipment
             if(equipmentDef == EliteEquipmentDef && !self.isPlayerControlled)
             {
                 var abyssalController = self.GetComponent<SanguineController>();
-                if (!abyssalController && !NoAbyssalControllerForTheseBodies.Any(x => self.name.Contains(x)))
+                if(!abyssalController && !NoAbyssalControllerForTheseBodies.Any(x => self.name.Contains(x)))
                 {
                     abyssalController = self.gameObject.AddComponent<SanguineController>();
                 }
@@ -1167,10 +1168,10 @@ namespace Aetherium.EliteEquipment
 
         private void RemoveSanguineController(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EliteEquipmentDef)
+            if(equipmentDef == EliteEquipmentDef)
             {
                 var abyssalController = self.GetComponent<SanguineController>();
-                if (abyssalController)
+                if(abyssalController)
                 {
                     UnityEngine.Object.Destroy(abyssalController);
                 }
@@ -1181,10 +1182,10 @@ namespace Aetherium.EliteEquipment
         private void GiveSanguineControllerOnBuff(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)
         {
             orig(self, buffDef);
-            if (buffDef == EliteBuffDef && !self.isPlayerControlled)
+            if(buffDef == EliteBuffDef && !self.isPlayerControlled)
             {
                 var abyssalController = self.GetComponent<SanguineController>();
-                if (!abyssalController && !NoAbyssalControllerForTheseBodies.Any(x => self.name.Contains(x)))
+                if(!abyssalController && !NoAbyssalControllerForTheseBodies.Any(x => self.name.Contains(x)))
                 {
                     abyssalController = self.gameObject.AddComponent<SanguineController>();
                 }
@@ -1193,10 +1194,10 @@ namespace Aetherium.EliteEquipment
 
         private void RemoveSanguineControllerOnBuff(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, CharacterBody self, BuffDef buffDef)
         {
-            if (buffDef == EliteBuffDef)
+            if(buffDef == EliteBuffDef)
             {
                 var abyssalController = self.GetComponent<SanguineController>();
-                if (abyssalController)
+                if(abyssalController)
                 {
                     UnityEngine.Object.Destroy(abyssalController);
                 }
@@ -1207,9 +1208,9 @@ namespace Aetherium.EliteEquipment
         protected override bool ActivateEquipment(EquipmentSlot slot)
         {
             var bodyStateMachine = slot.characterBody.GetComponents<EntityStateMachine>().Where(x => x.customName == "Body").FirstOrDefault();
-            if (bodyStateMachine)
+            if(bodyStateMachine)
             {
-                if (NetworkServer.active)
+                if(NetworkServer.active)
                 {
                     var blinkState = new AbyssalDash();
                     blinkState.duration = BlinkStateDuration;
@@ -1217,14 +1218,14 @@ namespace Aetherium.EliteEquipment
                     bodyStateMachine.SetInterruptState(blinkState, EntityStates.InterruptPriority.Any);
 
                     var bodyIdentity = slot.characterBody.gameObject.GetComponent<NetworkIdentity>();
-                    if (bodyIdentity)
+                    if(bodyIdentity)
                     {
                         new AbyssalDashMessage(bodyIdentity.netId).Send(NetworkDestination.Clients);
                     }
 
                     slot.characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, BlinkStateDuration);
                 }
-                if (slot.subcooldownTimer != Cooldown) { slot.subcooldownTimer = ForcedDurationBetweenPlayerBlinks; }
+                if(slot.subcooldownTimer != Cooldown) { slot.subcooldownTimer = ForcedDurationBetweenPlayerBlinks; }
                 return true;
             }
             return false;
@@ -1255,15 +1256,15 @@ namespace Aetherium.EliteEquipment
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
                 var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
-                if (playerGameObject)
+                if(playerGameObject)
                 {
                     var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    if (body)
+                    if(body)
                     {
                         var bodyStateMachine = body.GetComponents<EntityStateMachine>().Where(x => x.customName == "Body").FirstOrDefault();
-                        if (bodyStateMachine)
+                        if(bodyStateMachine)
                         {
                             var blinkState = new AbyssalDash();
                             blinkState.duration = BlinkStateDuration;
@@ -1296,7 +1297,7 @@ namespace Aetherium.EliteEquipment
             {
                 BodyStateMachine = GetComponents<EntityStateMachine>().Where(x => x.customName == "Body").FirstOrDefault();
                 Body = GetComponent<CharacterBody>();
-                if (Body)
+                if(Body)
                 {
                     EnableExhaustionAndOverdriveMechanic = !AffixSanguine.instance.NoOverdriveForTheseBodies.Any(x => Body.name.Contains(x));
                 }
@@ -1304,16 +1305,16 @@ namespace Aetherium.EliteEquipment
 
             public CharacterBody GetCurrentTarget()
             {
-                if (Body && Body.master)
+                if(Body && Body.master)
                 {
                     var aiComponent = Body.master.GetComponent<BaseAI>();
-                    if (aiComponent)
+                    if(aiComponent)
                     {                        
                         var enemy = aiComponent.currentEnemy;
-                        if (enemy != null)
+                        if(enemy != null)
                         {
                             var enemyBody = enemy.characterBody;
-                            if (enemyBody)
+                            if(enemyBody)
                             {
                                 return enemyBody;
                             }
@@ -1327,16 +1328,16 @@ namespace Aetherium.EliteEquipment
 
             public void DecrementOverdriveStacksOverTime()
             {
-                if (EnableExhaustionAndOverdriveMechanic)
+                if(EnableExhaustionAndOverdriveMechanic)
                 {
-                    if (ExhaustionStacks > ExhaustionLimit || ExhaustionStacks < 0)
+                    if(ExhaustionStacks > ExhaustionLimit || ExhaustionStacks < 0)
                     {
                         ExhaustionStacks = Mathf.Clamp(ExhaustionStacks, 0, ExhaustionLimit);
                     }
-                    if (ExhaustionStacks > 0)
+                    if(ExhaustionStacks > 0)
                     {
                         ExhaustionStacksStopwatch += Time.fixedDeltaTime;
-                        if (ExhaustionStacksStopwatch >= ExhaustionStackReductionDelay)
+                        if(ExhaustionStacksStopwatch >= ExhaustionStackReductionDelay)
                         {
                             ExhaustionStacks--;
                             ExhaustionStacksStopwatch = 0;
@@ -1353,23 +1354,23 @@ namespace Aetherium.EliteEquipment
                 DecrementOverdriveStacksOverTime();
                 if(Stopwatch >= TimeBetweenJumps)
                 {
-                    if (BodyStateMachine && !EntityStateBlacklist.Contains(BodyStateMachine.state.GetType()))
+                    if(BodyStateMachine && !EntityStateBlacklist.Contains(BodyStateMachine.state.GetType()))
                     {
-                        if (Body && Body)
+                        if(Body && Body)
                         {
                             var target = GetCurrentTarget();
-                            if (target)
+                            if(target)
                             {
-                                if (EnableExhaustionAndOverdriveMechanic)
+                                if(EnableExhaustionAndOverdriveMechanic)
                                 {
-                                    if (ExhaustionStacks == 0)
+                                    if(ExhaustionStacks == 0)
                                     {
                                         TimeBetweenJumps = BlinkStateDuration >= 2f ? BlinkStateDuration : 2f;
                                     }
-                                    if (ExhaustionStacks < ExhaustionLimit)
+                                    if(ExhaustionStacks < ExhaustionLimit)
                                     {
                                         var distance = Vector3.Distance(target.corePosition, Body.corePosition);
-                                        if (distance >= 40)
+                                        if(distance >= 40)
                                         {
                                             TimeBetweenJumps = BlinkStateDuration <= 0.1f ? BlinkStateDuration : 0.1f;
                                             ExhaustionStacks++;
@@ -1394,12 +1395,12 @@ namespace Aetherium.EliteEquipment
                                     blinkState.blinkDistance = BlinkDistance;
                                     var jumped = BodyStateMachine.SetInterruptState(blinkState, EntityStates.InterruptPriority.Any);
 
-                                    if (jumped)
+                                    if(jumped)
                                     {
                                         LastPosition = Body.corePosition;
                                     }
 
-                                    if (!jumped && ExhaustionStacks > 0)
+                                    if(!jumped && ExhaustionStacks > 0)
                                     {
                                         ExhaustionStacks--;
                                     }

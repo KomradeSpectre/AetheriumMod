@@ -16,7 +16,7 @@ namespace Aetherium.Utils.Components
         public void Start()
         {
             SpriteRenderer = GetComponent<SpriteRenderer>();
-            if (!SpriteRenderer || Sprites.Length <= 0)
+            if(!SpriteRenderer || Sprites.Length <= 0)
             {
                 Destroy(this);
             }

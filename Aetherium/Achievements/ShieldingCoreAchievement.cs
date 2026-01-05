@@ -42,7 +42,7 @@ namespace Aetherium.Achievements
             {
                 orig(self);
 
-                if (self && self.healthComponent && self.healthComponent.fullShield > 0 && base.IsCurrentBody(self))
+                if(self && self.healthComponent && self.healthComponent.fullShield > 0 && base.IsCurrentBody(self))
                 {
                     var shieldAsHealthPercentage = self.healthComponent.fullShield / (self.healthComponent.fullShield + self.healthComponent.fullHealth);
                     if(self.inventory && self.inventory.GetItemCount(ItemCatalog.FindItemIndex("ShieldOnly")) <= 0 && shieldAsHealthPercentage > 0.50f)

@@ -16,7 +16,7 @@ namespace Aetherium.Effect
 
         public override void Begin()
         {
-            if (Target)
+            if(Target)
             {
                 duration = OverrideDuration;
                 EffectData effectData = new EffectData
@@ -27,45 +27,43 @@ namespace Aetherium.Effect
                     genericUInt = (uint)ChosenBuffIndex,                    
                     rootObject = Target,             
                 };
-                //effectData.SetChildLocatorTransformReference(Target, Index);
                 EffectManager.SpawnEffect(BuffBrazier.BrazierBuffFlameOrb, effectData, true);
             }
         }
 
         public override void OnArrival()
         {
-            if (Target)
+            if(!Target) return;
+
+            GameObject owner = null;
+            Vector3 position = Target.transform.position;
+            Quaternion rotation = Target.transform.rotation;
+
+            var body = Target.GetComponent<CharacterBody>();
+            if(body && body.master)
             {
-                var body = Target.GetComponent<CharacterBody>();
-                if (body && body.master)
+                owner = body.gameObject;
+                position = body.corePosition;     
+            }
+            else if(Target.GetComponent<TeleporterInteraction>())
+            {
+                owner = Target;
+            }
+
+            if(owner)
+            {
+                var flameOrb = Object.Instantiate(BuffBrazier.BrazierBuffOrbitOrb, position, rotation);
+                var visualController = flameOrb.GetComponent<BuffBrazierOrbitVisualAndNetworkController>();
+
+                visualController.Owner = owner;
+                visualController.ChosenBuffIndex = ChosenBuffIndex;
+
+                if(NetworkServer.active)
                 {
-                    var flameOrb = UnityEngine.Object.Instantiate(BuffBrazier.BrazierBuffOrbitOrb, body.corePosition, body.transform.rotation);
-                    var visualController = flameOrb.GetComponent<BuffBrazierOrbitVisualAndNetworkController>();
-                    visualController.Owner = body.gameObject;
-                    visualController.ChosenBuffIndex = ChosenBuffIndex;
+                    visualController.OnOwnerChanged(visualController.Owner);
+                    visualController.OnBuffIndexChanged(visualController.ChosenBuffIndex);
 
-                    if (NetworkServer.active)
-                    {
-                        NetworkServer.Spawn(flameOrb);
-                    }
-
-
-                }
-                else
-                {
-                    var teleporter = Target.GetComponent<TeleporterInteraction>();
-                    if (teleporter)
-                    {
-                        var flameOrb = UnityEngine.Object.Instantiate(BuffBrazier.BrazierBuffOrbitOrb, Target.transform.position, Target.transform.rotation);
-                        var visualController = flameOrb.GetComponent<BuffBrazierOrbitVisualAndNetworkController>();
-                        visualController.Owner = Target;
-                        visualController.ChosenBuffIndex = ChosenBuffIndex;
-
-                        if (NetworkServer.active)
-                        {
-                            NetworkServer.Spawn(flameOrb);
-                        }
-                    }
+                    NetworkServer.Spawn(flameOrb);
                 }
             }
         }

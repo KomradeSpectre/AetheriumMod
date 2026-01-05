@@ -44,11 +44,11 @@ namespace Aetherium.Artifacts
 
         private void ChangeTeleporter(On.RoR2.SceneDirector.orig_PlaceTeleporter orig, SceneDirector self)
         {
-            if (ArtifactEnabled)
+            if(ArtifactEnabled)
             {
                 if(self.teleporterSpawnCard != null)
                 {
-                    if (Run.instance.NetworkstageClearCount % Run.stagesPerLoop == Run.stagesPerLoop - 1)
+                    if(Run.instance.NetworkstageClearCount % 5 == 4)
                     {
                         self.teleporterSpawnCard = LegacyResourcesAPI.Load<InteractableSpawnCard>(TeleporterNames[0]);
                     }
@@ -63,11 +63,11 @@ namespace Aetherium.Artifacts
 
         private void ChangeSeersToRandom(On.RoR2.BazaarController.orig_SetUpSeerStations orig, BazaarController self)
         {
-            if (ArtifactEnabled)
+            if(ArtifactEnabled)
             {
                 SceneDef nextStageScene = Run.instance.nextStageScene;
                 List<SceneDef> list = new List<SceneDef>();
-                if (nextStageScene != null)
+                if(nextStageScene != null)
                 {
                     int stageOrder = nextStageScene.stageOrder;
                     list = new List<SceneDef>(SceneCatalog.allSceneDefs)
@@ -80,7 +80,7 @@ namespace Aetherium.Artifacts
                 }
                 foreach (SeerStationController seerStationController in self.seerStations)
                 {
-                    if (list.Count == 0)
+                    if(list.Count == 0)
                     {
                         seerStationController.GetComponent<PurchaseInteraction>().SetAvailable(false);
                     }
@@ -90,7 +90,7 @@ namespace Aetherium.Artifacts
                         int index = list.Count - 1;
                         SceneDef targetScene = list[index];
                         list.RemoveAt(index);
-                        if (self.rng.nextNormalizedFloat < 0.05f)
+                        if(self.rng.nextNormalizedFloat < 0.05f)
                         {
                             targetScene = SceneCatalog.GetSceneDefFromSceneName("goldshores");
                         }
@@ -106,7 +106,7 @@ namespace Aetherium.Artifacts
 
         private void ChangeStageOrderToRandom(On.RoR2.Run.orig_Start orig, RoR2.Run self)
         {
-            if (ArtifactEnabled)
+            if(ArtifactEnabled)
             {
                 self.ruleBook.ApplyChoice(RuleCatalog.FindChoiceDef("Misc.StageOrder.Random"));
             }

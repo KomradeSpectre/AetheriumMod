@@ -58,11 +58,11 @@ namespace Aetherium.Achievements
                    x => x.MatchLdloc(flagindex),
                    x => x.MatchBrfalse(out _)
                 );
-                if (ILFound)
+                if(ILFound)
                 {
                     c.Index++;
                     c.EmitDelegate<Func<bool, bool>>((bool interactionSuccess) => {
-                        if (!interactionSuccess)
+                        if(!interactionSuccess)
                         {
 
                         }

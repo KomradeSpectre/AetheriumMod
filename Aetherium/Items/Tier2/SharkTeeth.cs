@@ -1,16 +1,20 @@
-﻿using Aetherium.Utils;
+﻿using Aetherium.Effect;
+using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using RoR2;
+using RoR2.UI;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
-
+using UnityEngine.Networking;
+using UnityEngine.UI;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MathHelpers;
-using static Aetherium.Compatability.ModCompatability;
-
-using System.Runtime.CompilerServices;
 
 namespace Aetherium.Items.Tier2
 {
@@ -20,18 +24,21 @@ namespace Aetherium.Items.Tier2
         public static ConfigOption<float> AdditionalDamageSpreadPercentage;
         public static ConfigOption<float> MaxDamageSpreadPercentage;
         public static ConfigOption<float> DurationOfDamageSpread;
-        public static ConfigOption<int> TicksOfDamageDuringDuration;
         public static ConfigOption<bool> SharkTeethIsNonLethal;
+        public static ConfigOption<bool> EnableCleanseOnHit;
+        public static ConfigOption<float> CleansePercentage;
 
         public override string ItemName => "Shark Teeth";
-
         public override string ItemLangTokenName => "SHARK_TEETH";
-
-        public override string ItemPickupDesc => "A portion of damage taken is distributed to you over <style=cIsUtility>5 seconds</style> as <style=cIsDamage>bleed damage</style>.";
-
-        public override string ItemFullDescription => $"<style=cIsDamage>{FloatToPercentageString(BaseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{FloatToPercentageString(AdditionalDamageSpreadPercentage)} per stack, hyperbolically)</style> is distributed to you over {DurationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>";
-
-        public override string ItemLore => "A pair of what seems to be normal shark teeth. However, field testing has shown them to be capable of absorbing a portion of any kind of force applied to them, and redirecting it to be minor flesh wounds on their wielder.";
+        public override string ItemPickupDesc => "A portion of damage taken is distributed to you over time as <style=cIsDamage>bleed damage</style>.";
+        public override string ItemFullDescription => $"<style=cIsDamage>{FloatToPercentageString(BaseDamageSpreadPercentage)}</style> of damage taken <style=cStack>(+{FloatToPercentageString(AdditionalDamageSpreadPercentage)} per stack)</style> is distributed to you over {DurationOfDamageSpread} second(s) as <style=cIsDamage>bleed damage</style>.";
+        public override string ItemLore => "Order: Experimental Bio-Augment [Classified]\n" +
+                   "Tracking Number: 44-KILO\n" +
+                   "Estimated Delivery: 04/05/2056\n\n" +
+                   "\"We strapped the sample to the test subject. The results were... visceral.\"\n\n" +
+                   "\"The subject took a lethal kinetic impact. By all metrics, his ribcage should have collapsed instantly. Instead, the force was distributed. Delayed. He was bleeding profusely, yes, but he remained combat effective.\"\n\n" +
+                   "\"Then came the anomaly. As the subject engaged the target, his vitals stabilized. It appears the augment creates a sympathetic link between aggression and survival. <style=cMono>Violence metabolizes the pain.</style> As long as he kept fighting, the deferred trauma simply... vanished.\"\n\n" +
+                   "\"It turns a soldier into a shark. If they stop moving, they die. So they don't stop.\"";
 
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.AIBlacklist };
@@ -39,26 +46,89 @@ namespace Aetherium.Items.Tier2
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("SharkTeeth.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("SharkTeethIcon.png");
 
-        public static GameObject ItemBodyModelPrefab;
-
-        public GameObject BleedInflictor = new GameObject("Shark Teeth Damage");
+        public static GameObject ItemBodyModelPrefab;       
+        public static GameObject SharkTeethInflictor;
+        public static HealthBarAPI.BarOverlayIndex SharkTeethOverlayIndex;
 
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
+            CreateVisualBar();
+            CreateNetworking();
             CreateLang();
             CreateItem();
             Hooks();
+
+            SharkTeethInflictor = new GameObject("SharkTeethDamageSource");
+            UnityEngine.Object.DontDestroyOnLoad(SharkTeethInflictor);
+        }
+
+        private void CreateVisualBar()
+        {
+            var overlayInfo = new HealthBarAPI.BarOverlayInfo
+            {
+                BodySpecific = true,
+
+                BarInfo = new HealthBar.BarInfo
+                {
+                    color = new Color(0.8f, 0.8f, 0.8f, 0.70f),
+                    imageType = UnityEngine.UI.Image.Type.Tiled,
+                    enabled = true
+                },
+
+                ModifyBarInfo = (RoR2.UI.HealthBar healthBar, ref HealthBar.BarInfo barInfo) =>
+                {
+                    if(!healthBar.source || !healthBar.source.body)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    var behavior = healthBar.source.body.GetComponent<SharkTeethBehavior>();
+
+                    if(!behavior || behavior.StoredBleedPool <= 0)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    float currentHealth = healthBar.source.health;
+                    float maxHealth = healthBar.source.fullHealth;
+
+                    if(maxHealth <= 0)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    float endFraction = currentHealth / maxHealth;
+                    float startFraction = (currentHealth - behavior.StoredBleedPool) / maxHealth;
+                    startFraction = Mathf.Max(0f, startFraction);
+
+                    barInfo.enabled = true;
+                    barInfo.normalizedXMin = startFraction;
+                    barInfo.normalizedXMax = endFraction;
+                }
+            };
+
+            SharkTeethOverlayIndex = HealthBarAPI.RegisterBarOverlay(overlayInfo);
+        }
+
+        private void CreateNetworking()
+        {
+            NetworkingAPI.RegisterMessageType<SyncBleedPool>();
         }
 
         private void CreateConfig(ConfigFile config)
         {
-            BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread Percentage", 0.25f, "How much damage in percentage should be spread out over time?");
-            AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Percentage Gained Per Stack (Diminishing)", 0.25f, "How much damage in percentage should be spread out over time with diminishing returns (hyperbolic scaling) on additional stacks?");
-            MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Absolute Maximum Damage Spread Percentage", 0.75f, "What should our maximum percentage damage spread over time be?");
-            DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Damage Spread Duration", 2f, "How many seconds should the damage be spread out over?");
-            TicksOfDamageDuringDuration = config.ActiveBind<int>("Item: " + ItemName, "Damage Spread Ticks (Segments)", 5, "How many ticks of damage during our duration (as in how divided is our damage)?");
-            SharkTeethIsNonLethal = config.ActiveBind<bool>("Item: " + ItemName, "Shark Teeth Effect is Non-Lethal", false, "Should the Shark Teeth's bleed ticks be unable to kill you? If this is set to true, it will void any damage from segments that would kill you.");
+            BaseDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Base Damage Spread", 0.25f, "Percentage of damage to delay.");
+            AdditionalDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Spread Per Stack", 0.25f, "Hyperbolic scaling per stack.");
+            MaxDamageSpreadPercentage = config.ActiveBind<float>("Item: " + ItemName, "Max Spread Cap", 0.75f, "Hard cap on percentage delayed.");
+            DurationOfDamageSpread = config.ActiveBind<float>("Item: " + ItemName, "Spread Duration", 5f, "Seconds to spread damage over.");
+            SharkTeethIsNonLethal = config.ActiveBind<bool>("Item: " + ItemName, "Non-Lethal Bleed", false, "If true, bleed ticks cannot kill you (leaves you at 1 HP).");
+
+            EnableCleanseOnHit = config.ActiveBind<bool>("Item: " + ItemName, "Berserker Mode (Cleanse on Hit)", true, "If true, dealing damage reduces your stored bleed amount. Distinguishes this item from Warped Echo.");
+            CleansePercentage = config.ActiveBind<float>("Item: " + ItemName, "Cleanse Percentage", 0.1f, "Percentage of stored bleed removed when you deal damage.");
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -279,112 +349,273 @@ namespace Aetherium.Items.Tier2
 
         public override void Hooks()
         {
-            On.RoR2.HealthComponent.TakeDamage += TakeDamage;
-            On.RoR2.CharacterBody.FixedUpdate += TickDamage;
-            RoR2Application.onLoad += OnLoadModCompat;
-        }
+            On.RoR2.CharacterBody.OnInventoryChanged += ManageComponent;
+            On.RoR2.HealthComponent.TakeDamage += MitigateDamage;
 
-        private void OnLoadModCompat()
-        {
-        }
-
-        private void TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
-        {
-            if (!damageInfo.rejected || damageInfo == null)
+            if(EnableCleanseOnHit)
             {
-                var bleedComponent = self.GetComponent<BleedTrackerComponent>();
-                if (!bleedComponent) { bleedComponent = self.gameObject.AddComponent<BleedTrackerComponent>(); }
-                var inventoryCount = GetCount(self.body);
-                //var healthBefore = self.health; //debug
-                if (damageInfo.inflictor != SharkTeeth.instance.BleedInflictor && inventoryCount > 0)
+                On.RoR2.GlobalEventManager.OnHitEnemy += CleanseBleed;
+            }
+        }
+
+        private void ManageComponent(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
+        {
+            orig(self);
+            if(!self.inventory) return;
+
+            int count = self.inventory.GetItemCount(ItemDef);
+            var behavior = self.GetComponent<SharkTeethBehavior>();
+
+            if(count > 0)
+            {
+                if(!behavior) behavior = self.gameObject.AddComponent<SharkTeethBehavior>();
+                behavior.StackCount = count;
+            }
+            else if(behavior)
+            {
+                UnityEngine.Object.Destroy(behavior);
+            }
+        }
+
+        private void MitigateDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        {
+            if(damageInfo.rejected || damageInfo.damage <= 0 || !self.body)
+            {
+                orig(self, damageInfo);
+                return;
+            }
+
+            if(damageInfo.inflictor == SharkTeethInflictor)
+            {
+                orig(self, damageInfo);
+                return;
+            }
+
+            var behavior = self.GetComponent<SharkTeethBehavior>();
+            if(behavior && behavior.StackCount > 0)
+            {
+                float flatThreshold = 5f;
+                float percentThreshold = self.fullHealth * 0.02f;     
+                float effectiveThreshold = Mathf.Min(flatThreshold, percentThreshold);
+
+                if(damageInfo.damage >= effectiveThreshold)
                 {
-                    //Chat.AddMessage($"Damage Before: {damageInfo.damage}"); //debug
-                    var percentage = BaseDamageSpreadPercentage + (MaxDamageSpreadPercentage - MaxDamageSpreadPercentage / (1 + AdditionalDamageSpreadPercentage * (inventoryCount - 1)));
-                    var damage = damageInfo.damage * percentage;
-                    var time = DurationOfDamageSpread;
-                    var segments = TicksOfDamageDuringDuration;
-                    damageInfo.damage -= damage;
-                    bleedComponent.BleedStacks.Add(new BleedStack(time / segments, damage / segments, segments, damageInfo.attacker, damageInfo.damageType));
+                    float ratio = BaseDamageSpreadPercentage + (MaxDamageSpreadPercentage - MaxDamageSpreadPercentage / (1f + AdditionalDamageSpreadPercentage * (behavior.StackCount - 1)));
+                    ratio = Mathf.Clamp(ratio, 0f, 0.9f);
+
+                    float damageToDelay = damageInfo.damage * ratio;
+                    float damageImmediate = damageInfo.damage - damageToDelay;
+
+                    behavior.AddToPool(damageToDelay, damageInfo.attacker);
+                    damageInfo.damage = damageImmediate;
                 }
             }
 
             orig(self, damageInfo);
-            //if (inventoryCount > 0) {Chat.AddMessage($"Actual Damage: {healthBefore - self.health}");} //debug
         }
 
-        private void TickDamage(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void CleanseBleed(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
-            orig(self);
+            orig(self, damageInfo, victim);
 
-            var bleedComponent = self.GetComponent<BleedTrackerComponent>();
-            if (!bleedComponent) { bleedComponent = self.gameObject.AddComponent<BleedTrackerComponent>(); }
+            if(!damageInfo.attacker) return;
 
-            foreach (BleedStack stack in bleedComponent.BleedStacks)
+            DamageSource allowedSources = DamageSource.SkillMask;
+
+            if((damageInfo.damageType.damageSource & allowedSources) == DamageSource.NoneSpecified)
             {
-                stack.FixedUpdate(self);
-            }
-            bleedComponent.BleedStacks.RemoveAll(x => x.TicksLeft <= 0);
-        }
-
-        public class BleedTrackerComponent : MonoBehaviour
-        {
-            public List<BleedStack> BleedStacks = new List<BleedStack>();
-        }
-
-        public class BleedStack
-        {
-            public float TimeLeft;
-            public float StashedTimeLeft;
-            public float DamagePerTick;
-            public float TicksLeft;
-            public GameObject Attacker;
-            public float DamageDealt;
-            public DamageType DamageType;
-
-            public BleedStack(float timeLeft, float damagePerTick, float ticksLeft, GameObject attacker, DamageType damageType)
-            {
-                TimeLeft = timeLeft;
-                StashedTimeLeft = timeLeft;
-                DamagePerTick = damagePerTick;
-                TicksLeft = ticksLeft;
-                Attacker = attacker;
-                DamageType = damageType;
+                return;
             }
 
-            public void FixedUpdate(RoR2.CharacterBody characterBody)
+            var behavior = damageInfo.attacker.GetComponent<SharkTeethBehavior>();
+            if(behavior)
             {
-                TimeLeft -= Time.fixedDeltaTime;
+                behavior.Cleanse(CleansePercentage);
+            }
+        }
 
-                if (TimeLeft <= 0)
+        public class SharkTeethBehavior : MonoBehaviour
+        {
+            public int StackCount;
+            public CharacterBody Body;
+
+            public float StoredBleedPool;
+
+            private GameObject lastAttacker;
+
+            private float tickTimer;
+            private const float TickInterval = 0.5f;
+
+            private bool _hasAddedOverlay;
+            private bool _isBleedSyncDirty;
+
+            public void Awake()
+            {
+                Body = GetComponent<CharacterBody>();
+            }
+
+            private void Start()
+            {
+                if(Body)
                 {
-                    TimeLeft += StashedTimeLeft;
-                    TicksLeft -= 1;
+                    HealthBarAPI.AddOverlayToBody(Body, SharkTeeth.SharkTeethOverlayIndex);
+                    _hasAddedOverlay = true;
+                }
+            }
 
-                    DamageDealt += DamagePerTick;
+            public void OnDestroy()
+            {
+                if(_hasAddedOverlay && Body)
+                {
+                    HealthBarAPI.RemoveOverlayFromBody(Body, SharkTeeth.SharkTeethOverlayIndex);
+                }
+            }
 
-                    if (DamageDealt >= 1)
+            private void SendBleedSync()
+            {
+                if(!NetworkServer.active) return;
+
+                new SyncBleedPool(
+                    SyncBleedPool.MessageType.CachedBloodPool,
+                    Body.netId,
+                    StoredBleedPool
+                ).Send(NetworkDestination.Clients);
+            }
+
+            public void AddToPool(float damage, GameObject attacker)
+            {
+                StoredBleedPool += damage;
+                if(attacker) lastAttacker = attacker;
+                _isBleedSyncDirty = true;
+            }
+
+            public void Cleanse(float percentage)
+            {
+                if(StoredBleedPool > 0)
+                {
+                    float amountToRemove = StoredBleedPool * percentage;
+                    StoredBleedPool -= amountToRemove;
+                    _isBleedSyncDirty = true;
+
+                }
+            }
+
+            public void FixedUpdate()
+            {
+                // FIX: Stop the client from running this logic!
+                if(!NetworkServer.active) return;
+
+                // 1. Logic: Process the bleed tick if we have a pool
+                if(StoredBleedPool > 0)
+                {
+                    tickTimer -= Time.fixedDeltaTime;
+                    if(tickTimer <= 0)
                     {
-                        DamageInfo damageInfo = new DamageInfo
-                        {
-                            attacker = Attacker,
-                            crit = false,
-                            damage = DamageDealt,
-                            force = Vector3.zero,
-                            inflictor = SharkTeeth.instance.BleedInflictor,
-                            position = characterBody.corePosition,
-                            procCoefficient = 0f,
-                            damageColorIndex = DamageColorIndex.Bleed,
-                            damageType = DamageType
-                        };
-                        //var healthBefore = characterBody.healthComponent.health; //debug
-                        if (!SharkTeethIsNonLethal || SharkTeethIsNonLethal && characterBody.healthComponent.health > damageInfo.damage)
-                        {
-                            characterBody.healthComponent.TakeDamage(damageInfo);
-                        }
-                        DamageDealt = 0;
-                        //Chat.AddMessage($"Actual Tick Damage: {healthBefore - characterBody.healthComponent.health}"); //debug
+                        tickTimer = TickInterval;
+                        ProcessTick();
                     }
                 }
+
+                // 2. Networking: Batch the updates
+                if(_isBleedSyncDirty)
+                {
+                    SendBleedSync();
+                    _isBleedSyncDirty = false;
+                }
+            }
+
+            private void ProcessTick()
+            {
+                float bleedDuration = SharkTeeth.DurationOfDamageSpread;
+                float fractionToTake = TickInterval / bleedDuration;
+
+                float damageThisTick = Mathf.Max(StoredBleedPool * fractionToTake, 1f);
+
+                damageThisTick = Mathf.Min(damageThisTick, StoredBleedPool);
+
+                if(Body.healthComponent)
+                {
+                    if(SharkTeeth.SharkTeethIsNonLethal && Body.healthComponent.health <= damageThisTick)
+                    {
+                        StoredBleedPool = 0;
+                        _isBleedSyncDirty = true;
+                    }
+                    else
+                    {
+                        DamageInfo bleedInfo = new DamageInfo
+                        {
+                            damage = damageThisTick,
+                            attacker = lastAttacker,
+                            inflictor = SharkTeeth.SharkTeethInflictor,
+                            position = Body.corePosition,
+                            damageColorIndex = DamageColorIndex.Bleed,
+                            damageType = (SharkTeethIsNonLethal ? DamageType.NonLethal : DamageType.Generic) | DamageType.Silent,   
+                            procCoefficient = 0f,
+                            
+                        };
+
+                        Body.healthComponent.TakeDamage(bleedInfo);
+                        StoredBleedPool -= damageThisTick;
+                        _isBleedSyncDirty = true;
+                    }
+                }
+            }
+        }
+
+        public class SyncBleedPool : INetMessage
+        {
+            private MessageType TypeOfMessage;
+            private NetworkInstanceId PlayerBody;
+            private float StoredBleedPool;
+
+            public SyncBleedPool()
+            {
+            }
+
+            public SyncBleedPool(MessageType messageType, NetworkInstanceId playerbody, float storedBleedPool)
+            {
+                TypeOfMessage = messageType;
+                PlayerBody = playerbody;
+                StoredBleedPool = storedBleedPool;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write((byte)TypeOfMessage);
+                writer.Write(PlayerBody);
+                writer.Write(StoredBleedPool);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                TypeOfMessage = (MessageType)reader.ReadByte();
+                PlayerBody = reader.ReadNetworkId();
+                StoredBleedPool = reader.ReadSingle();
+            }
+
+            public void OnReceived()
+            {
+                if(NetworkServer.active) return;
+
+                GameObject playerGameObject = RoR2.Util.FindNetworkObject(PlayerBody);
+                if(playerGameObject)
+                {
+                    var behavior = playerGameObject.GetComponent<SharkTeethBehavior>();
+
+                    if(!behavior)
+                    {
+                        behavior = playerGameObject.AddComponent<SharkTeethBehavior>();
+                    }
+                    if(behavior)
+                    {
+                        behavior.StoredBleedPool = StoredBleedPool;
+                    }
+                }
+            }
+
+            public enum MessageType : byte
+            {
+                CachedBloodPool
             }
         }
     }

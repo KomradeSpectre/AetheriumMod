@@ -1,16 +1,12 @@
-﻿using BepInEx.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using RoR2;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using R2API;
-using static Aetherium.Utils.MiscHelpers;
-using static Aetherium.AetheriumPlugin;
-using UnityEngine.Networking;
-using Aetherium.Utils;
+using RoR2;
 using RoR2.Audio;
-using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Artifacts
 {
@@ -22,359 +18,261 @@ namespace Aetherium.Artifacts
         public static ConfigOption<string> BlacklistedEvolutionMastersString;
 
         public override string ArtifactName => "Artifact of Progression";
-
         public override string ArtifactLangTokenName => "ARTIFACT_OF_PROGRESSION";
-
-        public override string ArtifactDescription => "Most enemies will evolve into stronger versions of themselves after a duration.";
-
+        public override string ArtifactDescription => "Enemies evolve into stronger forms over time.";
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfProgressionEnabledIcon.png");
-
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfProgressionDisabledIcon.png");
 
-        internal Dictionary<string, EvolutionData> ProgressionLookup = new Dictionary<string, EvolutionData>();
+        private Dictionary<MasterCatalog.MasterIndex, List<GameObject>> ProgressionCache = new Dictionary<MasterCatalog.MasterIndex, List<GameObject>>();
 
-        public delegate bool EvolutionDataHandler(EvolutionData evolutionData);
-        public event EvolutionDataHandler onProgressionLookupChanged;
+        private HashSet<string> BlacklistedMasterNames = new HashSet<string>();
 
-        public static BuffDef ProgressionStartBuff;
-        public static BuffDef ProgressionQuarterBuff;
-        public static BuffDef ProgressionHalfBuff;
-        public static BuffDef ProgressionThreeQuartersBuff;
-
-        public static GameObject ProgressionSoundEffectHolder;
-
+        public static BuffDef[] ProgressionBuffs;
         public static NetworkSoundEventDef ProgressionSquelchEvent;
 
-        public List<CharacterMaster> BlacklistedEvolutionMasters = new List<CharacterMaster>();
+        private List<ProgressionDef> pendingProgressions = new List<ProgressionDef>();
+        private struct ProgressionDef { public string From; public string To; }
 
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
-            CreateProgressionLookup();
             CreateLang();
-            CreateSound();
-            CreateBuff();
+            CreateAssets();
             CreateArtifact();
             Hooks();
         }
 
         private void CreateConfig(ConfigFile config)
         {
-            ProgressionInterval = config.ActiveBind<float>("Artifact: " + ArtifactName, "Interval Between Each Progression", 60, "How long until a monster progresses to the next progression state if they have one?");
-            EnableSounds = config.ActiveBind<bool>("Artifact:" + ArtifactName, "Enable Progression Sounds?", true, "Should a sound play each time a monster reaches a progression checkpoint?");
-            DoubleGoldAndExpOfProgressions = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Double Gold and Exp Reward of Progressions", true, "Should progressions spawned by the Progression effect have doubled money and exp?");
-            BlacklistedEvolutionMastersString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Evolution Masters", "", "Which enemies master components should be blacklisted from evolving? (Each entry should be separated by a comma, you must know their internal master name to blacklist them. E.g. impmaster,lemurianmaster will blacklist normal imps and lemurians.");
+            ProgressionInterval = config.ActiveBind<float>("Artifact: " + ArtifactName, "Evolution Interval", 60f, "Seconds until evolution.");
+            EnableSounds = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Enable Sounds", true, "Play squelch sound?");
+            DoubleGoldAndExpOfProgressions = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Double Rewards", true, "Double gold/xp for evolved forms?");
+            BlacklistedEvolutionMastersString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklist", "", "Comma-separated list of master names to ignore.");
+
+            AddProgression("ScorchWurmMaster", "MagmaWormMaster");
+            AddProgression("MagmaWormMaster", "ElectricWormMaster");
+
+            //Yes, I know in the lore this is the opposite of their actual life cycle.
+            AddProgression("ChildMaster", "ParentMaster");
+            AddProgression("ParentMaster", "GrandparentMaster");
+
+            AddProgression("LemurianMaster", "LemurianBruiserMaster");
+
+            AddProgression("BeetleMaster", "BeetleGuardMaster");
+            AddProgression("BeetleGuardMaster", "BeetleQueenMaster");
+
+            AddProgression("ImpMaster", "ImpBossMaster");
+
+            AddProgression("GolemMaster", "TitanMaster");
+
+            AddProgression("ClayManMaster", "ClayBruiserMaster");    
+            AddProgression("ClayBruiserMaster", "ClayBossMaster");    
+
+            AddProgression("JellyfishMaster", "VagrantMaster");
+
+            AddProgression("WispMaster", "GreaterWispMaster");
+            AddProgression("GreaterWispMaster", "ArchWispMaster");
+
+            AddProgression("RoboBallMiniMaster", "RoboBallBossMaster");     
+
+            AddProgression("LunarExploderMaster", "LunarGolemMaster");
+            AddProgression("LunarGolemMaster", "LunarWispMaster");
+
+            AddProgression("MinorConstructMaster", "MajorConstructMaster");    
+
+            AddProgression("HalcyoniteMaster", "FalseSonBossMaster");
+
+            AddProgression("VoidBarnacleMaster", "NullifierMaster");
+            AddProgression("NullifierMaster", "VoidJailerMaster");
+            AddProgression("VoidJailerMaster", "VoidMegaCrabMaster");
         }
 
-        private void CreateSound()
+        private void AddProgression(string from, string to)
+        {
+            pendingProgressions.Add(new ProgressionDef { From = from, To = to });
+        }
+
+        private void CreateAssets()
         {
             ProgressionSquelchEvent = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             ProgressionSquelchEvent.eventName = "Aetherium_Progression_Squelch";
+            ContentAddition.AddNetworkSoundEventDef(ProgressionSquelchEvent);
 
-            R2API.ContentAddition.AddNetworkSoundEventDef(ProgressionSquelchEvent);
-        }
+            ProgressionBuffs = new BuffDef[4];
+            string[] names = { "Start", "Quarter", "Half", "Three Quarters" };
+            string[] icons = { "ProgressionStartBuffIcon.png", "ProgressionQuarterBuffIcon.png", "ProgressionHalfBuffIcon.png", "ProgressionThreeQuartersBuffIcon.png" };
 
-        private void CreateBuff()
-        {
-            ProgressionStartBuff = ScriptableObject.CreateInstance<BuffDef>();
-            ProgressionStartBuff.name = "Aetherium: Progression Start Buff";
-            ProgressionStartBuff.buffColor = new Color(255, 255, 255);
-            ProgressionStartBuff.canStack = false;
-            ProgressionStartBuff.isDebuff = false;
-            ProgressionStartBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionStartBuffIcon.png");
-            ContentAddition.AddBuffDef(ProgressionStartBuff);
-
-            ProgressionQuarterBuff = ScriptableObject.CreateInstance<BuffDef>();
-            ProgressionQuarterBuff.name = "Aetherium: Progression Quarter Buff";
-            ProgressionQuarterBuff.buffColor = new Color(255, 255, 255);
-            ProgressionQuarterBuff.canStack = false;
-            ProgressionQuarterBuff.isDebuff = false;
-            ProgressionQuarterBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionQuarterBuffIcon.png");
-            ContentAddition.AddBuffDef(ProgressionQuarterBuff);
-
-            ProgressionHalfBuff = ScriptableObject.CreateInstance<BuffDef>();
-            ProgressionHalfBuff.name = "Aetherium: Progression Half Buff";
-            ProgressionHalfBuff.buffColor = new Color(255, 255, 255);
-            ProgressionHalfBuff.canStack = false;
-            ProgressionHalfBuff.isDebuff = false;
-            ProgressionHalfBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionHalfBuffIcon.png");
-            ContentAddition.AddBuffDef(ProgressionHalfBuff);
-
-            ProgressionThreeQuartersBuff = ScriptableObject.CreateInstance<BuffDef>();
-            ProgressionThreeQuartersBuff.name = "Aetherium: Progression Three Quarters Buff";
-            ProgressionThreeQuartersBuff.buffColor = new Color(255, 255, 255);
-            ProgressionThreeQuartersBuff.canStack = false;
-            ProgressionThreeQuartersBuff.isDebuff = false;
-            ProgressionThreeQuartersBuff.iconSprite = MainAssets.LoadAsset<Sprite>("ProgressionThreeQuartersBuffIcon.png");
-            ContentAddition.AddBuffDef(ProgressionThreeQuartersBuff);
-        }
-
-        private void CreateProgressionLookup()
-        {
-            new EvolutionData("BeetleMaster", "BeetleGuardMaster").Register();
-            new EvolutionData("BeetleGuardMaster", "BeetleQueenMaster").Register();
-
-            new EvolutionData("ImpMaster", "ImpBossMaster").Register();
-
-            new EvolutionData("JellyfishMaster", "VagrantMaster").Register();
-
-            new EvolutionData("LemurianMaster", "LemurianBruiserMaster").Register();
-
-            new EvolutionData("WispMaster", "GreaterWispMaster").Register();
-
-            new EvolutionData("ParentMaster", "GrandparentMaster").Register();
-
-            new EvolutionData("ClayBruiserMaster", "ClayBossMaster").Register();
-
-            new EvolutionData("GolemMaster", "TitanMaster").Register();
-
-            new EvolutionData("VultureMaster", "SuperRoboBallBossMaster").Register();
-
-            new EvolutionData("RoboBallMiniMaster", "RoboBallBossMaster").Register();
-
-            new EvolutionData("LunarExploderMaster", "LunarGolemMaster").Register();
-            new EvolutionData("LunarGolemMaster", "LunarWispMaster").Register();
-
-            new EvolutionData("HermitCrabMaster", "NullifierMaster").Register();
+            for (int i = 0; i < 4; i++)
+            {
+                var buff = ScriptableObject.CreateInstance<BuffDef>();
+                buff.name = $"Aetherium: Progression {names[i]}";
+                buff.buffColor = Color.white;
+                buff.canStack = false;
+                buff.iconSprite = MainAssets.LoadAsset<Sprite>(icons[i]);
+                ContentAddition.AddBuffDef(buff);
+                ProgressionBuffs[i] = buff;
+            }
         }
 
         public override void Hooks()
         {
-            On.RoR2.Run.Start += BlacklistSpecificEvolutions;
-            On.RoR2.CharacterAI.BaseAI.OnBodyStart += AddEvolutionComponent;
+            RoR2Application.onLoad += BuildCaches;
+            On.RoR2.CharacterAI.BaseAI.OnBodyStart += AttachProgression;
         }
 
-        private void BlacklistSpecificEvolutions(On.RoR2.Run.orig_Start orig, Run self)
+        private void BuildCaches()
         {
-            string testString = BlacklistedEvolutionMastersString;
-            var testStringArray = testString.Split(',');
-            if (testStringArray.Length > 0)
-            {
-                foreach (string stringToTest in testStringArray)
-                {
-                    var master = Array.Find<CharacterMaster>(RoR2.MasterCatalog.masterPrefabMasterComponents, x => x.name.ToLowerInvariant() == stringToTest.ToLowerInvariant());
-                    if (!master) { continue; }
 
-                    BlacklistedEvolutionMasters.Add(master);
-                }
+            BlacklistedMasterNames.Clear();
+            if(!string.IsNullOrWhiteSpace(BlacklistedEvolutionMastersString.ToString()))
+            {
+                foreach (var s in BlacklistedEvolutionMastersString.ToString().Split(','))
+                    BlacklistedMasterNames.Add(s.Trim().ToLowerInvariant());
             }
 
-            orig(self);
+            ProgressionCache.Clear();
+            foreach (var def in pendingProgressions)
+            {
+                var fromIndex = MasterCatalog.FindMasterIndex(def.From);
+                var toPrefab = MasterCatalog.FindMasterPrefab(def.To);
+
+                if(fromIndex != MasterCatalog.MasterIndex.none && toPrefab)
+                {
+                    if(!ProgressionCache.ContainsKey(fromIndex))
+                        ProgressionCache[fromIndex] = new List<GameObject>();
+
+                    ProgressionCache[fromIndex].Add(toPrefab);
+                }
+            }
+            pendingProgressions.Clear();
         }
 
-        private void AddEvolutionComponent(On.RoR2.CharacterAI.BaseAI.orig_OnBodyStart orig, RoR2.CharacterAI.BaseAI self, CharacterBody newBody)
+        private void AttachProgression(On.RoR2.CharacterAI.BaseAI.orig_OnBodyStart orig, RoR2.CharacterAI.BaseAI self, CharacterBody body)
         {
-            orig(self, newBody);
-            if(NetworkServer.active && ArtifactEnabled)
+            orig(self, body);
+
+            if(NetworkServer.active && ArtifactEnabled && self.master && body)
             {
-                if (self.master && self.master.teamIndex != TeamIndex.Player && newBody && !newBody.isBoss)
+                if(self.master.teamIndex == TeamIndex.Player || body.isBoss) return;
+
+                if(BlacklistedMasterNames.Contains(self.master.name.ToLowerInvariant().Replace("(clone)", ""))) return;
+
+                if(ProgressionCache.TryGetValue(self.master.masterIndex, out var options))
                 {
-                    var masterName = self.master.name.Replace("(Clone)", "");
-                    if (!BlacklistedEvolutionMasters.Any(master => master.name.ToLowerInvariant() == masterName.ToLowerInvariant()) && ProgressionLookup.ContainsKey(masterName))
-                    {
-                        List<EvolutionData.EvolvedStateData> evolutionData = ProgressionLookup[masterName].PossibleNextEvolutions;
+                    GameObject evolutionTarget = options[Run.instance.stageRng.RangeInt(0, options.Count)];
 
-                        GameObject choice;
-
-                        if(evolutionData.Count > 1)
-                        {
-                            choice = evolutionData[Run.instance.stageRng.RangeInt(0, evolutionData.Count)].Resource;
-                        }
-                        else
-                        {
-                            choice = evolutionData[0].Resource;
-                        }
-
-                        if (!choice)
-                        {
-                            Debug.LogError($"Registered next evolutionary stage for {self.body.name} has an invalid resource. Aborting evolution.");
-                            return;
-                        }
-
-                        var evolutionManagerComponent = newBody.GetComponent<EvolutionManagerComponent>();
-                        if (!evolutionManagerComponent)
-                        {
-                            evolutionManagerComponent = newBody.gameObject.AddComponent<EvolutionManagerComponent>();
-                            evolutionManagerComponent.EvolutionInterval = ProgressionInterval;
-                            evolutionManagerComponent.EvolutionMasterPrefab = choice;
-                        }
-                    }
+                    var component = body.gameObject.AddComponent<ProgressionBehavior>();
+                    component.Initialize(evolutionTarget, ProgressionInterval);
                 }
             }
         }
 
-        public class EvolutionManagerComponent : NetworkBehaviour
+        public class ProgressionBehavior : MonoBehaviour
         {
-            private CharacterBody Body;
+            private CharacterBody body;
+            private CharacterMaster master;
+            private GameObject targetPrefab;
 
-            [SyncVar]
-            public GameObject EvolutionMasterPrefab;
+            private float duration;
+            private float timer;
 
-            public List<Material> MaterialsOfBody;
+            private int currentStage = 0;
+            private float nextThreshold;
 
-            private CharacterMaster Master;
-
-            [SyncVar]
-            public float Timer;
-
-            public float EvolutionInterval;
-
-            public void Start()
+            public void Initialize(GameObject target, float totalDuration)
             {
-                Body = gameObject.GetComponent<CharacterBody>();
-                Master = Body.master;
+                body = GetComponent<CharacterBody>();
+                master = body.master;
+                targetPrefab = target;
+                duration = totalDuration;
 
-                if (NetworkServer.active)
-                {
-                    Body.AddBuff(ProgressionStartBuff);
-                    PlayEvolutionaryStepVFX(1, Color.red);
-                }
+                nextThreshold = duration * 0.25f;
+                ApplyStageVisuals(0);
             }
 
             public void FixedUpdate()
             {
-                Timer += Time.fixedDeltaTime;
+                timer += Time.fixedDeltaTime;
 
-                if (NetworkServer.active)
+                if(timer >= nextThreshold)
                 {
-                    if (Timer > EvolutionInterval * 0.25f && Timer <= EvolutionInterval * 0.5f && !Body.HasBuff(ProgressionQuarterBuff))
-                    {
-                        if (Body.HasBuff(ProgressionStartBuff)) { Body.RemoveBuff(ProgressionStartBuff); }
-                        Body.AddBuff(ProgressionQuarterBuff);
-                        PlayEvolutionaryStepVFX(2, Color.yellow);
-                    }
-
-                    if (Timer > EvolutionInterval * 0.5f && Timer <= EvolutionInterval * 0.75f && !Body.HasBuff(ProgressionHalfBuff))
-                    {
-                        if (Body.HasBuff(ProgressionQuarterBuff)) { Body.RemoveBuff(ProgressionQuarterBuff); }
-                        Body.AddBuff(ProgressionHalfBuff);
-                        PlayEvolutionaryStepVFX(3, Color.green);
-                    }
-
-                    if (Timer > EvolutionInterval * 0.75f && Timer <= EvolutionInterval && !Body.HasBuff(ProgressionThreeQuartersBuff))
-                    {
-                        if (Body.HasBuff(ProgressionHalfBuff)) { Body.RemoveBuff(ProgressionHalfBuff); }
-                        Body.AddBuff(ProgressionThreeQuartersBuff);
-                        PlayEvolutionaryStepVFX(4, Color.white);
-                    }
-
-                    if (Timer > EvolutionInterval && Master)
-                    {
-                        Destroy(this);
-
-                        CharacterMaster summonedThing = new MasterSummon()
-                        {
-                            masterPrefab = EvolutionMasterPrefab,
-                            position = Body.corePosition,
-                            rotation = Body.transform.rotation,
-                            summonerBodyObject = Body.gameObject,
-                            ignoreTeamMemberLimit = true,
-                            inventoryToCopy = Body.inventory ? Body.inventory : null
-                        }.Perform();
-
-                        var summonBody = summonedThing.GetBody();
-                        if (summonBody)
-                        {
-                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2);
-                            var summonDeathRewards = summonBody.GetComponent<DeathRewards>();
-                            var originalBodyDeathRewards = Body.GetComponent<DeathRewards>();
-
-                            if (summonDeathRewards && originalBodyDeathRewards)
-                            {
-                                summonDeathRewards.expReward = DoubleGoldAndExpOfProgressions ? originalBodyDeathRewards.expReward * 2 : originalBodyDeathRewards.expReward;
-                                summonDeathRewards.goldReward = DoubleGoldAndExpOfProgressions ? originalBodyDeathRewards.goldReward * 2 : originalBodyDeathRewards.goldReward;
-                            }
-                        }
-
-                        Master.TrueKill();
-                    }
+                    AdvanceStage();
                 }
             }
 
-            private void PlayEvolutionaryStepVFX(float scale, Color color)
+            private void AdvanceStage()
             {
-                EffectData effectData = new EffectData()
+                currentStage++;
+
+                if(currentStage >= 4)
                 {
-                    color = color,
-                    origin = Body.transform.position,
-                    rotation = Body.transform.rotation,
-                    scale = scale                    
+                    Evolve();
+                    return;
+                }
+
+                nextThreshold += (duration * 0.25f);
+
+                ApplyStageVisuals(currentStage);
+            }
+
+            private void ApplyStageVisuals(int stageIndex)
+            {
+                if(stageIndex > 0) body.RemoveBuff(ArtifactOfProgression.ProgressionBuffs[stageIndex - 1]);
+
+                body.AddBuff(ArtifactOfProgression.ProgressionBuffs[stageIndex]);
+
+                Color[] colors = { Color.red, Color.yellow, Color.green, Color.white };
+                float[] scales = { 1f, 2f, 3f, 4f };
+
+                EffectData effectData = new EffectData
+                {
+                    color = colors[stageIndex],
+                    origin = body.corePosition,
+                    rotation = body.transform.rotation,
+                    scale = scales[stageIndex]
+                };
+                EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
+                EntitySoundManager.EmitSoundServer(ArtifactOfProgression.ProgressionSquelchEvent.akId, body.gameObject);
+            }
+
+            private void Evolve()
+            {
+                enabled = false;
+
+                MasterSummon summon = new MasterSummon
+                {
+                    masterPrefab = targetPrefab,
+                    position = body.corePosition,
+                    rotation = body.transform.rotation,
+                    summonerBodyObject = body.gameObject,
+                    ignoreTeamMemberLimit = true,
+                    inventoryToCopy = body.inventory,
+                    useAmbientLevel = true
                 };
 
-                EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/LevelUpEffectEnemy"), effectData, true);
-                EntitySoundManager.EmitSoundServer(ProgressionSquelchEvent.akId, Body.gameObject);
-            }
-        }
-    }
+                CharacterMaster newMaster = summon.Perform();
 
-    /// <summary>
-    /// A data structure useful for storing next evolution data of a master and registering them.
-    /// </summary>
-    public struct EvolutionData
-    {
-        public string CurrentEvolutionName;
-        internal List<EvolvedStateData> PossibleNextEvolutions;
+                if(newMaster)
+                {
+                    CharacterBody newBody = newMaster.GetBody();
+                    if(newBody)
+                    {
+                        newBody.AddTimedBuff(RoR2Content.Buffs.Immune, 2f);
 
-        /// <summary>
-        /// Constructor with no next evolutions assigned.
-        /// </summary>
-        /// <param name="currentEvolutionName">Name of the current evolution State. In other words, the current master name.</param>
-        public EvolutionData(string currentEvolutionName)
-        {
-            CurrentEvolutionName = currentEvolutionName;
-            PossibleNextEvolutions = new List<EvolvedStateData>();
-        }
+                        if(ArtifactOfProgression.DoubleGoldAndExpOfProgressions)
+                        {
+                            var rewards = newBody.GetComponent<DeathRewards>();
+                            var oldRewards = body.GetComponent<DeathRewards>();
+                            if(rewards && oldRewards)
+                            {
+                                rewards.goldReward = oldRewards.goldReward * 2;
+                                rewards.expReward = oldRewards.expReward * 2;
+                            }
+                        }
+                    }
+                }
 
-        /// <summary>
-        /// Constructor with an assignment of one next evolution while specifying a resource.
-        /// Pass null in resource to specify a vanilla resource.
-        /// If it is a custom resource, load it from the bundle.
-        /// </summary>
-        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current master name.</param>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
-        /// <param name="resource">Prefab of the next body state.</param>
-        public EvolutionData(string currentEvolutionName, string nextEvolutionName, GameObject resource) : this(currentEvolutionName)
-        {
-            Store(nextEvolutionName, resource);
-        }
-
-        /// <summary>
-        /// Constructor with an assignment of one next evolution without specifying a resource, which means it will use a vanilla resource.
-        /// </summary>
-        /// <param name="currentEvolutionName">The name of the current evolution state. In other words, the current master name.</param>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
-        public EvolutionData(string currentEvolutionName, string nextEvolutionName) : this(currentEvolutionName, nextEvolutionName, null) { }
-
-        /// <summary>
-        /// Add or Modify a next evolution for the current evolution specified within the data structure.
-        /// Pass null in resource to specify a vanilla resource.
-        /// If it is a custom resource, load it from the bundle.
-        /// </summary>
-        /// <param name="nextEvolutionName">The name of the next evolution state. In other words, the next master name.</param>
-        /// <param name="resource">Prefab of the next master state.</param>
-        public void Store(string nextEvolutionName, GameObject resource)
-        {
-            if (!resource)
-            {
-                resource = LegacyResourcesAPI.Load<GameObject>($"Prefabs/CharacterMasters/{nextEvolutionName}");
-            }
-            PossibleNextEvolutions.Add(new EvolvedStateData(nextEvolutionName, resource));
-        }
-
-        public void Register()
-        {
-            ArtifactOfProgression.instance.ProgressionLookup[CurrentEvolutionName] = this;
-        }
-
-        internal struct EvolvedStateData
-        {
-            public string EvolvedStateName;
-            public GameObject Resource;
-
-            public EvolvedStateData(string evolvedStateName, GameObject resource)
-            {
-                EvolvedStateName = evolvedStateName;
-                Resource = resource;
+                master.TrueKill();
             }
         }
     }

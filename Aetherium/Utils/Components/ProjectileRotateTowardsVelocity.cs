@@ -23,9 +23,9 @@ namespace Aetherium.Utils.Components
 
         public void FixedUpdate()
         {
-            if (NetworkTransform && Rigidbody)
+            if(NetworkTransform && Rigidbody)
             {
-                if (Rigidbody.velocity != Vector3.zero && Rigidbody.velocity != LastVelocity)
+                if(Rigidbody.velocity != Vector3.zero && Rigidbody.velocity != LastVelocity)
                 {
                     NetworkTransform.transform.rotation = Quaternion.LookRotation(InvertVelocity ? -Rigidbody.velocity : Rigidbody.velocity);
                 }

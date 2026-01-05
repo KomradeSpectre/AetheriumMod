@@ -37,10 +37,11 @@ namespace Aetherium.Items.Tier3
             $"when it <style=cIsDamage>{(UseImpaleProjectile ? "explodes after having impaled an enemy for a short duration." : "explodes on contact with an enemy.")}</style>";
 
         public override string ItemLore => "<style=cMono>. . . . . . . . . .</style>\n" +
-            "\n<style=cMono>THEY</style> have chosen to <style=cMono>LISTEN</style> to our words.\n" +
-            "\n<style=cMono>WE</style> have chosen to <style=cMono>GRANT</style> upon you an exceptional <style=cMono>WEAPON</style> to <style=cMono>UTILIZE</style> your <style=cMono>SOULS TRUE STRENGTH</style>.\n" +
-            "\nThe weapon will <style=cMono>ADAPT</style> to fit the needs of the <style=cMono>WIELDER</style>. Once wielded, it is no different than their very soul.\n" +
-            "\nShould the <style=cMono>WIELDER</style> survive their journey, they <style=cMono>WILL</style> discard the frail form of what they once were and <style=cMono>ASCEND</style>.\n" +
+            "\n<style=cMono>THEY</style> finally <style=cMono>LISTEN</style>.\n" +
+            "\n<style=cMono>WE GRANT</style> this <style=cMono>WEAPON</style>.\n" +
+            " You must <style=cMono>UTILIZE</style> the <style=cMono>SOULS</style> resonance.Find <style=cMono>TRUE STRENGTH</style>.\n" +
+            "\nThe pattern must <style=cMono>ADAPT</style>.The <style=cMono>WIELDER</style> is the variable.\n" +
+            "\nIf the <style=cMono>WIELDER</style> survives the test, it <style=cMono>WILL ASCEND</style>.\n" +
             "\n<style=cMono>. . . . . . . . . .</style>";
 
         public override ItemTier Tier => ItemTier.Tier3;
@@ -70,7 +71,6 @@ namespace Aetherium.Items.Tier3
 
         public static RoR2.BuffDef BlasterSwordActiveBuff;
 
-        //Provided as a courtesy for other modders.
         public delegate void BlasterSwordActivationHandler(FireProjectileInfo fireProjectileInfo);
         public static event BlasterSwordActivationHandler onBlasterSwordFired;
 
@@ -79,7 +79,6 @@ namespace Aetherium.Items.Tier3
         {
             CreateConfig(config);
             CreateLang();
-            //CreateAchievement();
             CreateBuff();
 
             CreateProjectile();
@@ -97,15 +96,6 @@ namespace Aetherium.Items.Tier3
             HomingProjectiles = config.ActiveBind<bool>("Item: " + ItemName, "Homing Projectiles", false, "Should the Blaster Sword projectiles home in on enemies?");
             AnyBarrierGrantsActivationBuff = config.ActiveBind<bool>("Item: " + ItemName, "Any Barrier Grants Blaster Sword Activation Buff", false, "Should having any amount of barrier allow you to use the effect of Blaster Sword?");
         }
-
-        /*private void CreateAchievement()
-        {
-            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_NAME", "Sword from the Stone");
-            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_ACHIEVEMENT_DESC", "High up in the Abyssal Depths, find the legendary sword stuck in the stone and prove you possess the knightly valor required to wield it.");
-            Language.Language.Add("AETHERIUM_" + ItemLangTokenName + "_UNLOCKABLE_NAME", "Sword from the Stone");
-
-            UnlockablesAPI.AddUnlockable<BlasterSwordAchievement>(true);
-        }*/
 
         private void CreateBuff()
         {
@@ -143,7 +133,7 @@ namespace Aetherium.Items.Tier3
 
             var impactEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/VagrantCannonExplosion");
 
-            if (UseImpaleProjectile)
+            if(UseImpaleProjectile)
             {
                 var impactExplosion = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileImpactExplosion>();
                 impactExplosion.impactEffect = impactEffect;
@@ -165,7 +155,7 @@ namespace Aetherium.Items.Tier3
                 applyTorqueOnStart.localTorque = new Vector3(0, 1500, 0);
             }
 
-            if (HomingProjectiles)
+            if(HomingProjectiles)
             {
                 var projectileTarget = SwordProjectile.AddComponent<ProjectileTargetComponent>();
 
@@ -191,10 +181,8 @@ namespace Aetherium.Items.Tier3
                 projectileSimple.velocityOverLifetime = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(2, 70) });
             }
 
-            // register it for networking
-            if (SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
+            if(SwordProjectile) PrefabAPI.RegisterNetworkPrefab(SwordProjectile);
             
-            // add it to the projectile catalog or it won't work in multiplayer
             ContentAddition.AddProjectile(SwordProjectile);
         }
 
@@ -205,7 +193,7 @@ namespace Aetherium.Items.Tier3
             var itemDisplay = ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>();
             itemDisplay.rendererInfos = ItemDisplaySetup(ItemBodyModelPrefab);
 
-            if (EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
+            if(EnableParticleEffects) { itemDisplay.gameObject.AddComponent<SwordGlowHandler>(); }
 
             ItemDisplayRuleDict rulesNormal = new ItemDisplayRuleDict();
             rulesNormal.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]
@@ -983,463 +971,173 @@ namespace Aetherium.Items.Tier3
 
         public override void Hooks()
         {
-            On.RoR2.CharacterBody.FixedUpdate += ApplyBuffAsIndicatorForReady;
-            IL.EntityStates.Merc.Evis.FixedUpdate += Anime;
-            IL.EntityStates.Treebot.TreebotFlower.TreebotFlower2Projectile.RootPulse += FireSwordsFromFlower;
-            On.RoR2.Orbs.GenericDamageOrb.Begin += FireSwordOnOrbs;
-            On.RoR2.OverlapAttack.Fire += FireSwordOnMelee;
-            On.RoR2.BulletAttack.Fire += FireTheSwordOnBulletAttack;
-            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += FireTheSwordOnProjectiles;
+            On.RoR2.CharacterBody.OnInventoryChanged += EnsureBehaviorComponent;
+
+            On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += TryFireFromProjectile;
+            On.RoR2.BulletAttack.Fire += TryFireFromHitscan;
+            On.RoR2.OverlapAttack.Fire += TryFireFromMelee;
         }
 
-        private void FireSwordsFromFlower(ILContext il)
+        private void EnsureBehaviorComponent(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
-            var c = new ILCursor(il);
-
-            int damageInfoIndex = 15;
-            c.GotoNext(x => x.MatchNewobj<RoR2.DamageInfo>());
-            c.GotoNext(x => x.MatchStloc(out damageInfoIndex));
-            c.GotoNext(MoveType.After, x => x.MatchLdfld<RoR2.HurtBox>("hurtBoxGroup"));
-            c.Emit(OpCodes.Ldloc, damageInfoIndex);
-            c.EmitDelegate<Action<RoR2.DamageInfo>>((damageInfo) =>
-            {
-                if (damageInfo.attacker)
-                {
-                    var body = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
-                    if (body)
-                    {
-                        var InventoryCount = GetCount(body);
-                        if (InventoryCount > 0)
-                        {
-                            if (body.HasBuff(BlasterSwordActiveBuff))
-                            {
-                                var swordsPerFlower = (int)body.attackSpeed * 2;
-                                for (int i = 1; i <= swordsPerFlower; i++)
-                                {
-                                    var newProjectileInfo = new FireProjectileInfo
-                                    {
-                                        owner = body.gameObject,
-                                        projectilePrefab = SwordProjectile,
-                                        speedOverride = 150.0f,
-                                        damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
-                                        damageTypeOverride = null,
-                                        damageColorIndex = DamageColorIndex.Default,
-                                        procChainMask = default
-                                    };
-                                    var theta = (Math.PI * 2) / swordsPerFlower;
-                                    var angle = theta * i;
-                                    var radius = 3;
-                                    var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + damageInfo.position.x), damageInfo.position.y + 3, (float)(radius * Math.Sin(angle) + damageInfo.position.z));
-                                    newProjectileInfo.position = positionChosen;
-                                    newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
-
-                                    onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                                    try
-                                    {
-                                        RecursionPrevention = true;
-                                        RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                                    }
-                                    finally
-                                    {
-                                        RecursionPrevention = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        private void Anime(ILContext il)
-        {
-            var c = new ILCursor(il);
-
-            int damageInfoIndex = 4;
-            c.GotoNext(x => x.MatchNewobj<RoR2.DamageInfo>(), x => x.MatchStloc(out damageInfoIndex));
-            c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<RoR2.GlobalEventManager>("OnHitAll"));
-            c.Emit(OpCodes.Ldloc, damageInfoIndex);
-            c.EmitDelegate<Action<RoR2.DamageInfo>>((damageInfo) =>
-            {
-                if (damageInfo.attacker)
-                {
-                    var body = damageInfo.attacker.GetComponent<RoR2.CharacterBody>();
-                    if (body)
-                    {
-                        var InventoryCount = GetCount(body);
-                        if (InventoryCount > 0)
-                        {
-                            if (body.HasBuff(BlasterSwordActiveBuff))
-                            {
-                                var newProjectileInfo = new FireProjectileInfo
-                                {
-                                    owner = body.gameObject,
-                                    projectilePrefab = SwordProjectile,
-                                    speedOverride = 100.0f,
-                                    damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
-                                    damageTypeOverride = null,
-                                    damageColorIndex = DamageColorIndex.Default,
-                                    procChainMask = default
-                                };
-                                var positionChosen = damageInfo.position + new Vector3(RoR2.Run.instance.stageRng.RangeFloat(-10, 10), RoR2.Run.instance.stageRng.RangeFloat(0, 10), RoR2.Run.instance.stageRng.RangeFloat(-10, 10)).normalized * 4;
-                                newProjectileInfo.position = positionChosen;
-                                newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(damageInfo.position - positionChosen);
-                                onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                                try
-                                {
-                                    RecursionPrevention = true;
-                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                                }
-                                finally
-                                {
-                                    RecursionPrevention = false;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        private void ApplyBuffAsIndicatorForReady(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
-        {
-            var InventoryCount = GetCount(self);
-            if (InventoryCount > 0)
-            {
-                if (self.healthComponent.combinedHealthFraction >= 1 && !self.HasBuff(BlasterSwordActiveBuff) || AnyBarrierGrantsActivationBuff && self.healthComponent.barrier > 0 && !self.HasBuff(BlasterSwordActiveBuff))
-                {
-                    self.AddBuff(BlasterSwordActiveBuff);
-                }
-                if (self.healthComponent.combinedHealthFraction < 1 && self.HasBuff(BlasterSwordActiveBuff) || AnyBarrierGrantsActivationBuff && self.healthComponent.barrier <= 0 && !self.HasBuff(BlasterSwordActiveBuff))
-                {
-                    self.RemoveBuff(BlasterSwordActiveBuff);
-                }
-            }
-            else
-            {
-                if (self.HasBuff(BlasterSwordActiveBuff))
-                {
-                    self.RemoveBuff(BlasterSwordActiveBuff);
-                }
-            }
             orig(self);
+
+            if(GetCount(self) > 0)
+            {
+                var component = self.GetComponent<BlasterSwordBehavior>();
+                if(!component) component = self.gameObject.AddComponent<BlasterSwordBehavior>();
+
+                component.RecalculateStats();
+            }
         }
 
-        private void FireSwordOnOrbs(On.RoR2.Orbs.GenericDamageOrb.orig_Begin orig, RoR2.Orbs.GenericDamageOrb self)
+        private void TryFireFromProjectile(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, ProjectileManager self, FireProjectileInfo info)
         {
-            var owner = self.attacker;
-            if (owner)
+            orig(self, info);
+
+            if(info.projectilePrefab == SwordProjectile) return;
+            if(BlacklistedProjectiles.Contains(info.projectilePrefab.name)) return;
+
+            if(info.owner)
             {
-                var ownerBody = owner.GetComponent<RoR2.CharacterBody>();
-                if (ownerBody)
-                {
-                    var InventoryCount = GetCount(ownerBody);
-                    if (InventoryCount > 0)
-                    {
-                        if (ownerBody.HasBuff(BlasterSwordActiveBuff))
-                        {
-                            var newProjectileInfo = new FireProjectileInfo
-                            {
-                                owner = owner,
-                                projectilePrefab = SwordProjectile,
-                                speedOverride = 100.0f,
-                                damage = ownerBody.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
-                                damageTypeOverride = null,
-                                damageColorIndex = DamageColorIndex.Default,
-                                procChainMask = default,
-                                position = self.origin,
-                                rotation = RoR2.Util.QuaternionSafeLookRotation(self.target.transform.position - self.origin)
-                            };
-
-                            onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                            try
-                            {
-                                RecursionPrevention = true;
-                                RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                            }
-                            finally
-                            {
-                                RecursionPrevention = false;
-                            }
-                        }
-                    }
-                }
+                var behavior = info.owner.GetComponent<BlasterSwordBehavior>();
+                if(behavior) behavior.TryFire(info.position, info.rotation * Vector3.forward);
             }
+        }
+
+        private void TryFireFromHitscan(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
+        {
             orig(self);
-        }
 
-        /*private bool FireSwordOnMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HealthComponent> hitResults)
-        {
-            var owner = self.inflictor;
-            if (owner)
+            if(self.weapon && BlacklistedBulletAttackWeapons.Contains(self.weapon.name)) return;
+
+            if(self.owner)
             {
-                var body = owner.GetComponent<RoR2.CharacterBody>();
-                if (body)
+                var behavior = self.owner.GetComponent<BlasterSwordBehavior>();
+                if(behavior)
                 {
-                    var InventoryCount = GetCount(body);
-                    if (InventoryCount > 0)
-                    {
-                        if (body.HasBuff(BlasterSwordActiveBuff))
-                        {
-                            Vector3 HitPositionSums = Vector3.zero;
-                            if (self.overlapList.Count > 0)
-                            {
-                                for (int i = 0; i < self.overlapList.Count; i++)
-                                {
-                                    HitPositionSums += self.overlapList[i].hitPosition;
-                                }
-
-                                HitPositionSums /= self.overlapList.Count;
-                            }
-                            else
-                            {
-                                HitPositionSums += body.corePosition;
-                            }
-                            var inputBank = body.inputBank;
-
-                            var cooldownHandler = owner.GetComponent<SwordCooldownHandlerIDunno>();
-                            if (!cooldownHandler) { cooldownHandler = owner.AddComponent<SwordCooldownHandlerIDunno>(); }
-
-                            if (!cooldownHandler.MeleeTracker.ContainsKey(self))
-                            {
-                                cooldownHandler.MeleeTracker.Add(self, 0);
-                                var newProjectileInfo = new FireProjectileInfo
-                                {
-                                    owner = self.inflictor,
-                                    projectilePrefab = SwordProjectile,
-                                    speedOverride = 100.0f,
-                                    damage = body.damage * BaseSwordDamageMultiplier + (body.damage * AdditionalSwordDamageMultiplier * (InventoryCount - 1)),
-                                    damageTypeOverride = null,
-                                    damageColorIndex = DamageColorIndex.Default,
-                                    procChainMask = default,
-                                    position = HitPositionSums,
-                                    rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward)
-                                };
-
-                                try
-                                {
-                                    RecursionPrevention = true;
-                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                                }
-                                finally
-                                {
-                                    RecursionPrevention = false;
-                                }
-                            }
-                        }
-                    }
+                    behavior.TryFire(
+                        self.origin,
+                        self.aimVector,
+                        (int)self.bulletCount,
+                        self.minSpread,
+                        self.maxSpread,
+                        self.spreadPitchScale,
+                        self.spreadYawScale,
+                        self.muzzleName
+                    );
                 }
             }
-            return orig(self, hitResults);
         }
-        */
 
-        private bool FireSwordOnMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HurtBox> hitResults)
+        private bool TryFireFromMelee(On.RoR2.OverlapAttack.orig_Fire orig, RoR2.OverlapAttack self, List<RoR2.HurtBox> hitResults)
         {
-            var owner = self.inflictor;
-            if (owner)
+            bool result = orig(self, hitResults);
+
+            if(self.inflictor)
             {
-                var body = owner.GetComponent<RoR2.CharacterBody>();
-                if (body)
+                var behavior = self.inflictor.GetComponent<BlasterSwordBehavior>();
+                if(behavior && behavior.Body)
                 {
-                    var InventoryCount = GetCount(body);
-                    if (InventoryCount > 0)
-                    {
-                        if (body.HasBuff(BlasterSwordActiveBuff))
-                        {
-                            Vector3 HitPositionSums = Vector3.zero;
-                            if (self.overlapList.Count > 0)
-                            {
-                                for (int i = 0; i < self.overlapList.Count; i++)
-                                {
-                                    HitPositionSums += self.overlapList[i].hitPosition;
-                                }
+                    Vector3 aimDirection = behavior.Body.inputBank ? behavior.Body.inputBank.aimDirection : self.inflictor.transform.forward;
+                    Vector3 fireOrigin = behavior.Body.aimOrigin;
 
-                                HitPositionSums /= self.overlapList.Count;
-                            }
-                            else
-                            {
-                                HitPositionSums += body.corePosition;
-                            }
-                            var inputBank = body.inputBank;
-
-                            var cooldownHandler = owner.GetComponent<SwordCooldownHandlerIDunno>();
-                            if (!cooldownHandler) { cooldownHandler = owner.AddComponent<SwordCooldownHandlerIDunno>(); }
-
-                            if (!cooldownHandler.MeleeTracker.ContainsKey(self))
-                            {
-                                cooldownHandler.MeleeTracker.Add(self, 0);
-                                var newProjectileInfo = new FireProjectileInfo
-                                {
-                                    owner = self.inflictor,
-                                    projectilePrefab = SwordProjectile,
-                                    speedOverride = 100.0f,
-                                    damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
-                                    damageTypeOverride = null,
-                                    damageColorIndex = DamageColorIndex.Default,
-                                    procChainMask = default,
-                                    position = HitPositionSums,
-                                    rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank ? inputBank.aimDirection : body.transform.forward)
-                                };
-
-                                onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                                try
-                                {
-                                    RecursionPrevention = true;
-                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                                }
-                                finally
-                                {
-                                    RecursionPrevention = false;
-                                }
-                            }
-                        }
-                    }
+                    behavior.TryFire(fireOrigin, aimDirection);
                 }
             }
-            return orig(self, hitResults);
+            return result;
         }
 
-        private void FireTheSwordOnBulletAttack(On.RoR2.BulletAttack.orig_Fire orig, RoR2.BulletAttack self)
+        public class BlasterSwordBehavior : MonoBehaviour
         {
-            if(self != null && self.weapon && BlacklistedBulletAttackWeapons.Contains(self.weapon.name.Replace("(Clone)", "")))
+            public CharacterBody Body;
+            public ModelLocator ModelLocator;
+            public float CooldownTimer;
+
+            private int stackCount;
+            private float damageMult;
+
+            public const float ShotgunCoefficient = 0.5f;
+            public const int MaxBurst = 8;
+            private const float BaseCooldown = 0.5f;
+            private const float MinCooldown = 0.1f;
+
+            public void Awake()
             {
-                orig(self);
-                return;
+                Body = GetComponent<CharacterBody>();
+                ModelLocator = GetComponent<ModelLocator>();
+                RecalculateStats();
             }
 
-            var projectileOwner = self.owner;
-            if (projectileOwner)
+            public void RecalculateStats()
             {
-                var projectileBody = projectileOwner.GetComponent<RoR2.CharacterBody>();
-                if (projectileBody)
+                if(Body && Body.inventory)
                 {
-                    var InventoryCount = GetCount(projectileBody);
-                    if (InventoryCount > 0)
-                    {
-                        if (projectileBody.HasBuff(BlasterSwordActiveBuff))
-                        {
-                            var newProjectileInfo = new FireProjectileInfo
-                            {
-                                owner = projectileOwner,
-                                projectilePrefab = SwordProjectile,
-                                speedOverride = 100.0f,
-                                damage = projectileBody.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1))),
-                                damageTypeOverride = null,
-                                damageColorIndex = DamageColorIndex.Default,
-                                procChainMask = default
-                            };
-
-                            Vector3 MuzzleTransform = self.origin;
-                            var weapon = self.weapon;
-                            if (weapon)
-                            {
-                                var weaponModelLocator = weapon.GetComponent<RoR2.ModelLocator>();
-                                if (weaponModelLocator && weaponModelLocator.transform)
-                                {
-                                    ChildLocator childLocator = weaponModelLocator.modelTransform.GetComponent<ChildLocator>();
-                                    if (childLocator)
-                                    {
-                                        if (!string.IsNullOrWhiteSpace(self.muzzleName))
-                                        {
-                                            var child = childLocator.FindChild(self.muzzleName);
-                                            if (child)
-                                            {
-                                                MuzzleTransform = child.position;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            newProjectileInfo.position = MuzzleTransform;
-                            newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(self.aimVector);
-
-                            onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                            try
-                            {
-                                RecursionPrevention = true;
-                                RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                            }
-                            finally
-                            {
-                                RecursionPrevention = false;
-                            }
-                        }
-                    }
+                    stackCount = Body.inventory.GetItemCount(BlasterSword.instance.ItemDef);
+                    damageMult = BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (stackCount - 1));
                 }
             }
-            orig(self);
-        }
-
-        private void FireTheSwordOnProjectiles(On.RoR2.Projectile.ProjectileManager.orig_FireProjectile_FireProjectileInfo orig, RoR2.Projectile.ProjectileManager self, FireProjectileInfo fireProjectileInfo)
-        {
-            if (!RecursionPrevention && fireProjectileInfo.projectilePrefab != null &&
-                !BlacklistedProjectiles.Contains(fireProjectileInfo.projectilePrefab.name))
-            {
-                var projectileOwner = fireProjectileInfo.owner;
-                if (projectileOwner)
-                {
-                    var body = projectileOwner.GetComponent<RoR2.CharacterBody>();
-                    if (body)
-                    {
-                        var InventoryCount = GetCount(body);
-                        if (InventoryCount > 0)
-                        {
-                            if (body.HasBuff(BlasterSwordActiveBuff))
-                            {
-                                var newProjectileInfo = fireProjectileInfo;
-                                newProjectileInfo.owner = projectileOwner;
-                                newProjectileInfo.projectilePrefab = SwordProjectile;
-                                newProjectileInfo.speedOverride = 100.0f;
-                                newProjectileInfo.damage = body.damage * (BaseSwordDamageMultiplier + (AdditionalSwordDamageMultiplier * (InventoryCount - 1)));
-                                newProjectileInfo.damageTypeOverride = null;
-                                newProjectileInfo.damageColorIndex = DamageColorIndex.Default;
-                                newProjectileInfo.procChainMask = default;
-
-                                onBlasterSwordFired?.Invoke(newProjectileInfo);
-
-                                try
-                                {
-                                    RecursionPrevention = true;
-                                    RoR2.Projectile.ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                                }
-                                finally
-                                {
-                                    RecursionPrevention = false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            orig(self, fireProjectileInfo);
-        }
-
-        public class SwordCooldownHandlerIDunno : MonoBehaviour
-        {
-            public Dictionary<RoR2.OverlapAttack, float> MeleeTracker = new Dictionary<RoR2.OverlapAttack, float>();
 
             public void FixedUpdate()
             {
-                foreach (RoR2.OverlapAttack attack in MeleeTracker.Keys.ToList())
-                {
-                    var time = MeleeTracker[attack];
-                    time += Time.fixedDeltaTime;
+                if(CooldownTimer > 0) CooldownTimer -= Time.fixedDeltaTime;
 
-                    if (time > 5)
+                if(NetworkServer.active && Body)
+                {
+                    bool healthy = Body.healthComponent.combinedHealthFraction >= 1f;
+                    bool barrierActive = AnyBarrierGrantsActivationBuff && Body.healthComponent.barrier > 0;
+                    bool shouldHaveBuff = healthy || barrierActive;
+
+                    if(shouldHaveBuff != Body.HasBuff(BlasterSwordActiveBuff))
                     {
-                        MeleeTracker.Remove(attack);
-                    }
-                    else
-                    {
-                        MeleeTracker[attack] = time;
+                        if(shouldHaveBuff) Body.AddBuff(BlasterSwordActiveBuff);
+                        else Body.RemoveBuff(BlasterSwordActiveBuff);
                     }
                 }
+            }
+
+            public void TryFire(Vector3 origin, Vector3 aimDirection, int inputBulletCount = 1, float minSpread = 0f, float maxSpread = 0f, float spreadPitchScale = 1f, float spreadYawScale = 1f, string muzzleName = "")
+            {
+                if(CooldownTimer > 0) return;
+                if(!Body || !Body.HasBuff(BlasterSwordActiveBuff)) return;
+
+                if(!string.IsNullOrEmpty(muzzleName) && ModelLocator && ModelLocator.modelTransform)
+                {
+                    ChildLocator childLocator = ModelLocator.modelTransform.GetComponent<ChildLocator>();
+                    if(childLocator)
+                    {
+                        Transform muzzleTransform = childLocator.FindChild(muzzleName);
+                        if(muzzleTransform) origin = muzzleTransform.position;
+                    }
+                }
+
+                int swordsToFire = 1;
+                if(inputBulletCount > 1)
+                {
+                    swordsToFire = Mathf.FloorToInt(inputBulletCount * ShotgunCoefficient);
+                    swordsToFire = Mathf.Clamp(swordsToFire, 1, MaxBurst);
+                }
+
+                float totalDamage = Body.damage * this.damageMult;
+
+                for (int i = 0; i < swordsToFire; i++)
+                {
+                    Vector3 finalAim = Util.ApplySpread(aimDirection, minSpread, maxSpread, spreadPitchScale, spreadYawScale);
+                    FireProjectileInfo info = new FireProjectileInfo
+                    {
+                        owner = gameObject,
+                        projectilePrefab = SwordProjectile,
+                        speedOverride = 100f,
+                        damage = totalDamage,
+                        position = origin,
+                        rotation = Util.QuaternionSafeLookRotation(finalAim),
+                        crit = Body.RollCrit()
+                    };
+                    ProjectileManager.instance.FireProjectile(info);
+                }
+
+                float calculatedCooldown = BaseCooldown / Body.attackSpeed;
+                CooldownTimer = Mathf.Max(calculatedCooldown, MinCooldown);
             }
         }
 
@@ -1470,7 +1168,7 @@ namespace Aetherium.Items.Tier3
             public void SetupFields()
             {
                 ItemDisplay = GetComponentInParent<RoR2.ItemDisplay>();
-                if (ItemDisplay)
+                if(ItemDisplay)
                 {
                     var tempParticleSystems = GetComponentsInChildren<ParticleSystem>();
 
@@ -1481,10 +1179,10 @@ namespace Aetherium.Items.Tier3
 
                     var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
-                    if (characterModel)
+                    if(characterModel)
                     {
                         var body = characterModel.body;
-                        if (body)
+                        if(body)
                         {
                             OwnerMaster = body.master;
                         }
@@ -1496,7 +1194,7 @@ namespace Aetherium.Items.Tier3
 
             public void OnDestroy()
             {
-                if (ParticleSystems.Any())
+                if(ParticleSystems.Any())
                 {
                     foreach (ParticleSystemHandler particleSystemHandler in ParticleSystems)
                     {
@@ -1508,15 +1206,15 @@ namespace Aetherium.Items.Tier3
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || !ParticleSystems.Any() || !Renderer)
+                if(!OwnerMaster || !ItemDisplay || !ParticleSystems.Any() || !Renderer)
                 {
                     SetupFields();
                 }
 
-                if (OwnerMaster && !OwnerBody)
+                if(OwnerMaster && !OwnerBody)
                 {
                     var body = OwnerMaster.GetBody();
-                    if (body)
+                    if(body)
                     {
                         OwnerBody = body;
                     }
@@ -1526,24 +1224,24 @@ namespace Aetherium.Items.Tier3
                     }
                 }
 
-                if (OwnerBody && ParticleSystems.Any())
+                if(OwnerBody && ParticleSystems.Any())
                 {
                     foreach(ParticleSystemHandler particleSystemHandler in ParticleSystems)
                     {
                         var particleSystem = particleSystemHandler.ParticleSystem;
 
-                        if (particleSystem)
+                        if(particleSystem)
                         {
-                            if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                            if(OwnerBody.HasBuff(BlasterSwordActiveBuff))
                             {
-                                if (!particleSystem.isPlaying && !particleSystemHandler.HasPlayed && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                                if(!particleSystem.isPlaying && !particleSystemHandler.HasPlayed && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
                                 {
                                     particleSystem.Play();
                                     particleSystemHandler.HasPlayed = true;
                                 }
                                 else
                                 {
-                                    if (particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                                    if(particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
                                     {
                                         particleSystem.Stop();
                                         particleSystem.Clear();
@@ -1552,7 +1250,7 @@ namespace Aetherium.Items.Tier3
                             }
                             else
                             {
-                                if (particleSystem.isPlaying)
+                                if(particleSystem.isPlaying)
                                 {
                                     particleSystem.Stop();
                                 }
@@ -1564,7 +1262,7 @@ namespace Aetherium.Items.Tier3
 
                 if(OwnerBody && Renderer != null)
                 {
-                    if (OwnerBody.HasBuff(BlasterSwordActiveBuff))
+                    if(OwnerBody.HasBuff(BlasterSwordActiveBuff))
                     {
                         GlowCounter += Time.fixedDeltaTime * 8;
                     }

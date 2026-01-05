@@ -1,56 +1,40 @@
-﻿using System;
-using R2API;
+﻿using Aetherium.Utils;
+using BepInEx.Configuration;
 using RoR2;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using UnityEngine;
-using BepInEx.Configuration;
-using Aetherium.Utils;
-
-using static Aetherium.AetheriumPlugin;
 using UnityEngine.Networking;
+using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.Artifacts
 {
     public class ArtifactOfTheTyrant : ArtifactBase<ArtifactOfTheTyrant>
     {
         public ConfigOption<int> NumberOfEliteAffixesToGiveMithrix;
+        public ConfigOption<string> BlacklistedAffixesString;      
 
         public override string ArtifactName => "Artifact of the Tyrant";
-
         public override string ArtifactLangTokenName => "ARTIFACT_OF_THE_TYRANT";
-
         public override string ArtifactDescription => $"Any time a route-ending boss spawns they will be given {NumberOfEliteAffixesToGiveMithrix} random elite modifier(s).";
 
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantEnabledIcon.png");
-
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfTheTyrantDisabledIcon.png");
 
-        public string[] RouteEnderBossNames = new string[] 
+        public string[] RouteEnderBossNames = new string[]
         {
-            "BrotherBody",
-            "BrotherGlassBody",
-            "BrotherHauntBody",
-            "BrotherHurtBody",
-            "MiniVoidRaidCrabBody",
-            "MiniVoidRaidCrabBodyBase",
-            "MiniVoidRaidCrabBodyPhase1",
-            "MiniVoidRaidCrabBodyPhase2",
-            "MiniVoidRaidCrabBodyPhase3",
-            "ScavLunar1Body",
-            "ScavLunar2Body",
-            "ScavLunar3Body",
-            "ScavLunar4Body",
-            "FalseSonBossBody",
-            "FalseSonBossBodyLunarShard",
-            "FalseSonBossBodyBrokenLunarShard",
+            "BrotherBody", "BrotherGlassBody", "BrotherHauntBody", "BrotherHurtBody",
+            "MiniVoidRaidCrabBody", "MiniVoidRaidCrabBodyBase", "MiniVoidRaidCrabBodyPhase1",
+            "MiniVoidRaidCrabBodyPhase2", "MiniVoidRaidCrabBodyPhase3",
+            "ScavLunar1Body", "ScavLunar2Body", "ScavLunar3Body", "ScavLunar4Body",
+            "FalseSonBossBody", "FalseSonBossBodyLunarShard", "FalseSonBossBodyBrokenLunarShard",
         };
 
-        public List<string> BlacklistedAffixes = new List<string>()
-        {
-            "AffixEcho"
-        };
+        private HashSet<BodyIndex> ValidBossIndices = new HashSet<BodyIndex>();
+
+        private List<EliteDef> ValidEliteDefs = new List<EliteDef>();
+
+        private List<string> BlacklistedAffixes = new List<string> { "AffixEcho" };
 
         public override void Init(ConfigFile config)
         {
@@ -62,46 +46,80 @@ namespace Aetherium.Artifacts
 
         private void CreateConfig(ConfigFile config)
         {
-            NumberOfEliteAffixesToGiveMithrix = config.ActiveBind<int>("Artifact: " + ArtifactName, "Number of Elite Affixes to Give Route-Ending Bosses", 1, "How many elite statuses should Route-Ending bosses be granted by us?");
-
-            var blacklistString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Affixes String", "", "What affixes should be blacklisted from Artifact of the Tyrant? (generally no spaces, comma delimited)");
-
-            if (!String.IsNullOrWhiteSpace(blacklistString))
-            {
-                var blacklistedStringArray = blacklistString.ToString().Split(',');
-
-                foreach(string blacklistedEntry in blacklistedStringArray)
-                {
-                    BlacklistedAffixes.Add(blacklistedEntry);
-                }
-            }
+            NumberOfEliteAffixesToGiveMithrix = config.ActiveBind<int>("Artifact: " + ArtifactName, "Number of Elite Affixes", 1, "How many elite statuses should Route-Ending bosses be granted?");
+            BlacklistedAffixesString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklisted Affixes String", "", "Comma-separated list of ignored EliteDef names.");
         }
 
         public override void Hooks()
         {
-            On.RoR2.CharacterMaster.OnBodyStart += GiveMithrixEliteAffix;
+            RoR2Application.onLoad += BuildCaches;
+            On.RoR2.CharacterMaster.OnBodyStart += GiveBossEliteAffix;
         }
 
-        private void GiveMithrixEliteAffix(On.RoR2.CharacterMaster.orig_OnBodyStart orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
+        private void BuildCaches()
+        {
+            ValidBossIndices.Clear();
+            foreach (var bodyPrefab in BodyCatalog.allBodyPrefabs)
+            {
+                if(!bodyPrefab) continue;
+                string prefabName = bodyPrefab.name;
+
+                if(RouteEnderBossNames.Any(target => prefabName.Contains(target)))
+                {
+                    BodyIndex index = BodyCatalog.FindBodyIndex(bodyPrefab);
+                    if(index != BodyIndex.None) ValidBossIndices.Add(index);
+                }
+            }
+
+            ValidEliteDefs.Clear();
+
+            if(BlacklistedAffixesString != null && !string.IsNullOrWhiteSpace(BlacklistedAffixesString.ToString()))
+            {
+                var split = BlacklistedAffixesString.ToString().Split(',');
+                foreach (var s in split) BlacklistedAffixes.Add(s.Trim());
+            }
+
+            foreach (var elite in EliteCatalog.eliteDefs)
+            {
+                if(!elite.eliteEquipmentDef) continue;
+                if(!elite.eliteEquipmentDef.passiveBuffDef) continue;
+
+                if(BlacklistedAffixes.Contains(elite.name)) continue;
+                if(BlacklistedAffixes.Contains(elite.eliteEquipmentDef.name)) continue;
+                if(BlacklistedAffixes.Contains(elite.eliteEquipmentDef.passiveBuffDef.name)) continue;
+
+                ValidEliteDefs.Add(elite);
+            }
+        }
+
+        private void GiveBossEliteAffix(On.RoR2.CharacterMaster.orig_OnBodyStart orig, CharacterMaster self, CharacterBody body)
         {
             orig(self, body);
 
-            if (ArtifactEnabled && NetworkServer.active && body)
+            if(!NetworkServer.active || !ArtifactEnabled || !body) return;
+
+            if(ValidBossIndices.Contains(body.bodyIndex))
             {
-                if (RouteEnderBossNames.Any(x => body.name.Contains(x)))
+                if(ValidEliteDefs.Count == 0) return;
+
+                var candidates = ValidEliteDefs
+                    .Where(x => !body.HasBuff(x.eliteEquipmentDef.passiveBuffDef))
+                    .ToList();
+
+                Util.ShuffleList(candidates, Run.instance.stageRng);
+
+                int count = NumberOfEliteAffixesToGiveMithrix;
+                for (int i = 0; i < count && i < candidates.Count; i++)
                 {
-                    var eliteDefs = EliteCatalog.eliteDefs.Where(x => x.eliteEquipmentDef && x.eliteEquipmentDef.passiveBuffDef && !BlacklistedAffixes.Contains(x.name) && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.name) && !BlacklistedAffixes.Contains(x.eliteEquipmentDef.passiveBuffDef.name));
+                    EliteDef elite = candidates[i];
 
-                    var selectedEliteDefs = eliteDefs.Where(x => !body.HasBuff(x.eliteEquipmentDef.passiveBuffDef)).Shuffle(Run.instance.stageRng).Take(NumberOfEliteAffixesToGiveMithrix);
-
-                    if (selectedEliteDefs.Any())
+                    if(i == 0)
                     {
-                        body.inventory.GiveEquipmentString(selectedEliteDefs.First().eliteEquipmentDef.name);
-
-                        foreach (EliteDef eliteDef in selectedEliteDefs.Skip(1))
-                        {
-                            body.AddBuff(eliteDef.eliteEquipmentDef.passiveBuffDef);
-                        }
+                        body.inventory.SetEquipmentIndex(elite.eliteEquipmentDef.equipmentIndex, false);
+                    }
+                    else
+                    {
+                        body.AddBuff(elite.eliteEquipmentDef.passiveBuffDef);
                     }
                 }
             }

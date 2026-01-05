@@ -14,9 +14,9 @@ public class DynamicBoneCollider : MonoBehaviour
     {
         float num = this.m_Radius * Mathf.Abs(base.transform.lossyScale.x);
         float num2 = this.m_Height * 0.5f - this.m_Radius;
-        if (num2 <= 0f)
+        if(num2 <= 0f)
         {
-            if (this.m_Bound == DynamicBoneCollider.Bound.Outside)
+            if(this.m_Bound == DynamicBoneCollider.Bound.Outside)
             {
                 DynamicBoneCollider.OutsideSphere(ref particlePosition, particleRadius, base.transform.TransformPoint(this.m_Center), num);
                 return;
@@ -43,7 +43,7 @@ public class DynamicBoneCollider : MonoBehaviour
                     center2.z += num2;
                     break;
             }
-            if (this.m_Bound == DynamicBoneCollider.Bound.Outside)
+            if(this.m_Bound == DynamicBoneCollider.Bound.Outside)
             {
                 DynamicBoneCollider.OutsideCapsule(ref particlePosition, particleRadius, base.transform.TransformPoint(center), base.transform.TransformPoint(center2), num);
                 return;
@@ -59,7 +59,7 @@ public class DynamicBoneCollider : MonoBehaviour
         float num2 = num * num;
         Vector3 a = particlePosition - sphereCenter;
         float sqrMagnitude = a.sqrMagnitude;
-        if (sqrMagnitude > 0f && sqrMagnitude < num2)
+        if(sqrMagnitude > 0f && sqrMagnitude < num2)
         {
             float num3 = Mathf.Sqrt(sqrMagnitude);
             particlePosition = sphereCenter + a * (num / num3);
@@ -72,7 +72,7 @@ public class DynamicBoneCollider : MonoBehaviour
         float num2 = num * num;
         Vector3 a = particlePosition - sphereCenter;
         float sqrMagnitude = a.sqrMagnitude;
-        if (sqrMagnitude > num2)
+        if(sqrMagnitude > num2)
         {
             float num3 = Mathf.Sqrt(sqrMagnitude);
             particlePosition = sphereCenter + a * (num / num3);
@@ -86,10 +86,10 @@ public class DynamicBoneCollider : MonoBehaviour
         Vector3 vector = capsuleP1 - capsuleP0;
         Vector3 vector2 = particlePosition - capsuleP0;
         float num3 = Vector3.Dot(vector2, vector);
-        if (num3 <= 0f)
+        if(num3 <= 0f)
         {
             float sqrMagnitude = vector2.sqrMagnitude;
-            if (sqrMagnitude > 0f && sqrMagnitude < num2)
+            if(sqrMagnitude > 0f && sqrMagnitude < num2)
             {
                 float num4 = Mathf.Sqrt(sqrMagnitude);
                 particlePosition = capsuleP0 + vector2 * (num / num4);
@@ -99,23 +99,23 @@ public class DynamicBoneCollider : MonoBehaviour
         else
         {
             float sqrMagnitude2 = vector.sqrMagnitude;
-            if (num3 >= sqrMagnitude2)
+            if(num3 >= sqrMagnitude2)
             {
                 vector2 = particlePosition - capsuleP1;
                 float sqrMagnitude3 = vector2.sqrMagnitude;
-                if (sqrMagnitude3 > 0f && sqrMagnitude3 < num2)
+                if(sqrMagnitude3 > 0f && sqrMagnitude3 < num2)
                 {
                     float num5 = Mathf.Sqrt(sqrMagnitude3);
                     particlePosition = capsuleP1 + vector2 * (num / num5);
                     return;
                 }
             }
-            else if (sqrMagnitude2 > 0f)
+            else if(sqrMagnitude2 > 0f)
             {
                 num3 /= sqrMagnitude2;
                 vector2 -= vector * num3;
                 float sqrMagnitude4 = vector2.sqrMagnitude;
-                if (sqrMagnitude4 > 0f && sqrMagnitude4 < num2)
+                if(sqrMagnitude4 > 0f && sqrMagnitude4 < num2)
                 {
                     float num6 = Mathf.Sqrt(sqrMagnitude4);
                     particlePosition += vector2 * ((num - num6) / num6);
@@ -131,10 +131,10 @@ public class DynamicBoneCollider : MonoBehaviour
         Vector3 vector = capsuleP1 - capsuleP0;
         Vector3 vector2 = particlePosition - capsuleP0;
         float num3 = Vector3.Dot(vector2, vector);
-        if (num3 <= 0f)
+        if(num3 <= 0f)
         {
             float sqrMagnitude = vector2.sqrMagnitude;
-            if (sqrMagnitude > num2)
+            if(sqrMagnitude > num2)
             {
                 float num4 = Mathf.Sqrt(sqrMagnitude);
                 particlePosition = capsuleP0 + vector2 * (num / num4);
@@ -144,23 +144,23 @@ public class DynamicBoneCollider : MonoBehaviour
         else
         {
             float sqrMagnitude2 = vector.sqrMagnitude;
-            if (num3 >= sqrMagnitude2)
+            if(num3 >= sqrMagnitude2)
             {
                 vector2 = particlePosition - capsuleP1;
                 float sqrMagnitude3 = vector2.sqrMagnitude;
-                if (sqrMagnitude3 > num2)
+                if(sqrMagnitude3 > num2)
                 {
                     float num5 = Mathf.Sqrt(sqrMagnitude3);
                     particlePosition = capsuleP1 + vector2 * (num / num5);
                     return;
                 }
             }
-            else if (sqrMagnitude2 > 0f)
+            else if(sqrMagnitude2 > 0f)
             {
                 num3 /= sqrMagnitude2;
                 vector2 -= vector * num3;
                 float sqrMagnitude4 = vector2.sqrMagnitude;
-                if (sqrMagnitude4 > num2)
+                if(sqrMagnitude4 > num2)
                 {
                     float num6 = Mathf.Sqrt(sqrMagnitude4);
                     particlePosition += vector2 * ((num - num6) / num6);
@@ -171,11 +171,11 @@ public class DynamicBoneCollider : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (!base.enabled)
+        if(!base.enabled)
         {
             return;
         }
-        if (this.m_Bound == DynamicBoneCollider.Bound.Outside)
+        if(this.m_Bound == DynamicBoneCollider.Bound.Outside)
         {
             Gizmos.color = Color.yellow;
         }
@@ -185,7 +185,7 @@ public class DynamicBoneCollider : MonoBehaviour
         }
         float radius = this.m_Radius * Mathf.Abs(base.transform.lossyScale.x);
         float num = this.m_Height * 0.5f - this.m_Radius;
-        if (num <= 0f)
+        if(num <= 0f)
         {
             Gizmos.DrawWireSphere(base.transform.TransformPoint(this.m_Center), radius);
             return;

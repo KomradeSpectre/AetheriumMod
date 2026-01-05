@@ -66,7 +66,7 @@ namespace Aetherium.Utils
                 totalWeight += weight;
             }
 
-            if (totalWeight > 0)
+            if(totalWeight > 0)
                 finalSlide = finalValue / totalWeight;
         }
     }

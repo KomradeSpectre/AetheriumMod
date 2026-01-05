@@ -11,14 +11,13 @@ using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.ItemHelpers;
 using static Aetherium.Utils.MiscHelpers;
 using static Aetherium.Utils.MathHelpers;
+using RoR2.ContentManagement;
 
 namespace Aetherium.Items.TierLunar
 {
     public class AccursedPotion : ItemBase<AccursedPotion>
     {
-        //Config
         public static ConfigOption<bool> EnableSounds;
-
         public static ConfigOption<float> BaseSipCooldownDuration;
         public static ConfigOption<float> AdditionalStackSipCooldownReductionPercentage;
         public static ConfigOption<float> BaseRadiusGranted;
@@ -26,30 +25,25 @@ namespace Aetherium.Items.TierLunar
         public static ConfigOption<int> MaxEffectsAccrued;
         public static ConfigOption<string> BlacklistedBuffsAndDebuffsString;
 
-        //Lang
-
         public override string ItemName => "Accursed Potion";
         public override string ItemLangTokenName => "ACCURSED_POTION";
         public override string ItemPickupDesc => "Every so often you are forced to drink a strange potion, sharing its effects with enemies around you.";
+        public override string ItemFullDescription => $"Every <style=cIsUtility>{BaseSipCooldownDuration}</style> seconds <style=cStack>(reduced by {FloatToPercentageString(1 - AdditionalStackSipCooldownReductionPercentage)} per stack)</style> you are forced to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{BaseRadiusGranted}m radius</style> <style=cStack>(+{AdditionalRadiusGranted}m per stack)</style>.";
+        public override string ItemLore => "<style=cMono>LOG: Transcribed Audio - 'The Blue Place' SUBJECT: Unknown Survivor</style>\n" +
 
-        public override string ItemFullDescription => $"Every <style=cIsUtility>{BaseSipCooldownDuration}</style> seconds <style=cStack>(reduced by {FloatToPercentageString(1 - AdditionalStackSipCooldownReductionPercentage)} per stack)</style> you are forced " +
-                $"to drink a strange potion, sharing its effects with enemies in a <style=cIsUtility>{BaseRadiusGranted}m radius</style> <style=cStack>(+{AdditionalRadiusGranted}m per stack)</style> around you.</style>" +
-                $" Max: {MaxEffectsAccrued} buffs or debuffs can be applied at any time.";
+        "The air here... it tastes like static and old dust.\n " +
+        "I found a merchant in the back of the cave. Not the big lizard, something else. Something wrapped in rags and crystals. It was stirring a vat of..." +
+        "I don't know. It looked like liquid starlight mixed with oil.\n " +
 
-        public override string ItemLore =>
+        "\"There is no true survival in order\", the thing chattered. Its voice sounded like glass grinding.\n" +
+        "\"Your 'tactics', your 'formations'... <style=cMono>Flimsy</style>. <style=cMono>Static</style>. To live forever, you must become akin to a storm.\"\n" +
 
-            "A dim light fills the shack. The figure cackles as they stir the bubbling cauldron before them.\n" +
-            "\"There is no such thing as an elixir of immortality.\", they bellow, \"At least not in a static conventional sense. To create it, one must surrender to the unpredictability of chaos.\"\n\n" +
+        "It rolled a glass sphere across the stone table. Inside, the liquid shifted colors: blood—red, green, then void-purple; every glance a new color.\n" +
 
-            "The figure rolls a crude bauble on the damp wooden table and takes a moment to observe it before adding another ingredient to the brew. " +
-            "\"For it is in that chaos that we are granted a random possibility that we may near such a concoction, if the wheel of fate decides it so. Ah, perhaps this will do.\", they say before taking a sip from the cauldron.\n\n" +
+        "\"Chaos is the only armor that cannot be pierced\", it said, offering the vial. \"Drink. Let the wheel spin. If fate decides you burn, then let your enemies choke on the smoke.\"\n" +
 
-            "For just a moment, there can be seen an expression of absolute joy on the figure's visage before it disappears and they begin letting off a faint glow. \"Alas, it does not seem the universe has seen it fit to grant me the gift I seek, but the one it deems I deserve. " +
-            "Let us hope it may smile upon you where it has refused to do so for me.\"\n\n" +
-
-            "The shack fills with light. When it begins to dim, the figure can no longer be seen and a thought starts to burrow its way into your mind, \"I know what they forgot, I can succeed where they had failed.\" Confident, you begin adding ingredients to the brew.\n\n" +
-
-            "The work must be completed, but it seems it can wait a moment. You have a visitor.";
+        "I shouldn't touch it. I know I shouldn't. But I am no longer in the safety of that place, and the monsters outside are getting louder.\n" +
+        "I'm thirsty.";
 
         public override ItemTier Tier => ItemTier.Lunar;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility, ItemTag.Cleansable };
@@ -57,13 +51,12 @@ namespace Aetherium.Items.TierLunar
         public override GameObject ItemModel => MainAssets.LoadAsset<GameObject>("AccursedPotion.prefab");
         public override Sprite ItemIcon => MainAssets.LoadAsset<Sprite>("AccursedPotionIcon.png");
 
-        public static BuffDef AccursedPotionSipCooldownDebuff;
-
+        public static BuffDef AccursedPotionSipCooldownBuff;
+        public static NetworkSoundEventDef AccursedPotionGulp;
         public static GameObject ItemBodyModelPrefab;
 
-        public static NetworkSoundEventDef AccursedPotionGulp;
-
-        public List<BuffDef> BlacklistedBuffsAndDebuffs = new List<BuffDef>();
+        public static List<BuffDef> ValidBuffList = new List<BuffDef>();
+        public static HashSet<string> BlacklistedBuffNames = new HashSet<string>();
 
         public override void Init(ConfigFile config)
         {
@@ -77,33 +70,31 @@ namespace Aetherium.Items.TierLunar
 
         private void CreateConfig(ConfigFile config)
         {
-            EnableSounds = config.ActiveBind<bool>("Item: " + ItemName, "Enable Sounds?", true, "Should this item be able to emit sounds in certain conditions?");
-
-            BaseSipCooldownDuration = config.ActiveBind("Item: " + ItemName, "Base Duration of Sip Cooldown", 30f, "What should the base duration of the Accursed Potion sip cooldown be? (Default: 30 (30s))");
-            AdditionalStackSipCooldownReductionPercentage = config.ActiveBind("Item: " + ItemName, "Percentage of Cooldown Reduction per Additional Stack", 0.75f, "How far should each stack reduce the cooldown? (Default: 0.75 (100% - 75% = 25% Reduction per stack))");
-            BaseRadiusGranted = config.ActiveBind("Item: " + ItemName, "Default Radius of Accursed Potion Effect Sharing", 20f, "What radius of buff/debuff sharing should the first pickup have? (Default: 20m)");
-            AdditionalRadiusGranted = config.ActiveBind("Item: " + ItemName, "Additional Radius Granted per Additional Stack", 5f, "What additional radius of buff/debuff sharing should each stack after grant? (Default: 5m)");
-            MaxEffectsAccrued = config.ActiveBind("Item: " + ItemName, "Max Potion Effects Allowed", 8, "How many buffs or debuffs should we be able to have? (Default: 8)");
-            BlacklistedBuffsAndDebuffsString = config.ActiveBind("Item: " + ItemName, "Blacklisted Buffs and Debuffs", "", "Which buffs and debuffs should not be allowed to roll via Accursed Potion?");
+            EnableSounds = config.ActiveBind<bool>("Item: " + ItemName, "Enable Sounds", true, "Should this item emit sounds?");
+            BaseSipCooldownDuration = config.ActiveBind<float>("Item: " + ItemName, "Base Sip Cooldown", 30f, "Base cooldown in seconds.");
+            AdditionalStackSipCooldownReductionPercentage = config.ActiveBind<float>("Item: " + ItemName, "Cooldown Reduction Per Stack", 0.75f, "Reduction multiplier per stack (0.75 = 25% reduction).");
+            BaseRadiusGranted = config.ActiveBind<float>("Item: " + ItemName, "Base Radius", 20f, "Sharing radius in meters.");
+            AdditionalRadiusGranted = config.ActiveBind<float>("Item: " + ItemName, "Radius Per Stack", 5f, "Additional radius per stack.");
+            MaxEffectsAccrued = config.ActiveBind<int>("Item: " + ItemName, "Max Effects", 8, "Max buffs/debuffs allowed at once.");
+            BlacklistedBuffsAndDebuffsString = config.ActiveBind<string>("Item: " + ItemName, "Blacklisted Buffs", "", "Comma-separated list of BuffDefs to exclude.");
         }
 
         private void CreateSound()
         {
             AccursedPotionGulp = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             AccursedPotionGulp.eventName = "Aetherium_Gulp";
-            R2API.ContentAddition.AddNetworkSoundEventDef(AccursedPotionGulp);
+            ContentAddition.AddNetworkSoundEventDef(AccursedPotionGulp);
         }
 
         private void CreateBuff()
         {
-            AccursedPotionSipCooldownDebuff = ScriptableObject.CreateInstance<BuffDef>();
-            AccursedPotionSipCooldownDebuff.name = "Aetherium: Accursed Potion Sip Cooldown";
-            AccursedPotionSipCooldownDebuff.buffColor = new Color(50, 0, 50);
-            AccursedPotionSipCooldownDebuff.canStack = false;
-            AccursedPotionSipCooldownDebuff.isDebuff = false;
-            AccursedPotionSipCooldownDebuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
-
-            ContentAddition.AddBuffDef(AccursedPotionSipCooldownDebuff);
+            AccursedPotionSipCooldownBuff = ScriptableObject.CreateInstance<BuffDef>();
+            AccursedPotionSipCooldownBuff.name = "Aetherium: Accursed Potion Cooldown";
+            AccursedPotionSipCooldownBuff.buffColor = new Color(0.2f, 0f, 0.2f);
+            AccursedPotionSipCooldownBuff.canStack = false;
+            AccursedPotionSipCooldownBuff.isDebuff = true;
+            AccursedPotionSipCooldownBuff.iconSprite = MainAssets.LoadAsset<Sprite>("AccursedPotionSipCooldownDebuffIcon.png");
+            ContentAddition.AddBuffDef(AccursedPotionSipCooldownBuff);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -322,77 +313,116 @@ namespace Aetherium.Items.TierLunar
 
         public override void Hooks()
         {
-            On.RoR2.Run.Start += PopulateBlacklistedBuffsAndDebuffs;
-            On.RoR2.CharacterBody.FixedUpdate += ForceFeedPotion;
+            RoR2Application.onLoad += BuildBuffList;
+
+            On.RoR2.CharacterBody.OnInventoryChanged += ManageComponent;
         }
 
-        private void PopulateBlacklistedBuffsAndDebuffs(On.RoR2.Run.orig_Start orig, RoR2.Run self)
+        private void BuildBuffList()
         {
-            string testString = BlacklistedBuffsAndDebuffsString;
-            var testStringArray = testString.Split(',');
-            if (testStringArray.Length > 0)
-            {
-                foreach (string stringToTest in testStringArray)
-                {
-                    var buff = Array.Find<BuffDef>(RoR2.BuffCatalog.buffDefs, buffDef => buffDef.name == stringToTest);
-                    if (!buff) { continue; }
+            string[] blacklist = BlacklistedBuffsAndDebuffsString.ToString().Split(',');
+            foreach (string s in blacklist) BlacklistedBuffNames.Add(s.Trim());
 
-                    BlacklistedBuffsAndDebuffs.Add(buff);
-                }
+            BlacklistedBuffNames.Add(RoR2Content.Buffs.Immune.name);
+            BlacklistedBuffNames.Add(RoR2Content.Buffs.HiddenInvincibility.name);
+            BlacklistedBuffNames.Add("bdBearVoidReady");
+
+            foreach (BuffDef buff in ContentManager.buffDefs)
+            {
+                if(!buff) continue;
+                if(buff.iconSprite == null) continue;
+                if(BlacklistedBuffNames.Contains(buff.name)) continue;
+
+                ValidBuffList.Add(buff);
             }
 
-            orig(self);
+            AetheriumPlugin.ModLogger.LogInfo($"Accursed Potion: Cached {ValidBuffList.Count} valid buffs.");
         }
 
-        private void ForceFeedPotion(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void ManageComponent(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
-            if (NetworkServer.active)
+            orig(self);
+            if(!self.inventory) return;
+
+            int count = self.inventory.GetItemCount(ItemDef);
+            var behavior = self.GetComponent<AccursedPotionBehavior>();
+
+            if(count > 0)
             {
-                var InventoryCount = GetCount(self);
-                if (InventoryCount > 0)
+                if(!behavior) behavior = self.gameObject.AddComponent<AccursedPotionBehavior>();
+                behavior.StackCount = count;
+            }
+            else if(behavior)
+            {
+                UnityEngine.Object.Destroy(behavior);
+            }
+        }
+
+        public class AccursedPotionBehavior : MonoBehaviour
+        {
+            public CharacterBody Body;
+            public int StackCount;
+
+            private float cooldownTimer;
+
+            public void Awake()
+            {
+                Body = GetComponent<CharacterBody>();
+            }
+
+            public void FixedUpdate()
+            {
+                if(!NetworkServer.active) return;
+
+                if(Body.HasBuff(AccursedPotionSipCooldownBuff)) return;
+
+                TrySipPotion();
+            }
+
+            private void TrySipPotion()
+            {
+                if(Body.activeBuffsListCount >= MaxEffectsAccrued) return;
+
+                if(ValidBuffList.Count == 0) return;
+                BuffDef randomBuff = ValidBuffList[Run.instance.stageRng.RangeInt(0, ValidBuffList.Count)];
+
+                float radius = BaseRadiusGranted + (AdditionalRadiusGranted * (StackCount - 1));
+                int buffStacks = randomBuff.canStack ? StackCount : 1;
+                float duration = Run.instance.stageRng.RangeFloat(10f, 20f);
+
+                Body.AddTimedBuff(randomBuff, duration, buffStacks);
+
+                SphereSearch search = new SphereSearch
                 {
-                    if (!self.HasBuff(AccursedPotionSipCooldownDebuff) && self.activeBuffsListCount <= MaxEffectsAccrued)
+                    radius = radius,
+                    mask = LayerIndex.entityPrecise.mask,
+                    origin = Body.corePosition
+                };
+
+                TeamMask enemyTeams = TeamMask.GetEnemyTeams(Body.teamComponent.teamIndex);
+                var hurtBoxes = search.RefreshCandidates()
+                                      .FilterCandidatesByHurtBoxTeam(enemyTeams)
+                                      .FilterCandidatesByDistinctHurtBoxEntities()
+                                      .GetHurtBoxes();
+
+                foreach (var box in hurtBoxes)
+                {
+                    if(box.healthComponent && box.healthComponent.body)
                     {
-                        BuffDef ChosenBuff = BuffCatalog.buffDefs[RoR2.Run.instance.stageRng.RangeInt(0, RoR2.BuffCatalog.buffCount - 1)];
-
-                        if (BlacklistedBuffsAndDebuffs.Contains(ChosenBuff))
-                        {
-                            ChosenBuff = null;
-                        }
-
-                        if (ChosenBuff.iconSprite != null && ChosenBuff != RoR2Content.Buffs.Immune && ChosenBuff != RoR2Content.Buffs.HiddenInvincibility)
-                        {
-                            var BuffCount = ChosenBuff.canStack ? InventoryCount : 1;
-
-                            var randomEffectDuration = RoR2.Run.instance.stageRng.RangeFloat(10, 20);
-                            RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(self.teamComponent.teamIndex);
-                            RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
-                            {
-                                radius = BaseRadiusGranted + (AdditionalRadiusGranted * (InventoryCount - 1)),
-                                mask = RoR2.LayerIndex.entityPrecise.mask,
-                                origin = self.corePosition
-                            }.RefreshCandidates().FilterCandidatesByHurtBoxTeam(enemyTeams).OrderCandidatesByDistance().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
-
-                            for (int i = 0; i < hurtBoxes.Length; i++)
-                            {
-                                var body = hurtBoxes[i].healthComponent.body;
-                                if (body)
-                                {
-                                    AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, body);
-                                }
-                            }
-                            AddBuffAndDot(AccursedPotionSipCooldownDebuff, BaseSipCooldownDuration * (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, InventoryCount - 1), 1, self);
-                            AddBuffAndDot(ChosenBuff, randomEffectDuration, BuffCount, self);
-
-                            if (EnableSounds)
-                            {
-                                EntitySoundManager.EmitSoundServer(AccursedPotionGulp.akId, self.gameObject);
-                            }
-                        }
+                        box.healthComponent.body.AddTimedBuff(randomBuff, duration, buffStacks);
                     }
                 }
+
+                float reductionMult = (float)Math.Pow(AdditionalStackSipCooldownReductionPercentage, StackCount - 1);
+                float cooldown = BaseSipCooldownDuration * reductionMult;
+
+                Body.AddTimedBuff(AccursedPotionSipCooldownBuff, cooldown);
+
+                if(EnableSounds)
+                {
+                    EntitySoundManager.EmitSoundServer(AccursedPotionGulp.akId, Body.gameObject);
+                }
             }
-            orig(self);
         }
     }
 }

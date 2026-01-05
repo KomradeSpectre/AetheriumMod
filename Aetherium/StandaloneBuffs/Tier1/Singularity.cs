@@ -36,7 +36,7 @@ namespace Aetherium.StandaloneBuffs.Tier1
 
         private void PullTowardsCentralPoint(On.RoR2.HoldoutZoneController.orig_Update orig, HoldoutZoneController self)
         {
-            if (NetworkServer.active)
+            if(NetworkServer.active)
             {
                 HurtBox[] HurtBoxes = new SphereSearch()
                 {
@@ -48,10 +48,10 @@ namespace Aetherium.StandaloneBuffs.Tier1
 
                 foreach (HurtBox hurtBox in HurtBoxes)
                 {
-                    if (hurtBox && hurtBox.healthComponent)
+                    if(hurtBox && hurtBox.healthComponent)
                     {
                         var body = hurtBox.healthComponent.body;
-                        if (body && body.HasBuff(BuffDef))
+                        if(body && body.HasBuff(BuffDef))
                         {
 
                             Vector3 directionToCenterOfRadius = (self.gameObject.transform.position - body.transform.position).normalized;
@@ -71,14 +71,14 @@ namespace Aetherium.StandaloneBuffs.Tier1
                             };
 
                             var characterMotor = body.characterMotor;
-                            if (characterMotor)
+                            if(characterMotor)
                             {
                                 characterMotor.ApplyForceImpulseFixed(physInfo);
                             }
                             else
                             {
                                 var rigidBodyMotor = body.GetComponent<RigidbodyMotor>();
-                                if (rigidBodyMotor)
+                                if(rigidBodyMotor)
                                 {
                                     rigidBodyMotor.ApplyForceImpulse(physInfo);
                                 }

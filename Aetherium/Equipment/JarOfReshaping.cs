@@ -40,7 +40,7 @@ namespace Aetherium.Equipment
             $"[VISUAL RECORDING RECOVERED FROM BLACK BOX ON DERELICT 'UES SAFETY FIRST' ENGINEERING VESSEL. TRANSCRIPT TO FOLLOW]\n" +
             $"\nTerry: Hey Phil, did you see what the boys over in Expeditions brought in?\n" +
             $"Terry: Looks like a pretty ordinary jar right?\n" +
-            $"Phil: Yeah, just looks like something you'd find at a housewive's art deco yard sale.\n" +
+            $"Phil: Yeah, just looks like something you'd find at a <b>housewife's</b> art deco yard sale.\n" +
             $"Terry: Yeah, I thought the same thing, but watch and learn.\n" +
             $"Terry: First, you just hit the bottom of the jar with your palm, and ---\n" +
             $"Phil: Woah! It started glowing and what on Terra is that noise? Is that an alien vacuum cleaner?\n" +
@@ -49,8 +49,8 @@ namespace Aetherium.Equipment
             $"Phil: That's amazing! Can it do anything else, or is it just a weird vacuum pot?\n" +
             $"Terry: Yeah, if I just squeeze the handle here, it'll empty it all out.\n" +
             $"[Terry is seen squeezing the handles of the jar, but his expression turns to horror a moment later.]\n" +
-            $"Terry: Oh hell, oh god. Phil, I just realized that I may have thrown in a few mining grenades earlier when we were having fun with it earlier.\n" +
-            $"Terry: Quickly! Get one of the suits on before it---\n" +
+            $"Terry: Oh hell, oh god. Phil, I just realized I may have thrown in a few mining grenades <b>when we were having fun with it earlier.</b>\n" + 
+            $"Terry: Quickly! Get <b>your suit</b> on before it---\n" +
             $"[The jar activates, shooting its contents around the room. One of the projectiles hits the hull and explodes, ripping a hole through it moments before the feed is lost.]\n" +
             $"\n[END OF FILE] ";
 
@@ -114,7 +114,7 @@ namespace Aetherium.Equipment
             chargeSphereVfxAttributes.vfxPriority = RoR2.VFXAttributes.VFXPriority.Always;
 
             JarChargeSphere.AddComponent<NetworkIdentity>();
-            if (JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
+            if(JarChargeSphere) PrefabAPI.RegisterNetworkPrefab(JarChargeSphere);
             ContentAddition.AddEffect(JarChargeSphere);
 
             //JarOrbProjectile = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>())
@@ -139,7 +139,7 @@ namespace Aetherium.Equipment
             
             JarOrb.AddComponent<NetworkIdentity>();
 
-            if (JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
+            if(JarOrb) PrefabAPI.RegisterNetworkPrefab(JarOrb);
             ContentAddition.AddEffect(JarOrb);
 
             OrbAPI.AddOrb(typeof(JarOfReshapingOrb));
@@ -171,7 +171,7 @@ namespace Aetherium.Equipment
             impactExplosion.blastProcCoefficient = 1f;
 
             // register it for networking
-            if (JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
+            if(JarProjectile) PrefabAPI.RegisterNetworkPrefab(JarProjectile);
             
             // add it to the projectile catalog or it won't work in multiplayer
             ContentAddition.AddProjectile(JarProjectile);
@@ -419,12 +419,12 @@ namespace Aetherium.Equipment
         private void AddTrackerToBodies(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
             var slot = self.equipmentSlot;
-            if (slot)
+            if(slot)
             {
-                if (slot.equipmentIndex == EquipmentDef.equipmentIndex)
+                if(slot.equipmentIndex == EquipmentDef.equipmentIndex)
                 {
                     var bulletTracker = self.GetComponent<JarBulletTracker>();
-                    if (!bulletTracker)
+                    if(!bulletTracker)
                     {
                         bulletTracker = self.gameObject.AddComponent<JarBulletTracker>();
                         bulletTracker.body = self;
@@ -436,18 +436,18 @@ namespace Aetherium.Equipment
 
         private void EquipmentUpdate(On.RoR2.EquipmentSlot.orig_Update orig, RoR2.EquipmentSlot self)
         {
-            if (EquipmentCatalog.GetEquipmentDef(self.equipmentIndex) == EquipmentDef)
+            if(EquipmentCatalog.GetEquipmentDef(self.equipmentIndex) == EquipmentDef)
             {
                 var selfDisplay = self.FindActiveEquipmentDisplay();
                 var body = self.characterBody;
-                if (selfDisplay && body)
+                if(selfDisplay && body)
                 {
                     var bulletTracker = body.GetComponent<JarBulletTracker>();
                     var input = body.inputBank;
-                    if (input && bulletTracker)
+                    if(input && bulletTracker)
                     {
                         //Debug.Log($"Update ChargeTime: {bulletTracker.ChargeTime}");
-                        if (bulletTracker.ChargeTime > 0)
+                        if(bulletTracker.ChargeTime > 0)
                         {
                             selfDisplay.rotation = Quaternion.Slerp(selfDisplay.rotation, RoR2.Util.QuaternionSafeLookRotation(input.aimDirection), 0.15f);
                             orig(self);
@@ -462,28 +462,28 @@ namespace Aetherium.Equipment
 
         protected override bool ActivateEquipment(RoR2.EquipmentSlot slot)
         {
-            if (!slot.characterBody || !slot.characterBody.teamComponent) return false;
+            if(!slot.characterBody || !slot.characterBody.teamComponent) return false;
             var body = slot.characterBody;
             var bulletTracker = body.GetComponent<JarBulletTracker>();
-            if (!bulletTracker)
+            if(!bulletTracker)
             {
                 bulletTracker = body.gameObject.AddComponent<JarBulletTracker>();
                 bulletTracker.body = body;
             }
 
             var equipmentDisplayTransform = slot.FindActiveEquipmentDisplay();
-            if (equipmentDisplayTransform)
+            if(equipmentDisplayTransform)
             {
                 bulletTracker.TargetTransform = equipmentDisplayTransform;
             }
 
-            if (bulletTracker.jarBullets.Count > 0 && bulletTracker.ChargeTime <= 0 && bulletTracker.SuckTime <= 0)
+            if(bulletTracker.jarBullets.Count > 0 && bulletTracker.ChargeTime <= 0 && bulletTracker.SuckTime <= 0)
             {
                 bulletTracker.ChargeTime = 1;
                 bulletTracker.RefireTime = 0.2f;
                 return true;
             }
-            else if (bulletTracker.jarBullets.Count <= 0 && bulletTracker.SuckTime <= 0)
+            else if(bulletTracker.jarBullets.Count <= 0 && bulletTracker.SuckTime <= 0)
             {
                 bulletTracker.IsSuckingProjectiles = false;
                 bulletTracker.SuckTime = ProjectileAbsorptionTime;
@@ -518,10 +518,10 @@ namespace Aetherium.Equipment
             {
                 var transformRoot = gameObject.transform.root.gameObject;
                 var characterModel = transformRoot.GetComponent<CharacterModel>();
-                if (characterModel)
+                if(characterModel)
                 {
                     var body = characterModel.body;
-                    if (body)
+                    if(body)
                     {
                         OwnerBody = body;
                     }
@@ -535,7 +535,7 @@ namespace Aetherium.Equipment
                 if(OwnerBody && !JarBulletTracker)
                 {
                     var bulletTracker = OwnerBody.GetComponent<JarBulletTracker>();
-                    if (bulletTracker)
+                    if(bulletTracker)
                     {
                         JarBulletTracker = bulletTracker;
                     }
@@ -557,14 +557,14 @@ namespace Aetherium.Equipment
 
                     if(JarBulletTracker.SuckTime > 0)
                     {
-                        if (ParticleSystem && !ParticleSystem.isPlaying)
+                        if(ParticleSystem && !ParticleSystem.isPlaying)
                         {
                             ParticleSystem.Play();
                         }
                     }
                     else
                     {
-                        if (ParticleSystem && ParticleSystem.isPlaying)
+                        if(ParticleSystem && ParticleSystem.isPlaying)
                         {
                             ParticleSystem.Stop();
                         }
@@ -590,14 +590,14 @@ namespace Aetherium.Equipment
 
             public void Update()
             {
-                if (ParentTransform)
+                if(ParentTransform)
                 {
                     gameObject.transform.position = ParentTransform.position;
                     gameObject.transform.localScale = new Vector3(BaseRadiusGranted, BaseRadiusGranted, BaseRadiusGranted);
                     gameObject.transform.rotation = Util.QuaternionSafeLookRotation(Vector3.up);
                 }
 
-                if (!Animator)
+                if(!Animator)
                 {
                     Destroy(gameObject);
                 }
@@ -607,7 +607,7 @@ namespace Aetherium.Equipment
                     Fading = true;
                     Animator.Play("JarOfReshapingAbsorbFade");
                 }
-                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit"))
+                if(Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit"))
                 {
                     Destroy(gameObject);
                 }
@@ -629,11 +629,11 @@ namespace Aetherium.Equipment
             public void FixedUpdate()
             {
                 var input = body.inputBank;
-                if (SuckTime > 0)
+                if(SuckTime > 0)
                 {
-                    if (!IsSuckingProjectiles)
+                    if(!IsSuckingProjectiles)
                     {
-                        if (NetworkServer.active)
+                        if(NetworkServer.active)
                         {
                             RoR2.EffectData sphere = new RoR2.EffectData
                             {
@@ -643,7 +643,7 @@ namespace Aetherium.Equipment
                             RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
                         }
                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
-                        if (bodyIdentity && NetworkServer.active)
+                        if(bodyIdentity && NetworkServer.active)
                         {
                             new SyncJarSucking(SyncJarSucking.MessageType.Charging, true, ProjectileAbsorptionTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
                         }
@@ -657,21 +657,21 @@ namespace Aetherium.Equipment
                         mask = RoR2.LayerIndex.projectile.mask,
                         origin = TargetTransform ? TargetTransform.position : body.corePosition
                     }.RefreshCandidates().FilterCandidatesByProjectileControllers().GetProjectileControllers(bullets);
-                    if (bullets.Count > 0)
+                    if(bullets.Count > 0)
                     {
                         foreach (ProjectileController controller in bullets)
                         {
                             var controllerOwner = controller.owner;
-                            if (controllerOwner)
+                            if(controllerOwner)
                             {
                                 var ownerBody = controllerOwner.GetComponent<RoR2.CharacterBody>();
-                                if (ownerBody)
+                                if(ownerBody)
                                 {
-                                    if (ownerBody.teamComponent.teamIndex == body.teamComponent.teamIndex)
+                                    if(ownerBody.teamComponent.teamIndex == body.teamComponent.teamIndex)
                                     {
-                                        if (FriendlyFireManager.friendlyFireMode != FriendlyFireManager.FriendlyFireMode.Off && IWantToLoseFriendsInChaosMode)
+                                        if(FriendlyFireManager.friendlyFireMode != FriendlyFireManager.FriendlyFireMode.Off && IWantToLoseFriendsInChaosMode)
                                         {
-                                            if (ownerBody == body)
+                                            if(ownerBody == body)
                                             {
                                                 continue;
                                             }
@@ -682,7 +682,7 @@ namespace Aetherium.Equipment
                                         }
                                     }
                                     var projectileDamage = controller.gameObject.GetComponent<ProjectileDamage>();
-                                    if (projectileDamage)
+                                    if(projectileDamage)
                                     {
                                         jarBullets.Add(new JarBullet(projectileDamage.damage, projectileDamage.damageColorIndex, projectileDamage.damageType, ProjectileCatalog.GetProjectilePrefab(controller.catalogIndex)));
 
@@ -696,7 +696,7 @@ namespace Aetherium.Equipment
 
                                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
 
-                                        if (bodyIdentity && NetworkServer.active)
+                                        if(bodyIdentity && NetworkServer.active)
                                         {
                                             new SyncJarOrb(SyncJarOrb.MessageType.Fired, bodyIdentity.netId, controller.transform.position).Send(NetworkDestination.Clients);
                                         }
@@ -712,26 +712,26 @@ namespace Aetherium.Equipment
                 {
                     IsSuckingProjectiles = false;
                 }
-                if (ChargeTime > 0)
+                if(ChargeTime > 0)
                 {
-                    if (!IsCharging && NetworkServer.active)
+                    if(!IsCharging && NetworkServer.active)
                     {
                         var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
-                        if (bodyIdentity)
+                        if(bodyIdentity)
                         {
                             new SyncJarCharging(jarBullets.Count, ChargeTime, RefireTime, bodyIdentity.netId).Send(NetworkDestination.Clients);
                         }
                         IsCharging = true;
                     }
                     ChargeTime -= Time.fixedDeltaTime;
-                    if (ChargeTime <= 0)
+                    if(ChargeTime <= 0)
                     {
-                        if (NetworkServer.active)
+                        if(NetworkServer.active)
                         {
                             var bullet = jarBullets.Last();
 
                             var projectileToFire = SpawnOriginalProjectile ? bullet.OriginalProjectile : JarProjectile;
-                            if (!projectileToFire) { projectileToFire = JarProjectile; }
+                            if(!projectileToFire) { projectileToFire = JarProjectile; }
 
                             FireProjectileInfo projectileInfo = new FireProjectileInfo
                             {
@@ -750,7 +750,7 @@ namespace Aetherium.Equipment
                         }
                         RoR2.Util.PlaySound(EntityStates.ClayBoss.FireTarball.attackSoundString, body.gameObject);
                         ClientBullets--;
-                        if (jarBullets.Count > 0 || ClientBullets > 0)
+                        if(jarBullets.Count > 0 || ClientBullets > 0)
                         {
                             ChargeTime += RefireTime;
                         }
@@ -800,15 +800,15 @@ namespace Aetherium.Equipment
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
                 var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
-                if (playerGameObject)
+                if(playerGameObject)
                 {
                     var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    if (body)
+                    if(body)
                     {
                         var JarBulletTracker = body.GetComponent<JarBulletTracker>();
-                        if (JarBulletTracker)
+                        if(JarBulletTracker)
                         {
                             JarBulletTracker.ChargeTime = ChargeTime;
                             JarBulletTracker.RefireTime = RefireTime;
@@ -856,20 +856,20 @@ namespace Aetherium.Equipment
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
                 GameObject target;
                 var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
-                if (playerGameObject)
+                if(playerGameObject)
                 {
                     var playerBody = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    if (playerBody)
+                    if(playerBody)
                     {
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
 
-                        if (target)
+                        if(target)
                         {
-                            if (ChargeState)
+                            if(ChargeState)
                             {
                                 RoR2.EffectData sphere = new RoR2.EffectData
                                 {
@@ -930,13 +930,13 @@ namespace Aetherium.Equipment
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
                 GameObject target = null;
                 var playerGameObject = RoR2.Util.FindNetworkObject(PlayerBody);
-                if (playerGameObject)
+                if(playerGameObject)
                 {
                     var playerBody = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    if (playerBody)
+                    if(playerBody)
                     {
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
@@ -948,7 +948,7 @@ namespace Aetherium.Equipment
                     return;
                 }
 
-                if (target)
+                if(target)
                 {
                     var orb = new JarOfReshapingOrb
                     {

@@ -15,7 +15,7 @@ namespace Aetherium.Equipment
 
         public EquipmentBase()
         {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
+            if(instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
             instance = this as T;
         }
     }
@@ -82,7 +82,7 @@ namespace Aetherium.Equipment
             ItemAPI.Add(new CustomEquipment(EquipmentDef, CreateItemDisplayRules()));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
 
-            if (UseTargeting && TargetingIndicatorPrefabBase)
+            if(UseTargeting && TargetingIndicatorPrefabBase)
             {
                 On.RoR2.EquipmentSlot.Update += UpdateTargeting;
             }
@@ -90,7 +90,7 @@ namespace Aetherium.Equipment
 
         protected bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EquipmentDef)
+            if(equipmentDef == EquipmentDef)
             {
                 return ActivateEquipment(self);
             }
@@ -121,10 +121,10 @@ namespace Aetherium.Equipment
         {
             orig(self);
 
-            if (self.equipmentIndex == EquipmentDef.equipmentIndex)
+            if(self.equipmentIndex == EquipmentDef.equipmentIndex)
             {
                 var targetingComponent = self.GetComponent<TargetingControllerComponent>();
-                if (!targetingComponent) 
+                if(!targetingComponent) 
                 { 
                     targetingComponent = self.gameObject.AddComponent<TargetingControllerComponent>();
                     targetingComponent.VisualizerPrefab = TargetingIndicatorPrefabBase;
@@ -176,7 +176,7 @@ namespace Aetherium.Equipment
 
             public void ConfigureTargetFinderBase(EquipmentSlot self)
             {
-                if (TargetFinder == null) TargetFinder = new BullseyeSearch();
+                if(TargetFinder == null) TargetFinder = new BullseyeSearch();
                 TargetFinder.teamMaskFilter = TeamMask.allButNeutral;
                 TargetFinder.teamMaskFilter.RemoveTeam(self.characterBody.teamComponent.teamIndex);
                 TargetFinder.sortMode = BullseyeSearch.SortMode.Angle;
@@ -215,7 +215,7 @@ namespace Aetherium.Equipment
             {
                 HurtBox hurtbox = TargetFinderResults.Any() ? TargetFinderResults.First() : null;
 
-                if (hurtbox)
+                if(hurtbox)
                 {
                     TargetObject = hurtbox.healthComponent.gameObject;
                     Indicator.visualizerPrefab = VisualizerPrefab;

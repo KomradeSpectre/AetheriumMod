@@ -27,9 +27,9 @@ namespace Aetherium.Utils.Components
         {
             var rainbow = Color.HSVToRGB(((hueRate * stopwatch) % 1f + 1f) % 1f, saturation, value);
 
-            if (changeTexture)
+            if(changeTexture)
                 meshRenderer.material.SetColor("_Color", rainbow);
-            if (changeEmission)
+            if(changeEmission)
                 meshRenderer.material.SetColor("_EmColor", rainbow);
 
             stopwatch += Time.deltaTime;

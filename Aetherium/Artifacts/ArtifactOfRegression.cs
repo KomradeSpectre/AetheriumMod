@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using RoR2.Navigation;
-using static Aetherium.Utils.MiscHelpers;
 using static Aetherium.AetheriumPlugin;
-using R2API;
 
 namespace Aetherium.Artifacts
 {
@@ -19,51 +16,31 @@ namespace Aetherium.Artifacts
         public ConfigOption<bool> ReduceGoldAndExpOfChildren;
         public ConfigOption<float> ChildImmunityDuration;
 
-        public ConfigOption<int> QueenToGuardSplitNumber;
-        public ConfigOption<int> GuardToBeetleSplitNumber;
-        public ConfigOption<int> CrystalGuardToCrystalBeetleSplitNumber;
-
-        public ConfigOption<int> AncientWispToArchWispSplitNumber;
-        public ConfigOption<int> ArchWispToGreaterWispSplitNumber;
-        public ConfigOption<int> GrovetenderToGreaterWispSplitNumber;
-        public ConfigOption<int> GreaterWispToWispSplitNumber;
-
-        public ConfigOption<int> VagrantToJellyfishSplitNumber;
-
-        public ConfigOption<int> ElderLemurianToLemurianSplitNumber;
-
-        public ConfigOption<int> LunarWispToLunarGolemSplitNumber;
-        public ConfigOption<int> LunarGolemToLunarExploderSplitNumber;
-
-        public ConfigOption<int> TitanToGolemSplitNumber;
-
-        public ConfigOption<int> GrandparentToParentSplitNumber;
-
-        public ConfigOption<int> AlloyWorshipUnitToVultureSplitNumber;
-        public ConfigOption<int> SolusControlUnitToSolusProbeSplitNumber;
-
-        public ConfigOption<int> ClayDunestriderToClayTemplarSplitNumber;
-
-        public ConfigOption<int> ImpOverlordToImpSplitNumber;
-
-        public ConfigOption<int> VoidReaverToHermitCrabSplitNumber;
-
         public override string ArtifactName => "Artifact of Regression";
-
         public override string ArtifactLangTokenName => "ARTIFACT_OF_REGRESSION";
-
-        public override string ArtifactDescription => $"If a monster is in an evolved form, it will split into a group of its lesser form when it dies.";
-
+        public override string ArtifactDescription => "When an evolved monster dies, it splits into its lesser forms.";
         public override Sprite ArtifactEnabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionEnabledIcon.png");
-
         public override Sprite ArtifactDisabledIcon => MainAssets.LoadAsset<Sprite>("ArtifactOfRegressionDisabledIcon.png");
 
-        internal Dictionary<string, RegressData> RegressionLookup = new Dictionary<string, RegressData>();
+        private Dictionary<MasterCatalog.MasterIndex, List<RegressionChild>> RegressionCache = new Dictionary<MasterCatalog.MasterIndex, List<RegressionChild>>();
+
+        private struct RegressionChild
+        {
+            public GameObject MasterPrefab;
+            public int Count;
+        }
+
+        private List<RegressionDefinition> pendingDefinitions = new List<RegressionDefinition>();
+        private struct RegressionDefinition
+        {
+            public string ParentName;
+            public string ChildName;
+            public ConfigOption<int> CountConfig;
+        }
 
         public override void Init(ConfigFile config)
         {
             CreateConfig(config);
-            CreateRegressionLookup();
             CreateLang();
             CreateArtifact();
             Hooks();
@@ -71,269 +48,201 @@ namespace Aetherium.Artifacts
 
         private void CreateConfig(ConfigFile config)
         {
-            RegressionSplitMonsterCap = config.ActiveBind<int>("Artifact: " + ArtifactName, "Regression Split Monster Cap", 48, "At what monster population should we not be able to split anymore?");
-
+            // Global Settings
+            RegressionSplitMonsterCap = config.ActiveBind<int>("Artifact: " + ArtifactName, "Monster Cap", 48, "At what monster population should we not be able to split anymore?");
             ReduceGoldAndExpOfChildren = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Reduce Gold and Exp Reward of Children", true, "Should children spawned by the Regression effect have halved money and exp?");
+            ChildImmunityDuration = config.ActiveBind<float>("Artifact: " + ArtifactName, "Duration of Child Immunity", 2f, "How long in seconds should children of regression splits be immune?");
 
-            ChildImmunityDuration = config.ActiveBind<float>("Artifact: " + ArtifactName, "Duration of Child Immunity", 2, "How long in seconds should children of regression splits be immune?");
+            // --- WORM FAMILY (Overloading -> Magma -> Scorch) ---
+            AddDefinition("ElectricWormMaster", "MagmaWormMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Overloading Worm -> Magma Worms", 1, "Amount of Magma Worms spawned."));
+            AddDefinition("MagmaWormMaster", "ScorchWurmMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Magma Worm -> Scorch Wurms", 2, "Amount of Scorch Wurms spawned."));
+            AddDefinition("ScorchWurmMaster", "LemurianMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Scorch Wurm -> Lemurians", 3, "Amount of Lemurians spawned."));
 
-            QueenToGuardSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Queen to Guard Split Amount", 2, "How many Beetle Guards should appear when the Beetle Queen has regressed?");
-            GuardToBeetleSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Guard to Beetle Split Amount", 4, "How many Beetles should appear when the Beetle Guard has regressed?");
-            CrystalGuardToCrystalBeetleSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Crystal Guard to Crystal Beetle Split Amount", 4, "How many Crystal Beetles should appear when the Crystal Beetle Guard has regressed?");
+            // --- PARENT FAMILY (Grandparent -> Parent -> Child) ---
+            AddDefinition("GrandparentMaster", "ParentMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Grandparent -> Parents", 2, "Amount of Parents spawned."));
+            AddDefinition("ParentMaster", "ChildMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Parent -> Children", 3, "Amount of Children spawned."));
 
-            AncientWispToArchWispSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Ancient Wisp To Arch Wisp Split Amount", 2, "How many Arch Wisps should appear when the Ancient Wisp has regressed?");
-            ArchWispToGreaterWispSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Arch Wisp To Greater Wisp Split Amount", 2, "How many Greater Wisps should appear when the Arch Wisp has regressed?");
-            GrovetenderToGreaterWispSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Grovetender To Greater Wisp Split Amount", 2, "How many Greater Wisps should appear when the Grovetender has regressed?");
-            GreaterWispToWispSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Greater Wisp To Wisp Split Amount", 4, "How many Wisps should appear when the Greater Wisp has regressed?");
+            // --- LEMURIAN FAMILY ---
+            AddDefinition("LemurianBruiserMaster", "LemurianMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Elder Lemurian -> Lemurians", 4, "Amount of Lemurians spawned."));
 
-            VagrantToJellyfishSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Wandering Vagrant To Jellyfish Split Amount", 8, "How many Jellyfish should appear when the Wandering Vagrant has regressed?");
+            // --- BEETLE FAMILY ---
+            AddDefinition("BeetleQueenMaster", "BeetleGuardMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Queen -> Guards", 2, "Amount of Beetle Guards spawned."));
+            AddDefinition("BeetleGuardMaster", "BeetleMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Guard -> Beetles", 3, "Amount of Beetles spawned."));
 
-            ElderLemurianToLemurianSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Elder Lemurian To Lemurian Split Amount", 5, "How many Lemurians should appear when the Elder Lemurian has regressed?");
+            // --- IMP FAMILY ---
+            AddDefinition("ImpBossMaster", "ImpMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Imp Overlord -> Imps", 5, "Amount of Imps spawned."));
 
-            LunarWispToLunarGolemSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Lunar Wisp To Lunar Chimera Split Amount", 2, "How many Lunar Chimeras should appear when the Lunar Wisp has regressed?");
-            LunarGolemToLunarExploderSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Lunar Chimera To Lunar Exploder Split Amount", 5, "How many Lunar Exploders should appear when the Lunar Chimera has regressed?");
+            // --- STONE FAMILY ---
+            AddDefinition("TitanMaster", "GolemMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Stone Titan -> Golems", 2, "Amount of Stone Golems spawned."));
 
-            TitanToGolemSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Titan To Golem Split Amount", 4, "How many Golems should appear when the Titan has regressed?");
+            // --- CLAY FAMILY ---
+            AddDefinition("ClayBossMaster", "ClayBruiserMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Dunestrider -> Templars", 2, "Amount of Clay Templars spawned."));
+            AddDefinition("ClayBruiserMaster", "ClayManMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Templar -> Apothecaries", 2, "Amount of Clay Apothecaries spawned."));
 
-            GrandparentToParentSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Grandparent To Parent Split Amount", 5, "How many Parents should appear when the Grandparent has regressed?");
+            // --- JELLYFISH FAMILY ---
+            AddDefinition("VagrantMaster", "JellyfishMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Wandering Vagrant -> Jellyfish", 6, "Amount of Jellyfish spawned."));
 
-            AlloyWorshipUnitToVultureSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Alloy Worship Unit To Vulture Split Amount", 6, "How many Vultures should appear when the Alloy Worship Unit has regressed?");
-            SolusControlUnitToSolusProbeSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Solus Control Unit To Solus Probe Split Amount", 6, "How many Solus Probes should appear when the Solus Control Unit has regressed?");
+            // --- WISP FAMILY ---
+            AddDefinition("GravekeeperMaster", "GreaterWispMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Grovetender -> Greater Wisps", 2, "Amount of Greater Wisps spawned."));
+            AddDefinition("ArchWispMaster", "GreaterWispMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Arch Wisp -> Greater Wisps", 2, "Amount of Greater Wisps spawned."));
+            AddDefinition("GreaterWispMaster", "WispMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Greater Wisp -> Lesser Wisps", 3, "Amount of Lesser Wisps spawned."));
 
-            ClayDunestriderToClayTemplarSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Clay Dunestrider To Clay Templar Split Amount", 4, "How many Clay Templars should appear when the Clay Dunestrider has regressed?");
+            // --- ROBOT FAMILY ---
+            AddDefinition("SuperRoboBallBossMaster", "RoboBallMiniMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Alloy Worship Unit -> Solus Probes", 5, "Amount of Solus Probes spawned."));
+            AddDefinition("RoboBallBossMaster", "RoboBallMiniMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Solus Control Unit -> Solus Probes", 4, "Amount of Solus Probes spawned."));
 
-            ImpOverlordToImpSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Imp Overlord To Imp Split Amount", 5, "How many Imps should appear when the Imp Overlord has regressed?");
+            // --- LUNAR FAMILY ---
+            AddDefinition("LunarWispMaster", "LunarGolemMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Lunar Wisp -> Lunar Golems", 2, "Amount of Lunar Golems spawned."));
+            AddDefinition("LunarGolemMaster", "LunarExploderMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Lunar Golem -> Lunar Exploders", 4, "Amount of Lunar Exploders spawned."));
 
-            VoidReaverToHermitCrabSplitNumber = config.ActiveBind<int>("Artifact: " + ArtifactName, "Void Reaver To Hermit Crab Split Amount", 4, "How many Hermit Crabs should appear when the Void Reaver has regressed?");
+            // --- DLC1 & DLC2 EXTRAS ---
+            AddDefinition("MegaConstructMaster", "MajorConstructMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Xi Construct -> Alpha Constructs", 2, "Amount of Alpha Constructs spawned."));
+            AddDefinition("FalseSonBossMaster", "HalcyoniteMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "False Son -> Halcyonites", 2, "Amount of Halcyonites spawned."));
+            AddDefinition("TitanGoldMaster", "HalcyoniteMaster",
+                config.ActiveBind("Artifact: " + ArtifactName, "Aurelionite -> Halcyonites", 2, "Amount of Halcyonites spawned."));
+
+            // Void Chain
+            AddDefinition("VoidRaidCrabMaster", "VoidMegaCrabMaster", config.ActiveBind("Artifact: " + ArtifactName, "Voidling -> Devastators", 3, ""));
+            AddDefinition("VoidMegaCrabMaster", "VoidJailerMaster", config.ActiveBind("Artifact: " + ArtifactName, "Devastator -> Jailers", 2, ""));
+            AddDefinition("VoidJailerMaster", "NullifierMaster", config.ActiveBind("Artifact: " + ArtifactName, "Jailer -> Reavers", 2, ""));
+            AddDefinition("NullifierMaster", "VoidBarnacleMaster", config.ActiveBind("Artifact: " + ArtifactName, "Reaver -> Barnacles", 3, ""));
         }
 
-        private void CreateRegressionLookup()
+        private void AddDefinition(string parent, string child, ConfigOption<int> count)
         {
-            new RegressData("BeetleQueenMaster", "BeetleGuardMaster", QueenToGuardSplitNumber).Register();
-            //new RegressData("BeetleGuardMaster", "BeetleMaster", GuardToBeetleSplitNumber).Register();            
-            RegressData beetleGuardRegression = new RegressData("BeetleGuardMaster");
-            beetleGuardRegression.Store("BeetleMaster", 5, null);
-            beetleGuardRegression.Store("BeetleCrystalMaster", 5, null);
-            beetleGuardRegression.Register();
-
-            new RegressData("BeetleGuardMasterCrystal", "BeetleCrystalMaster", CrystalGuardToCrystalBeetleSplitNumber).Register();
-
-            new RegressData("AncientWispMaster", "ArchWispMaster", AncientWispToArchWispSplitNumber).Register();
-            new RegressData("GravekeeperMaster", "GreaterWispMaster", GrovetenderToGreaterWispSplitNumber).Register();
-            new RegressData("ArchWispMaster", "GreaterWispMaster", ArchWispToGreaterWispSplitNumber).Register();
-            new RegressData("GreaterWispMaster", "WispMaster", GreaterWispToWispSplitNumber).Register();
-
-            new RegressData("VagrantMaster", "JellyfishMaster", VagrantToJellyfishSplitNumber).Register();
-
-            new RegressData("LemurianBruiserMaster", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
-            new RegressData("LemurianBruiserMasterFire", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
-            new RegressData("LemurianBruiserMasterHaunted", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
-            new RegressData("LemurianBruiserMasterIce", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
-            new RegressData("LemurianBruiserMasterPoison", "LemurianMaster", ElderLemurianToLemurianSplitNumber).Register();
-
-            new RegressData("LunarWispMaster", "LunarGolemMaster", LunarWispToLunarGolemSplitNumber).Register();
-            new RegressData("LunarGolemMaster", "LunarExploderMaster", LunarGolemToLunarExploderSplitNumber).Register();
-
-            new RegressData("TitanMaster", "GolemMaster", TitanToGolemSplitNumber).Register();
-
-            new RegressData("GrandparentMaster", "ParentMaster", GrandparentToParentSplitNumber).Register();
-
-            new RegressData("SuperRoboBallBossMaster", "VultureMaster", GrandparentToParentSplitNumber).Register();
-
-            new RegressData("RoboBallBossMaster", "RoboBallMiniMaster", SolusControlUnitToSolusProbeSplitNumber).Register();
-
-            new RegressData("ClayBossMaster", "ClayBruiserMaster", ClayDunestriderToClayTemplarSplitNumber).Register();
-
-            new RegressData("ImpBossMaster", "ImpMaster", ImpOverlordToImpSplitNumber).Register();
-
-            new RegressData("NullifierMaster", "HermitCrabMaster", VoidReaverToHermitCrabSplitNumber).Register();
-
-            //Sample Registration of multiple children.
-            //RegressData beetleQueenRegression = new RegressData("BeetleQueenMaster");
-            //beetleQueenRegression.Store("BeetleGuardMaster", QueenToGuardSplitNumber / 2);
-            //beetleQueenRegression.Store("BeetleMaster", QueenToGuardSplitNumber / 2);
-            //beetleQueenRegression.Register();
-
-            //Sample modded registration.
-            //new RegressData("ParentMaster", "ModdedChildMaster", myConfigSpawnAmount, myBundle.LoadAsset<GameObject>("my/modded/path.prefab"));
-
-            LogRegisteredRegressions();
+            pendingDefinitions.Add(new RegressionDefinition { ParentName = parent, ChildName = child, CountConfig = count });
         }
 
         public override void Hooks()
         {
-            On.RoR2.CharacterAI.BaseAI.OnBodyDeath += RegressAIToLowerForm;
+            RoR2Application.onLoad += BuildRegressionCache;
+            On.RoR2.CharacterAI.BaseAI.OnBodyDeath += OnBodyDeath;
         }
 
-        private void RegressAIToLowerForm(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody characterBody)
+        private void BuildRegressionCache()
         {
-            CharacterMaster master = self.master;
+            RegressionCache.Clear();
 
-            if (ArtifactEnabled && NetworkServer.active && IsExisting(master) && IsAnEnemy(master))
+            foreach (var def in pendingDefinitions)
             {
-                var monsterPopulation = RoR2.TeamComponent.GetTeamMembers(TeamIndex.Monster).Count + RoR2.TeamComponent.GetTeamMembers(TeamIndex.Lunar).Count;
+                var parentIndex = MasterCatalog.FindMasterIndex(def.ParentName);
+                if(parentIndex == MasterCatalog.MasterIndex.none) continue;
 
-                if(monsterPopulation < RegressionSplitMonsterCap)
+                var childPrefab = MasterCatalog.FindMasterPrefab(def.ChildName);
+                if(!childPrefab) continue;
+
+                if(!RegressionCache.ContainsKey(parentIndex))
                 {
-                    string masterName = master.name.Replace("(Clone)", "");
+                    RegressionCache[parentIndex] = new List<RegressionChild>();
+                }
 
-                    if (RegressionLookup.ContainsKey(masterName))
+                RegressionCache[parentIndex].Add(new RegressionChild
+                {
+                    MasterPrefab = childPrefab,
+                    Count = def.CountConfig
+                });
+            }
+
+            pendingDefinitions.Clear();
+            AetheriumPlugin.ModLogger.LogInfo($"Artifact of Regression: Cached {RegressionCache.Count} parent types.");
+        }
+
+        private void OnBodyDeath(On.RoR2.CharacterAI.BaseAI.orig_OnBodyDeath orig, RoR2.CharacterAI.BaseAI self, CharacterBody body)
+        {
+            orig(self, body);
+
+            if(!NetworkServer.active || !ArtifactEnabled || !self.master) return;
+
+            int monsterCount = TeamComponent.GetTeamMembers(TeamIndex.Monster).Count + TeamComponent.GetTeamMembers(TeamIndex.Lunar).Count;
+            if(monsterCount >= RegressionSplitMonsterCap) return;
+
+            var masterIndex = self.master.masterIndex;
+            if(RegressionCache.TryGetValue(masterIndex, out List<RegressionChild> children))
+            {
+                SpawnChildren(body, children);
+            }
+        }
+
+        private void SpawnChildren(CharacterBody parentBody, List<RegressionChild> children)
+        {
+            int totalCount = children.Sum(x => x.Count);
+            if(totalCount <= 0) return;
+
+            float angleStep = 360f / totalCount;
+            float currentAngle = 0f;
+            float radius = 2f + parentBody.radius;
+
+            foreach (var childDef in children)
+            {
+                for (int i = 0; i < childDef.Count; i++)
+                {
+                    Vector3 offset = Quaternion.Euler(0f, currentAngle, 0f) * Vector3.forward * radius;
+                    Vector3 spawnPos = parentBody.corePosition + offset;
+
+                    if(Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 20f, LayerIndex.world.mask))
                     {
-                        List<RegressData.ChildData> childrenList = RegressionLookup[masterName].children;
-                        int totalChildrenCount = childrenList.Sum(child => child.Count);
-                        float theta = (float)Math.PI * 2 / totalChildrenCount;
-                        int radius = totalChildrenCount;
-                        int angleCounter = 0;
-                        foreach (RegressData.ChildData child in RegressionLookup[masterName].children)
+                        spawnPos = hit.point;
+                    }
+
+                    MasterSummon summon = new MasterSummon
+                    {
+                        masterPrefab = childDef.MasterPrefab,
+                        position = spawnPos,
+                        rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f),
+                        teamIndexOverride = parentBody.teamComponent.teamIndex,
+                        ignoreTeamMemberLimit = true,
+                        summonerBodyObject = parentBody.gameObject,
+                        inventoryToCopy = parentBody.inventory,
+                        useAmbientLevel = true
+                    };
+
+                    CharacterMaster childMaster = summon.Perform();
+
+                    if(childMaster)
+                    {
+                        CharacterBody childBody = childMaster.GetBody();
+                        if(childBody)
                         {
-                            if (child.Resource)
+                            childBody.AddTimedBuff(RoR2Content.Buffs.Immune, ChildImmunityDuration);
+
+                            EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), childBody.corePosition, Quaternion.identity, true);
+
+                            if(ReduceGoldAndExpOfChildren)
                             {
-                                for (int i = 0; i < child.Count; i++)
+                                var rewards = childBody.GetComponent<DeathRewards>();
+                                if(rewards)
                                 {
-                                    float angle = theta * ++angleCounter;
-                                    Vector3 positionChosen = new Vector3((float)(radius * Math.Cos(angle) + characterBody.corePosition.x),
-                                                                         characterBody.corePosition.y + 2f,
-                                                                         (float)(radius * Math.Sin(angle) + characterBody.corePosition.z));
-
-
-                                    CharacterMaster summonedThing = new MasterSummon()
-                                    {
-                                        masterPrefab = child.Resource,
-                                        position = positionChosen,
-                                        rotation = characterBody.transform.rotation,
-                                        summonerBodyObject = characterBody.gameObject,
-                                        ignoreTeamMemberLimit = true,
-                                        inventoryToCopy = characterBody.inventory ? characterBody.inventory : null,
-                                        useAmbientLevel = true,
-                                    }.Perform();
-
-                                    if (summonedThing)
-                                    {
-                                        EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("prefabs/effects/CombatShrineSpawnEffect"), summonedThing.transform.position, summonedThing.transform.rotation, true);
-
-                                        var summonBody = summonedThing.GetBody();
-                                        if (summonBody)
-                                        {
-                                            summonBody.AddTimedBuff(RoR2Content.Buffs.Immune, ChildImmunityDuration);
-                                            var summonDeathRewards = summonBody.GetComponent<DeathRewards>();
-                                            var originalBodyDeathRewards = characterBody.GetComponent<DeathRewards>();
-
-                                            if (summonDeathRewards && originalBodyDeathRewards)
-                                            {
-                                                summonDeathRewards.expReward = ReduceGoldAndExpOfChildren ? originalBodyDeathRewards.expReward / 2 : originalBodyDeathRewards.expReward;
-                                                summonDeathRewards.goldReward = ReduceGoldAndExpOfChildren ? originalBodyDeathRewards.goldReward / 2 : originalBodyDeathRewards.goldReward;
-                                            }
-                                        }
-                                    }
+                                    rewards.goldReward = (uint)(rewards.goldReward * 0.5f);
+                                    rewards.expReward = (uint)(rewards.expReward * 0.5f);
                                 }
                             }
                         }
                     }
+
+                    currentAngle += angleStep;
                 }
-            }
-            orig(self, characterBody);
-        }
-
-        private bool IsExisting(CharacterMaster master)
-        {
-            return master && master.IsDeadAndOutOfLivesServer();
-        }
-
-        private bool IsAnEnemy(CharacterMaster master)
-        {
-            return master.teamIndex == TeamIndex.Monster || master.teamIndex == TeamIndex.Lunar;
-        }
-
-        private void LogRegisteredRegressions()
-        {
-            ModLogger.LogMessage("Artifact of Regression Lookup Table:");
-            foreach (var pair in RegressionLookup)
-            {
-                ModLogger.LogMessage($"-> {pair.Key}");
-                foreach (RegressData.ChildData child in pair.Value.children)
-                {
-                    ModLogger.LogMessage($"  -> {child.Count} {child.Name}");
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// A data structure useful for storing children data of a parent and registering them.
-    /// </summary>
-    public struct RegressData
-    {
-        private readonly string parentName;
-        internal List<ChildData> children;
-
-        /// <summary>
-        /// Constructor with no children assigned.
-        /// </summary>
-        /// <param name="parentName">Parent's master name</param>
-        public RegressData(string parentName)
-        {
-            this.parentName = parentName;
-            children = new List<ChildData>();
-        }
-
-        /// <summary>
-        /// Constructor with an assignment of one child while specifying a resource.
-        /// Pass null in resource to specify a vanilla resource.
-        /// If it is a custom resource, load it from the bundle.
-        /// </summary>
-        /// <param name="parentName">Parent's master name</param>
-        /// <param name="childName">Child's master name</param>
-        /// <param name="count">Children amount to be produced by regression</param>
-        /// <param name="resource">Prefab of the child object</param>
-        public RegressData(string parentName, string childName, int count, GameObject resource) : this(parentName)
-        {
-            Store(childName, count, resource);
-        }
-
-        /// <summary>
-        /// Constructor with an assignment of one child without specifying a resource, which means it will use a vanilla resource.
-        /// </summary>
-        /// <param name="parentName">Parent's master name</param>
-        /// <param name="childName">Child's master name</param>
-        /// <param name="count">Children amount to be produced by regression</param>
-        public RegressData(string parentName, string childName, int count) : this(parentName, childName, count, null) { }
-
-        /// <summary>
-        /// Add or Modify a child for the parent specified within the data structure.
-        /// Pass null in resource to specify a vanilla resource.
-        /// If it is a custom resource, load it from the bundle.
-        /// </summary>
-        /// <param name="childName">Child's master name</param>
-        /// <param name="count">Amount to be produced by regression</param>
-        /// <param name="resource">Resource prefab of the child</param>
-        public void Store(string childName, int count, GameObject resource)
-        {
-            if (!resource)
-            {
-                resource = LegacyResourcesAPI.Load<GameObject>($"Prefabs/CharacterMasters/{childName}");
-            }
-            children.Add(new ChildData(childName, count, resource));
-        }
-
-        /// <summary>
-        /// Registers the regression data of the parent and children into the Regression Lookup used for implementing regression behavior.
-        /// </summary>
-        public void Register()
-        {
-            ArtifactOfRegression.instance.RegressionLookup[parentName] = this;
-        }
-
-        internal struct ChildData
-        {
-            public string Name;
-            public int Count;
-            public GameObject Resource;
-
-            public ChildData(string name, int count, GameObject resource)
-            {
-                Name = name;
-                Count = count;
-                Resource = resource;
             }
         }
     }

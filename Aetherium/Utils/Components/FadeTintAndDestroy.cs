@@ -16,10 +16,10 @@ namespace Aetherium.Utils.Components
         public void Start()
         {
             var renderer = GetComponent<Renderer>();
-            if (renderer)
+            if(renderer)
             {
                 Material = renderer.material;
-                if (Material)
+                if(Material)
                 {
                     Color = Material.GetColor("_TintColor");
                 }

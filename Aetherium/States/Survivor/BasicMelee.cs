@@ -63,7 +63,7 @@ namespace Aetherium.States.Survivor
             HitBoxGroup hitBoxGroup = null;
             Transform modelTransform = base.GetModelTransform();
 
-            if (modelTransform)
+            if(modelTransform)
             {
                 hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == this.hitboxName);
             }
@@ -92,7 +92,7 @@ namespace Aetherium.States.Survivor
 
         public override void OnExit()
         {
-            if (!this.hasFired && !this.cancelled) this.FireAttack();
+            if(!this.hasFired && !this.cancelled) this.FireAttack();
 
             base.OnExit();
 
@@ -108,9 +108,9 @@ namespace Aetherium.States.Survivor
         {
             Util.PlaySound(this.hitSoundString, base.gameObject);
 
-            if (!this.hasHopped)
+            if(!this.hasHopped)
             {
-                if (base.characterMotor && !base.characterMotor.isGrounded && this.hitHopVelocity > 0f)
+                if(base.characterMotor && !base.characterMotor.isGrounded && this.hitHopVelocity > 0f)
                 {
                     base.SmallHop(base.characterMotor, this.hitHopVelocity);
                 }
@@ -118,7 +118,7 @@ namespace Aetherium.States.Survivor
                 this.hasHopped = true;
             }
 
-            if (!this.inHitPause && this.hitStopDuration > 0f)
+            if(!this.inHitPause && this.hitStopDuration > 0f)
             {
                 this.storedVelocity = base.characterMotor.velocity;
                 this.hitStopCachedState = base.CreateHitStopCachedState(base.characterMotor, this.animator, playbackAnimationRateParamString);
@@ -129,21 +129,21 @@ namespace Aetherium.States.Survivor
 
         private void FireAttack()
         {
-            if (!this.hasFired)
+            if(!this.hasFired)
             {
                 this.hasFired = true;
                 Util.PlayAttackSpeedSound(this.swingSoundString, base.gameObject, this.attackSpeedStat);
 
-                if (base.isAuthority)
+                if(base.isAuthority)
                 {
                     this.PlaySwingEffect();
                     base.AddRecoil(-1f * this.attackRecoil, -2f * this.attackRecoil, -0.5f * this.attackRecoil, 0.5f * this.attackRecoil);
                 }
             }
 
-            if (base.isAuthority)
+            if(base.isAuthority)
             {
-                if (this.attack.Fire())
+                if(this.attack.Fire())
                 {
                     this.OnHitEnemyAuthority();
                 }
@@ -161,39 +161,39 @@ namespace Aetherium.States.Survivor
 
             this.hitPauseTimer -= Time.fixedDeltaTime;
 
-            if (this.hitPauseTimer <= 0f && this.inHitPause)
+            if(this.hitPauseTimer <= 0f && this.inHitPause)
             {
                 base.ConsumeHitStopCachedState(this.hitStopCachedState, base.characterMotor, this.animator);
                 this.inHitPause = false;
                 base.characterMotor.velocity = this.storedVelocity;
             }
 
-            if (!this.inHitPause)
+            if(!this.inHitPause)
             {
                 this.stopwatch += Time.fixedDeltaTime;
             }
             else
             {
-                if (base.characterMotor) base.characterMotor.velocity = Vector3.zero;
-                if (this.animator) this.animator.SetFloat(playbackAnimationRateParamString, 0f);
+                if(base.characterMotor) base.characterMotor.velocity = Vector3.zero;
+                if(this.animator) this.animator.SetFloat(playbackAnimationRateParamString, 0f);
             }
 
-            if (this.stopwatch >= (this.duration * this.attackStartTime) && this.stopwatch <= (this.duration * this.attackEndTime))
+            if(this.stopwatch >= (this.duration * this.attackStartTime) && this.stopwatch <= (this.duration * this.attackEndTime))
             {
                 this.FireAttack();
             }
 
-            if (this.stopwatch >= (this.duration * this.earlyExitTime) && base.isAuthority)
+            if(this.stopwatch >= (this.duration * this.earlyExitTime) && base.isAuthority)
             {
-                if (base.inputBank.skill1.down)
+                if(base.inputBank.skill1.down)
                 {
-                    if (!this.hasFired) this.FireAttack();
+                    if(!this.hasFired) this.FireAttack();
                     this.SetNextState();
                     return;
                 }
             }
 
-            if (this.stopwatch >= this.duration && base.isAuthority)
+            if(this.stopwatch >= this.duration && base.isAuthority)
             {
                 this.outer.SetNextStateToMain();
                 return;

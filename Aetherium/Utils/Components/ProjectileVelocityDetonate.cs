@@ -18,7 +18,7 @@ namespace Aetherium.Utils.Components
         public void Start()
         {
             var impactExplosion = GetComponent<ProjectileFixedImpactExplosion>();
-            if (impactExplosion)
+            if(impactExplosion)
             {
                 ProjectileFixedImpactExplosion = impactExplosion;
                 ProjectileController = impactExplosion.projectileController;
@@ -27,7 +27,7 @@ namespace Aetherium.Utils.Components
 
         public void CallDetonationEffect()
         {
-            if (DetonationEffect && NetworkServer.active)
+            if(DetonationEffect && NetworkServer.active)
             {
                 var effectData = new EffectData
                 {

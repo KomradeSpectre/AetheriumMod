@@ -319,7 +319,7 @@ namespace Aetherium.Items.TierLunar
         {
             orig(self);
             var inventoryCount = GetCount(self);
-            if (inventoryCount > 0)
+            if(inventoryCount > 0)
             {
                 var speedMult = CalculateSpeedMult(self);
                 self.attackSpeed *= speedMult;
@@ -328,7 +328,7 @@ namespace Aetherium.Items.TierLunar
 
         public int CalculateMaxBuffStacks(CharacterBody characterBody)
         {
-            var inventoryCount = characterBody.inventory.GetItemCount(instance.ItemDef);
+            var inventoryCount = characterBody.inventory.GetItemCountPermanent(instance.ItemDef);
             var baseAmount = Math.Pow(ExponentialBaseMultiplier, inventoryCount);
             var increase = PercentageIncreasePerHit;
             var max = BaseMaximumPercentageCap + (inventoryCount - 1) * AdditionalMaximumPercentageCap;
@@ -340,7 +340,7 @@ namespace Aetherium.Items.TierLunar
         public float CalculateSpeedMult(CharacterBody characterBody)
         {
             var buffCount = characterBody.GetBuffCount(ZenithAccelerationBuff);
-            var inventoryCount = characterBody.inventory.GetItemCount(instance.ItemDef);
+            var inventoryCount = characterBody.inventory.GetItemCountPermanent(instance.ItemDef);
             var Base = Mathf.Pow(ExponentialBaseMultiplier, inventoryCount);
             var Increase = PercentageIncreasePerHit;
             var Max = BaseMaximumPercentageCap + (inventoryCount - 1) * AdditionalMaximumPercentageCap;
@@ -352,7 +352,7 @@ namespace Aetherium.Items.TierLunar
         /*public void CalculateAttackSpeedStat(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
         {
             var inventoryCount = GetCount(sender);
-            if (inventoryCount > 0)
+            if(inventoryCount > 0)
             {
                 var speedMult = CalculateSpeedMult(sender);
                 args.attackSpeedMultAdd += speedMult - 1.0f;            
@@ -362,7 +362,7 @@ namespace Aetherium.Items.TierLunar
         private void AddAttackSpeedBuff(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
             var attacker = damageInfo.attacker;
-            if (attacker)
+            if(attacker)
             {
                 var body = attacker.GetComponent<CharacterBody>();
                 var victimBody = victim.GetComponent<CharacterBody>();
@@ -376,7 +376,7 @@ namespace Aetherium.Items.TierLunar
 
                         ItemHelpers.RefreshTimedBuffs(body, ZenithAccelerationBuff, 1 + (0.5f * (inventoryCount - 1)), 0.25f / inventoryCount);
 
-                        if (buffCount < maxBuffCount)
+                        if(buffCount < maxBuffCount)
                         {
                             body.AddTimedBuff(ZenithAccelerationBuff, DurationOfTimedBuffPerStack);
                         }
@@ -426,10 +426,10 @@ namespace Aetherium.Items.TierLunar
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || !ParticleSystem.Any() || !Plumes.Any() || !Animator || !GlowControllers.Any())
+                if(!OwnerMaster || !ItemDisplay || !ParticleSystem.Any() || !Plumes.Any() || !Animator || !GlowControllers.Any())
                 {
                     ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
-                    if (ItemDisplay)
+                    if(ItemDisplay)
                     {
                         Animator = GetComponentInChildren<Animator>();
                         //ParticleSystem = GetComponentsInChildren<ParticleSystem>().Where(x => !x.gameObject.name.Contains("FirePlume")).ToArray();
@@ -437,10 +437,10 @@ namespace Aetherium.Items.TierLunar
                         //Debug.Log("Found ItemDisplay: " + itemDisplay);
                         var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
-                        if (characterModel)
+                        if(characterModel)
                         {
                             var body = characterModel.body;
-                            if (body)
+                            if(body)
                             {
                                 OwnerMaster = body.master;
                             }
@@ -462,32 +462,32 @@ namespace Aetherium.Items.TierLunar
                     }
                 }
 
-                if (OwnerMaster && !OwnerBody)
+                if(OwnerMaster && !OwnerBody)
                 {
                     var body = OwnerMaster.GetBody();
-                    if (body)
+                    if(body)
                     {
                         OwnerBody = body;
                     }
-                    if (!body)
+                    if(!body)
                     {
                         UnityEngine.Object.Destroy(this);
                     }
                 }
 
-                if (OwnerBody)
+                if(OwnerBody)
                 {
                     foreach(ParticleSystem particleSystem in ParticleSystem)
                     {
-                        if (OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef) > 0 && ZenithAccelerator.instance.CalculateMaxBuffStacks(OwnerBody) == OwnerBody.GetBuffCount(ZenithAccelerationBuff))
+                        if(OwnerBody.inventory.GetItemCount(ZenithAccelerator.instance.ItemDef) > 0 && ZenithAccelerator.instance.CalculateMaxBuffStacks(OwnerBody) == OwnerBody.GetBuffCount(ZenithAccelerationBuff))
                         {
-                            if (!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                            if(!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
                             {
                                 particleSystem.Play();
                             }
                             else
                             {
-                                if (particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                                if(particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
                                 {
                                     particleSystem.Stop();
                                     particleSystem.Clear();
@@ -496,7 +496,7 @@ namespace Aetherium.Items.TierLunar
                         }
                         else
                         {
-                            if (particleSystem.isPlaying)
+                            if(particleSystem.isPlaying)
                             {
                                 particleSystem.Stop();
                             }
@@ -520,7 +520,7 @@ namespace Aetherium.Items.TierLunar
 
             public void Update()
             {
-                if (OwnerBody)
+                if(OwnerBody)
                 {
                     foreach (ZenithGlowController zenithGlowController in GlowControllers)
                     {
@@ -575,7 +575,7 @@ namespace Aetherium.Items.TierLunar
                 {
                     Stopwatch += UnityEngine.Random.Range(1, 10);
 
-                    if (!Plume.IsAlive())
+                    if(!Plume.IsAlive())
                     {
                         var plumeMain = Plume.main;
                         plumeMain.duration = UnityEngine.Random.Range(1, 3);

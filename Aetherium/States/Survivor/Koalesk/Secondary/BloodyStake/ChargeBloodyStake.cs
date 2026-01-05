@@ -28,7 +28,7 @@ namespace Aetherium.States.Survivor.Koalesk.Secondary
                 ModLogger.LogError("Past stopwatch check.");
                 Stopwatch -= StackConsumptionDuration;
 
-                if (characterBody && base.isAuthority)
+                if(characterBody && base.isAuthority)
                 {
                     ModLogger.LogError("Made past the characterbody and is authority check.");
                     var stacksAvailable = characterBody.GetBuffCount(Aetherium.Survivors.Koalesk.BloodliquorBuff);
@@ -50,7 +50,7 @@ namespace Aetherium.States.Survivor.Koalesk.Secondary
                 }
             }
 
-            if (!inputBank.skill2.down)
+            if(!inputBank.skill2.down)
             {
                 outer.SetNextState(new FireBloodyStake() { ProjectilesToGenerate = StacksConsumed + 1});
             }
@@ -64,7 +64,7 @@ namespace Aetherium.States.Survivor.Koalesk.Secondary
 
             for (int i = 0; i < vfxCreated.Count; i++)
             {
-                if (vfxCreated[i] != null)
+                if(vfxCreated[i] != null)
                 {
                     vfxCreated[i].transform.position = vfxDistributionPoints[i];
                     vfxCreated[i].transform.rotation = RoR2.Util.QuaternionSafeLookRotation(inputBank.aimDirection);
@@ -78,7 +78,7 @@ namespace Aetherium.States.Survivor.Koalesk.Secondary
 
             foreach(var vfx in vfxCreated)
             {
-                if (vfx != null)
+                if(vfx != null)
                 {
                     UnityEngine.Object.Destroy(vfx.gameObject);
                 }

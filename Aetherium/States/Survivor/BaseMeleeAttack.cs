@@ -84,7 +84,7 @@ namespace Aetherium.States.Survivor
 
         public override void OnExit()
         {
-            if (inHitPause)
+            if(inHitPause)
             {
                 RemoveHitstop();
             }
@@ -100,9 +100,9 @@ namespace Aetherium.States.Survivor
         {
             Util.PlaySound(hitSoundString, gameObject);
 
-            if (!hasHopped)
+            if(!hasHopped)
             {
-                if (characterMotor && !characterMotor.isGrounded && hitHopVelocity > 0f)
+                if(characterMotor && !characterMotor.isGrounded && hitHopVelocity > 0f)
                 {
                     SmallHop(characterMotor, hitHopVelocity);
                 }
@@ -115,7 +115,7 @@ namespace Aetherium.States.Survivor
 
         protected void ApplyHitstop()
         {
-            if (!inHitPause && hitStopDuration > 0f)
+            if(!inHitPause && hitStopDuration > 0f)
             {
                 storedVelocity = characterMotor.velocity;
                 hitStopCachedState = CreateHitStopCachedState(characterMotor, animator, playbackRateParam);
@@ -126,9 +126,9 @@ namespace Aetherium.States.Survivor
 
         private void FireAttack()
         {
-            if (isAuthority)
+            if(isAuthority)
             {
-                if (attack.Fire())
+                if(attack.Fire())
                 {
                     OnHitEnemyAuthority();
                 }
@@ -142,7 +142,7 @@ namespace Aetherium.States.Survivor
 
             PlaySwingEffect();
 
-            if (isAuthority)
+            if(isAuthority)
             {
                 AddRecoil(-1f * attackRecoil, -2f * attackRecoil, -0.5f * attackRecoil, 0.5f * attackRecoil);
             }
@@ -154,35 +154,34 @@ namespace Aetherium.States.Survivor
 
             hitPauseTimer -= Time.fixedDeltaTime;
 
-            if (hitPauseTimer <= 0f && inHitPause)
+            if(hitPauseTimer <= 0f && inHitPause)
             {
                 RemoveHitstop();
             }
 
-            if (!inHitPause)
+            if(!inHitPause)
             {
                 stopwatch += Time.fixedDeltaTime;
             }
             else
             {
-                if (characterMotor) characterMotor.velocity = Vector3.zero;
-                if (animator) animator.SetFloat(playbackRateParam, 0f);
+                if(characterMotor) characterMotor.velocity = Vector3.zero;
+                if(animator) animator.SetFloat(playbackRateParam, 0f);
             }
 
             bool fireStarted = stopwatch >= duration * attackStartPercentTime;
             bool fireEnded = stopwatch >= duration * attackEndPercentTime;
 
-            //to guarantee attack comes out if at high attack speed the stopwatch skips past the firing duration between frames
-            if (fireStarted && !fireEnded || fireStarted && fireEnded && !hasFired)
+            if(fireStarted && !fireEnded || fireStarted && fireEnded && !hasFired)
             {
-                if (!hasFired)
+                if(!hasFired)
                 {
                     EnterAttack();
                 }
                 FireAttack();
             }
 
-            if (stopwatch >= duration && isAuthority)
+            if(stopwatch >= duration && isAuthority)
             {
                 outer.SetNextStateToMain();
                 return;
@@ -198,7 +197,7 @@ namespace Aetherium.States.Survivor
 
         public override InterruptPriority GetMinimumInterruptPriority()
         {
-            if (stopwatch >= duration * earlyExitPercentTime)
+            if(stopwatch >= duration * earlyExitPercentTime)
             {
                 return InterruptPriority.Any;
             }

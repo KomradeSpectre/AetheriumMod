@@ -58,7 +58,7 @@ namespace Aetherium.StandaloneBuffs.Tier3
 
             SoulLinkedHeartEffect.AddComponent<NetworkIdentity>();
 
-            if (SoulLinkedHeartEffect) PrefabAPI.RegisterNetworkPrefab(SoulLinkedHeartEffect);
+            if(SoulLinkedHeartEffect) PrefabAPI.RegisterNetworkPrefab(SoulLinkedHeartEffect);
             ContentAddition.AddEffect(SoulLinkedHeartEffect);
 
             SoulLinkedOrbEffect = MainAssets.LoadAsset<GameObject>("SoulLinkedTrailEffect.prefab");
@@ -81,7 +81,7 @@ namespace Aetherium.StandaloneBuffs.Tier3
             var trailDetach = SoulLinkedOrbEffect.AddComponent<DetachTrailOnDestroy>();
             trailDetach.targetTrailRenderers = SoulLinkedOrbEffect.GetComponents<TrailRenderer>();
 
-            if (SoulLinkedOrbEffect) PrefabAPI.RegisterNetworkPrefab(SoulLinkedOrbEffect);
+            if(SoulLinkedOrbEffect) PrefabAPI.RegisterNetworkPrefab(SoulLinkedOrbEffect);
             ContentAddition.AddEffect(SoulLinkedOrbEffect);
 
             OrbAPI.AddOrb(typeof(Effect.SoulLinkedOrb));

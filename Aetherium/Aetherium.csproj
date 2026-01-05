@@ -27,6 +27,7 @@
     <Compile Remove="CoreModules\Stathooks.cs" />
     <Compile Remove="Effect\FaustOrb.cs" />
     <Compile Remove="Effect\HungeringConsumptionOrb.cs" />
+    <Compile Remove="Effect\JarOfReshapingOrb.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="EliteEquipment\AffixBenevolent.cs" />
     <Compile Remove="EliteEquipment\AffixHungering.cs" />
@@ -35,6 +36,8 @@
     <Compile Remove="EliteEquipment\AffixRallying.cs" />
     <Compile Remove="EliteEquipment\AffixSteadfast.cs" />
     <Compile Remove="EliteEquipment\AffixTarred.cs" />
+    <Compile Remove="Equipment\Faust.cs" />
+    <Compile Remove="Equipment\JarOfReshaping.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
@@ -45,6 +48,8 @@
     <Compile Remove="Items\ObliterballAndChain.cs" />
     <Compile Remove="Items\RicochetTest.cs" />
     <Compile Remove="Items\Tier2\EmpathicResonator.cs" />
+    <Compile Remove="Items\Tier3\BlasterSwordOrig.cs" />
+    <Compile Remove="Items\TierLunar\AlienMagnet.cs" />
     <Compile Remove="Items\VoidItems\FrenziedWarbot.cs" />
     <Compile Remove="Items\VoidItems\PhasewindFeather.cs" />
     <Compile Remove="Items\VoidItems\RazorfinWing.cs" />
@@ -56,6 +61,20 @@
     <Compile Remove="StandaloneBuffs\StrengthOfThePack.cs" />
     <Compile Remove="StandaloneBuffs\Tier2\PrecisionProtocol.cs" />
     <Compile Remove="StandaloneBuffs\Tier3\SparkGap.cs" />
+    <Compile Remove="States\Equipment\Faust\BrokenSkillState.cs" />
+    <Compile Remove="States\Survivor\BaseMeleeAttack.cs" />
+    <Compile Remove="States\Survivor\BasicMelee.cs" />
+    <Compile Remove="States\Survivor\Koalesk\KoaleskMainState.cs" />
+    <Compile Remove="States\Survivor\Koalesk\KoaleskMeleeBase.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Primary\DarkThorn\DarkThornState.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Primary\PrimaryRouter.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Primary\RoseThorn\RoseThornState.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Secondary\BloodyStake\ChargeBloodyStake.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Secondary\BloodyStake\FireBloodyStake.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Utility\ShadowDance\AimShadowDance.cs" />
+    <Compile Remove="States\Survivor\Koalesk\Utility\ShadowDance\FireShadowDance.cs" />
+    <Compile Remove="Survivors\Components\KoaleskPassive.cs" />
+    <Compile Remove="Survivors\Koalesk.cs" />
     <Compile Remove="Survivors\TestCharacter.cs" />
     <Compile Remove="Utils\Components\MaterialControllerComponentsGetter.cs" />
   </ItemGroup>
@@ -81,45 +100,46 @@
     <Folder Include="Items\VoidItems\Tier3\" />
     <Folder Include="Items\VoidItems\Tier2\" />
     <Folder Include="Skills\" />
+    <Folder Include="States\Equipment\Faust\" />
     <Folder Include="States\Item\" />
     <Folder Include="States\Survivor\Koalesk\Misc\" />
+    <Folder Include="States\Survivor\Koalesk\Primary\DarkThorn\" />
+    <Folder Include="States\Survivor\Koalesk\Primary\RoseThorn\" />
+    <Folder Include="States\Survivor\Koalesk\Secondary\BloodyStake\" />
     <Folder Include="States\Survivor\Koalesk\Special\" />
+    <Folder Include="States\Survivor\Koalesk\Utility\ShadowDance\" />
+    <Folder Include="Survivors\Components\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.6-r.0" />
-    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" />
-    <PackageReference Include="MMHOOK.RoR2" Version="2024.12.10">
-      <NoWarn>NU1701</NoWarn>
-    </PackageReference>
-    <PackageReference Include="R2API.RecalculateStats" Version="1.5.0" />
-    <PackageReference Include="R2API.Director" Version="2.3.2" />
-    <PackageReference Include="R2API.Elites" Version="1.0.*" />
-    <PackageReference Include="R2API.Prefab" Version="1.0.*" />
-    <PackageReference Include="R2API.DamageType" Version="1.1.*" />
-    <PackageReference Include="R2API.Sound" Version="1.0.*" />
-    <PackageReference Include="R2API.Core" Version="5.1.*" />
-    <PackageReference Include="R2API.Items" Version="1.0.*" />
-    <PackageReference Include="R2API.Unlockable" Version="1.0.*" />
-    <PackageReference Include="R2API.CommandHelper" Version="1.0.*" />
-    <PackageReference Include="R2API.Language" Version="1.0.*" />
-    <PackageReference Include="R2API.Orb" Version="1.0.*" />
-    <PackageReference Include="R2API.Networking" Version="1.0.*" />
+    <PackageReference Include="R2API.CharacterBody" Version="1.2.0" />
+    <PackageReference Include="R2API.ContentManagement" Version="1.0.10" />
+    <PackageReference Include="R2API.Core" Version="5.3.0" />
+    <PackageReference Include="R2API.DamageType" Version="1.1.7" />
+    <PackageReference Include="R2API.Director" Version="2.3.8" />
+    <PackageReference Include="R2API.Elites" Version="1.1.1" />
+    <PackageReference Include="R2API.Items" Version="1.0.7" />
+    <PackageReference Include="R2API.Language" Version="1.1.0" />
+    <PackageReference Include="R2API.Networking" Version="1.0.4" />
+    <PackageReference Include="R2API.Orb" Version="1.0.1" />
+    <PackageReference Include="R2API.Prefab" Version="1.1.1" />
+    <PackageReference Include="R2API.RecalculateStats" Version="1.6.5" />
+    <PackageReference Include="R2API.Skins" Version="1.4.4" />
+    <PackageReference Include="R2API.Sound" Version="1.0.3" />
+    <PackageReference Include="R2API.Unlockable" Version="1.0.2" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1-r.0" />
+    <PackageReference Include="RoR2BepInExPack" Version="1.41.0" />
   
   <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="./weave.bat $(TargetDir)" />
+    <Exec Command="call &quot;$(ProjectDir)weave.bat&quot; &quot;$(TargetDir)\&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if not exist &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot; mkdir &quot;C:\Users\Jonathan Church\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Aetherium-Testing\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot;" />
+    <Exec Command="if not exist &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot; mkdir &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot;" />
   </Target>
 	
 </Project>

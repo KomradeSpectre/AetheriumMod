@@ -109,7 +109,7 @@ namespace Aetherium.Utils.Components
 
         public Matrix4x4 LookAt(Vector3 dir, Vector3 up, Vector3 right)
         {
-            if (Mathf.Abs(Vector3.Dot(dir, up) / (dir.magnitude * up.magnitude)) > 1 - 0.000001)
+            if(Mathf.Abs(Vector3.Dot(dir, up) / (dir.magnitude * up.magnitude)) > 1 - 0.000001)
             {
                 up = right;
             }
@@ -126,38 +126,38 @@ namespace Aetherium.Utils.Components
         public void FixedUpdate()
         {
             stopwatch += Time.fixedDeltaTime;
-            if (!NetworkServer.active && !projectileController.isPrediction)
+            if(!NetworkServer.active && !projectileController.isPrediction)
             {
                 return;
             }
-            if (timerAfterImpact && hasImpact)
+            if(timerAfterImpact && hasImpact)
             {
                 stopwatchAfterImpact += Time.fixedDeltaTime;
             }
             bool num = stopwatch >= lifetime;
             bool flag = timerAfterImpact && stopwatchAfterImpact > lifetimeAfterImpact;
             bool flag2 = projectileHealthComponent && !projectileHealthComponent.alive;
-            if (num || flag || flag2)
+            if(num || flag || flag2)
             {
                 alive = false;
             }
-            if (alive && !hasPlayedLifetimeExpiredSound)
+            if(alive && !hasPlayedLifetimeExpiredSound)
             {
                 bool flag3 = stopwatch > lifetime - offsetForLifetimeExpiredSound;
-                if (timerAfterImpact)
+                if(timerAfterImpact)
                 {
                     flag3 |= stopwatchAfterImpact > lifetimeAfterImpact - offsetForLifetimeExpiredSound;
                 }
-                if (flag3)
+                if(flag3)
                 {
                     hasPlayedLifetimeExpiredSound = true;
-                    if (NetworkServer.active && lifetimeExpiredSound)
+                    if(NetworkServer.active && lifetimeExpiredSound)
                     {
                         PointSoundManager.EmitSoundServer(lifetimeExpiredSound.index, base.transform.position);
                     }
                 }
             }
-            if (!alive)
+            if(!alive)
             {
                 explosionEffect = impactEffect ?? explosionEffect;
                 Detonate();
@@ -189,7 +189,7 @@ namespace Aetherium.Utils.Components
 
         public void Detonate()
         {
-            if (NetworkServer.active)
+            if(NetworkServer.active)
             {
                 DetonateServer();
             }
@@ -198,7 +198,7 @@ namespace Aetherium.Utils.Components
 
         protected void DetonateServer()
         {
-            if (explosionEffect)
+            if(explosionEffect)
             {
                 EffectManager.SpawnEffect(explosionEffect, new EffectData
                 {
@@ -206,7 +206,7 @@ namespace Aetherium.Utils.Components
                     scale = blastRadius
                 }, transmit: true);
             }
-            if (projectileDamage)
+            if(projectileDamage)
             {
                 BlastAttack blastAttack = new BlastAttack();
                 blastAttack.position = base.transform.position;
@@ -226,9 +226,9 @@ namespace Aetherium.Utils.Components
                 blastAttack.attackerFiltering = blastAttackerFiltering;
                 blastAttack.Fire();
             }
-            if (fireChildren)
+            if(fireChildren)
             {
-                if (!childStaggerFire)
+                if(!childStaggerFire)
                 {
                     for (int i = 0; i < childrenCount; i++)
                     {
@@ -256,7 +256,7 @@ namespace Aetherium.Utils.Components
         {
             Vector3 randomDirectionForChild = GetRandomDirectionForChild();
 
-            if (ChildBulletAttack && projectileController && projectileDamage)
+            if(ChildBulletAttack && projectileController && projectileDamage)
             {
                 BulletAttack childBulletAttack = new BulletAttack()
                 {
@@ -287,7 +287,7 @@ namespace Aetherium.Utils.Components
             {
                 GameObject obj = UnityEngine.Object.Instantiate(childrenProjectilePrefab, base.transform.position, Util.QuaternionSafeLookRotation(randomDirectionForChild));
                 ProjectileController component = obj.GetComponent<ProjectileController>();
-                if (component)
+                if(component)
                 {
                     component.procChainMask = projectileController.procChainMask;
                     component.procCoefficient = projectileController.procCoefficient;
@@ -295,7 +295,7 @@ namespace Aetherium.Utils.Components
                 }
                 obj.GetComponent<TeamFilter>().teamIndex = GetComponent<TeamFilter>().teamIndex;
                 ProjectileDamage component2 = obj.GetComponent<ProjectileDamage>();
-                if (component2)
+                if(component2)
                 {
                     component2.damage = projectileDamage.damage * childrenDamageCoefficient;
                     component2.crit = projectileDamage.crit;
@@ -308,18 +308,18 @@ namespace Aetherium.Utils.Components
 
         public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
         {
-            if (!alive)
+            if(!alive)
             {
                 return;
             }
             Collider collider = impactInfo.collider;
             impactNormal = impactInfo.estimatedImpactNormal;
-            if (!collider)
+            if(!collider)
             {
                 return;
             }
             DamageInfo damageInfo = new DamageInfo();
-            if (projectileDamage)
+            if(projectileDamage)
             {
                 damageInfo.damage = projectileDamage.damage;
                 damageInfo.crit = projectileDamage.crit;
@@ -335,14 +335,14 @@ namespace Aetherium.Utils.Components
                 AetheriumPlugin.ModLogger.LogError("No projectile damage component!");
             }
             HurtBox component = collider.GetComponent<HurtBox>();
-            if (component)
+            if(component)
             {
-                if (destroyOnEnemy)
+                if(destroyOnEnemy)
                 {
                     HealthComponent healthComponent = component.healthComponent;
-                    if (healthComponent)
+                    if(healthComponent)
                     {
-                        if (healthComponent.gameObject == projectileController.owner || (projectileHealthComponent && healthComponent == projectileHealthComponent))
+                        if(healthComponent.gameObject == projectileController.owner || (projectileHealthComponent && healthComponent == projectileHealthComponent))
                         {
                             return;
                         }
@@ -350,12 +350,12 @@ namespace Aetherium.Utils.Components
                     }
                 }
             }
-            else if (destroyOnWorld)
+            else if(destroyOnWorld)
             {
                 alive = false;
             }
             hasImpact = true;
-            if (NetworkServer.active)
+            if(NetworkServer.active)
             {
                 GlobalEventManager.instance.OnHitAll(damageInfo, collider.gameObject);
             }

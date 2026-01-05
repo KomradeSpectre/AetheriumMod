@@ -306,15 +306,15 @@ namespace Aetherium.Items.Tier1
         private void CalculateSpeedReward(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
             var body = self.body;
-            if (body)
+            if(body)
             {
                 var buffCount = body.GetBuffCount(SpeedBuff);
                 var InventoryCount = GetCount(body);
 
-                if (InventoryCount > 0)
+                if(InventoryCount > 0)
                 {
                     var stackTime = BaseDurationOfBuffInSeconds + (AdditionalDurationOfBuffInSeconds * (InventoryCount - 1));
-                    if (buffCount < BuffStacksPerFeatheredPlume * InventoryCount)
+                    if(buffCount < BuffStacksPerFeatheredPlume * InventoryCount)
                     {
                         ItemHelpers.RefreshTimedBuffs(body, SpeedBuff, stackTime);
                         body.AddTimedBuffAuthority(SpeedBuff.buffIndex, stackTime);
@@ -330,7 +330,7 @@ namespace Aetherium.Items.Tier1
 
         private void AddSpeedReward(CharacterBody sender, StatHookEventArgs args)
         {
-            if (sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += MoveSpeedPercentageBonusPerBuffStack * sender.GetBuffCount(SpeedBuff); }
+            if(sender.HasBuff(SpeedBuff)) { args.moveSpeedMultAdd += MoveSpeedPercentageBonusPerBuffStack * sender.GetBuffCount(SpeedBuff); }
         }
     }
 }

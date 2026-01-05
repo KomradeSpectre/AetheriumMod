@@ -27,22 +27,22 @@ namespace Aetherium.Utils.Components
         public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
         {
             ModLogger.LogError($"Entering Projectile Impact");
-            if (!this.alive)
+            if(!this.alive)
                 return;
             ModLogger.LogError($"We're Alive");
             Collider collider = impactInfo.collider;
-            if (collider)
+            if(collider)
             {
                 ModLogger.LogError($"We have a collider.");
                 HurtBox hurtBox = collider.GetComponent<HurtBox>();
-                if (!hurtBox)
+                if(!hurtBox)
                 {
                     ModLogger.LogError($"There's no hurtbox on this collider.");
                     var colliderTopLevel = collider.gameObject.transform.root;
-                    if (colliderTopLevel)
+                    if(colliderTopLevel)
                     {
                         var colliderBody = colliderTopLevel.GetComponent<CharacterBody>();
-                        if (!colliderBody)
+                        if(!colliderBody)
                         {
                             ModLogger.LogError($"The collider did not belong to a characterbody hierarchy.");
                             this.alive = false;
@@ -54,10 +54,10 @@ namespace Aetherium.Utils.Components
                     }
                 }
             }
-            if (this.alive)
+            if(this.alive)
                 return;
 
-            if (NetworkServer.active && this.impactEffect)
+            if(NetworkServer.active && this.impactEffect)
             {
                 EffectManager.SimpleImpactEffect(this.impactEffect, impactInfo.estimatedPointOfImpact, -this.transform.forward, !this.projectileController.isPrediction);
             }

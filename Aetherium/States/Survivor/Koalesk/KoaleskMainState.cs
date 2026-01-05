@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using EntityStates;
 using RoR2;
+using Aetherium.States.Survivor;
 using static Aetherium.Survivors.Koalesk;
 using static Aetherium.AetheriumPlugin;
 using UnityEngine;
@@ -16,14 +17,14 @@ namespace Aetherium.States.Survivor.Koalesk
         public override void OnEnter()
         {
             base.OnEnter();
-            if (characterBody)
+            if(characterBody)
             {
-                if (!characterBody.GetComponent<DarkThornTimingAdjuster>())
+                if(!characterBody.GetComponent<DarkThornTimingAdjuster>())
                 {
                     characterBody.gameObject.AddComponent<DarkThornTimingAdjuster>();
                 }
 
-                if (!characterBody.GetComponent<RoseThornTimingAdjuster>())
+                if(!characterBody.GetComponent<RoseThornTimingAdjuster>())
                 {
                     characterBody.gameObject.AddComponent<RoseThornTimingAdjuster>();
                 }
@@ -39,24 +40,23 @@ namespace Aetherium.States.Survivor.Koalesk
         {
             base.FixedUpdate();
 
-            if (inputBank && characterBody && characterBody.skillLocator)
+            if(inputBank && characterBody && characterBody.skillLocator)
             {
                 var skillLocator = characterBody.skillLocator;
                 var movementInputDot = Vector3.Dot(inputBank.moveVector.normalized, aimDirection.normalized);
 
-                // Define a small threshold value, like 0.1
                 float threshold = 0.1f;
 
-                if (movementInputDot >= -threshold)
+                if(movementInputDot >= -threshold)
                 {
-                    if (skillLocator.primary)
+                    if(skillLocator.primary)
                     {
                         skillLocator.primary.UnsetSkillOverride(characterBody, KoaleskDarkThorn, GenericSkill.SkillOverridePriority.Replacement);
                     }
                 }
                 else
                 {
-                    if (skillLocator.primary)
+                    if(skillLocator.primary)
                     {
                         skillLocator.primary.SetSkillOverride(characterBody, KoaleskDarkThorn, GenericSkill.SkillOverridePriority.Replacement);
                     }

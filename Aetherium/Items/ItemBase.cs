@@ -24,7 +24,7 @@ namespace Aetherium.Items
 
         public ItemBase()
         {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
+            if(instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting ItemBase was instantiated twice");
             instance = this as T;
         }
     }
@@ -71,7 +71,7 @@ namespace Aetherium.Items
 
         protected void CreateItem()
         {
-            if (AIBlacklisted)
+            if(AIBlacklisted)
             {
                 ItemTags = new List<ItemTag>(ItemTags) { ItemTag.AIBlacklist }.ToArray();
             }
@@ -91,12 +91,12 @@ namespace Aetherium.Items
 
             if(ItemTags.Length > 0) { ItemDef.tags = ItemTags; }
 
-            if (PrinterBlacklisted)
+            if(PrinterBlacklisted)
             {
                 AetheriumPlugin.BlacklistedFromPrinter.Add(ItemDef);
             }
 
-            if (ItemUnlockableDef)
+            if(ItemUnlockableDef)
             {
                 ItemDef.unlockableDef = ItemUnlockableDef;
             }
@@ -120,7 +120,7 @@ namespace Aetherium.Items
                 c.Emit(Mono.Cecil.Cil.OpCodes.Ldloc, listIndex);
                 c.EmitDelegate<Action<ShopTerminalBehavior, List<PickupIndex>>>((shopTerminalBehavior, list) =>
                 {
-                    if (shopTerminalBehavior && shopTerminalBehavior.gameObject.name.Contains("Duplicator"))
+                    if(shopTerminalBehavior && shopTerminalBehavior.gameObject.name.Contains("Duplicator"))
                     {
                         list.RemoveAll(x => AetheriumPlugin.BlacklistedFromPrinter.Contains(ItemCatalog.GetItemDef(PickupCatalog.GetPickupDef(x).itemIndex)));
                     }
@@ -137,21 +137,21 @@ namespace Aetherium.Items
 
         public int GetCount(CharacterBody body)
         {
-            if (!body || !body.inventory) { return 0; }
+            if(!body || !body.inventory) { return 0; }
             
             return body.inventory.GetItemCount(ItemDef);
         }
 
         public int GetCount(CharacterMaster master)
         {
-            if (!master || !master.inventory) { return 0; }
+            if(!master || !master.inventory) { return 0; }
 
             return master.inventory.GetItemCount(ItemDef);
         }
 
         public int GetCountSpecific(CharacterBody body, ItemDef itemDef)
         {
-            if (!body || !body.inventory) { return 0; }
+            if(!body || !body.inventory) { return 0; }
 
             return body.inventory.GetItemCount(itemDef);
         }
@@ -168,15 +168,15 @@ namespace Aetherium.Items
 
             foreach (KeyValuePair<ItemBase, bool> itemPair in AetheriumPlugin.ItemStatusDictionary)
             {
-                if (itemPair.Value == true)
+                if(itemPair.Value == true)
                 {
                     var item = itemPair.Key;
 
-                    if (item.ItemDef && voidTiers.Any(x => item.ItemDef.tier == x))
+                    if(item.ItemDef && voidTiers.Any(x => item.ItemDef.tier == x))
                     {
 
                         var itemToCorrupt = ItemCatalog.allItemDefs.Where(x => x.nameToken == item.CorruptsItem).FirstOrDefault();
-                        if (!itemToCorrupt)
+                        if(!itemToCorrupt)
                         {
                             AetheriumPlugin.ModLogger.LogError($"Tried to add {item.ItemName} in a Void item tier but no relationship was set for what it corrupts or could not be found. Aborting!");
                             continue;

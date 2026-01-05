@@ -31,21 +31,21 @@ namespace Aetherium.Items.Tier2
 
         public override string ItemPickupDesc => "While shielded, gain a temporary boost in <style=cIsUtility>armor</style>.";
 
-        public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>BLUE shields</style> are active." +
+        public override string ItemFullDescription => $"You gain <style=cIsUtility>{BaseShieldingCoreArmorGrant}</style> <style=cStack>(+{AdditionalShieldingCoreArmorGrant} per stack)</style> <style=cIsUtility>armor</style> while <style=cIsUtility>shields</style> are active." +
             $" The first stack of this item will grant <style=cIsUtility>{FloatToPercentageString(BaseGrantShieldMultiplier)}</style> of your max health as shield on pickup.";
 
-        public override string ItemLore => 
+        public override string ItemLore =>
 
             "\nEngineer's report:\n\n" +
 
-            "   Let me preface this with a bit of honesty, I do not know what the green goo inside my little turbine is. " +
-            "I bought an aftermarket resonator from one of the junk dealers our ship passed, because I was running low on parts to repair our shield generators. " +
-            "As soon as I slotted this thing in, I'm covered in this gross liquid that seems to dissipate into these sparkly crystals when exposed to air. " +
-            "Normally this wouldn't be much of an issue since I'm in a suit, but the stuff was constantly attempting to fill the container it occupied so I had to create a seal for it. " +
-            "That's when my suit diagnostics alarmed me that my shield's efficacy hit the roof.\n\n" +
-            "Eureka moment, and a few design drafts later.\n" +
-            "Now I'm selling these things like hotcakes and making a profit. So here's one for you.\n\n" +
-            "P.S. Don't expose your skin to this stuff, it may cause over 200 known forms of cancer. That's our secret though, right?";
+            "   Let me preface this with a bit of honesty: I do not know what the green goo inside my little turbine is.\n\n" +
+            "I bought an aftermarket resonator from one of the junk dealers our ship passed because I was running low on parts to repair our shield generators. " +
+            "As soon as I slotted the thing in, the casing cracked, covering me in this gross liquid that seemed to dissipate into sparkly crystals when exposed to air. " +
+            "Normally, this wouldn't be much of an issue since I'm in a suit, but the stuff was constantly expanding to fill the container it occupied, so I had to hastily weld a seal for it.\n\n" +
+            "That's when my suit diagnostics alarmed me that my shield's efficacy had hit the roof.\n\n" +
+            "Eureka moment, and a few design drafts later...\n" +
+            "Now I'm selling these things like hotcakes and making a killing. So here's one for you.\n\n" +
+            "P.S. Don't expose your skin to this stuff. It may cause over 200 known forms of cancer. That's our secret though, right?";
 
         public override ItemTier Tier => ItemTier.Tier2;
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.Utility };
@@ -61,7 +61,6 @@ namespace Aetherium.Items.Tier2
         {
             CreateConfig(config);
             CreateLang();
-            //CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -76,11 +75,11 @@ namespace Aetherium.Items.Tier2
 
         private void CreateAchievement()
         {
-            if (RequireUnlock)
+            if(RequireUnlock)
             {
                 var achievement = new ShieldingCoreAchievement();
                 achievement.Init();
-                if (achievement.UnlockableDef)
+                if(achievement.UnlockableDef)
                 {
                     ItemUnlockableDef = achievement.UnlockableDef;
                 }
@@ -91,8 +90,6 @@ namespace Aetherium.Items.Tier2
         {
             ItemBodyModelPrefab = MainAssets.LoadAsset<GameObject>("DisplayShieldingCore.prefab");
             ItemBodyModelPrefab.AddComponent<RoR2.ItemDisplay>().rendererInfos = ItemHelpers.ItemDisplaySetup(ItemBodyModelPrefab); ;
-            //if (EnableParticleEffects) { ItemBodyModelPrefab.AddComponent<ShieldingCoreVisualCueController>(); }
-
             Vector3 generalScale = new Vector3(0.2f, 0.2f, 0.2f);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
 
@@ -305,61 +302,79 @@ namespace Aetherium.Items.Tier2
 
         public override void Hooks()
         {
-            GetStatCoefficients += GrantBaseShield;
-            On.RoR2.CharacterBody.FixedUpdate += ShieldedCoreValidator;
-            GetStatCoefficients += ShieldedCoreArmorCalc;
-            RoR2.RoR2Application.onLoad += OnLoadModCompat;
+            GetStatCoefficients += GrantBonuses;
+            On.RoR2.CharacterBody.OnInventoryChanged += OnInventoryChanged;
+            CharacterBody.onBodyStartGlobal += OnBodyStart;
+            On.RoR2.HealthComponent.ServerFixedUpdate += TrackShieldState;
         }
 
-        private void OnLoadModCompat()
+        private void OnBodyStart(CharacterBody body)
         {
-        }
-
-        private void GrantBaseShield(RoR2.CharacterBody sender, StatHookEventArgs args)
-        {
-            if (GetCount(sender) > 0)
+            if(GetCount(body) > 0)
             {
-                RoR2.HealthComponent healthC = sender.GetComponent<RoR2.HealthComponent>();
-                args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
+                body.gameObject.AddComponent<ShieldedCoreComponent>();
             }
         }
 
-        private void ShieldedCoreValidator(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
+            if(!self) return;
 
-            if(self && self.healthComponent)
+            var component = self.GetComponent<ShieldedCoreComponent>();
+            int count = GetCount(self);
+
+            if(count > 0 && !component)
             {
-                var shieldComponent = self.GetComponent<ShieldedCoreComponent>();
-                if (!shieldComponent) { shieldComponent = self.gameObject.AddComponent<ShieldedCoreComponent>(); }
-
-                var newInventoryCount = GetCount(self);
-                var IsShielded = self.healthComponent.shield > 0;
-
-                bool IsDifferent = false;
-                if (shieldComponent.cachedInventoryCount != newInventoryCount)
+                component = self.gameObject.AddComponent<ShieldedCoreComponent>();
+                component.cachedInventoryCount = count;
+            }
+            else if(component)
+            {
+                if(component.cachedInventoryCount != count)
                 {
-                    IsDifferent = true;
-                    shieldComponent.cachedInventoryCount = newInventoryCount;
-                }
-                if (shieldComponent.cachedIsShielded != IsShielded)
-                {
-                    IsDifferent = true;
-                    shieldComponent.cachedIsShielded = IsShielded;
-                }
+                    component.cachedInventoryCount = count;
+                    self.statsDirty = true;
 
-                if (!IsDifferent) return;
-
-                self.statsDirty = true;
+                    if(count == 0)
+                    {
+                        UnityEngine.Object.Destroy(component);
+                    }
+                }
             }
         }
 
-        private void ShieldedCoreArmorCalc(RoR2.CharacterBody sender, StatHookEventArgs args)
+        private void TrackShieldState(On.RoR2.HealthComponent.orig_ServerFixedUpdate orig, HealthComponent self, float deltaTime)
         {
-            var ShieldedCoreComponent = sender.GetComponent<ShieldedCoreComponent>();
-            if (ShieldedCoreComponent && ShieldedCoreComponent.cachedIsShielded && ShieldedCoreComponent.cachedInventoryCount > 0)
+            orig(self, deltaTime);
+
+            if(!self.body) return;
+
+            var component = self.body.GetComponent<ShieldedCoreComponent>();
+            if(component)
             {
-                args.armorAdd += BaseShieldingCoreArmorGrant + (AdditionalShieldingCoreArmorGrant * (ShieldedCoreComponent.cachedInventoryCount - 1));
+                bool isShielded = self.shield > 0;
+                if(component.cachedIsShielded != isShielded)
+                {
+                    component.cachedIsShielded = isShielded;
+                    self.body.statsDirty = true;
+                }
+            }
+        }
+
+        private void GrantBonuses(CharacterBody sender, StatHookEventArgs args)
+        {
+            var component = sender.GetComponent<ShieldedCoreComponent>();
+            if(!component || component.cachedInventoryCount == 0) return;
+
+            if(sender.healthComponent)
+            {
+                args.baseShieldAdd += sender.maxHealth * BaseGrantShieldMultiplier;
+            }
+
+            if(component.cachedIsShielded)
+            {
+                args.armorAdd += BaseShieldingCoreArmorGrant + (AdditionalShieldingCoreArmorGrant * (component.cachedInventoryCount - 1));
             }
         }
 
@@ -378,19 +393,18 @@ namespace Aetherium.Items.Tier2
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 3)
+                if(!OwnerMaster || !ItemDisplay || ParticleSystem.Length != 3)
                 {
                     ItemDisplay = this.GetComponentInParent<RoR2.ItemDisplay>();
-                    if (ItemDisplay)
+                    if(ItemDisplay)
                     {
                         ParticleSystem = ItemDisplay.GetComponentsInChildren<ParticleSystem>();
-                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
                         var characterModel = ItemDisplay.GetComponentInParent<RoR2.CharacterModel>();
 
-                        if (characterModel)
+                        if(characterModel)
                         {
                             var body = characterModel.body;
-                            if (body)
+                            if(body)
                             {
                                 OwnerMaster = body.master;
                             }
@@ -398,16 +412,16 @@ namespace Aetherium.Items.Tier2
                     }
                 }
 
-                if (OwnerMaster && !OwnerBody)
+                if(OwnerMaster && !OwnerBody)
                 {
                     var body = OwnerMaster.GetBody();
-                    if (body)
+                    if(body)
                     {
                         OwnerBody = body;
                     }
-                    if (!body)
+                    if(!body)
                     {
-                        if (ParticleSystem.Length == 3)
+                        if(ParticleSystem.Length == 3)
                         {
                             for(int i = 0; i < ParticleSystem.Length; i++)
                             {
@@ -418,19 +432,19 @@ namespace Aetherium.Items.Tier2
                     }
                 }
 
-                if (OwnerBody && ParticleSystem.Length == 3)
+                if(OwnerBody && ParticleSystem.Length == 3)
                 {
                     foreach (ParticleSystem particleSystem in ParticleSystem)
                     {
-                        if (OwnerBody.healthComponent.shield > 0)
+                        if(OwnerBody.healthComponent.shield > 0)
                         {
-                            if (!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
+                            if(!particleSystem.isPlaying && ItemDisplay.visibilityLevel != VisibilityLevel.Invisible)
                             {
                                 particleSystem.Play();
                             }
                             else
                             {
-                                if (particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
+                                if(particleSystem.isPlaying && ItemDisplay.visibilityLevel == VisibilityLevel.Invisible)
                                 {
                                     particleSystem.Stop();
                                     particleSystem.Clear();
@@ -439,7 +453,7 @@ namespace Aetherium.Items.Tier2
                         }
                         else
                         {
-                            if (particleSystem.isPlaying)
+                            if(particleSystem.isPlaying)
                             {
                                 particleSystem.Stop();
                             }

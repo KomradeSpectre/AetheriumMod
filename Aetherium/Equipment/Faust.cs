@@ -19,18 +19,25 @@ using RoR2.UI;
 using R2API.Networking.Interfaces;
 using R2API.Networking;
 using Aetherium.States.Equipment.Faust;
+using static Aetherium.Utils.MathHelpers;
+using static R2API.HealthBarAPI;
 
 namespace Aetherium.Equipment
 {
     internal class Faust : EquipmentBase<Faust>
     {
+        public static ConfigOption<float> HealthThresholdPercentage;
+        public static ConfigOption<float> ResourceMultiplierPerHit;
+        public static ConfigOption<int> MaxActiveBargains;
+        public static ConfigOption<bool> HealingResetsThreshold;
+
         public override string EquipmentName => "Faust";
 
         public override string EquipmentLangTokenName => "FAUST";
 
-        public override string EquipmentPickupDesc => "On use, throw a homing hat that sticks to enemies. Steal gold and xp from them every hit, and seal one of their skills while they wear the hat.";
+        public override string EquipmentPickupDesc => "Throw a homing hat that sticks to enemies. Steal gold and XP from them and seal one of their skills while they wear it.";
 
-        public override string EquipmentFullDescription => "";
+        public override string EquipmentFullDescription => $"Throw a <style=cIsUtility>homing hat</style> that sticks to an enemy, <style=cIsUtility>sealing their strongest skill</style>. Each hit against them generates <style=cIsUtility>{FloatToPercentageString(ResourceMultiplierPerHit)}</style> of their <style=cIsUtility>kill reward</style> as <style=cIsDamage>gold</style> and <style=cIsUtility>experience</style>. Hat falls off after they lose <style=cIsDamage>{FloatToPercentageString(HealthThresholdPercentage)}</style> of their <style=cIsHealth>maximum health</style>. Can have up to <style=cIsUtility>{MaxActiveBargains} active bargains</style>.";
 
         public override string EquipmentLore => "";
 
@@ -56,19 +63,30 @@ namespace Aetherium.Equipment
 
         public static Dictionary<string, string> MithrixTokens = new Dictionary<string, string>();
 
+        public static HealthBarAPI.BarOverlayIndex FaustThresholdBarIndex;
+
         public override void Init(ConfigFile config)
         {
+            CreateConfig(config);
             CreateLang();
             CreateMithrixLang();
             CreateNetworking();
             CreateSkill();
             CreateTargeting();
             CreateProjectile();
+            CreateHealthBarIndicator();   
             CreateEquipment();
             CreateFaustItem();
             CreateFaustDisplayRules();
 
             Hooks();
+        }
+        private void CreateConfig(ConfigFile config)
+        {
+            HealthThresholdPercentage = config.ActiveBind<float>("Equipment: " + EquipmentName, "Health Threshold Percentage", 0.30f, "Hat falls off after enemy loses this % of max HP (0.30 = 30%)");
+            ResourceMultiplierPerHit = config.ActiveBind<float>("Equipment: " + EquipmentName, "Resource Multiplier Per Hit", 0.05f, "Percentage of enemy's total kill reward given per hit (0.05 = 5%)");
+            MaxActiveBargains = config.ActiveBind<int>("Equipment: " + EquipmentName, "Max Active Bargains", 3, "Maximum number of hats you can have active at once");
+            HealingResetsThreshold = config.ActiveBind<bool>("Equipment: " + EquipmentName, "Healing Resets Threshold", true, "If true, enemies healing while wearing the hat resets progress toward the threshold. Makes mending elites more valuable but risky.");
         }
 
         private void CreateMithrixLang()
@@ -105,7 +123,7 @@ namespace Aetherium.Equipment
 
         public static void AddMithrixHatDialogue(string dialogue, bool isHurtLine)
         {
-            if (isHurtLine)
+            if(isHurtLine)
             {
                 MithrixHurtTokens.Add($"AETHERIUM_BROTHER_HURT_FAUST_EQUIP{MithrixHurtTokens.Count + 1}", dialogue);
                 Language.Language.Add($"AETHERIUM_BROTHER_HURT_FAUST_EQUIP{MithrixHurtTokens.Count + 1}", dialogue);
@@ -203,6 +221,53 @@ namespace Aetherium.Equipment
             PrefabAPI.RegisterNetworkPrefab(OrbFaust);
             R2API.ContentAddition.AddEffect(OrbFaust);
             OrbAPI.AddOrb(typeof(FaustOrb));
+        }
+        private void CreateHealthBarIndicator()
+        {
+            var overlayInfo = new HealthBarAPI.BarOverlayInfo
+            {
+                BodySpecific = true,
+
+                BarInfo = new HealthBar.BarInfo
+                {
+                    color = new Color(1f, 0.3f, 0f, 0.5f),
+                    imageType = UnityEngine.UI.Image.Type.Filled,
+                    enabled = true
+                },
+
+                ModifyBarInfo = (HealthBar healthBar, ref HealthBar.BarInfo barInfo) =>
+                {
+                    if(!healthBar.source || !healthBar.source.body)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    var faustComponent = healthBar.source.body.GetComponent<FaustComponent>();
+                    if(!faustComponent)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    float currentHealthPercent = healthBar.source.combinedHealthFraction;
+                    float thresholdPercent = faustComponent._healthWhenAppliedAsPercent - Faust.HealthThresholdPercentage;
+
+                    if(currentHealthPercent <= thresholdPercent)
+                    {
+                        barInfo.enabled = false;
+                        return;
+                    }
+
+                    float markerWidth = 0.012f;
+
+                    barInfo.enabled = true;
+                    barInfo.normalizedXMin = Mathf.Max(0f, thresholdPercent - markerWidth);
+                    barInfo.normalizedXMax = Mathf.Min(1f, thresholdPercent + markerWidth);
+                }
+            };
+
+            FaustThresholdBarIndex = HealthBarAPI.RegisterBarOverlay(overlayInfo);
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -1645,7 +1710,7 @@ namespace Aetherium.Equipment
 
         private void GiveFaustController(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EquipmentDef && self)
+            if(equipmentDef == EquipmentDef && self)
             {
                 var faustController = self.gameObject.AddComponent<FaustControllerComponent>();
             }
@@ -1654,10 +1719,10 @@ namespace Aetherium.Equipment
 
         private void RemoveFaustController(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EquipmentDef && self)
+            if(equipmentDef == EquipmentDef && self)
             {
                 var faustController = self.gameObject.GetComponent<FaustControllerComponent>();
-                if (faustController)
+                if(faustController)
                 {
                     UnityEngine.Object.Destroy(faustController);
                 }
@@ -1668,14 +1733,14 @@ namespace Aetherium.Equipment
         private void CheckForInheritedFaust(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if (self.inventory)
+            if(self.inventory)
             {
                 var faustInventoryCount = self.inventory.GetItemCount(FaustItem);
                 var deactivatedFaustInventoryCount = self.inventory.GetItemCount(DeactivatedFaustItem);
-                if (faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
+                if(faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
                 {
                     var victimFaustComponent = self.gameObject.GetComponent<FaustComponent>();
-                    if (!victimFaustComponent)
+                    if(!victimFaustComponent)
                     {
                         self.inventory.RemoveItem(FaustItem, faustInventoryCount);
                         self.inventory.RemoveItem(DeactivatedFaustItem, deactivatedFaustInventoryCount);
@@ -1686,17 +1751,17 @@ namespace Aetherium.Equipment
 
         protected override bool ActivateEquipment(EquipmentSlot slot)
         {
-            if (!slot.characterBody || !slot.characterBody.inputBank) { return false; }
+            if(!slot.characterBody || !slot.characterBody.inputBank) { return false; }
 
             var targetComponent = slot.GetComponent<TargetingControllerComponent>();
             var displayTransform = slot.FindActiveEquipmentDisplay();
 
 
-            if (targetComponent && targetComponent.TargetObject)
+            if(targetComponent && targetComponent.TargetObject)
             {
                 var chosenHurtbox = targetComponent.TargetFinder.GetResults().First();
 
-                if (chosenHurtbox)
+                if(chosenHurtbox)
                 {
                     var faustOrb = new FaustOrb()
                     {
@@ -1716,10 +1781,10 @@ namespace Aetherium.Equipment
         private void FilterOutHatWearers(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
         {
             orig(self);
-            if (self.equipmentIndex == EquipmentDef.equipmentIndex)
+            if(self.equipmentIndex == EquipmentDef.equipmentIndex)
             {
                 var targetingComponent = self.GetComponent<TargetingControllerComponent>();
-                if (targetingComponent)
+                if(targetingComponent)
                 {
                     targetingComponent.AdditionalBullseyeFunctionality = (bullseyeSearch) => bullseyeSearch.FilterOutItemWielders(FaustVictimItems);
                 }
@@ -1729,23 +1794,28 @@ namespace Aetherium.Equipment
         public class FaustControllerComponent : MonoBehaviour
         {
             public List<FaustComponent> activeBargains = new List<FaustComponent>();
-            public int maxBargains = 4;
+            public int maxBargains => Faust.MaxActiveBargains;    
 
             public void AddBargain(FaustComponent faust)
             {
-                if (activeBargains.Contains(faust) || activeBargains.Any(x => x.gameObject == faust.gameObject))
+                if(activeBargains.Contains(faust) || activeBargains.Any(x => x && x.gameObject == faust.gameObject))
                 {
                     return;
                 }
 
                 activeBargains.Add(faust);
-                if (activeBargains.Count > maxBargains)
+
+                if(activeBargains.Count > maxBargains)
                 {
                     var bargain = activeBargains[0];
-                    bargain.BeginDestruction = true;
+                    if(bargain)
+                    {
+                        bargain.BeginDestruction = true;
+                    }
                     activeBargains.RemoveAt(0);
                 }
-                activeBargains.RemoveAll(x => !x.enabled);
+
+                activeBargains.RemoveAll(x => !x || !x.enabled);
             }
 
             internal void RemoveBargain(FaustComponent faustComponent)
@@ -1759,220 +1829,284 @@ namespace Aetherium.Equipment
             public GameObject attacker;
 
             public CharacterBody characterBody;
+            public HealthComponent healthComponent;
             public FaustControllerComponent faustController;
             public SkillLocator skillLocator;
             public Inventory inventory;
+            public DeathRewards deathRewards;
 
-            public float BonusMultiplier = 0.03f;
+            public float HealthWhenApplied;
+            public float _healthWhenAppliedAsPercent;
+            public float _lowestHealthPercentReached;
 
-            public float stopwatch;
-            public float CheckDuration = 3;
-
-            public int CurrentMoneyMakingHitsCount = 0;
-            public int MoneyMakingHitCap = 200;
-
-            public int skillSealSeed;
+            public GenericSkill sealedSkill;
 
             public bool BeginDestruction;
+            private bool _hasAddedHealthBar;
 
             public void OnEnable()
             {
-                characterBody = gameObject.GetComponent<CharacterBody>();
-                skillLocator = gameObject.GetComponent<SkillLocator>();
-                if (characterBody)
+                characterBody = GetComponent<CharacterBody>();
+                healthComponent = GetComponent<HealthComponent>();
+                skillLocator = GetComponent<SkillLocator>();
+                deathRewards = GetComponent<DeathRewards>();
+
+                if(characterBody)
                     inventory = characterBody.inventory;
 
-                SecretKingDialog();
-
-                skillSealSeed = UnityEngine.Random.Range(0, 10000);
-
-                if (this.skillLocator)
+                if(healthComponent)
                 {
-                    var skills = new List<GenericSkill>() { this.skillLocator.primary, this.skillLocator.secondary, this.skillLocator.special, this.skillLocator.utility };
-                    skills.RemoveAll(x => !x);
-                    if (skills.Count > 0)
-                    {
-                        var skill = skills[skillSealSeed % skills.Count];
-                        skill.SetSkillOverride(this, BrokenSkill, GenericSkill.SkillOverridePriority.Replacement);
-                    }
+                    HealthWhenApplied = healthComponent.health;
+                    _healthWhenAppliedAsPercent = healthComponent.combinedHealthFraction;
                 }
 
-                GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
+                SecretKingDialog();
+                SealStrongestSkill();
 
-                if (inventory)
+                GlobalEventManager.onServerDamageDealt += OnDamageDealt;
+
+                if(inventory)
                 {
                     inventory.GiveItem(Faust.instance.FaustItem);
                 }
             }
 
-            private void SecretKingDialog()
+            private void SealStrongestSkill()
             {
-                if (gameObject.name.ToLowerInvariant().StartsWith("brother"))
+                if(!skillLocator) return;
+
+                var skillsByPriority = new List<GenericSkill>()
+        {
+            skillLocator.special,
+            skillLocator.utility,
+            skillLocator.secondary,
+            skillLocator.primary
+        };
+
+                sealedSkill = skillsByPriority.FirstOrDefault(x => x && x.skillDef);
+
+                if(sealedSkill)
                 {
-                    var speechDriver = GameObject.FindObjectOfType<BrotherSpeechDriver>();
-
-                    if (speechDriver)
-                    {
-                        bool isHurt = speechDriver.gameObject.name.ToLowerInvariant().Contains("hurt");
-
-                        var chosenMithrixLine = isHurt ? MithrixHurtTokens.ElementAt(UnityEngine.Random.Range(0, MithrixHurtTokens.Count)).Key : MithrixTokens.ElementAt(UnityEngine.Random.Range(0, MithrixHurtTokens.Count)).Key;
-
-                        speechDriver.characterSpeechController.EnqueueSpeech(new CharacterSpeechController.SpeechInfo()
-                        {
-                            token = chosenMithrixLine,
-                            duration = 2,
-                            maxWait = 0.5f,
-                            priority = 10000,
-                            mustPlay = true,
-                        });
-                    }
+                    sealedSkill.SetSkillOverride(this, BrokenSkill,
+                        GenericSkill.SkillOverridePriority.Replacement);
                 }
             }
 
             public void Start()
             {
-                faustController = attacker.GetComponent<FaustControllerComponent>();
+                faustController = attacker?.GetComponent<FaustControllerComponent>();
 
-                if (faustController)
+                if(faustController)
                 {
                     faustController.AddBargain(this);
                 }
 
-                if (NetworkServer.active)
+                if(characterBody)
                 {
-                    if (attacker)
-                    {
-                        var attackerNetID = attacker.GetComponent<NetworkIdentity>();
-                        var victimNetID = GetComponent<NetworkIdentity>();
+                    HealthBarAPI.AddOverlayToBody(characterBody, Faust.FaustThresholdBarIndex);
+                    _hasAddedHealthBar = true;
+                }
 
-                        if (victimNetID && attackerNetID)
-                        {
-                            new SyncFaustComponentAddition(victimNetID.netId, attackerNetID.netId, skillSealSeed).Send(R2API.Networking.NetworkDestination.Clients);
-                        }
+                if(NetworkServer.active && attacker)
+                {
+                    var attackerNetID = attacker.GetComponent<NetworkIdentity>();
+                    var victimNetID = GetComponent<NetworkIdentity>();
+
+                    if(victimNetID && attackerNetID)
+                    {
+                        new SyncFaustComponentAddition(
+                            victimNetID.netId,
+                            attackerNetID.netId,
+                            HealthWhenApplied,
+                            _healthWhenAppliedAsPercent    
+                        ).Send(NetworkDestination.Clients);
                     }
                 }
             }
 
-            private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport)
+            private void OnDamageDealt(DamageReport damageReport)
             {
-                if (damageReport.victim.gameObject == gameObject && attacker && damageReport.attackerBody && !damageReport.isFriendlyFire)
+                if(damageReport.victim.gameObject != gameObject) return;
+                if(!attacker || !damageReport.attackerBody) return;
+                if(damageReport.isFriendlyFire) return;
+
+                GenerateResources(damageReport, damageReport.attackerBody);
+
+                CheckHealthThreshold();
+            }
+
+            private void CheckHealthThreshold()
+            {
+                if(!healthComponent)
                 {
-                    if (CurrentMoneyMakingHitsCount < MoneyMakingHitCap)
+                    BeginDestruction = true;
+                    return;
+                }
+
+                float currentHealthPercent = healthComponent.combinedHealthFraction;
+                float percentageLost;
+
+                if(Faust.HealingResetsThreshold)
+                {
+                    percentageLost = _healthWhenAppliedAsPercent - currentHealthPercent;
+                }
+                else
+                {
+                    if(currentHealthPercent < _lowestHealthPercentReached)
                     {
-                        DropExtraGold(damageReport, damageReport.attackerBody);
-                        CurrentMoneyMakingHitsCount++;
+                        _lowestHealthPercentReached = currentHealthPercent;
                     }
-                    else
-                    {
-                        BeginDestruction = true;
-                    }
+                    percentageLost = _healthWhenAppliedAsPercent - _lowestHealthPercentReached;
+                }
+
+                if(percentageLost >= Faust.HealthThresholdPercentage)
+                {
+                    BeginDestruction = true;
                 }
             }
 
-            public void DropExtraGold(DamageReport damageReport, CharacterBody attackerBody)
+            private void GenerateResources(DamageReport damageReport, CharacterBody attackerBody)
             {
-                var corePosition = characterBody.corePosition;
-                var rewards = gameObject.GetComponent<DeathRewards>();
+                if(!deathRewards || !characterBody) return;
 
-                if (damageReport != null && damageReport.victimBody && rewards)
+                var run = Run.instance;
+                if(!run) return;
+
+                float multiplier = Faust.ResourceMultiplierPerHit;
+
+                uint baseGold = (uint)Mathf.Max(1, deathRewards.goldReward * multiplier);
+                uint baseExp = (uint)Mathf.Max(1, deathRewards.expReward * multiplier);
+
+                uint maxGoldPerHit = (uint)Mathf.Max(15, 15 * run.difficultyCoefficient);
+                uint maxExpPerHit = (uint)Mathf.Max(10, 10 * run.difficultyCoefficient);
+
+                uint goldRewarded = (uint)Mathf.Min(baseGold, maxGoldPerHit);
+                uint expRewarded = (uint)Mathf.Min(baseExp, maxExpPerHit);
+
+                ExperienceManager.instance.AwardExperience(
+                    characterBody.corePosition,
+                    attackerBody,
+                    expRewarded
+                );
+
+                if(attackerBody.master)
                 {
-                    var difficultyCoefficient = Run.instance.difficultyCoefficient;
-                    var damageCoefficient = damageReport.damageInfo.damage / attackerBody.damage;
+                    attackerBody.master.GiveMoney(goldRewarded);
 
-                    var goldRewarded = (uint)Math.Max(1, rewards.goldReward * (damageCoefficient * BonusMultiplier));
-                    var expRewarded = (uint)Math.Max(0, rewards.expReward * (damageCoefficient * BonusMultiplier));
-
-                    ModLogger.LogInfo($"Our Gold and XP per hit on {damageReport.victimBody.GetDisplayName()} is: \nGold:{goldRewarded}\nXP:{expRewarded}");
-
-                    ExperienceManager.instance.AwardExperience(corePosition, attackerBody, expRewarded);
-
-                    if (attackerBody.master)
+                    EffectManager.SpawnEffect(DeathRewards.coinEffectPrefab, new EffectData
                     {
-                        attackerBody.master.GiveMoney(goldRewarded);
-                        EffectManager.SpawnEffect(DeathRewards.coinEffectPrefab, new EffectData
-                        {
-                            origin = corePosition,
-                            genericFloat = goldRewarded,
-                            scale = characterBody.radius
-                        }, true);
-                    }
+                        origin = characterBody.corePosition,
+                        genericFloat = goldRewarded,
+                        scale = characterBody.radius
+                    }, true);
                 }
             }
 
             public void FixedUpdate()
             {
-                stopwatch += Time.fixedDeltaTime;
-                if (stopwatch >= CheckDuration && !BeginDestruction)
+                if(BeginDestruction)
                 {
-                    if (faustController && !faustController.activeBargains.Contains(this))
-                    {
-                        BeginDestruction = true;
-                    }
-
-                    stopwatch = 0;
+                    CleanupAndDestroy();
                 }
 
-                if (BeginDestruction)
+                if(faustController && !faustController.activeBargains.Contains(this))
                 {
-                    if (this.skillLocator)
-                    {
-                        var skills = new List<GenericSkill>() { this.skillLocator.primary, this.skillLocator.secondary, this.skillLocator.special, this.skillLocator.utility };
-                        skills.RemoveAll(x => !x);
-                        if (skills.Count > 0)
-                        {
-                            var skill = skills[skillSealSeed % skills.Count];
-                            skill.UnsetSkillOverride(this, BrokenSkill, GenericSkill.SkillOverridePriority.Replacement);
-                        }
-                    }
-
-                    GlobalEventManager.onServerDamageDealt -= GlobalEventManager_onServerDamageDealt;
-
-                    if (inventory)
-                    {
-                        var inventoryCount = inventory.GetItemCount(Faust.instance.FaustItem);
-                        if (inventoryCount > 0)
-                        {
-                            inventory.RemoveItem(Faust.instance.FaustItem, inventoryCount);
-                        }
-                    }
-
-                    Destroy(this);
+                    BeginDestruction = true;
                 }
+            }
+
+            private void CleanupAndDestroy()
+            {
+                if(sealedSkill)
+                {
+                    sealedSkill.UnsetSkillOverride(this, BrokenSkill,
+                        GenericSkill.SkillOverridePriority.Replacement);
+                }
+
+                GlobalEventManager.onServerDamageDealt -= OnDamageDealt;
+
+                if(_hasAddedHealthBar && characterBody)
+                {
+                    HealthBarAPI.RemoveOverlayFromBody(characterBody, Faust.FaustThresholdBarIndex);
+                    _hasAddedHealthBar = false;
+                }
+
+                if(inventory)
+                {
+                    var count = inventory.GetItemCount(Faust.instance.FaustItem);
+                    if(count > 0)
+                    {
+                        inventory.RemoveItem(Faust.instance.FaustItem, count);
+                    }
+                }
+
+                Destroy(this);
             }
 
             public void OnDisable()
             {
-                if (faustController)
+                if(faustController)
                 {
                     faustController.RemoveBargain(this);
                 }
 
-                if (this.skillLocator)
+                if(sealedSkill)
                 {
-                    var skills = new List<GenericSkill>() { this.skillLocator.primary, this.skillLocator.secondary, this.skillLocator.special, this.skillLocator.utility };
-                    skills.RemoveAll(x => !x);
-                    if (skills.Count > 0)
-                    {
-                        var skill = skills[skillSealSeed % skills.Count];
-                        skill.UnsetSkillOverride(this, BrokenSkill, GenericSkill.SkillOverridePriority.Replacement);
-                    }
+                    sealedSkill.UnsetSkillOverride(this, BrokenSkill,
+                        GenericSkill.SkillOverridePriority.Replacement);
                 }
 
-                GlobalEventManager.onServerDamageDealt -= GlobalEventManager_onServerDamageDealt;
+                GlobalEventManager.onServerDamageDealt -= OnDamageDealt;
 
-                if (inventory)
-                    inventory.RemoveItem(Faust.instance.FaustItem);
+                if(_hasAddedHealthBar && characterBody)
+                {
+                    HealthBarAPI.RemoveOverlayFromBody(characterBody, Faust.FaustThresholdBarIndex);
+                }
+
+                if(inventory)
+                {
+                    var count = inventory.GetItemCount(Faust.instance.FaustItem);
+                    if(count > 0)
+                    {
+                        inventory.RemoveItem(Faust.instance.FaustItem, count);
+                    }
+                }
             }
 
             public void OnDestroy()
             {
-                if (NetworkServer.active)
+                if(NetworkServer.active)
                 {
                     var victimNetID = GetComponent<NetworkIdentity>();
-
-                    if (victimNetID)
+                    if(victimNetID)
                     {
-                        new SyncFaustComponentRemoval(victimNetID.netId).Send(R2API.Networking.NetworkDestination.Clients);
+                        new SyncFaustComponentRemoval(victimNetID.netId)
+                            .Send(NetworkDestination.Clients);
+                    }
+                }
+            }
+
+            private void SecretKingDialog()
+            {
+                if(gameObject.name.ToLowerInvariant().StartsWith("brother"))
+                {
+                    var speechDriver = GameObject.FindObjectOfType<BrotherSpeechDriver>();
+                    if(speechDriver)
+                    {
+                        bool isHurt = speechDriver.gameObject.name.ToLowerInvariant().Contains("hurt");
+                        var chosenMithrixLine = isHurt
+                            ? MithrixHurtTokens.ElementAt(UnityEngine.Random.Range(0, MithrixHurtTokens.Count)).Key
+                            : MithrixTokens.ElementAt(UnityEngine.Random.Range(0, MithrixTokens.Count)).Key;
+
+                        speechDriver.characterSpeechController.EnqueueSpeech(
+                            new CharacterSpeechController.SpeechInfo()
+                            {
+                                token = chosenMithrixLine,
+                                duration = 2,
+                                maxWait = 0.5f,
+                                priority = 10000,
+                                mustPlay = true,
+                            });
                     }
                 }
             }
@@ -1982,45 +2116,48 @@ namespace Aetherium.Equipment
         {
             public NetworkInstanceId VictimID;
             public NetworkInstanceId AttackerID;
-            public int SkillSealSeed;
+            public float InitialHealth;
+            public float InitialHealthPercent;   
 
-            public SyncFaustComponentAddition()
-            {
+            public SyncFaustComponentAddition() { }
 
-            }
-
-            public SyncFaustComponentAddition(NetworkInstanceId victimID, NetworkInstanceId attackerID, int skillSealSeed)
+            public SyncFaustComponentAddition(NetworkInstanceId victimID, NetworkInstanceId attackerID, float initialHealth, float initialHealthPercent)
             {
                 VictimID = victimID;
                 AttackerID = attackerID;
-                SkillSealSeed = skillSealSeed;
+                InitialHealth = initialHealth;
+                InitialHealthPercent = initialHealthPercent;
             }
 
             public void Serialize(NetworkWriter writer)
             {
                 writer.Write(VictimID);
                 writer.Write(AttackerID);
-                writer.Write(SkillSealSeed);
+                writer.Write(InitialHealth);
+                writer.Write(InitialHealthPercent);   
             }
 
             public void Deserialize(NetworkReader reader)
             {
                 VictimID = reader.ReadNetworkId();
                 AttackerID = reader.ReadNetworkId();
-                SkillSealSeed = reader.ReadInt32();
+                InitialHealth = reader.ReadSingle();
+                InitialHealthPercent = reader.ReadSingle();   
             }
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
 
                 var victimGameObject = RoR2.Util.FindNetworkObject(VictimID);
                 var attackerGameObject = RoR2.Util.FindNetworkObject(AttackerID);
-                if (victimGameObject && attackerGameObject)
+
+                if(victimGameObject && attackerGameObject)
                 {
                     var faustComponent = victimGameObject.AddComponent<FaustComponent>();
                     faustComponent.attacker = attackerGameObject;
-                    faustComponent.skillSealSeed = SkillSealSeed;
+                    faustComponent.HealthWhenApplied = InitialHealth;
+                    faustComponent._healthWhenAppliedAsPercent = InitialHealthPercent;   
                 }
             }
         }
@@ -2051,10 +2188,10 @@ namespace Aetherium.Equipment
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
 
                 var victimGameObject = RoR2.Util.FindNetworkObject(VictimID);
-                if (victimGameObject)
+                if(victimGameObject)
                 {
                     var faustComponents = victimGameObject.GetComponents<FaustComponent>();
                     foreach (var faustComponent in faustComponents)

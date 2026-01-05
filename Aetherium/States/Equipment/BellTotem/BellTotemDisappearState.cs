@@ -22,7 +22,7 @@ namespace Aetherium.States.Equipment.BellTotem
             base.FixedUpdate();
             if(fixedAge >= Duration)
             {
-                if (NetworkServer.active)
+                if(NetworkServer.active)
                 {
                     NetworkServer.UnSpawn(gameObject);
                 }

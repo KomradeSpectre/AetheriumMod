@@ -23,7 +23,7 @@ namespace Aetherium.Utils.Components
         public void Start()
         {
             var impactExplosion = GetComponent<ProjectileImpactExplosion>();
-            if (impactExplosion)
+            if(impactExplosion)
             {
                 ProjectileImpactExplosion = impactExplosion;
                 ProjectileController = impactExplosion.projectileController;
@@ -32,9 +32,9 @@ namespace Aetherium.Utils.Components
 
         public void FixedUpdate()
         {
-            if (!OwnerBody && ProjectileController)
+            if(!OwnerBody && ProjectileController)
             {
-                if (ProjectileController.owner)
+                if(ProjectileController.owner)
                 {
                     OwnerBody = ProjectileController.owner.GetComponent<CharacterBody>();
                 }
@@ -57,10 +57,10 @@ namespace Aetherium.Utils.Components
                     {
                         var body = enemyHit.healthComponent.body;
                         var master = enemyHit.healthComponent.body.master;
-                        if (master)
+                        if(master)
                         {
                             var baseAI = enemyHit.healthComponent.body.master.GetComponent<BaseAI>();
-                            if (baseAI)
+                            if(baseAI)
                             {
                                 master.teamIndex = ProjectileController.teamFilter.teamIndex;
                                 body.teamComponent.teamIndex = ProjectileController.teamFilter.teamIndex;
@@ -72,7 +72,7 @@ namespace Aetherium.Utils.Components
                             }
                         }
                         HasTransformed = true;
-                        if (Decay)
+                        if(Decay)
                         {
                             body.inventory.GiveItem(RoR2Content.Items.HealthDecay);
                         }

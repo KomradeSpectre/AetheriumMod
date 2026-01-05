@@ -13,22 +13,22 @@ namespace Aetherium.Utils
     {
         public static void SetShaderKeywordBasedOnBool(bool enabled, Material material, string keyword)
         {
-            if (!material)
+            if(!material)
             {
                 AetheriumPlugin.ModLogger.LogError($"Material field was null, cannot run shader keyword method.");
                 return;
             }
 
-            if (enabled)
+            if(enabled)
             {
-                if (!material.IsKeywordEnabled(keyword))
+                if(!material.IsKeywordEnabled(keyword))
                 {
                     material.EnableKeyword(keyword);
                 }
             }
             else
             {
-                if (material.IsKeywordEnabled(keyword))
+                if(material.IsKeywordEnabled(keyword))
                 {
                     material.DisableKeyword(keyword);
                 }
@@ -37,7 +37,7 @@ namespace Aetherium.Utils
 
         public static void PutMaterialIntoMeshRenderer(Renderer meshRenderer, Material material)
         {
-            if (material && meshRenderer)
+            if(material && meshRenderer)
             {
                 meshRenderer.materials[0] = material;
             }
@@ -54,13 +54,13 @@ namespace Aetherium.Utils
             public void Start()
             {
                 Renderer = gameObject.GetComponent<Renderer>();
-                if (Renderer)
+                if(Renderer)
                 {
                     Materials = Renderer.materials;
 
                     foreach (Material material in Materials)
                     {
-                        if (material)
+                        if(material)
                         {
 
                             switch (material.shader.name)
@@ -126,12 +126,12 @@ namespace Aetherium.Utils
 
             public void Update()
             {
-                if (!Material || !Renderer)
+                if(!Material || !Renderer)
                 {
                     Destroy(this);
                 }
 
-                if (Renderer && Material && !Material.shader.name.Contains(ShaderName) || Renderer && Renderer.gameObject != OwnerGameObject)
+                if(Renderer && Material && !Material.shader.name.Contains(ShaderName) || Renderer && Renderer.gameObject != OwnerGameObject)
                 {
                     var finder = Renderer.gameObject.AddComponent<HGControllerFinder>();
                     finder.Renderer = Renderer;

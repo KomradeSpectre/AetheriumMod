@@ -1,171 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using KoaleskSurvivor = Aetherium.Survivors.Koalesk;
+using Aetherium.Survivors.Components; 
 using RoR2;
-using EntityStates;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-using Aetherium.Utils;
-using Aetherium.States.Survivor;
 
-namespace Aetherium.States.Survivor.Koalesk.Primary.RoseThorn
+namespace Aetherium.States.Survivor.Koalesk.Primary
 {
-    internal class RoseThornState : BaseMeleeAttack
+    public class RoseThornState : KoaleskMeleeBase
     {
-        public BuffDef BloodliquorBuff => Aetherium.Survivors.Koalesk.BloodliquorBuff;
-        public BuffDef DarkblightBuff => Aetherium.Survivors.Koalesk.DarkblightBuff;
-
-        bool HasGrantedBuff = false;
-
-        float DoubleSlashStartTime;
-        float DoubleSlashEndTime;
-        OverlapAttack DoubleSlashAttack;
-
-        bool HasConsumedRequiredAmountForDoubleHit = false;
-        int RequiredStacksToDoubleHit = 1;
+        private bool isEmpowered = false;
+        private int currentStep = 0;           
 
         public override void OnEnter()
         {
-            if (!BloodliquorBuff || !DarkblightBuff) 
+            var passive = GetComponent<KoaleskPassive>();
+            if (passive)
             {
-                base.OnExit();
-                return;
+                currentStep = passive.RoseThornStepIndex;
             }
 
-            DoubleSlashAttack = new OverlapAttack()
+            if (characterBody && characterBody.GetBuffCount(KoaleskSurvivor.BloodliquorBuff) > 0)
             {
-                attacker = gameObject,
-                teamIndex = GetTeam(),
-                inflictor = gameObject,
-                hitBoxGroup = FindHitBoxGroup("DoubleSlashHitbox"),
-                damage = characterBody.damage,
-                isCrit = RollCrit(),
-                procCoefficient = 0.5f
-            };
+                isEmpowered = true;
+                characterBody.SetBuffCount(KoaleskSurvivor.BloodliquorBuff.buffIndex, characterBody.GetBuffCount(KoaleskSurvivor.BloodliquorBuff) - 1);
+            }
 
-            hitEffectPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniImpactExecute");
-            switch (swingIndex)
+            switch (currentStep)
             {
                 case 0:
-                    baseDuration = 1.10f;
-                    attackStartPercentTime = 29f / 90;
-                    attackEndPercentTime = 36f / 90;
-                    earlyExitPercentTime = 0.85f;
-
-                    DoubleSlashStartTime = 34f / 90;
-                    DoubleSlashEndTime = 41f / 90;
-                    DoubleSlashAttack.damage *= 1.5f;
-
-                    hitStopDuration = 0.1f;
-                    hitHopVelocity = 6;
-                    attackRecoil = 1;
-
-                    damageCoefficient = 3f;
-                    procCoefficient = 1;
-
-                    pushForce = 250f;
+                    baseDuration = 1.1f;
+                    attackStartPercent = 0.32f;
+                    attackEndPercent = 0.40f;
+                    damageCoefficient = 3.0f;
+                    animationName = "RoseThornSlash1";
                     break;
-                
                 case 1:
-                    baseDuration = 1.10f;
-                    attackStartPercentTime = 30f / 90;
-                    attackEndPercentTime = 37f / 90;
-                    earlyExitPercentTime = 0.85f;
-
-                    DoubleSlashStartTime = 35f / 90;
-                    DoubleSlashEndTime = 42f / 90;
-                    DoubleSlashAttack.damage *= 1.5f;
-
-                    hitStopDuration = 0.1f;
-                    hitHopVelocity = 6;
-                    attackRecoil = 1;
-
-                    damageCoefficient = 3f;
-                    procCoefficient = 1;
-
-                    pushForce = 250f;
+                    baseDuration = 1.1f;
+                    attackStartPercent = 0.33f;
+                    attackEndPercent = 0.41f;
+                    damageCoefficient = 3.0f;
+                    animationName = "RoseThornSlash2";
                     break;
-
                 case 2:
                     baseDuration = 1.85f;
-                    attackStartPercentTime = 45f / 120;
-                    attackEndPercentTime = 52f / 120;
-                    earlyExitPercentTime = 0.85f;
-
-                    DoubleSlashStartTime = 50f / 120;
-                    DoubleSlashEndTime = 57f / 120;
-                    DoubleSlashAttack.damage *= 2.5f;
-
-                    hitStopDuration = 0.15f;
-                    hitHopVelocity = 12;
-                    attackRecoil = 2.5f;
-
-                    damageCoefficient = 5f;
-                    procCoefficient = 1;
-
-                    pushForce = 750f;
+                    attackStartPercent = 0.37f;
+                    attackEndPercent = 0.43f;
+                    damageCoefficient = 5.0f;
+                    animationName = "RoseThornSlash3";
                     break;
             }
 
-            hitboxGroupName = "RoseThornHitbox";
-
-            var bloodLiquorCount = characterBody.GetBuffCount(Aetherium.Survivors.Koalesk.BloodliquorBuff.buffIndex);
-            if (bloodLiquorCount > 0 && bloodLiquorCount - RequiredStacksToDoubleHit >= 0)
-            {
-                characterBody.SetBuffCount(Aetherium.Survivors.Koalesk.BloodliquorBuff.buffIndex, bloodLiquorCount - RequiredStacksToDoubleHit);
-                HasConsumedRequiredAmountForDoubleHit = true;
-            }
+            hitboxName = "RoseThornHitbox";
 
             base.OnEnter();
 
-            base.StartAimMode(0.5f + this.duration, false);
-
-        }
-
-        public override void OnExit()
-        {
-            base.OnExit();
-        }
-
-        public override void FixedUpdate()
-        {
-            base.FixedUpdate();
-            if (HasConsumedRequiredAmountForDoubleHit)
+            if (passive)
             {
-                if (stopwatch >= DoubleSlashStartTime * duration && stopwatch <= DoubleSlashEndTime * duration)
-                {
-                    if (isAuthority)
-                    {
-                        DoubleSlashAttack.Fire();
-                    }
-                }
+                passive.RoseThornStepIndex = (passive.RoseThornStepIndex + 1) % 3;
             }
-        }
-
-        protected override void PlayAttackAnimation()
-        {
-            base.PlayCrossfade("Gesture, Override", "RoseThornSlash" + (swingIndex + 1), "Slash.playbackRate", this.duration, 0.1f * duration);
         }
 
         protected override void OnHitEnemyAuthority()
         {
-            base.OnHitEnemyAuthority();
+            if (characterBody && !hasHit) KoaleskSurvivor.AddDarkblightStacks(characterBody, 1);
 
-            /*
-
-            if (HasConsumedRequiredAmountForDoubleHit)
+            if (isEmpowered)
             {
-                attack?.ResetIgnoredHealthComponents();
-                attack?.Fire();
-            }*/
-
-            if (!HasGrantedBuff && isAuthority)
-            {
-                HasGrantedBuff = true;
-                Survivors.Koalesk.AddDarkblightStacks(characterBody, 1);
+                FireAfterImage();
+                isEmpowered = false;
             }
         }
 
+        private void FireAfterImage()
+        {
+            new BlastAttack
+            {
+                attacker = gameObject,
+                baseDamage = damageCoefficient * damageStat * 0.5f,
+                position = transform.position + transform.forward * 2f,
+                radius = 6f,
+                teamIndex = GetTeam(),
+                falloffModel = BlastAttack.FalloffModel.None
+            }.Fire();
+        }
     }
 }

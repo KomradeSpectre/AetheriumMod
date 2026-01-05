@@ -46,7 +46,7 @@ namespace Aetherium.Artifacts
 
         private void AttachLeonidsController(Run run)
         {
-            if (NetworkServer.active && ArtifactEnabled)
+            if(NetworkServer.active && ArtifactEnabled)
             {
                 var showerController = run.gameObject.AddComponent<LeonidsControllerComponent>();
                 showerController.MeteorShowerInterval = MeteorShowerInterval;
@@ -73,10 +73,10 @@ namespace Aetherium.Artifacts
             {
                 var currentTime = Run.GetRunStopwatch();
 
-                if (currentTime > NextMeteorTime)
+                if(currentTime > NextMeteorTime)
                 {
                     //spawn meteors here
-                    if (NetworkServer.active)
+                    if(NetworkServer.active)
                     {
                         MeteorStormController component = UnityEngine.Object.Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/MeteorStorm"), Vector3.zero, Quaternion.identity).GetComponent<MeteorStormController>();
                         component.owner = this.gameObject;

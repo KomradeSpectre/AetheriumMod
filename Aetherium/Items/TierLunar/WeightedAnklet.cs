@@ -30,8 +30,6 @@ namespace Aetherium.Items.TierLunar
         public static ConfigOption<float> AttackSpeedGainedPerLimiterRelease;
         public static ConfigOption<float> MovementSpeedGainedPerLimiterRelease;
         public static ConfigOption<float> DamagePercentageGainedPerLimiterRelease;
-        public static ConfigOption<float> BaseCooldownOfLimiterReleaseDodge;
-        public static ConfigOption<float> AdditionalCooldownOfLimiterReleaseDodge;
 
 
         public override string ItemName => "Weighted Anklet";
@@ -42,9 +40,7 @@ namespace Aetherium.Items.TierLunar
 
         public override string ItemFullDescription => $"A collection of weights will slow your <style=cIsUtility>attack speed</style> by {FloatToPercentageString(BaseAttackSpeedReductionPercentage)} <style=cStack>(to a minimum of {FloatToPercentageString(AttackSpeedReductionPercentageCap)})</style>, \n" +
             $"and your <style=cIsUtility>movement speed</style> by {FloatToPercentageString(BaseMovementSpeedReductionPercentage)} <style=cStack>(to a minimum of {FloatToPercentageString(MovementSpeedReductionPercentageCap)})</style>. \n" +
-            $"If you find a way to remove them, you are granted {AttackSpeedGainedPerLimiterRelease} <style=cIsUtility>attack speed</style>, {MovementSpeedGainedPerLimiterRelease} <style=cIsUtility>movement speed</style>, and {FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} <style=cIsDamage>damage</style> per removal. \n" +
-            $"Additionally, removing an anklet grants you a stack of <style=cIsUtility>Limiter Release Dodge</style>. <style=cIsUtility>Dodge</style> will allow you to dodge one overlap, or blast attack before depleting. \n" +
-            $"Once all stacks of dodge are depleted, they will need to recharge <style=cStack>({BaseCooldownOfLimiterReleaseDodge} seconds for the first stack, {AdditionalCooldownOfLimiterReleaseDodge} seconds per each additional stack)</style> before fully replenishing.";
+            $"If you find a way to remove them, you are granted {AttackSpeedGainedPerLimiterRelease} <style=cIsUtility>attack speed</style>, {MovementSpeedGainedPerLimiterRelease} <style=cIsUtility>movement speed</style>, and {FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} <style=cIsDamage>damage</style> per removal.";
 
         public override string ItemLore => OrderManifestLoreFormatter(
             ItemName, 
@@ -80,7 +76,6 @@ namespace Aetherium.Items.TierLunar
         {
             CreateConfig(config);
             CreateLang();
-            CreateNetworkMessages();
             CreateBuff();
             CreateAchievement();
             CreatePowerupItem();
@@ -98,13 +93,6 @@ namespace Aetherium.Items.TierLunar
             AttackSpeedGainedPerLimiterRelease = config.ActiveBind<float>("Item: " + ItemName, "Attack Speed Gained per Limiter Release (Flat)", 0.25f, "How much attack speed should we gain per Limiter Release?");
             MovementSpeedGainedPerLimiterRelease = config.ActiveBind<float>("Item: " + ItemName, "Movement Speed Gained per Limiter Release (Flat)", 1, "How much movement speed should we gain per Limiter Release?");
             DamagePercentageGainedPerLimiterRelease = config.ActiveBind<float>("Item: " + ItemName, "Damage Percentage Gained per Limiter Release (Percentile)", 0.05f, "How much damage in percent should we gain per Limiter Release?");
-            BaseCooldownOfLimiterReleaseDodge = config.ActiveBind<float>("Item: " + ItemName, "Base Dodge Depletion Cooldown Duration", 10, "How long (in seconds) should we have to wait for the first stack to replenish?");
-            AdditionalCooldownOfLimiterReleaseDodge = config.ActiveBind<float>("Item: " + ItemName, "Additional Dodge Depletion Cooldown Duration for Additional Dodge Stacks", 5, "How long (in seconds) should we have to wait per each additional dodge stack to replenish?");
-        }
-
-        private void CreateNetworkMessages()
-        {
-            NetworkingAPI.RegisterMessageType<SyncTeleportDodge>();
         }
 
         private void CreateBuff()
@@ -118,32 +106,12 @@ namespace Aetherium.Items.TierLunar
 
             ContentAddition.AddBuffDef(LimiterReleaseBuffDef);
 
-            LimiterReleaseDodgeBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            LimiterReleaseDodgeBuffDef.name = "Aetherium: Limiter Release Dodge";
-            LimiterReleaseDodgeBuffDef.buffColor = new Color(48, 255, 48);
-            LimiterReleaseDodgeBuffDef.canStack = true;
-            LimiterReleaseDodgeBuffDef.isDebuff = false;
-            LimiterReleaseDodgeBuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseDodgeBuffIcon.png");
-
-            ContentAddition.AddBuffDef(LimiterReleaseDodgeBuffDef);
-
-            LimiterReleaseDodgeCooldownDebuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            LimiterReleaseDodgeCooldownDebuffDef.name = "Aetherium: Limiter Release Dodge Cooldown";
-            LimiterReleaseDodgeCooldownDebuffDef.buffColor = new Color(48, 255, 48);
-            LimiterReleaseDodgeCooldownDebuffDef.canStack = false;
-            LimiterReleaseDodgeCooldownDebuffDef.isDebuff = false;
-            LimiterReleaseDodgeCooldownDebuffDef.iconSprite = MainAssets.LoadAsset<Sprite>("WeightedAnkletLimiterReleaseDodgeCooldownDebuffIcon.png");
-
-            ContentAddition.AddBuffDef(LimiterReleaseDodgeCooldownDebuffDef);
-
         }
 
         private void CreateAchievement()
         {
-            if (RequireUnlock)
+            if(RequireUnlock)
             {
-                /*WeightedAnkletAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<WeightedAnkletAchievement>(typeof(WeightedAnkletAchievement.WeightedAnkletServerAchievementTracker));*/
             }
         }
 
@@ -689,7 +657,7 @@ namespace Aetherium.Items.TierLunar
         {
             Language.Language.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_NAME", "Weighted Anklet Limiter Release");
             Language.Language.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_PICKUP", "You feel much lighter, and your senses keener.");
-            Language.Language.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", $"You gain <style=cIsUtility>{MovementSpeedGainedPerLimiterRelease}</style> movement speed <style=cStack>(+{MovementSpeedGainedPerLimiterRelease} per stack)</style>, <style=cIsUtility>{AttackSpeedGainedPerLimiterRelease}</style> attack speed <style=cStack>(+{AttackSpeedGainedPerLimiterRelease} per stack)</style>, and <style=cIsDamage>{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)}</style> damage bonus <style=cStack>(+{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} per stack)</style>. Gain the ability to dodge one time per stack out of the way of close ranged attacks and behind the attacker before entering a cooldown period of <style=cIsUtility>{BaseCooldownOfLimiterReleaseDodge}</style> <style=cStack>(+{AdditionalCooldownOfLimiterReleaseDodge} per stack)</style>.");
+            Language.Language.Add("HIDDEN_ITEM_" + ItemLangTokenName + "_LIMITER_RELEASE_DESCRIPTION", $"You gain <style=cIsUtility>{MovementSpeedGainedPerLimiterRelease}</style> movement speed <style=cStack>(+{MovementSpeedGainedPerLimiterRelease} per stack)</style>, <style=cIsUtility>{AttackSpeedGainedPerLimiterRelease}</style> attack speed <style=cStack>(+{AttackSpeedGainedPerLimiterRelease} per stack)</style>, and <style=cIsDamage>{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)}</style> damage bonus <style=cStack>(+{FloatToPercentageString(DamagePercentageGainedPerLimiterRelease)} per stack)</style>.");
 
             LimiterReleaseItemDef = ScriptableObject.CreateInstance<ItemDef>();
             LimiterReleaseItemDef.name = "HIDDEN_ITEM_WEIGHTED_ANKLET_LIMITER_RELEASE";
@@ -711,113 +679,7 @@ namespace Aetherium.Items.TierLunar
             R2API.RecalculateStatsAPI.GetStatCoefficients += ManageBonusesAndPenalties;
             On.RoR2.CharacterMaster.OnInventoryChanged += ManageLimiter;
             On.RoR2.CharacterBody.FixedUpdate += ManageLimiterBuff;
-            On.RoR2.CharacterBody.OnBuffFinalStackLost += ManageLimiterBuffCooldown;
             On.RoR2.HealthComponent.TakeDamage += ReduceKnockback;
-
-            var methodBlast = typeof(RoR2.BlastAttack).GetMethod("HandleHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            new MonoMod.RuntimeDetour.Hook(methodBlast, new Action<Action<RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>, RoR2.BlastAttack, RoR2.BlastAttack.HitPoint[]>((orig, self, hitPoints) =>
-            {
-                List<RoR2.CharacterBody> DodgedBodies = new List<RoR2.CharacterBody>();
-                List<RoR2.BlastAttack.HitPoint> HitPointList = new List<RoR2.BlastAttack.HitPoint>();
-                foreach(RoR2.BlastAttack.HitPoint hitpoint in hitPoints)
-                {
-                    var hurtbox = hitpoint.hurtBox;
-                    if (hurtbox && hurtbox.healthComponent && hurtbox.healthComponent.body)
-                    {
-                        var body = hurtbox.healthComponent.body;
-                        if (body.HasBuff(LimiterReleaseDodgeBuffDef))
-                        {
-                            if (!DodgedBodies.Contains(body)) { DodgedBodies.Add(body); }
-                            continue;
-                        }
-
-                    }
-                    HitPointList.Add(hitpoint);
-                }
-                if(DodgedBodies.Count > 0)
-                {
-                    foreach(RoR2.CharacterBody dodgeBody in DodgedBodies)
-                    {
-                        if (self.attacker) 
-                        {
-                            var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
-                            if (attackerBody)
-                            {
-                                TeleportBody(dodgeBody, attackerBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
-
-                                var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
-                                if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
-
-                                teleportCameraComponent.dodgeBody = dodgeBody;
-                                teleportCameraComponent.attackerBody = attackerBody;
-                                teleportCameraComponent.Timer = 0.1f;
-                            }
-
-                        }
-
-                        dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffDef);
-                        if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffDef) <= 0)
-                        {
-                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffDef, BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (GetCountSpecific(dodgeBody, LimiterReleaseItemDef) - 1)));
-                        }
-
-                    }
-                }
-                orig(self, HitPointList.ToArray());
-                
-            }));
-
-            var methodOverlap = typeof(RoR2.OverlapAttack).GetMethod("ProcessHits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            new MonoMod.RuntimeDetour.Hook(methodOverlap, new Action<Action<RoR2.OverlapAttack, List<RoR2.OverlapAttack.OverlapInfo>>, RoR2.OverlapAttack, List<RoR2.OverlapAttack.OverlapInfo>>((orig, self, hitList) =>
-            {
-                List<RoR2.CharacterBody> DodgedBodies = new List<RoR2.CharacterBody>();
-                List<RoR2.OverlapAttack.OverlapInfo> HitPointList = new List<RoR2.OverlapAttack.OverlapInfo>();
-                foreach (RoR2.OverlapAttack.OverlapInfo hitpoint in hitList)
-                {
-                    var hurtbox = hitpoint.hurtBox;
-                    if (hurtbox && hurtbox.healthComponent && hurtbox.healthComponent.body)
-                    {
-                        var body = hurtbox.healthComponent.body;
-                        if (body.HasBuff(LimiterReleaseDodgeBuffDef))
-                        {
-                            if (!DodgedBodies.Contains(body)) { DodgedBodies.Add(body); }
-                            continue;
-                        }
-
-                    }
-                    HitPointList.Add(hitpoint);
-                }
-                if (DodgedBodies.Count > 0)
-                {
-                    foreach (RoR2.CharacterBody dodgeBody in DodgedBodies)
-                    {
-                        if (self.attacker)
-                        {
-                            var attackerBody = self.attacker.GetComponent<RoR2.CharacterBody>();
-                            if (attackerBody)
-                            {
-                                var teleportBool = TeleportBody(dodgeBody, attackerBody, self.attacker.transform.position, dodgeBody.isFlying ? GraphType.Air : GraphType.Ground);
-
-                                var teleportCameraComponent = dodgeBody.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
-                                if (!teleportCameraComponent) { teleportCameraComponent = dodgeBody.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
-
-                                teleportCameraComponent.dodgeBody = dodgeBody;
-                                teleportCameraComponent.attackerBody = attackerBody;
-                                teleportCameraComponent.Timer = 0.1f;
-                            }
-                        }
-
-                        dodgeBody.RemoveBuff(LimiterReleaseDodgeBuffDef);
-                        if (dodgeBody.GetBuffCount(LimiterReleaseDodgeBuffDef) <= 0)
-                        {
-                            dodgeBody.AddTimedBuff(LimiterReleaseDodgeCooldownDebuffDef, BaseCooldownOfLimiterReleaseDodge + (AdditionalCooldownOfLimiterReleaseDodge * (GetCountSpecific(dodgeBody, LimiterReleaseItemDef) - 1)));
-                        }
-
-                    }
-                }
-                orig(self, HitPointList);
-
-            }));
 
         }
 
@@ -825,11 +687,10 @@ namespace Aetherium.Items.TierLunar
         {
             orig(self);
             var InventoryCount = GetCount(self);
-            if (InventoryCount > 0 && self.master)
+            if(InventoryCount > 0 && self.master)
             {
-                if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
+                if(self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
-                    //Deployables have no muscle mass, can't get swole!
                     self.inventory.RemoveItem(ItemDef, InventoryCount);
                     var limiterReleaseCount = GetCountSpecific(self, LimiterReleaseItemDef);
                     self.inventory.RemoveItem(LimiterReleaseItemDef, limiterReleaseCount);
@@ -840,14 +701,14 @@ namespace Aetherium.Items.TierLunar
         private void ManageBonusesAndPenalties(RoR2.CharacterBody sender, StatHookEventArgs args)
         {
             var InventoryCount = GetCount(sender);
-            if (InventoryCount > 0)
+            if(InventoryCount > 0)
             {
                 args.moveSpeedMultAdd -= Mathf.Min(InventoryCount * BaseMovementSpeedReductionPercentage, MovementSpeedReductionPercentageCap);
                 args.attackSpeedMultAdd -= Mathf.Min(InventoryCount * BaseAttackSpeedReductionPercentage, AttackSpeedReductionPercentageCap);
             }
 
             var LimiterReleaseCount = GetCountSpecific(sender, LimiterReleaseItemDef);
-            if (LimiterReleaseCount > 0)
+            if(LimiterReleaseCount > 0)
             {
                 args.baseAttackSpeedAdd += LimiterReleaseCount * AttackSpeedGainedPerLimiterRelease;
                 args.baseMoveSpeedAdd += LimiterReleaseCount * MovementSpeedGainedPerLimiterRelease;
@@ -860,14 +721,14 @@ namespace Aetherium.Items.TierLunar
         {
             orig(self);
             var ankletTracker = self.GetComponent<AnkletTracker>();
-            if (!ankletTracker) { ankletTracker = self.gameObject.AddComponent<AnkletTracker>(); }
+            if(!ankletTracker) { ankletTracker = self.gameObject.AddComponent<AnkletTracker>(); }
 
             var inventoryCount = GetCount(self);
-            if (inventoryCount > ankletTracker.AnkletStacks)
+            if(inventoryCount > ankletTracker.AnkletStacks)
             {
                 ankletTracker.AnkletStacks = inventoryCount;
             }
-            else if (inventoryCount < ankletTracker.AnkletStacks)
+            else if(inventoryCount < ankletTracker.AnkletStacks)
             {
                 var calculatedStacks = ankletTracker.AnkletStacks - inventoryCount;
                 ankletTracker.AnkletStacks = inventoryCount;
@@ -880,18 +741,17 @@ namespace Aetherium.Items.TierLunar
 
             orig(self);
 
-            if (self.inventory)
+            if(self.inventory)
             {
                 var inventoryCount = self.inventory.GetItemCount(LimiterReleaseItemDef);
                 var buffCount = self.GetBuffCount(LimiterReleaseBuffDef);
 
-                if (buffCount < inventoryCount)
+                if(buffCount < inventoryCount)
                 {
                     var iterations = inventoryCount - buffCount;
                     for (int i = 1; i <= iterations; i++)
                     {
                         self.AddBuff(LimiterReleaseBuffDef);
-                        self.AddBuff(LimiterReleaseDodgeBuffDef);
                     }
                 }
                 else if(buffCount > inventoryCount)
@@ -900,74 +760,15 @@ namespace Aetherium.Items.TierLunar
                     for(int i = 1; i <= iterations; i++)
                     {
                         self.RemoveBuff(LimiterReleaseBuffDef);
-                        self.RemoveBuff(LimiterReleaseDodgeBuffDef);
                     }
                 }
-            }
-        }
-
-        private void ManageLimiterBuffCooldown(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, RoR2.CharacterBody self, RoR2.BuffDef buffDef)
-        {
-            if(buffDef == LimiterReleaseDodgeCooldownDebuffDef)
-            {
-                var ankletTracker = self.master.GetComponent<AnkletTracker>();
-                if (ankletTracker)
-                {
-                    for(int i = 1; i <= self.GetBuffCount(LimiterReleaseBuffDef); i++)
-                    {
-                        self.AddBuff(LimiterReleaseDodgeBuffDef);
-                    }
-                }
-            }
-
-            orig(self, buffDef);
-        }
-
-        private bool TeleportBody(RoR2.CharacterBody body, CharacterBody attackerbody, Vector3 desiredPosition, GraphType nodeGraphType)
-        {
-            RoR2.SpawnCard spawnCard = ScriptableObject.CreateInstance<RoR2.SpawnCard>();
-            spawnCard.hullSize = body.hullClassification;
-            spawnCard.nodeGraphType = nodeGraphType;
-            spawnCard.prefab = LegacyResourcesAPI.Load<GameObject>("SpawnCards/HelperPrefab");
-            GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(new RoR2.DirectorSpawnRequest(spawnCard, new RoR2.DirectorPlacementRule
-            {
-                placementMode = RoR2.DirectorPlacementRule.PlacementMode.Approximate,
-                position = desiredPosition,
-                minDistance = 10,
-                maxDistance = 20
-            }, RoR2.RoR2Application.rng));
-            if (gameObject)
-            {
-                if (NetworkServer.active)
-                {
-                    var bodyIdentity = body.gameObject.GetComponent<NetworkIdentity>();
-                    var attackerBodyIdentity = attackerbody.gameObject.GetComponent<NetworkIdentity>();
-                    if (bodyIdentity && attackerBodyIdentity)
-                    {
-                        new SyncTeleportDodge(gameObject.transform.position, bodyIdentity.netId, attackerBodyIdentity.netId).Send(R2API.Networking.NetworkDestination.Clients);
-                    }
-                }
-                RoR2.TeleportHelper.TeleportBody(body, gameObject.transform.position);
-                GameObject teleportEffectPrefab = RoR2.Run.instance.GetTeleportEffectPrefab(body.gameObject);
-                if (teleportEffectPrefab)
-                {
-                    RoR2.EffectManager.SimpleEffect(teleportEffectPrefab, gameObject.transform.position, Quaternion.identity, true);
-                }
-                UnityEngine.Object.Destroy(gameObject);
-                UnityEngine.Object.Destroy(spawnCard);
-                return true;
-            }
-            else
-            {
-                UnityEngine.Object.Destroy(spawnCard);
-                return false;
             }
         }
 
         private void ReduceKnockback(On.RoR2.HealthComponent.orig_TakeDamage orig, RoR2.HealthComponent self, RoR2.DamageInfo damageInfo)
         {
             var InventoryCount = GetCount(self.body);
-            if (InventoryCount > 0)
+            if(InventoryCount > 0)
             {
                 var percentReduction = Mathf.Clamp(1 - (InventoryCount * BaseKnockbackReductionPercentage), 0, 1);
                 damageInfo.force *= percentReduction;
@@ -980,35 +781,6 @@ namespace Aetherium.Items.TierLunar
             public int AnkletStacks;
         }
 
-        public class LimiterDodgeCameraTrackPostTeleport : MonoBehaviour
-        {
-            public CharacterBody dodgeBody;
-            public CharacterBody attackerBody;
-            public float Timer = 1;
-
-            public void FixedUpdate()
-            {
-                if(!dodgeBody || !attackerBody)
-                {
-                    UnityEngine.Object.Destroy(this);
-                }
-
-                Timer -= Time.fixedDeltaTime;
-                if(Timer <= 0)
-                {
-                    if (dodgeBody.master.playerCharacterMasterController && dodgeBody.master.playerCharacterMasterController.networkUser && dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController)
-                    {
-                        var Camera = dodgeBody.master.playerCharacterMasterController.networkUser.cameraRigController;
-                        var newState = Camera.currentCameraState;
-                        newState.rotation = Quaternion.LookRotation(attackerBody.corePosition - dodgeBody.corePosition); // TODO i have no idea if the math here is right
-                        Camera.SetCameraState(newState);
-                        //Camera.SetPitchYawFromLookVector(attackerBody.corePosition - dodgeBody.corePosition);
-                    }
-                    UnityEngine.Object.Destroy(this);
-                }
-            }
-        }
-
         public class LimiterTrailSizeHandler : MonoBehaviour
         {
             public ItemDisplay ItemDisplay;
@@ -1017,25 +789,24 @@ namespace Aetherium.Items.TierLunar
             public void FixedUpdate()
             {
 
-                if (!OwnerMaster || !ItemDisplay || !TrailRenderer)
+                if(!OwnerMaster || !ItemDisplay || !TrailRenderer)
                 {
                     ItemDisplay = this.GetComponentInParent<ItemDisplay>();
-                    if (ItemDisplay)
+                    if(ItemDisplay)
                     {
 
                         TrailRenderer = ItemDisplay.GetComponent<TrailRenderer>();
 
-                        if (TrailRenderer)
+                        if(TrailRenderer)
                         {
                             TrailRenderer.transform.localScale = ItemDisplay.transform.localScale;
                         }
-                        //Debug.Log("Found ItemDisplay: " + itemDisplay);
                         var characterModel = ItemDisplay.GetComponentInParent<CharacterModel>();
 
-                        if (characterModel)
+                        if(characterModel)
                         {
                             var body = characterModel.body;
-                            if (body)
+                            if(body)
                             {
                                 OwnerMaster = body.master;
                             }
@@ -1054,68 +825,9 @@ namespace Aetherium.Items.TierLunar
                     {
                         TrailRenderer.enabled = true;
                     }
-                    else if (ItemDisplay.GetVisibilityLevel() == VisibilityLevel.Invisible && TrailRenderer.enabled)
+                    else if(ItemDisplay.GetVisibilityLevel() == VisibilityLevel.Invisible && TrailRenderer.enabled)
                     {
                         TrailRenderer.enabled = false;
-                    }
-                }
-            }
-        }
-
-        public class SyncTeleportDodge : INetMessage
-        {
-            private Vector3 Position;
-            private NetworkInstanceId BodyID;
-            private NetworkInstanceId AttackerBodyID;
-
-            public SyncTeleportDodge()
-            {
-            }
-
-            public SyncTeleportDodge(Vector3 position, NetworkInstanceId bodyID, NetworkInstanceId attackerBodyID)
-            {
-                Position = position;
-                BodyID = bodyID;
-                AttackerBodyID = attackerBodyID;
-            }
-
-            public void Serialize(NetworkWriter writer)
-            {
-                writer.Write(Position);
-                writer.Write(BodyID);
-                writer.Write(AttackerBodyID);
-            }
-
-            public void Deserialize(NetworkReader reader)
-            {
-                Position = reader.ReadVector3();
-                BodyID = reader.ReadNetworkId();
-                AttackerBodyID = reader.ReadNetworkId();
-            }
-
-            public void OnReceived()
-            {
-                if (NetworkServer.active) return;
-
-                var playerGameObject = RoR2.Util.FindNetworkObject(BodyID);
-                var attackerGameObject = RoR2.Util.FindNetworkObject(AttackerBodyID);
-
-                if (playerGameObject && attackerGameObject)
-                {
-                    var body = playerGameObject.GetComponent<RoR2.CharacterBody>();
-                    var attackerBody = attackerGameObject.GetComponent<CharacterBody>();
-
-                    if (body && attackerBody)
-                    {
-                        RoR2.TeleportHelper.TeleportBody(body, Position);
-
-                        var teleportCameraComponent = body.GetComponent<LimiterDodgeCameraTrackPostTeleport>();
-                        if (!teleportCameraComponent) { teleportCameraComponent = body.gameObject.AddComponent<LimiterDodgeCameraTrackPostTeleport>(); }
-
-                        teleportCameraComponent.dodgeBody = body;
-                        teleportCameraComponent.attackerBody = attackerBody;
-                        teleportCameraComponent.Timer = 0.1f;
-
                     }
                 }
             }

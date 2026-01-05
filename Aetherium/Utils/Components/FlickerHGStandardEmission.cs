@@ -21,7 +21,7 @@ namespace Aetherium.Utils.Components
                 {
                     foreach(Material material in renderer.materials)
                     {
-                        if (material.HasProperty("_EmPower"))
+                        if(material.HasProperty("_EmPower"))
                         {
                             var emissionPower = material.GetFloat("_EmPower");
                             if(emissionPower == StartIntensity)

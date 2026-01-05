@@ -97,7 +97,7 @@ namespace Aetherium.Items.TierLunar
 
             var blacklistString = config.ActiveBind<string>("Item: " + ItemName, "Revival Items", "", "What revival items should be consumed before Heart of the Void activates? (generally no spaces, comma delimited) E.g.: ExtraLife,ExtraLifeConsumed");
 
-            if (!string.IsNullOrWhiteSpace(blacklistString))
+            if(!string.IsNullOrWhiteSpace(blacklistString))
             {
                 var blacklistedStringArray = blacklistString.ToString().Split(',');
 
@@ -351,22 +351,21 @@ namespace Aetherium.Items.TierLunar
             On.RoR2.CharacterBody.Start += CacheHealthForVoidheart;
             On.RoR2.CharacterBody.Awake += PreventVoidheartFromKillingPlayer;
             On.RoR2.CharacterBody.OnInventoryChanged += VoidheartAnnihilatesItselfOnDeployables;
-            //IL.RoR2.HealthComponent.TakeDamage += InterceptPlanula;
         }
 
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if (self)
+            if(self)
             {
                 var inventoryCount = GetCount(self);
-                if (inventoryCount > 0)
+                if(inventoryCount > 0)
                 {
                     self.AddTimedBuff(VoidImmunityBuff, 3f);
                 }
             }
             var cacheComponent = self.GetComponent<VoidHeartCacheHealthComponent>();
-            if (!cacheComponent) 
+            if(!cacheComponent) 
             {
                 cacheComponent = self.gameObject.AddComponent<VoidHeartCacheHealthComponent>();
                 cacheComponent.LastMaxHealth = self.maxHealth;
@@ -376,15 +375,15 @@ namespace Aetherium.Items.TierLunar
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
         {
             var InventoryCount = GetCount(body);
-            if (InventoryCount > 0 && !body.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
+            if(InventoryCount > 0 && !body.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
             {
                 bool hasBlacklistedRevivalItems = false;
                 foreach (var item in RevivalItems)
                 {
                     var blackListedItem = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(item));
-                    if (blackListedItem)
+                    if(blackListedItem)
                     {
-                        var itemCount = body.inventory.GetItemCount(blackListedItem);
+                        var itemCount = body.inventory.GetItemCountEffective(blackListedItem);
                         if(itemCount > 0)
                         {
                             hasBlacklistedRevivalItems = true;
@@ -392,7 +391,7 @@ namespace Aetherium.Items.TierLunar
                     }
                 }
 
-                if (!hasBlacklistedRevivalItems)
+                if(!hasBlacklistedRevivalItems)
                 {
                     GameObject explosion = new GameObject();
                     explosion.transform.position = body.transform.position;
@@ -421,48 +420,72 @@ namespace Aetherium.Items.TierLunar
 
         private float Voidheart30PercentTimebomb(On.RoR2.HealthComponent.orig_Heal orig, RoR2.HealthComponent self, float amount, RoR2.ProcChainMask procChainMask, bool nonRegen)
         {
-            var InventoryCount = GetCount(self.body);
-            if (self.body && InventoryCount > 0)
+            var body = self.body;
+            if(!body) return orig(self, amount, procChainMask, nonRegen);
+
+            var inventoryCount = GetCount(body);
+            if(inventoryCount > 0)
             {
-                var cacheComponent = self.body.GetComponent<VoidHeartCacheHealthComponent>();
-                if (!cacheComponent)
+                var cacheComponent = body.GetComponent<VoidHeartCacheHealthComponent>();
+                if(!cacheComponent)
                 {
-                    cacheComponent = self.body.gameObject.AddComponent<VoidHeartCacheHealthComponent>();
-                    cacheComponent.LastMaxHealth = self.body.maxHealth;
+                    cacheComponent = body.gameObject.AddComponent<VoidHeartCacheHealthComponent>();
+                    cacheComponent.LastMaxHealth = body.maxHealth;
                 }
-                else 
+                else
                 {
-                    if(cacheComponent.LastMaxHealth != self.body.maxHealth)
+                    if(cacheComponent.LastMaxHealth != body.maxHealth)
                     {
-                        self.body.AddTimedBuffAuthority(VoidImmunityBuff.buffIndex, 0.1f);
-                        cacheComponent.LastMaxHealth = self.body.maxHealth;
+                        body.AddTimedBuffAuthority(VoidImmunityBuff.buffIndex, 0.1f);
+                        cacheComponent.LastMaxHealth = body.maxHealth;
                     }
                 }
 
-                if (self.combinedHealth <= self.fullCombinedHealth * Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * InventoryCount - 1)), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold) && self.GetComponent<VoidheartPrevention>().InternalTimer >= 7f && !self.body.HasBuff(VoidImmunityBuff))
+                float thresholdLimit = Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * (inventoryCount - 1))), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold);
+
+                if(self.combinedHealth <= self.fullCombinedHealth * thresholdLimit &&
+                    self.GetComponent<VoidheartPrevention>().InternalTimer >= 7f &&
+                    !body.HasBuff(VoidImmunityBuff))
                 {
-                    RoR2.DamageInfo damageInfo = new RoR2.DamageInfo
+                    if(self.GetComponent<VoidheartRecursionPrevention>())
                     {
-                        crit = false,
-                        damage = amount,
-                        force = Vector3.zero,
-                        position = self.transform.position,
-                        procChainMask = procChainMask,
-                        procCoefficient = 0f,
-                        damageColorIndex = DamageColorIndex.Default
-                    };
-                    DamageAPI.AddModdedDamageType(damageInfo, VoidHeartDamage);
-                    self.TakeDamage(damageInfo);
+                        return orig(self, 0, procChainMask, nonRegen);
+                    }
+
+                    var marker = self.gameObject.AddComponent<VoidheartRecursionPrevention>();
+
+                    try
+                    {
+                        RoR2.DamageInfo damageInfo = new RoR2.DamageInfo
+                        {
+                            crit = false,
+                            damage = amount,      
+                            force = Vector3.zero,
+                            position = self.transform.position,
+                            procChainMask = procChainMask,
+                            procCoefficient = 0f,
+                            damageColorIndex = DamageColorIndex.Default
+                        };
+                        DamageAPI.AddModdedDamageType(damageInfo, VoidHeartDamage);
+
+                        self.TakeDamage(damageInfo);
+                    }
+                    finally
+                    {
+                        UnityEngine.Object.DestroyImmediate(marker);
+                    }
+
                     return orig(self, 0, procChainMask, nonRegen);
                 }
             }
+
             return orig(self, amount, procChainMask, nonRegen);
         }
 
         private void VoidheartOverlayManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
         {
 
-            if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
+            if(self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
                 var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 var overlay = TemporaryOverlayManager.AddOverlay(self.modelLocator.modelTransform.gameObject);
@@ -479,24 +502,6 @@ namespace Aetherium.Items.TierLunar
             orig(self);
         }
 
-        /*private void InterceptPlanula(ILContext il)
-        {
-            var c = new ILCursor(il);
-            ILLabel label = null;
-
-            c.GotoNext(MoveType.After,
-                x => x.MatchLdarg(1),
-                x => x.MatchLdflda<RoR2.HealthComponent>("itemCounts"),
-                x => x.MatchLdfld<RoR2.HealthComponent.ItemCounts>("parentEgg"), 
-                x => x.MatchLdcI4(0), 
-                x => x.MatchBle(out label));
-
-            c.Emit(OpCodes.Ldarg_1);
-            c.EmitDelegate<Func<DamageInfo, bool>>(damageInfo =>
-                !DamageAPI.HasModdedDamageType(damageInfo, VoidHeartDamage));
-            c.Emit(OpCodes.Brfalse, label);
-        }*/
-
         public class VoidheartCooldown : MonoBehaviour
         {
             public RoR2.TemporaryOverlayInstance Overlay;
@@ -504,7 +509,7 @@ namespace Aetherium.Items.TierLunar
 
             public void FixedUpdate()
             {
-                if (!Body.HasBuff(VoidInstabilityDebuff))
+                if(!Body.HasBuff(VoidInstabilityDebuff))
                 {
                     UnityEngine.Object.Destroy(this);
                     Overlay.CleanupEffect();
@@ -517,17 +522,14 @@ namespace Aetherium.Items.TierLunar
             public float LastMaxHealth;
         }
 
+        public class VoidheartRecursionPrevention : MonoBehaviour { };
+
         private void VoidheartAnnihilatesItselfOnDeployables(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, RoR2.CharacterBody self)
         {
             orig(self);
             var InventoryCount = GetCount(self);
-            if (InventoryCount > 0 && self.master)
+            if(InventoryCount > 0 && self.master)
             {
-                /*if (self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
-                {
-                    //Unga bunga, voidheart not like deployables. POP!
-                    self.inventory.RemoveItem(ItemDef, InventoryCount);
-                }*/
             }
         }
 
@@ -548,14 +550,13 @@ namespace Aetherium.Items.TierLunar
 
         private void PreventVoidheartFromKillingPlayer(On.RoR2.CharacterBody.orig_Awake orig, RoR2.CharacterBody self)
         {
-            //First just run the normal awake stuff
             orig(self);
-            //If I somehow lack the Prevention, give me one
-            if (!self.gameObject.GetComponent<VoidheartPrevention>())
+
+            if(!self.gameObject.GetComponent<VoidheartPrevention>())
             {
                 self.gameObject.AddComponent<VoidheartPrevention>();
             }
-            //And reset the timer
+
             self.gameObject.GetComponent<VoidheartPrevention>().ResetTimer();
         }
     }

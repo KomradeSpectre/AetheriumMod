@@ -4,10 +4,8 @@ using R2API;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
-
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -565,44 +563,68 @@ namespace Aetherium.Items.Tier3
 
         public override void Hooks()
         {
+            On.RoR2.CharacterBody.OnInventoryChanged += ManageComponent;
             On.RoR2.GlobalEventManager.OnHitEnemy += GrantOnKillEffectsOnHighDamage;
         }
 
-        private void GrantOnKillEffectsOnHighDamage(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, RoR2.GlobalEventManager self, RoR2.DamageInfo damageInfo, GameObject victim)
+        private void ManageComponent(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
-            var attacker = damageInfo.attacker;
-            if (attacker)
+            orig(self);
+            if(!self.inventory) return;
+
+            int count = self.inventory.GetItemCount(ItemDef);
+            var behavior = self.GetComponent<WitchesRingBehavior>();
+
+            if(count > 0)
             {
-                var body = attacker.GetComponent<CharacterBody>();
-                var victimBody = victim.GetComponent<CharacterBody>();
-                if (body && victimBody)
+                if(!behavior) behavior = self.gameObject.AddComponent<WitchesRingBehavior>();
+                behavior.StackCount = count;
+            }
+            else if(behavior)
+            {
+                UnityEngine.Object.Destroy(behavior);
+            }
+        }
+
+        private void GrantOnKillEffectsOnHighDamage(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
+        {
+            orig(self, damageInfo, victim);
+
+            if(!NetworkServer.active) return;
+            if(!damageInfo.attacker || !victim) return;
+
+            var behavior = damageInfo.attacker.GetComponent<WitchesRingBehavior>();
+            if(!behavior || behavior.StackCount <= 0) return;
+
+            var body = damageInfo.attacker.GetComponent<CharacterBody>();
+            var victimBody = victim.GetComponent<CharacterBody>();
+            if(!body || !victimBody) return;
+
+            if(!victimBody.healthComponent.alive) return;
+
+            if(damageInfo.damage / body.damage >= WitchesRingTriggerThreshold)
+            {
+                bool isOnCooldown = GlobalCooldownOnUse ? body.HasBuff(WitchesRingImmunityBuffDef) : victimBody.HasBuff(WitchesRingImmunityBuffDef);
+
+                if(!isOnCooldown)
                 {
-                    var InventoryCount = GetCount(body);
-                    if (InventoryCount > 0)
-                    {
-                        if (damageInfo.damage / body.damage >= WitchesRingTriggerThreshold)
-                        {
-                            if (GlobalCooldownOnUse && !body.HasBuff(WitchesRingImmunityBuffDef) || !GlobalCooldownOnUse && !victimBody.HasBuff(WitchesRingImmunityBuffDef))
-                            {
-                                if (NetworkServer.active)
-                                {
-                                    if (!GlobalCooldownOnUse)
-                                    {
-                                        victimBody.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
-                                    }
-                                    else
-                                    {
-                                        body.AddTimedBuffAuthority(WitchesRingImmunityBuffDef.buffIndex, BaseCooldownDuration / (1 + AdditionalCooldownReduction * (InventoryCount - 1)));
-                                    }
-                                    DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
-                                    GlobalEventManager.instance.OnCharacterDeath(damageReport);
-                                }
-                            }
-                        }
-                    }
+                    float duration = BaseCooldownDuration / (1f + AdditionalCooldownReduction * (behavior.StackCount - 1));
+
+                    if(GlobalCooldownOnUse)
+                        body.AddTimedBuff(WitchesRingImmunityBuffDef, duration);
+                    else
+                        victimBody.AddTimedBuff(WitchesRingImmunityBuffDef, duration);
+
+                    DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
+                    GlobalEventManager.instance.OnCharacterDeath(damageReport);
+
                 }
             }
-            orig(self, damageInfo, victim);
+        }
+
+        public class WitchesRingBehavior : MonoBehaviour
+        {
+            public int StackCount;
         }
     }
 }

@@ -15,16 +15,16 @@ namespace Aetherium.Utils
             List<Renderer> AllRenderers = new List<Renderer>();
 
             var meshRenderers = model.GetComponentsInChildren<MeshRenderer>();
-            if (meshRenderers.Length > 0) { AllRenderers.AddRange(meshRenderers); }
+            if(meshRenderers.Length > 0) { AllRenderers.AddRange(meshRenderers); }
 
             var skinnedMeshRenderers = model.GetComponentsInChildren<SkinnedMeshRenderer>();
-            if (skinnedMeshRenderers.Length > 0) { AllRenderers.AddRange(skinnedMeshRenderers); }
+            if(skinnedMeshRenderers.Length > 0) { AllRenderers.AddRange(skinnedMeshRenderers); }
 
             CharacterModel.RendererInfo[] renderInfos = new CharacterModel.RendererInfo[AllRenderers.Count];
 
             for (int i = 0; i < AllRenderers.Count; i++)
             {
-                if (debugmode)
+                if(debugmode)
                 {
                     var controller = AllRenderers[i].gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
                     controller.Renderer = AllRenderers[i];
@@ -44,7 +44,7 @@ namespace Aetherium.Utils
 
         public static SkillLocator CreateBasicSkillFamilies(GameObject bodyPrefab, string characterLangToken)
         {
-            if (!bodyPrefab)
+            if(!bodyPrefab)
             {
                 ModLogger.LogError($"We were fed a bad prefab while setting up a basic skill family! Aborting!");
                 return null;
@@ -55,7 +55,7 @@ namespace Aetherium.Utils
             }
 
             SkillLocator skillLocator = bodyPrefab.GetComponent<SkillLocator>();
-            if (!skillLocator)
+            if(!skillLocator)
             {
                 ModLogger.LogError($"We have no skill locator, and cannot proceed with basic skill creation of {bodyPrefab.name}");
                 return null;
@@ -149,18 +149,18 @@ namespace Aetherium.Utils
         /// <returns>The normalized dot product of the movement direction. From this we can determine movement input direction.</returns>
         public static string InputForwardOrBack(InputBankTest inputBank)
         {
-            if (!inputBank)
+            if(!inputBank)
             {
                 ModLogger.LogError($"We have no inputBank, we can't determine the dot product from a non-existing move vector!");
                 return "null";
             }
 
             var dotProduct = Vector3.Dot(inputBank.aimDirection.normalized, inputBank.moveVector.normalized);
-            if (dotProduct >= 0)
+            if(dotProduct >= 0)
             {
                 return "Forward";
             }
-            else if (dotProduct < 0)
+            else if(dotProduct < 0)
             {
                 return "Back";
             }

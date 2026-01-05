@@ -31,7 +31,7 @@ namespace Aetherium.Utils
 
             for (int i = 0; i < AllRenderers.Count; i++)
             {
-                if (debugmode)
+                if(debugmode)
                 {
                     var controller = AllRenderers[i].gameObject.AddComponent<MaterialControllerComponents.HGControllerFinder>();
                     controller.Renderer = AllRenderers[i];
@@ -89,10 +89,10 @@ namespace Aetherium.Utils
 
         public static void RefreshTimedBuffs(CharacterBody body, BuffDef buffDef, float duration)
         {
-            if (!body || body.GetBuffCount(buffDef) <= 0) { return; }
+            if(!body || body.GetBuffCount(buffDef) <= 0) { return; }
             foreach (var buff in body.timedBuffs)
             {
-                if (buffDef.buffIndex == buff.buffIndex)
+                if(buffDef.buffIndex == buff.buffIndex)
                 {
                     buff.timer = duration;
                 }
@@ -101,11 +101,11 @@ namespace Aetherium.Utils
 
         public static void RefreshTimedBuffs(CharacterBody body, BuffDef buffDef, float taperStart, float taperDuration)
         {
-            if (!body || body.GetBuffCount(buffDef) <= 0) { return; }
+            if(!body || body.GetBuffCount(buffDef) <= 0) { return; }
             int i = 0;
             foreach (var buff in body.timedBuffs)
             {
-                if (buffDef.buffIndex == buff.buffIndex)
+                if(buffDef.buffIndex == buff.buffIndex)
                 {
                     buff.timer = taperStart + i * taperDuration;
                     i++;

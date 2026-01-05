@@ -489,13 +489,13 @@ namespace Aetherium.Utils.Easings
 
 		private static void BezierToAnimationCurve(AnimationCurve outCurve, Vector2[] controlPointStrips)
 		{
-			if (s_ThrowException)
+			if(s_ThrowException)
 			{
-				if (controlPointStrips.Length < 4)
+				if(controlPointStrips.Length < 4)
 				{
 					throw new System.ArgumentException("The number of control point strips should more than 4!");
 				}
-				if ((controlPointStrips.Length - 4) % 3 != 0)
+				if((controlPointStrips.Length - 4) % 3 != 0)
 				{
 					throw new System.ArgumentException("The number of control point strips N should be (N-4)%3==0");
 				}
@@ -527,7 +527,7 @@ namespace Aetherium.Utils.Easings
 				};
 			}
 
-			if (outCurve == null)
+			if(outCurve == null)
 			{
 				outCurve = new AnimationCurve();
 			}

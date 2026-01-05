@@ -15,7 +15,7 @@ namespace Aetherium.StandaloneBuffs
 
         public BuffBase()
         {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting BuffBase was instantiated twice");
+            if(instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting BuffBase was instantiated twice");
             instance = this as T;
         }
     }
@@ -27,6 +27,9 @@ namespace Aetherium.StandaloneBuffs
         public virtual bool CanStack { get; set; } = false;
         public virtual bool IsDebuff { get; set; } = false;
         public abstract Sprite BuffIcon { get; }
+
+        public virtual bool IsTimed { get; set; } = false;
+        public virtual float DefaultDuration { get; set; } = 0f;
 
         public BuffDef BuffDef;
 
@@ -40,10 +43,24 @@ namespace Aetherium.StandaloneBuffs
             BuffDef.canStack = CanStack;
             BuffDef.isDebuff = IsDebuff;
             BuffDef.iconSprite = BuffIcon;
+            BuffDef.isCooldown = IsTimed;      
 
             ContentAddition.AddBuffDef(BuffDef);
         }
 
         public abstract void Hooks();
+
+        public void ApplyBuff(CharacterBody body, float? duration = null)
+        {
+            if(IsTimed)
+            {
+                float actualDuration = duration ?? DefaultDuration;
+                body.AddTimedBuff(BuffDef, actualDuration);
+            }
+            else
+            {
+                body.AddBuff(BuffDef);
+            }
+        }
     }
 }

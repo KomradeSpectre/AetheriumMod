@@ -12,17 +12,17 @@ namespace Aetherium.Utils
     {
         public static void FilterElites(this BullseyeSearch search)
         {
-            if (search.candidatesEnumerable.Any())
+            if(search.candidatesEnumerable.Any())
             {
-                search.candidatesEnumerable = (List<BullseyeSearch.CandidateInfo>)search.candidatesEnumerable.Where(x => x.hurtBox && x.hurtBox.IsHurtboxAnElite());
+                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && x.hurtBox.IsHurtboxAnElite()).ToList();
             }
         }
 
         public static void FilterOutItemWielders(this BullseyeSearch search, ItemDef item)
         {
-            if (search.candidatesEnumerable.Any())
+            if(search.candidatesEnumerable.Any())
             {
-                search.candidatesEnumerable = (List<BullseyeSearch.CandidateInfo>)search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(item));
+                search.candidatesEnumerable = search.candidatesEnumerable.Where(x => x.hurtBox && !x.hurtBox.DoesHurtboxHaveItem(item)).ToList();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Aetherium.Utils
         {
             List<BullseyeSearch.CandidateInfo> temporaryList = search.candidatesEnumerable.ToList();
 
-            if (temporaryList.Any())
+            if(temporaryList.Any())
             {
                 foreach(ItemDef item in items)
                 {
@@ -43,7 +43,7 @@ namespace Aetherium.Utils
 
         public static bool DoesHurtboxHaveItem(this HurtBox hurtbox, ItemDef item)
         {
-            if (!hurtbox.healthComponent || !hurtbox.healthComponent.body || !item)
+            if(!hurtbox.healthComponent || !hurtbox.healthComponent.body || !item)
             {
                 AetheriumPlugin.ModLogger.LogError("Can't check if the hurtbox has the item, some information is missing!");
                 return false;
@@ -60,7 +60,7 @@ namespace Aetherium.Utils
 
         public static bool IsHurtboxAnElite(this HurtBox hurtbox)
         {
-            if (!hurtbox.healthComponent || !hurtbox.healthComponent.body)
+            if(!hurtbox.healthComponent || !hurtbox.healthComponent.body)
             {
                 AetheriumPlugin.ModLogger.LogError("Can't check if the hurtbox is an elite, some information is missing!");
                 return false;
@@ -71,33 +71,33 @@ namespace Aetherium.Utils
 
         public static void ApplyForceImpulseFixed(this CharacterMotor characterMotor, in PhysForceInfo physForceInfo)
         {
-            if (NetworkServer.active && !characterMotor.hasEffectiveAuthority)
+            if(NetworkServer.active && !characterMotor.hasEffectiveAuthority)
             {
                 characterMotor.CallRpcApplyForceImpulse(physForceInfo);
             }
             else
             {
                 Vector3 force = physForceInfo.force;
-                if (!physForceInfo.massIsOne)
+                if(!physForceInfo.massIsOne)
                 {
                     force *= 1f / characterMotor.mass;
                 }
 
-                if (characterMotor.mass == 0.0)
+                if(characterMotor.mass == 0.0)
                 {
                     return;
                 }                    
 
-                if (force.y < 6.0 && characterMotor.isGrounded && !physForceInfo.ignoreGroundStick)
+                if(force.y < 6.0 && characterMotor.isGrounded && !physForceInfo.ignoreGroundStick)
                 {
                     force.y = 0.0f;
                 }
-                if (force.y > 0.0)
+                if(force.y > 0.0)
                 {
                     characterMotor.Motor.ForceUnground();
                 }
                 characterMotor.velocity += force;
-                if (!physForceInfo.disableAirControlUntilCollision)
+                if(!physForceInfo.disableAirControlUntilCollision)
                 {
                     return;
                 }

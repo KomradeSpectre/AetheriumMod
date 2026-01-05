@@ -138,7 +138,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return end * 0.5f * value * value + start;
+			if(value < 1) return end * 0.5f * value * value + start;
 			value--;
 			return -end * 0.5f * (value * (value - 2) - 1) + start;
 		}
@@ -160,7 +160,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return end * 0.5f * value * value * value + start;
+			if(value < 1) return end * 0.5f * value * value * value + start;
 			value -= 2;
 			return end * 0.5f * (value * value * value + 2) + start;
 		}
@@ -182,7 +182,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return end * 0.5f * value * value * value * value + start;
+			if(value < 1) return end * 0.5f * value * value * value * value + start;
 			value -= 2;
 			return -end * 0.5f * (value * value * value * value - 2) + start;
 		}
@@ -204,7 +204,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return end * 0.5f * value * value * value * value * value + start;
+			if(value < 1) return end * 0.5f * value * value * value * value * value + start;
 			value -= 2;
 			return end * 0.5f * (value * value * value * value * value + 2) + start;
 		}
@@ -243,7 +243,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return end * 0.5f * Mathf.Pow(2, 10 * (value - 1)) + start;
+			if(value < 1) return end * 0.5f * Mathf.Pow(2, 10 * (value - 1)) + start;
 			value--;
 			return end * 0.5f * (-Mathf.Pow(2, -10 * value) + 2) + start;
 		}
@@ -265,7 +265,7 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= .5f;
 			end -= start;
-			if (value < 1) return -end * 0.5f * (Mathf.Sqrt(1 - value * value) - 1) + start;
+			if(value < 1) return -end * 0.5f * (Mathf.Sqrt(1 - value * value) - 1) + start;
 			value -= 2;
 			return end * 0.5f * (Mathf.Sqrt(1 - value * value) + 1) + start;
 		}
@@ -281,16 +281,16 @@ namespace Aetherium.Utils.Easings
 		{
 			value /= 1f;
 			end -= start;
-			if (value < (1 / 2.75f))
+			if(value < (1 / 2.75f))
 			{
 				return end * (7.5625f * value * value) + start;
 			}
-			else if (value < (2 / 2.75f))
+			else if(value < (2 / 2.75f))
 			{
 				value -= (1.5f / 2.75f);
 				return end * (7.5625f * (value) * value + .75f) + start;
 			}
-			else if (value < (2.5 / 2.75))
+			else if(value < (2.5 / 2.75))
 			{
 				value -= (2.25f / 2.75f);
 				return end * (7.5625f * (value) * value + .9375f) + start;
@@ -306,7 +306,7 @@ namespace Aetherium.Utils.Easings
 		{
 			end -= start;
 			float d = 1f;
-			if (value < d * 0.5f) return EaseInBounce(0, end, value * 2) * 0.5f + start;
+			if(value < d * 0.5f) return EaseInBounce(0, end, value * 2) * 0.5f + start;
 			else return EaseOutBounce(0, end, value * 2 - d) * 0.5f + end * 0.5f + start;
 		}
 
@@ -331,7 +331,7 @@ namespace Aetherium.Utils.Easings
 			float s = 1.70158f;
 			end -= start;
 			value /= .5f;
-			if ((value) < 1)
+			if((value) < 1)
 			{
 				s *= (1.525f);
 				return end * 0.5f * (value * value * (((s) + 1) * value - s)) + start;
@@ -349,11 +349,11 @@ namespace Aetherium.Utils.Easings
 		//	float s;
 		//	float a = 0;
 
-		//	if (value == 0) return start;
+		//	if(value == 0) return start;
 
-		//	if ((value /= d) == 1) return start + end;
+		//	if((value /= d) == 1) return start + end;
 
-		//	if (a == 0f || a < Mathf.Abs(end)) {
+		//	if(a == 0f || a < Mathf.Abs(end)) {
 		//		a = end;
 		//		s = p / 4;
 		//	} else {
@@ -367,8 +367,8 @@ namespace Aetherium.Utils.Easings
 		{
 			// https://easings.net/#easeInElastic
 			float length = end - start;
-			if (value <= 0) return start;
-			if (value >= 1) return start + length;
+			if(value <= 0) return start;
+			if(value >= 1) return start + length;
 
 			return start + length * (-Mathf.Pow(2, 10 * value - 10) * Mathf.Sin((value * 10 - 10.75f) * Mathf.PI * 2 / 3));
 		}
@@ -381,11 +381,11 @@ namespace Aetherium.Utils.Easings
 		//	float s;
 		//	float a = 0;
 
-		//	if (value == 0) return start;
+		//	if(value == 0) return start;
 
-		//	if ((value /= d) == 1) return start + end;
+		//	if((value /= d) == 1) return start + end;
 
-		//	if (a == 0f || a < Mathf.Abs(end)) {
+		//	if(a == 0f || a < Mathf.Abs(end)) {
 		//		a = end;
 		//		s = p * 0.25f;
 		//	} else {
@@ -399,8 +399,8 @@ namespace Aetherium.Utils.Easings
 		{
 			// https://easings.net/#easeOutElastic
 			float length = end - start;
-			if (value <= 0) return start;
-			if (value >= 1) return start + length;
+			if(value <= 0) return start;
+			if(value >= 1) return start + length;
 
 			return start + length * (Mathf.Pow(2, -10 * value) * Mathf.Sin((value * 10 - 0.75f) * Mathf.PI * 2 / 3) + 1);
 		}
@@ -413,18 +413,18 @@ namespace Aetherium.Utils.Easings
 		//	float s;
 		//	float a = 0;
 
-		//	if (value == 0) return start;
+		//	if(value == 0) return start;
 
-		//	if ((value /= d * 0.5f) == 2) return start + end;
+		//	if((value /= d * 0.5f) == 2) return start + end;
 
-		//	if (a == 0f || a < Mathf.Abs(end)) {
+		//	if(a == 0f || a < Mathf.Abs(end)) {
 		//		a = end;
 		//		s = p / 4;
 		//	} else {
 		//		s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 		//	}
 
-		//	if (value < 1) return -0.5f * (a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
+		//	if(value < 1) return -0.5f * (a * Mathf.Pow(2, 10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p)) + start;
 		//	return a * Mathf.Pow(2, -10 * (value -= 1)) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) * 0.5f + end + start;
 		//}
 
@@ -432,8 +432,8 @@ namespace Aetherium.Utils.Easings
 		{
 			// http://www.stagexl.org/docs/api/stagexl/Transition/easeInOutElastic.html
 			float length = end - start;
-			if (value <= 0) return start;
-			if (value >= 1) return start + length;
+			if(value <= 0) return start;
+			if(value >= 1) return start + length;
 
 			float ratio = value * 2.0f;
 			return (ratio < 1.0) ? 0.5f * EaseInElastic(start, end, ratio) : 0.5f * EaseOutElastic(start, end, ratio - 1.0f) + 0.5f;
@@ -474,7 +474,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return end * value;
 			}
@@ -501,7 +501,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return (3f / 2f) * end * value * value;
 			}
@@ -528,7 +528,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return 2f * end * value * value * value;
 			}
@@ -555,7 +555,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return (5f / 2f) * end * value * value * value * value;
 			}
@@ -597,7 +597,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return 5f * NATURAL_LOG_OF_2 * end * Mathf.Pow(2f, 10f * (value - 1));
 			}
@@ -624,7 +624,7 @@ namespace Aetherium.Utils.Easings
 			value /= .5f;
 			end -= start;
 
-			if (value < 1)
+			if(value < 1)
 			{
 				return (end * value) / (2f * Mathf.Sqrt(1f - value * value));
 			}
@@ -647,16 +647,16 @@ namespace Aetherium.Utils.Easings
 			value /= 1f;
 			end -= start;
 
-			if (value < (1 / 2.75f))
+			if(value < (1 / 2.75f))
 			{
 				return 2f * end * 7.5625f * value;
 			}
-			else if (value < (2 / 2.75f))
+			else if(value < (2 / 2.75f))
 			{
 				value -= (1.5f / 2.75f);
 				return 2f * end * 7.5625f * value;
 			}
-			else if (value < (2.5 / 2.75))
+			else if(value < (2.5 / 2.75))
 			{
 				value -= (2.25f / 2.75f);
 				return 2f * end * 7.5625f * value;
@@ -673,7 +673,7 @@ namespace Aetherium.Utils.Easings
 			end -= start;
 			float d = 1f;
 
-			if (value < d * 0.5f)
+			if(value < d * 0.5f)
 			{
 				return EaseInBounceD(0, end, value * 2) * 0.5f;
 			}
@@ -705,7 +705,7 @@ namespace Aetherium.Utils.Easings
 			end -= start;
 			value /= .5f;
 
-			if ((value) < 1)
+			if((value) < 1)
 			{
 				s *= (1.525f);
 				return 0.5f * end * (s + 1) * value * value + end * value * ((s + 1f) * value - s);
@@ -730,7 +730,7 @@ namespace Aetherium.Utils.Easings
 			float s;
 			float a = 0;
 
-			if (a == 0f || a < Mathf.Abs(end))
+			if(a == 0f || a < Mathf.Abs(end))
 			{
 				a = end;
 				s = p * 0.25f;
@@ -754,7 +754,7 @@ namespace Aetherium.Utils.Easings
 			float s;
 			float a = 0;
 
-			if (a == 0f || a < Mathf.Abs(end))
+			if(a == 0f || a < Mathf.Abs(end))
 			{
 				a = end;
 				s = p / 4;
@@ -764,7 +764,7 @@ namespace Aetherium.Utils.Easings
 				s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 			}
 
-			if (value < 1)
+			if(value < 1)
 			{
 				value -= 1;
 

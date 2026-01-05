@@ -79,9 +79,9 @@ namespace Aetherium.Items.TierLunar
         {
             get
             {
-                if (!_airSkill) 
+                if(!_airSkill) 
                 {
-                    if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled) 
+                    if(ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled) 
                     {
                         _airSkill = IsArtifactOfTheKingInstalled ? SkillCatalog.allSkillDefs.Where(x => x.activationState.typeName == "EntityStates.LunarExploderMonster.Weapon.FireExploderShards").First() : SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("SprintShootShards"));
                     }
@@ -105,7 +105,6 @@ namespace Aetherium.Items.TierLunar
             CreateSound();
             CreateTargetingPrefabs();
             CreateSpawncard();
-            //CreateAchievement();
             CreateItem();
             Hooks();
         }
@@ -175,7 +174,7 @@ namespace Aetherium.Items.TierLunar
             LunarChimeraBodyPrefab = masterPrefab.bodyPrefab;
             LunarChimeraBodyPrefab = LunarChimeraBodyPrefab.InstantiateClone($"{LunarChimeraBodyPrefab.name}{nameSuffix}", true);
 
-            if (LunarChimeraBodyPrefab)
+            if(LunarChimeraBodyPrefab)
             {
                 Language.Language.Add("AETHERIUM_MONSTERS_UNSTABLE_DESIGN_CHIMERA_NAME", $"The Unstable Design");
 
@@ -184,7 +183,7 @@ namespace Aetherium.Items.TierLunar
 
                 var skinnedMeshRenderer = LunarChimeraBodyPrefab.GetComponentInChildren<SkinnedMeshRenderer>();
 
-                if (skinnedMeshRenderer)
+                if(skinnedMeshRenderer)
                 {
                     skinnedMeshRenderer.sharedMesh = MainAssets.LoadAsset<Mesh>("Body_low_0");
                 }
@@ -200,10 +199,8 @@ namespace Aetherium.Items.TierLunar
 
         private void CreateAchievement()
         {
-            if (RequireUnlock)
+            if(RequireUnlock)
             {
-                /*UnstableDesignAchievement.RegisterLanguage();
-                ItemUnlockableDef = UnlockableAPI.AddUnlockable<UnstableDesignAchievement>(typeof(UnstableDesignAchievement.UnstableDesignServerAchievementTracker));*/
             }
         }
 
@@ -426,14 +423,14 @@ namespace Aetherium.Items.TierLunar
         {
             int inventoryCount = GetCount(self);
             RoR2.CharacterMaster master = self.master;
-            if (NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master) && master.currentLifeStopwatch >= SecondsBeforeFirstLunarChimeraSpawn) //Check if we're a minion or not. If we are, we don't summon a chimera.
+            if(NetworkServer.active && inventoryCount > 0 && master && !IsMinion(master) && master.currentLifeStopwatch >= SecondsBeforeFirstLunarChimeraSpawn)               
             {
                 LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(master);
-                if (!lcComponent.LastChimeraSpawned || !lcComponent.LastChimeraSpawned.master || !lcComponent.LastChimeraSpawned.master.hasBody)
+                if(!lcComponent.LastChimeraSpawned || !lcComponent.LastChimeraSpawned.master || !lcComponent.LastChimeraSpawned.master.hasBody)
                 {
                     lcComponent.LastChimeraSpawned = null;
                     lcComponent.ResummonCooldown -= Time.fixedDeltaTime;
-                    if (lcComponent.ResummonCooldown <= 0f && RoR2.SceneCatalog.mostRecentSceneDef != RoR2.SceneCatalog.GetSceneDefFromSceneName("bazaar"))
+                    if(lcComponent.ResummonCooldown <= 0f && RoR2.SceneCatalog.mostRecentSceneDef != RoR2.SceneCatalog.GetSceneDefFromSceneName("bazaar"))
                     {
                         RoR2.DirectorPlacementRule placeRule = new RoR2.DirectorPlacementRule
                         {
@@ -445,15 +442,13 @@ namespace Aetherium.Items.TierLunar
                         RoR2.DirectorSpawnRequest directorSpawnRequest = new RoR2.DirectorSpawnRequest(LunarChimeraSpawnCard, placeRule, RoR2.RoR2Application.rng)
                         {
                             teamIndexOverride = TeamIndex.Player
-                            //summonerBodyObject = self.gameObject
                         };
                         GameObject gameObject = RoR2.DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
-                        if (gameObject)
+                        if(gameObject)
                         {
                             RoR2.CharacterMaster cMaster = gameObject.GetComponent<RoR2.CharacterMaster>();
-                            if (cMaster)
+                            if(cMaster)
                             {
-                                //RoR2.Chat.AddMessage($"Character Master Found: {component}");
                                 cMaster.teamIndex = TeamIndex.Neutral;
                                 cMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, LunarChimeraBaseDamageBoost + (LunarChimeraAdditionalDamageBoost * inventoryCount - 1));
                                 cMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, LunarChimeraBaseHPBoost * inventoryCount);
@@ -462,25 +457,23 @@ namespace Aetherium.Items.TierLunar
                                 cMaster.minionOwnership.SetOwner(master);
 
                                 RoR2.CharacterBody cBody = cMaster.GetBody();
-                                if (cBody)
+                                if(cBody)
                                 {
-                                    //RoR2.Chat.AddMessage($"CharacterBody Found: {component4}");
                                     cBody.teamComponent.teamIndex = TeamIndex.Neutral;
                                     cBody.gameObject.AddComponent<LunarChimeraRetargetComponent>();
                                     lcComponent.LastChimeraSpawned = cBody;
 
                                     RoR2.DeathRewards deathRewards = cBody.GetComponent<RoR2.DeathRewards>();
                                     
-                                    if (deathRewards)
+                                    if(deathRewards)
                                     {
                                         deathRewards.logUnlockableDef = null;
-                                        //RoR2.Chat.AddMessage($"DeathRewards Found: {component5}");
                                         deathRewards.goldReward = 0;
                                         deathRewards.expReward = 0;
                                     }
 
                                     NetworkIdentity bodyNet = cBody.GetComponent<NetworkIdentity>();
-                                    if (bodyNet)
+                                    if(bodyNet)
                                     {
                                         new AssignOwner(lcComponent.netId, bodyNet.netId).Send(NetworkDestination.Clients);
                                     }
@@ -496,15 +489,15 @@ namespace Aetherium.Items.TierLunar
 
         private void LunarChimeraFall(On.RoR2.MapZone.orig_TryZoneStart orig, RoR2.MapZone self, Collider other)
         {
-            if (IsUnstableDesignChimera(other.gameObject))
+            if(IsUnstableDesignChimera(other.gameObject))
             {
                 RoR2.CharacterBody body = other.GetComponent<RoR2.CharacterBody>();
-                if (body)
+                if(body)
                 {
                     var teamComponent = body.teamComponent;
-                    teamComponent.teamIndex = TeamIndex.Player; //Set the team of it to player to avoid it dying when it falls into a hellzone.
-                    orig(self, other); //Run the effect of whatever zone it is in on it. Since it is of the Player team, it obviously gets teleported back into the zone.
-                    teamComponent.teamIndex = TeamIndex.Neutral; //Now make it hostile again. Thanks Obama.
+                    teamComponent.teamIndex = TeamIndex.Player;                 
+                    orig(self, other);                          
+                    teamComponent.teamIndex = TeamIndex.Neutral;       
                     return;
                 }
             }
@@ -513,18 +506,18 @@ namespace Aetherium.Items.TierLunar
 
         private void RewardPlayerHalf(On.RoR2.DeathRewards.orig_OnKilledServer orig, RoR2.DeathRewards self, RoR2.DamageReport damageReport)
         {
-            if (damageReport.attackerBody && damageReport.attackerBody.name.Contains(nameSuffix))
+            if(damageReport.attackerBody && damageReport.attackerBody.name.Contains(nameSuffix))
             {
                 var ownerMaster = damageReport.attackerOwnerMaster;
 
-                if (ownerMaster)
+                if(ownerMaster)
                 {
                     var ownerBody = ownerMaster.GetBody();
 
-                    if (ownerBody)
+                    if(ownerBody)
                     {
                         var inventoryCount = GetCount(ownerBody);
-                        if (inventoryCount > 0)
+                        if(inventoryCount > 0)
                         {
                             ownerMaster.GiveExperience(self.expReward / 2);
                             ownerMaster.GiveMoney(self.goldReward / 2);
@@ -543,7 +536,6 @@ namespace Aetherium.Items.TierLunar
 
         private bool IsMinion(RoR2.CharacterMaster master)
         {
-            // Replace the old minion checker so that it can support enemies that get lunar items too
             return master.minionOwnership &&
                    master.minionOwnership.ownerMaster;
         }
@@ -566,11 +558,11 @@ namespace Aetherium.Items.TierLunar
 
             private void FixedUpdate()
             {
-                if (syncIds.Count > 0)
+                if(syncIds.Count > 0)
                 {
                     NetworkInstanceId syncId = syncIds.Dequeue();
                     GameObject supposedChimera = RoR2.Util.FindNetworkObject(syncId);
-                    if (supposedChimera)
+                    if(supposedChimera)
                     {
                         LastChimeraSpawned = supposedChimera.GetComponent<RoR2.CharacterBody>();
                         RoR2.CharacterMaster cMaster = LastChimeraSpawned.master;
@@ -592,14 +584,13 @@ namespace Aetherium.Items.TierLunar
             public static LunarChimeraComponent GetOrCreateComponent(GameObject masterObject)
             {
                 LunarChimeraComponent thisComponent = masterObject.GetComponent<LunarChimeraComponent>();
-                if (!thisComponent) thisComponent = masterObject.AddComponent<LunarChimeraComponent>();
+                if(!thisComponent) thisComponent = masterObject.AddComponent<LunarChimeraComponent>();
                 return thisComponent;
             }
         }
 
         public class LunarChimeraRetargetComponent : MonoBehaviour
         {
-            // make public if you want it to be viewable in RuntimeInspector
             private float retargetTimer = 0f;
 
             private RoR2.CharacterMaster master;
@@ -611,7 +602,7 @@ namespace Aetherium.Items.TierLunar
             private void Awake()
             {
                 body = gameObject.GetComponent<RoR2.CharacterBody>();
-                if (body)
+                if(body)
                 {
                     master = body.master;
                 }
@@ -620,29 +611,29 @@ namespace Aetherium.Items.TierLunar
 
             private void FixedUpdate()
             {
-                if (master)
+                if(master)
                 {
                     BaseAI baseAIComponent = master.GetComponent<BaseAI>();
-                    if (baseAIComponent)
+                    if(baseAIComponent)
                     {
                         RoR2.CharacterBody targetBody = baseAIComponent.currentEnemy.characterBody;
 
-                        if (targetBody)
+                        if(targetBody)
                         {
                             var pinpointerComponent = master.GetComponent<UnstableDesignPinpointComponent>();
-                            if (pinpointerComponent && NetworkServer.active)
+                            if(pinpointerComponent && NetworkServer.active)
                             {
                                 pinpointerComponent.Origin = targetBody.gameObject;
                             }
 
                             RoR2.SkillLocator skillComponent = gameObject.GetComponent<RoR2.SkillLocator>();
-                            if (skillComponent)
+                            if(skillComponent)
                             {
-                                if (!targetBody.characterMotor || !targetBody.characterMotor.isGrounded)
+                                if(!targetBody.characterMotor || !targetBody.characterMotor.isGrounded)
                                 {
                                     skillComponent.primary.SetSkillOverride(body, airSkill, RoR2.GenericSkill.SkillOverridePriority.Replacement);
 
-                                    if (ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled)
+                                    if(ReplacePrimaryAirSkillIfArtifactOfTheKingInstalled && IsArtifactOfTheKingInstalled)
                                     {
                                         skillComponent.primary.maxStock = 4;
                                         skillComponent.primary.finalRechargeInterval = 1 / 4f;
@@ -655,19 +646,19 @@ namespace Aetherium.Items.TierLunar
                             }
 
                             retargetTimer -= Time.fixedDeltaTime;
-                            if (retargetTimer <= 0)
+                            if(retargetTimer <= 0)
                             {
-                                if (!baseAIComponent.currentEnemy.hasLoS)
+                                if(!baseAIComponent.currentEnemy.hasLoS)
                                 {
                                     baseAIComponent.currentEnemy.Reset();
                                     baseAIComponent.ForceAcquireNearestEnemyIfNoCurrentEnemy();
 
-                                    if (baseAIComponent.currentEnemy != null && !baseAIComponent.currentEnemy.hasLoS && EnableSounds)
+                                    if(baseAIComponent.currentEnemy != null && !baseAIComponent.currentEnemy.hasLoS && EnableSounds)
                                     {
                                         EntitySoundManager.EmitSoundServer(LostTargetSound.akId, body.gameObject);
                                     }
 
-                                    if (baseAIComponent.currentEnemy == null && EnableSounds)
+                                    if(baseAIComponent.currentEnemy == null && EnableSounds)
                                     {
                                         EntitySoundManager.EmitSoundServer(SearchCrySound.akId, body.gameObject);
                                     }
@@ -676,7 +667,7 @@ namespace Aetherium.Items.TierLunar
                                 }
                             }
 
-                            if (ShouldUnstableDesignPullAggroOnTargets)
+                            if(ShouldUnstableDesignPullAggroOnTargets)
                             {
                                 PullAggressionFromTarget(targetBody);
                             }
@@ -688,12 +679,12 @@ namespace Aetherium.Items.TierLunar
 
             private void PullAggressionFromTarget(CharacterBody targetBody)
             {
-                if (targetBody && targetBody.master && !targetBody.isPlayerControlled && !targetBody.isBoss)
+                if(targetBody && targetBody.master && !targetBody.isPlayerControlled && !targetBody.isBoss)
                 {
                     var targetAIComponent = targetBody.master.GetComponent<BaseAI>();
-                    if (targetAIComponent)
+                    if(targetAIComponent)
                     {
-                        if (targetAIComponent.currentEnemy == null || targetAIComponent.currentEnemy != null && targetAIComponent.currentEnemy.gameObject != body.gameObject)
+                        if(targetAIComponent.currentEnemy == null || targetAIComponent.currentEnemy != null && targetAIComponent.currentEnemy.gameObject != body.gameObject)
                         {
                             targetAIComponent.currentEnemy.gameObject = body.gameObject;
                         }
@@ -703,7 +694,7 @@ namespace Aetherium.Items.TierLunar
 
             private void SetCooldown(float? customCooldown = null)
             {
-                if (customCooldown == null) retargetTimer = LunarChimeraRetargetingCooldown;
+                if(customCooldown == null) retargetTimer = LunarChimeraRetargetingCooldown;
                 else retargetTimer = (float)customCooldown;
             }
         }
@@ -714,7 +705,7 @@ namespace Aetherium.Items.TierLunar
 
             public void FixedUpdate()
             {
-                if (!OwnerBody || OwnerBody && OwnerBody.healthComponent && !OwnerBody.healthComponent.alive)
+                if(!OwnerBody || OwnerBody && OwnerBody.healthComponent && !OwnerBody.healthComponent.alive)
                 {
                     UnityEngine.Object.Destroy(this.gameObject);
                 }
@@ -745,9 +736,9 @@ namespace Aetherium.Items.TierLunar
 
             public void OnReceived()
             {
-                if (NetworkServer.active) return;
+                if(NetworkServer.active) return;
                 GameObject owner = RoR2.Util.FindNetworkObject(ownerNetId);
-                if (!owner) return;
+                if(!owner) return;
 
                 LunarChimeraComponent lcComponent = LunarChimeraComponent.GetOrCreateComponent(owner);
                 lcComponent.syncIds.Enqueue(minionNetId);
@@ -773,7 +764,7 @@ namespace Aetherium.Items.TierLunar
 
         public void FixedUpdate()
         {
-            if (UnstableDesign.EnableTargetingIndicator)
+            if(UnstableDesign.EnableTargetingIndicator)
             {
                 ManageTrackingIndicators();
             }
@@ -781,27 +772,27 @@ namespace Aetherium.Items.TierLunar
 
         private void ManageTrackingIndicators()
         {
-            if (!Origin || !LunarChimeraBody) { return; }
+            if(!Origin || !LunarChimeraBody) { return; }
 
             var targetBody = Origin.GetComponent<CharacterBody>();
             var body = LunarChimeraBody.GetComponent<CharacterBody>();
 
-            if (targetBody && body)
+            if(targetBody && body)
             {
-                if (!TrackerObject)
+                if(!TrackerObject)
                 {
                     TrackerObject = GameObject.Instantiate(UnstableDesign.TargetingIndicatorSphere);
                     var visualDestroyer = TrackerObject.GetComponent<UnstableDesign.UnstableDesignPinpointerDestroyer>();
                     visualDestroyer.OwnerBody = body;
                 }
-                if (!TrackerArrow)
+                if(!TrackerArrow)
                 {
                     TrackerArrow = GameObject.Instantiate(UnstableDesign.TargetingIndicatorArrow);
                     var visualDestroyer = TrackerArrow.GetComponent<UnstableDesign.UnstableDesignPinpointerDestroyer>();
                     visualDestroyer.OwnerBody = body;
                 }
 
-                if (TrackerObject && TrackerArrow)
+                if(TrackerObject && TrackerArrow)
                 {
                     var calculatedUpPosition = targetBody.mainHurtBox.collider.ClosestPointOnBounds(targetBody.transform.position + new Vector3(0, 10000, 0)) + (Vector3.up * 3);
                     TrackerObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
@@ -811,7 +802,7 @@ namespace Aetherium.Items.TierLunar
 
                     var lookRotation = body.transform.position - TrackerArrow.transform.position;
 
-                    if (lookRotation != Vector3.zero)
+                    if(lookRotation != Vector3.zero)
                     {
                         TrackerArrow.transform.rotation = Quaternion.LookRotation(lookRotation);
                     }
@@ -819,11 +810,11 @@ namespace Aetherium.Items.TierLunar
             }
             else
             {
-                if (TrackerObject)
+                if(TrackerObject)
                 {
                     UnityEngine.Object.Destroy(TrackerObject);
                 }
-                if (TrackerArrow)
+                if(TrackerArrow)
                 {
                     UnityEngine.Object.Destroy(TrackerArrow);
                 }

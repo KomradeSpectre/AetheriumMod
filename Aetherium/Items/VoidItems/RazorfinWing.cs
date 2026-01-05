@@ -14,7 +14,7 @@ namespace Aetherium.Items.VoidItems
 
         public override string ItemLangTokenName => "RAZORFIN_PLUME";
 
-        public override string ItemPickupDesc => "On taking damage, grow razor sharp wings that deal damage to enemies nearby based on your current velocity. Corrupts Feathered Plumes.";
+        public override string ItemPickupDesc => "Above a certain speed, extend your wings and deal damage to enemies based on your velocity. Corrupts Feathered Plumes.";
 
         public override string ItemFullDescription => throw new NotImplementedException();
 

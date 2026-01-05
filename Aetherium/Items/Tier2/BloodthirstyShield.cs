@@ -294,7 +294,7 @@ namespace Aetherium.Items.Tier2
 
         private void GrantBaseShield(CharacterBody sender, StatHookEventArgs args)
         {
-            if (GetCount(sender) > 0)
+            if(GetCount(sender) > 0)
             {
                 HealthComponent healthC = sender.GetComponent<HealthComponent>();
                 args.baseShieldAdd += healthC.fullHealth * BaseGrantShieldMultiplier;
@@ -303,10 +303,10 @@ namespace Aetherium.Items.Tier2
 
         private void GrantShieldReward(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, RoR2.GlobalEventManager self, RoR2.DamageReport damageReport)
         {
-            if (damageReport?.attackerBody)
+            if(damageReport?.attackerBody)
             {
                 int inventoryCount = GetCount(damageReport.attackerBody);
-                if (inventoryCount > 0)
+                if(inventoryCount > 0)
                 {
                     var percentage = InverseHyperbolicScaling(ShieldPercentageRestoredPerKill, AdditionalShieldPercentageRestoredPerKillDiminishing, MaximumPercentageShieldRestoredPerKill, inventoryCount);
                     damageReport.attackerBody.healthComponent.RechargeShield(damageReport.attackerBody.healthComponent.fullShield * percentage);

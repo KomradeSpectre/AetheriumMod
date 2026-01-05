@@ -11,7 +11,7 @@ namespace Aetherium.Utils
         {
             NetworkInstanceId netInstanceId = new NetworkInstanceId(netIdValue);
             NetworkIdentity foundNetworkIdentity = null;
-            if (NetworkServer.active)
+            if(NetworkServer.active)
             {
                 NetworkServer.objects.TryGetValue(netInstanceId, out foundNetworkIdentity);
             }
@@ -20,10 +20,10 @@ namespace Aetherium.Utils
                 ClientScene.objects.TryGetValue(netInstanceId, out foundNetworkIdentity);
             }
 
-            if (foundNetworkIdentity)
+            if(foundNetworkIdentity)
             {
                 T foundObject = foundNetworkIdentity.GetComponent<T>();
-                if (foundObject != null)
+                if(foundObject != null)
                 {
                     return foundObject;
                 }

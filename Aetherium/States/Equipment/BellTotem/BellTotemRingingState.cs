@@ -21,7 +21,7 @@ namespace Aetherium.States.Equipment.BellTotem
             base.OnEnter();
             PlayAnimation("Base", "Ringing", "Ringing.SpeedMultiplier", Duration);
 
-            if (NetworkServer.active)
+            if(NetworkServer.active)
             {
                 CreateEffect();
                 CreateBlastAttack();
@@ -36,10 +36,10 @@ namespace Aetherium.States.Equipment.BellTotem
         public void CreateBlastAttack()
         {
             BellTotemManager = gameObject.GetComponent<BellTotemManager>();
-            if (BellTotemManager && BellTotemManager.LastActivator)
+            if(BellTotemManager && BellTotemManager.LastActivator)
             {
                 var bellRinging = gameObject.GetComponent<BellRingingEffect>();
-                if (bellRinging)
+                if(bellRinging)
                 {
                     bellRinging.Attacker = BellTotemManager.LastActivator;
                     bellRinging.Radius = Radius;

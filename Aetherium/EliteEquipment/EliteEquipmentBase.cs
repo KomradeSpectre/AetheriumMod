@@ -17,7 +17,7 @@ namespace Aetherium.EliteEquipment
 
         public EliteEquipmentBase()
         {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
+            if(instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting EquipmentBoilerplate/Equipment was instantiated twice");
             instance = this as T;
         }
     }
@@ -140,12 +140,12 @@ namespace Aetherium.EliteEquipment
 
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformEquipmentAction;
 
-            if (UseTargeting && TargetingIndicatorPrefabBase)
+            if(UseTargeting && TargetingIndicatorPrefabBase)
             {
                 On.RoR2.EquipmentSlot.Update += UpdateTargeting;
             }
 
-            if (EliteMaterial)
+            if(EliteMaterial)
             {
                 On.RoR2.CharacterBody.FixedUpdate += OverlayManager;
             }
@@ -154,10 +154,10 @@ namespace Aetherium.EliteEquipment
         /*private void CharacterModel_UpdateOverlays(On.RoR2.CharacterModel.orig_UpdateOverlays orig, CharacterModel self)
         {
             orig(self);
-            if (self.body && self.body.inventory)
+            if(self.body && self.body.inventory)
             {
-                if (self.activeOverlayCount >= CharacterModel.maxOverlays) return;
-                if (self.body.HasBuff(EliteBuffDef))
+                if(self.activeOverlayCount >= CharacterModel.maxOverlays) return;
+                if(self.body.HasBuff(EliteBuffDef))
                 {
                     Material[] array = self.currentOverlays;
                     int num = self.activeOverlayCount;
@@ -169,7 +169,7 @@ namespace Aetherium.EliteEquipment
 
         private void OverlayManager(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
         {
-            if (self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(EliteBuffDef) && !self.GetComponent<EliteOverlayManager>())
+            if(self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(EliteBuffDef) && !self.GetComponent<EliteOverlayManager>())
             {
                 var overlay = TemporaryOverlayManager.AddOverlay(self.modelLocator.modelTransform.gameObject);
                 overlay.duration = float.PositiveInfinity;
@@ -194,7 +194,7 @@ namespace Aetherium.EliteEquipment
 
             public void FixedUpdate()
             {
-                if (!Body.HasBuff(EliteBuffDef))
+                if(!Body.HasBuff(EliteBuffDef))
                 {
                     UnityEngine.Object.Destroy(this);
                     Overlay.CleanupEffect();
@@ -212,7 +212,7 @@ namespace Aetherium.EliteEquipment
             EliteDef.damageBoostCoefficient = DamageMultiplier;
 
             var tierDefs = GetVanillaEliteTierDef(EliteTierDef);
-            if (tierDefs is null)
+            if(tierDefs is null)
             {
                 ModLogger.LogError("Failed to get vanilla elite tier definitions.");
                 return;
@@ -220,7 +220,7 @@ namespace Aetherium.EliteEquipment
 
             var customElite = new CustomElite("AETHERIUM_ELITE_" + EliteAffixToken, EliteEquipmentDef, EliteColor, "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", tierDefs, EliteRamp);
 
-            if (EliteTierDef < EliteTier.T2)
+            if(EliteTierDef < EliteTier.T2)
             {
                 customElite.EliteDef.healthBoostCoefficient = 4f;
                 customElite.EliteDef.damageBoostCoefficient = 2f;
@@ -241,14 +241,14 @@ namespace Aetherium.EliteEquipment
         /*public virtual CustomElite SetupElite()
         {
             var tierDefs = this.GetVanillaEliteTierDef(this.EliteTierDef);
-            if (tierDefs is null)
+            if(tierDefs is null)
                 return null;
 
             var customElite = new CustomElite("AETHERIUM_ELITE_" + this.EliteAffixToken, this.EliteEquipmentDef, this.EliteColor, "AETHERIUM_ELITE_" + this.EliteAffixToken + "_MODIFIER", tierDefs, this.EliteRamp);
-            if (this.EliteTierDef < EliteTier.T2)
+            if(this.EliteTierDef < EliteTier.T2)
             {
                 tierDefs = this.GetVanillaEliteTierDef(this.EliteTierDef + 1);
-                if (tierDefs != null)
+                if(tierDefs != null)
                 {
                     var customHonorElite = new CustomElite("AETHERIUM_ELITE_" + this.EliteAffixToken +"_HONOR", this.EliteEquipmentDef, this.EliteColor, "AETHERIUM_ELITE_" + this.EliteAffixToken + "_MODIFIER", tierDefs, this.EliteRamp);
 
@@ -286,7 +286,7 @@ namespace Aetherium.EliteEquipment
             // 5 - t2
             // 6 - lunar
 
-            if (tier == EliteTier.Invalid)
+            if(tier == EliteTier.Invalid)
             {
                 ModLogger.LogError("Invalid tier");
                 ModLogger.LogDebug(new System.Diagnostics.StackTrace());
@@ -296,7 +296,7 @@ namespace Aetherium.EliteEquipment
 
             List<CombatDirector.EliteTierDef> tierDefs = new List<CombatDirector.EliteTierDef>() { EliteAPI.VanillaEliteTiers[(int)tier] };
 
-            if (this.EliteTierDef is EliteTier.T1 or EliteTier.T1Honor)
+            if(this.EliteTierDef is EliteTier.T1 or EliteTier.T1Honor)
                 tierDefs.Add(EliteAPI.VanillaEliteTiers[(int)tier + 2]);
 
             return tierDefs;
@@ -304,7 +304,7 @@ namespace Aetherium.EliteEquipment
 
         protected bool PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, RoR2.EquipmentSlot self, EquipmentDef equipmentDef)
         {
-            if (equipmentDef == EliteEquipmentDef)
+            if(equipmentDef == EliteEquipmentDef)
             {
                 return ActivateEquipment(self);
             }
@@ -334,16 +334,16 @@ namespace Aetherium.EliteEquipment
         {
             orig(self);
 
-            if (self.equipmentIndex == EliteEquipmentDef.equipmentIndex)
+            if(self.equipmentIndex == EliteEquipmentDef.equipmentIndex)
             {
                 var targetingComponent = self.GetComponent<TargetingControllerComponent>();
-                if (!targetingComponent)
+                if(!targetingComponent)
                 {
                     targetingComponent = self.gameObject.AddComponent<TargetingControllerComponent>();
                     targetingComponent.VisualizerPrefab = TargetingIndicatorPrefabBase;
                 }
 
-                if (self.stock > 0)
+                if(self.stock > 0)
                 {
                     switch (TargetingTypeEnum)
                     {
@@ -389,7 +389,7 @@ namespace Aetherium.EliteEquipment
 
             public void ConfigureTargetFinderBase(EquipmentSlot self)
             {
-                if (TargetFinder == null) TargetFinder = new BullseyeSearch();
+                if(TargetFinder == null) TargetFinder = new BullseyeSearch();
                 TargetFinder.teamMaskFilter = TeamMask.allButNeutral;
                 TargetFinder.teamMaskFilter.RemoveTeam(self.characterBody.teamComponent.teamIndex);
                 TargetFinder.sortMode = BullseyeSearch.SortMode.Angle;
@@ -428,7 +428,7 @@ namespace Aetherium.EliteEquipment
             {
                 HurtBox hurtbox = TargetFinderResults.Any() ? TargetFinderResults.First() : null;
 
-                if (hurtbox)
+                if(hurtbox)
                 {
                     TargetObject = hurtbox.healthComponent.gameObject;
                     Indicator.visualizerPrefab = VisualizerPrefab;

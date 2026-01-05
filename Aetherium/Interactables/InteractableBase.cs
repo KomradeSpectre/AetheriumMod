@@ -12,7 +12,7 @@ namespace Aetherium.Interactables
 
         public InteractableBase()
         {
-            if (instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting PurchaseInteractableBase/Interactable was instantiated twice");
+            if(instance != null) throw new InvalidOperationException("Singleton class \"" + typeof(T).Name + "\" inheriting PurchaseInteractableBase/Interactable was instantiated twice");
             instance = this as T;
         }
     }
@@ -41,7 +41,7 @@ namespace Aetherium.Interactables
 
         public void AddExpansionComponentToInteractable(GameObject interactable)
         {
-            if (!interactable) { return; }
+            if(!interactable) { return; }
 
             var expansionComponent = interactable.AddComponent<RoR2.ExpansionManagement.ExpansionRequirementComponent>();
             expansionComponent.requiredExpansion = AetheriumPlugin.AetheriumExpansionDef;

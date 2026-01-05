@@ -17,7 +17,7 @@ namespace Aetherium.Effect
             }
 
             duration = distanceToTarget / speed;
-            if (Equipment.Faust.OrbFaust)
+            if(Equipment.Faust.OrbFaust)
             {
                 EffectData effectData = new EffectData
                 {
@@ -33,23 +33,23 @@ namespace Aetherium.Effect
         public override void OnArrival()
         {
             base.OnArrival();
-            if (this.target)
+            if(this.target)
             {
                 HealthComponent healthComponent = this.target.healthComponent;
-                if (healthComponent && healthComponent.body)
+                if(healthComponent && healthComponent.body)
                 {
                     var faust = healthComponent.body.gameObject.AddComponent<FaustComponent>();
                     faust.attacker = attacker;
 
                     var inventory = healthComponent.body.inventory;
-                    if (inventory)
+                    if(inventory)
                     {
                         var deactivatedFaustItemCount = inventory.GetItemCount(Equipment.Faust.instance.DeactivatedFaustItem);
                         inventory.RemoveItem(Equipment.Faust.instance.DeactivatedFaustItem, deactivatedFaustItemCount);
                     }
 
                     SetStateOnHurt setStateOnHurt = healthComponent.GetComponent<SetStateOnHurt>();
-                    if (setStateOnHurt)
+                    if(setStateOnHurt)
                     {
                         setStateOnHurt.SetStun(-1f);
                     }
