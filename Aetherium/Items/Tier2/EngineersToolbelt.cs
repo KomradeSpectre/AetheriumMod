@@ -363,11 +363,13 @@ namespace Aetherium.Items.Tier2
 
         private void DuplicateDronesAndTurrets(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
         {
+            var wasPurchasable = activator && self.GetInteractability(activator) == Interactability.Available;
+
             orig(self, activator);
 
             if(!NetworkServer.active) return;
             if(!activator?.gameObject) return;
-            if(self.GetInteractability(activator) != Interactability.Available) return;
+            if(!wasPurchasable) return;
 
             var characterBody = activator.gameObject.GetComponent<CharacterBody>();
             if(!characterBody) return;

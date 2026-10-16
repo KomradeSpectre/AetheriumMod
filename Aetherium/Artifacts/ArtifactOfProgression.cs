@@ -49,7 +49,7 @@ namespace Aetherium.Artifacts
             DoubleGoldAndExpOfProgressions = config.ActiveBind<bool>("Artifact: " + ArtifactName, "Double Rewards", true, "Double gold/xp for evolved forms?");
             BlacklistedEvolutionMastersString = config.ActiveBind<string>("Artifact: " + ArtifactName, "Blacklist", "", "Comma-separated list of master names to ignore.");
 
-            AddProgression("ScorchWurmMaster", "MagmaWormMaster");
+            AddProgression("ScorchlingMaster", "MagmaWormMaster");
             AddProgression("MagmaWormMaster", "ElectricWormMaster");
 
             //Yes, I know in the lore this is the opposite of their actual life cycle.
@@ -65,7 +65,7 @@ namespace Aetherium.Artifacts
 
             AddProgression("GolemMaster", "TitanMaster");
 
-            AddProgression("ClayManMaster", "ClayBruiserMaster");    
+            AddProgression("ClayGrenadierMaster", "ClayBruiserMaster");    
             AddProgression("ClayBruiserMaster", "ClayBossMaster");    
 
             AddProgression("JellyfishMaster", "VagrantMaster");

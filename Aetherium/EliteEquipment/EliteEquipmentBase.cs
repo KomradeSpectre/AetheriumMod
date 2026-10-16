@@ -50,8 +50,8 @@ namespace Aetherium.EliteEquipment
             Invalid,
             T1,
             T1Honor,
-            T1Upgrade,
             T1UpgradeHonor,
+            T1Upgrade,
             T2,
             Lunar
         }
@@ -278,14 +278,6 @@ namespace Aetherium.EliteEquipment
 
         private IEnumerable<CombatDirector.EliteTierDef> GetVanillaEliteTierDef(EliteTier tier)
         {
-            // 0 - none
-            // 1 - t1
-            // 2 - t1 honor
-            // 3 - t1 + gold
-            // 4 - t1 + gold honor
-            // 5 - t2
-            // 6 - lunar
-
             if(tier == EliteTier.Invalid)
             {
                 ModLogger.LogError("Invalid tier");
@@ -296,8 +288,10 @@ namespace Aetherium.EliteEquipment
 
             List<CombatDirector.EliteTierDef> tierDefs = new List<CombatDirector.EliteTierDef>() { EliteAPI.VanillaEliteTiers[(int)tier] };
 
-            if(this.EliteTierDef is EliteTier.T1 or EliteTier.T1Honor)
-                tierDefs.Add(EliteAPI.VanillaEliteTiers[(int)tier + 2]);
+            if(tier is EliteTier.T1)
+                tierDefs.Add(EliteAPI.VanillaEliteTiers[(int)EliteTier.T1Upgrade]);
+            else if(tier is EliteTier.T1Honor)
+                tierDefs.Add(EliteAPI.VanillaEliteTiers[(int)EliteTier.T1UpgradeHonor]);
 
             return tierDefs;
         }
