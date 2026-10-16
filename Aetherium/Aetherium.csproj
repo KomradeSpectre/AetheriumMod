@@ -136,22 +136,12 @@
   <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <ProfileName Condition="'$(ProfileName)' == ''">Current</ProfileName>
-    <ProfileDeployDir>$(APPDATA)\r2modmanPlus-local\RiskOfRain2\profiles\$(ProfileName)\BepInEx\plugins\KomradeSpectre-Aetherium</ProfileDeployDir>
-  </PropertyGroup>
-
-  <Target Name="WeaveNetworking" AfterTargets="PostBuildEvent">
-    <PropertyGroup>
-      <WeaverLibsDir>$(ProjectDir)$(IntermediateOutputPath)WeaverLibs</WeaverLibsDir>
-    </PropertyGroup>
-    <Copy SourceFiles="@(ReferencePath)" DestinationFolder="$(WeaverLibsDir)" SkipUnchangedFiles="true" />
-    <Exec Command="&quot;$(ProjectDir)Weaver\Unity.UNetWeaver.exe&quot; &quot;$(WeaverLibsDir)\UnityEngine.CoreModule.dll&quot; &quot;$(WeaverLibsDir)\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(TargetDir.TrimEnd('\'))&quot; &quot;$(TargetPath)&quot; &quot;$(WeaverLibsDir)&quot;" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="call &quot;$(ProjectDir)weave.bat&quot; &quot;$(TargetDir)\&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;" />
   </Target>
 
-  <Target Name="DeployToProfile" AfterTargets="WeaveNetworking" Condition="Exists('$(ProfileDeployDir)')">
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ProfileDeployDir)" Retries="0" ContinueOnError="WarnAndContinue" />
-    <Message Importance="high" Text="Deployed $(TargetName) to $(ProfileDeployDir)" />
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if not exist &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot; mkdir &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot;" />
   </Target>
 
 </Project>
