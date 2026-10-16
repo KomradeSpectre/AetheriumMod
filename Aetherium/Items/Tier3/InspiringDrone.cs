@@ -304,7 +304,7 @@ namespace Aetherium.Items.Tier3
 
             if(EnableDeathExplosion)
             {
-                On.RoR2.GlobalEventManager.OnCharacterDeath += DetonateInspiredDrone;
+                GlobalEventManager.onCharacterDeathServer += DetonateInspiredDrone;
             }
         }
 
@@ -408,10 +408,8 @@ namespace Aetherium.Items.Tier3
             }
         }
 
-        private void DetonateInspiredDrone(On.RoR2.GlobalEventManager.orig_OnCharacterDeath orig, GlobalEventManager self, DamageReport report)
+        private void DetonateInspiredDrone(DamageReport report)
         {
-            orig(self, report);
-
             if(!report.victimBody) return;
 
             var behavior = report.victimMaster ? report.victimMaster.GetComponent<InspiringDroneMinionBehavior>() : null;

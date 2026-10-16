@@ -691,9 +691,9 @@ namespace Aetherium.Items.TierLunar
             {
                 if(self.master.teamIndex == TeamIndex.Player && !self.isPlayerControlled)
                 {
-                    self.inventory.RemoveItem(ItemDef, InventoryCount);
+                    self.inventory.RemoveItemPermanent(ItemDef, InventoryCount);
                     var limiterReleaseCount = GetCountSpecific(self, LimiterReleaseItemDef);
-                    self.inventory.RemoveItem(LimiterReleaseItemDef, limiterReleaseCount);
+                    self.inventory.RemoveItemPermanent(LimiterReleaseItemDef, limiterReleaseCount);
                 }
             }
         }
@@ -723,7 +723,7 @@ namespace Aetherium.Items.TierLunar
             var ankletTracker = self.GetComponent<AnkletTracker>();
             if(!ankletTracker) { ankletTracker = self.gameObject.AddComponent<AnkletTracker>(); }
 
-            var inventoryCount = GetCount(self);
+            var inventoryCount = self.inventory.GetItemCountPermanent(ItemDef);
             if(inventoryCount > ankletTracker.AnkletStacks)
             {
                 ankletTracker.AnkletStacks = inventoryCount;

@@ -168,10 +168,10 @@ public void Init()
                     if(voidPortalKilledSomething)
                     {
                         var inventory = toReviveMaster.inventory;
-                        var bearCount = inventory.GetItemCount(RoR2Content.Items.ExtraLifeConsumed);
-                        if(bearCount > 0) 
+                        var bearCount = inventory.GetItemCountPermanent(RoR2Content.Items.ExtraLifeConsumed);
+                        if(bearCount > 0)
                         {
-                            inventory.RemoveItem(RoR2Content.Items.ExtraLifeConsumed, 1);
+                            inventory.RemoveItemPermanent(RoR2Content.Items.ExtraLifeConsumed, 1);
                         }
 
                         var bodyRevived = toReviveMaster.GetBody();
