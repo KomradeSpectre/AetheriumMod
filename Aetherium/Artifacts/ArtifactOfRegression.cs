@@ -56,9 +56,9 @@ namespace Aetherium.Artifacts
             // --- WORM FAMILY (Overloading -> Magma -> Scorch) ---
             AddDefinition("ElectricWormMaster", "MagmaWormMaster",
                 config.ActiveBind("Artifact: " + ArtifactName, "Overloading Worm -> Magma Worms", 1, "Amount of Magma Worms spawned."));
-            AddDefinition("MagmaWormMaster", "ScorchWurmMaster",
+            AddDefinition("MagmaWormMaster", "ScorchlingMaster",
                 config.ActiveBind("Artifact: " + ArtifactName, "Magma Worm -> Scorch Wurms", 2, "Amount of Scorch Wurms spawned."));
-            AddDefinition("ScorchWurmMaster", "LemurianMaster",
+            AddDefinition("ScorchlingMaster", "LemurianMaster",
                 config.ActiveBind("Artifact: " + ArtifactName, "Scorch Wurm -> Lemurians", 3, "Amount of Lemurians spawned."));
 
             // --- PARENT FAMILY (Grandparent -> Parent -> Child) ---
@@ -88,7 +88,7 @@ namespace Aetherium.Artifacts
             // --- CLAY FAMILY ---
             AddDefinition("ClayBossMaster", "ClayBruiserMaster",
                 config.ActiveBind("Artifact: " + ArtifactName, "Dunestrider -> Templars", 2, "Amount of Clay Templars spawned."));
-            AddDefinition("ClayBruiserMaster", "ClayManMaster",
+            AddDefinition("ClayBruiserMaster", "ClayGrenadierMaster",
                 config.ActiveBind("Artifact: " + ArtifactName, "Templar -> Apothecaries", 2, "Amount of Clay Apothecaries spawned."));
 
             // --- JELLYFISH FAMILY ---

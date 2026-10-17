@@ -616,7 +616,7 @@ namespace Aetherium.Items.Tier3
                         victimBody.AddTimedBuff(WitchesRingImmunityBuffDef, duration);
 
                     DamageReport damageReport = new DamageReport(damageInfo, victimBody.healthComponent, damageInfo.damage, victimBody.healthComponent.combinedHealth);
-                    GlobalEventManager.instance.OnCharacterDeath(damageReport);
+                    GlobalEventManager.instance.TriggerCharacterDeathProc(damageReport);
 
                 }
             }

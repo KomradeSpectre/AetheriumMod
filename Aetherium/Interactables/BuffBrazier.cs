@@ -233,7 +233,12 @@ namespace Aetherium.Interactables
                 InteractableCategory = DirectorAPI.InteractableCategory.Shrines,
             };
 
-            DirectorAPI.Helpers.AddNewInteractable(directorCardHolder);
+            DirectorAPI.Helpers.AddNewInteractable(directorCardHolder, _ => AcceptsExtraInteractables(SceneInfo.instance));
+        }
+
+        private static bool AcceptsExtraInteractables(SceneInfo scene)
+        {
+            return scene && scene.sceneDef && (scene.countsAsStage || scene.sceneDef.allowItemsToSpawnObjects);
         }
 
         private void Hooks()

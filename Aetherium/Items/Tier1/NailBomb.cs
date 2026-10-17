@@ -143,7 +143,7 @@ namespace Aetherium.Items.Tier1
             scaleCurve.overallCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.05f, 1));
 
             var projectileController = NailBombProjectileMain.GetComponent<ProjectileController>();
-            projectileController.ghostPrefab = model;
+            projectileController.SetGhostPrefab(model);
 
             var velocityRandom = NailBombProjectileMain.AddComponent<VelocityRandomOnStart>();
             velocityRandom.coneAngle = 30;

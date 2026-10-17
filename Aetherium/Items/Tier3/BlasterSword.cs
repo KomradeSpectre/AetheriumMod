@@ -120,7 +120,7 @@ namespace Aetherium.Items.Tier3
 
             var controller = SwordProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
             controller.procCoefficient = 0.5f;
-            controller.ghostPrefab = model;
+            controller.SetGhostPrefab(model);
 
             SwordProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Player;
 

@@ -2,3 +2,4 @@ packages
 .vs
 bin
 obj
+.idea/

@@ -72,7 +72,7 @@ namespace Aetherium.Artifacts
                     int stageOrder = nextStageScene.stageOrder;
                     list = new List<SceneDef>(SceneCatalog.allSceneDefs)
                         .Where(sd => 
-                            sd.destinationsGroup.sceneEntries.Length > 0 &&
+                            sd.destinationsGroup && sd.destinationsGroup.sceneEntries.Length > 0 &&
                                 (!sd.requiredExpansion 
                                 || Run.instance.IsExpansionEnabled(sd.requiredExpansion))
                                 )

@@ -1,9 +1,11 @@
 ﻿using RoR2;
+using RoR2.Projectile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace Aetherium.Utils
@@ -103,6 +105,12 @@ namespace Aetherium.Utils
                 }
                 characterMotor.disableAirControlUntilCollision = true;
             }
+        }
+
+        public static void SetGhostPrefab(this ProjectileController projectileController, GameObject ghostPrefab)
+        {
+            projectileController.ghostPrefab = ghostPrefab;
+            projectileController.ghostPrefabAddress = new AssetReferenceT<GameObject>(string.Empty);
         }
     }
 }
