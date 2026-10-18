@@ -45,7 +45,6 @@ namespace Aetherium.Items.TierLunar
         public CharacterMaster toReviveMaster;
         public CharacterBody toReviveBody;
         public float attackerDamage;
-        public TeamIndex attackerTeam;
 
         public BuffDef voidInstabilityDebuff;
 
@@ -58,7 +57,6 @@ namespace Aetherium.Items.TierLunar
             if(toReviveBody)
             {
                 attackerDamage = toReviveBody.damage;
-                attackerTeam = toReviveBody.teamComponent ? toReviveBody.teamComponent.teamIndex : TeamIndex.None;
             }
 
             SetupVisuals();
@@ -244,8 +242,8 @@ namespace Aetherium.Items.TierLunar
             foreach (CharacterBody characterBody2 in distinctBodies)
             {
                 var healthComponent = characterBody2.healthComponent;
+                // Intentionally ignores teams: the implosion hits allies too, and killing them counts toward the revive.
                 if(!healthComponent || !healthComponent.alive) continue;
-                if(!FriendlyFireManager.ShouldSplashHitProceed(healthComponent, attackerTeam)) continue;
 
                 DamageInfo damageInfo = new DamageInfo();
                 if(toReviveBody) { damageInfo.attacker = toReviveBody.gameObject; }
