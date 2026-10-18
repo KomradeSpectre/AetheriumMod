@@ -1,8 +1,11 @@
 ﻿using Aetherium.Utils;
 using BepInEx.Configuration;
 using R2API;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using RoR2;
 using UnityEngine;
+using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
 using static Aetherium.Utils.MathHelpers;
 
@@ -82,6 +85,8 @@ namespace Aetherium.Items.TierLunar
             CreateDamageType();
             CreateItem();
             Hooks();
+
+            NetworkingAPI.RegisterMessageType<SyncVoidheartImplosion>();
         }
 
         private void CreateConfig(ConfigFile config)
@@ -356,7 +361,7 @@ namespace Aetherium.Items.TierLunar
         private void CacheHealthForVoidheart(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if(self)
+            if(self && NetworkServer.active)
             {
                 var inventoryCount = GetCount(self);
                 if(inventoryCount > 0)
@@ -375,9 +380,10 @@ namespace Aetherium.Items.TierLunar
         private void VoidheartDeathInteraction(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, RoR2.CharacterMaster self, RoR2.CharacterBody body)
         {
             var InventoryCount = GetCount(body);
-            if(InventoryCount > 0 && !body.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
+            if(NetworkServer.active && InventoryCount > 0 && !self.cannotRevive && !body.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath) && !body.HasBuff(VoidInstabilityDebuff))
             {
-                bool hasBlacklistedRevivalItems = false;
+                // Let vanilla revives (Dio's, Pluripotent Larva, Seed of Life, Shrine of Shaping, Seeker's revive) go first.
+                bool hasBlacklistedRevivalItems = Util.HasReviveItemOrEquipment(body.inventory) || body.HasBuff(DLC2Content.Buffs.ExtraLifeBuff) || self.seekerSelfRevive;
                 foreach (var item in RevivalItems)
                 {
                     var blackListedItem = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(item));
@@ -393,19 +399,18 @@ namespace Aetherium.Items.TierLunar
 
                 if(!hasBlacklistedRevivalItems)
                 {
-                    GameObject explosion = new GameObject();
-                    explosion.transform.position = body.transform.position;
+                    var position = body.transform.position;
+                    var radius = VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (InventoryCount - 1));
 
-                    var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
-                    componentVoidheartDeath.toReviveMaster = self;
+                    var componentVoidheartDeath = CreateImplosion(position, radius, self);
+                    componentVoidheartDeath.isServerInstance = true;
                     componentVoidheartDeath.toReviveBody = body;
-                    componentVoidheartDeath.voidExplosionRadius = VoidImplosionBaseRadius + (VoidImplosionAdditionalRadius * (InventoryCount - 1));
                     componentVoidheartDeath.voidHeartImplosionDamageMultiplier = VoidImplosionDamageMultiplier;
                     componentVoidheartDeath.voidInstabilityDebuff = VoidInstabilityDebuff;
                     componentVoidheartDeath.voidHeartCooldownDuration = VoidHeartCooldownDebuffDuration;
-                    componentVoidheartDeath.intendedDuration = 4;
-                    componentVoidheartDeath.shrinkDuration = 0.3f;
                     componentVoidheartDeath.Init();
+
+                    new SyncVoidheartImplosion(position, radius, self.netId).Send(NetworkDestination.Clients);
 
                     var tempDestroyOnDeath = self.destroyOnBodyDeath;
                     self.destroyOnBodyDeath = false;
@@ -416,6 +421,64 @@ namespace Aetherium.Items.TierLunar
                 }
             }
             orig(self, body);
+        }
+
+        public const float ImplosionDuration = 4f;
+        public const float ImplosionShrinkDuration = 0.3f;
+
+        private static VoidheartDeath CreateImplosion(Vector3 position, float radius, CharacterMaster master)
+        {
+            GameObject explosion = new GameObject("VoidheartImplosion");
+            explosion.transform.position = position;
+
+            var componentVoidheartDeath = explosion.AddComponent<VoidheartDeath>();
+            componentVoidheartDeath.toReviveMaster = master;
+            componentVoidheartDeath.voidExplosionRadius = radius;
+            componentVoidheartDeath.intendedDuration = ImplosionDuration;
+            componentVoidheartDeath.shrinkDuration = ImplosionShrinkDuration;
+            return componentVoidheartDeath;
+        }
+
+        public class SyncVoidheartImplosion : INetMessage
+        {
+            private Vector3 Position;
+            private float Radius;
+            private NetworkInstanceId MasterID;
+
+            public SyncVoidheartImplosion()
+            {
+            }
+
+            public SyncVoidheartImplosion(Vector3 position, float radius, NetworkInstanceId masterID)
+            {
+                Position = position;
+                Radius = radius;
+                MasterID = masterID;
+            }
+
+            public void Serialize(NetworkWriter writer)
+            {
+                writer.Write(Position);
+                writer.Write(Radius);
+                writer.Write(MasterID);
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                Position = reader.ReadVector3();
+                Radius = reader.ReadSingle();
+                MasterID = reader.ReadNetworkId();
+            }
+
+            public void OnReceived()
+            {
+                if(NetworkServer.active) return;
+
+                var masterObject = RoR2.Util.FindNetworkObject(MasterID);
+                var master = masterObject ? masterObject.GetComponent<CharacterMaster>() : null;
+
+                CreateImplosion(Position, Radius, master).Init();
+            }
         }
 
         private float Voidheart30PercentTimebomb(On.RoR2.HealthComponent.orig_Heal orig, RoR2.HealthComponent self, float amount, RoR2.ProcChainMask procChainMask, bool nonRegen)
@@ -443,8 +506,10 @@ namespace Aetherium.Items.TierLunar
 
                 float thresholdLimit = Mathf.Clamp((VoidHeartBaseTickingTimeBombHealthThreshold + (VoidHeartAdditionalTickingTimeBombHealthThreshold * (inventoryCount - 1))), VoidHeartBaseTickingTimeBombHealthThreshold, VoidHeartMaxTickingTimeBombHealthThreshold);
 
+                var prevention = self.GetComponent<VoidheartPrevention>();
+
                 if(self.combinedHealth <= self.fullCombinedHealth * thresholdLimit &&
-                    self.GetComponent<VoidheartPrevention>().InternalTimer >= 7f &&
+                    prevention && prevention.InternalTimer >= 7f &&
                     !body.HasBuff(VoidImmunityBuff))
                 {
                     if(self.GetComponent<VoidheartRecursionPrevention>())
@@ -487,7 +552,6 @@ namespace Aetherium.Items.TierLunar
 
             if(self.modelLocator && self.modelLocator.modelTransform && self.HasBuff(VoidInstabilityDebuff) && !self.GetComponent<VoidheartCooldown>())
             {
-                var Meshes = Voidheart.ItemBodyModelPrefab.GetComponentsInChildren<MeshRenderer>();
                 var overlay = TemporaryOverlayManager.AddOverlay(self.modelLocator.modelTransform.gameObject);
                 overlay.duration = VoidHeartCooldownDebuffDuration;
                 overlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
