@@ -1,25 +1,28 @@
 ﻿using EntityStates.NullifierMonster;
 using RoR2;
 using System;
-using EntityStates;
 using UnityEngine;
 using UnityEngine.Networking;
-using RoR2.Projectile;
 using System.Linq;
 using Aetherium.Utils.Components;
 using System.Collections.Generic;
 
 namespace Aetherium.Items.TierLunar
 {
-    public class VoidheartDeath : NetworkBehaviour
+    /// <summary>
+    /// The Heart of the Void implosion. The server instance deals the damage and handles the revive,
+    /// every client (host included) spawns its own instance for the visuals and the death camera.
+    /// </summary>
+    public class VoidheartDeath : MonoBehaviour
     {
-        public Transform muzzleTransform;
-        public Vector3? portalPosition;
+        public const float ReviveDelay = 2f;
+        public const float LingerDuration = 4f;
+
+        public Vector3 portalPosition;
         public GameObject deathPreExplosionInstance;
         public GameObject intersectionFieldInstance;
 
         public ObjectScaleCurve scaleCurve;
-        public ObjectScaleCurve secondaryScaleCurve;
 
         public ShakeEmitter shakeEmitter;
 
@@ -33,32 +36,43 @@ namespace Aetherium.Items.TierLunar
         public float intendedDuration;
         public float fixedAge;
         public float shrinkDuration;
-        public float ExplosionHappenedAtThisTime;
 
+        public bool isServerInstance;
         public bool hasFiredVoidPortal;
         public bool voidPortalKilledSomething;
+        public bool hasRevived;
 
         public CharacterMaster toReviveMaster;
         public CharacterBody toReviveBody;
+        public float attackerDamage;
+        public TeamIndex attackerTeam;
 
         public BuffDef voidInstabilityDebuff;
 
-public void Init()
-{
-    this.muzzleTransform = base.transform;
-    if(this.muzzleTransform)
-    {
-        this.portalPosition = new Vector3?(this.muzzleTransform.position);
+        public float ExplosionTime => intendedDuration + shrinkDuration;
 
-        var voidPortalBomb = AetheriumPlugin.MainAssets.LoadAsset<GameObject>("VoidheartExplosionSphere");
-
-        if(voidPortalBomb)
+        public void Init()
         {
-            this.deathPreExplosionInstance = UnityEngine.Object.Instantiate(voidPortalBomb, muzzleTransform.position, muzzleTransform.rotation);
+            portalPosition = base.transform.position;
+
+            if(toReviveBody)
+            {
+                attackerDamage = toReviveBody.damage;
+                attackerTeam = toReviveBody.teamComponent ? toReviveBody.teamComponent.teamIndex : TeamIndex.None;
+            }
+
+            SetupVisuals();
+            SetupCamera();
+        }
+
+        private void SetupVisuals()
+        {
+            var voidPortalBomb = AetheriumPlugin.MainAssets.LoadAsset<GameObject>("VoidheartExplosionSphere");
+            if(!voidPortalBomb) return;
+
+            this.deathPreExplosionInstance = UnityEngine.Object.Instantiate(voidPortalBomb, portalPosition, base.transform.rotation);
 
             intersectionFieldInstance = this.deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/VoidheartExplosionIntersectStay").gameObject;
-
-            var renderers = deathPreExplosionInstance.GetComponentsInChildren<Renderer>();
 
             var animationCurve = Aetherium.Utils.Easings.EasingAnimationCurve.EaseToAnimationCurve(Utils.Easings.EasingFunctions.Ease.EaseOutBack);
 
@@ -75,13 +89,17 @@ public void Init()
             scaleParticleSystemDuration.newDuration = intendedDuration;
 
             var scaleForcefield = deathPreExplosionInstance.GetComponentInChildren<ParticleSystemForceField>();
-            scaleForcefield.endRange = deathPreExplosionInstance.transform.localScale.x * 1.25f;
+            if(scaleForcefield)
+            {
+                scaleForcefield.endRange = deathPreExplosionInstance.transform.localScale.x * 1.25f;
+            }
 
-            var lightScale = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/Light").gameObject.AddComponent<LightScaleFromParent>();
+            var lightObject = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/Light").gameObject;
+            lightObject.AddComponent<LightScaleFromParent>();
 
-            var lightIntensityCurve = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/Light").gameObject.AddComponent<LightIntensityCurve>();
+            var lightIntensityCurve = lightObject.AddComponent<LightIntensityCurve>();
             lightIntensityCurve.curve = animationCurve;
-            lightIntensityCurve.light = lightIntensityCurve.gameObject.GetComponent<Light>();
+            lightIntensityCurve.light = lightObject.GetComponent<Light>();
             lightIntensityCurve.maxIntensity = 1000;
             lightIntensityCurve.timeMax = intendedDuration * 0.7f;
 
@@ -98,135 +116,243 @@ public void Init()
 
             fieldMaterial = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere").gameObject.GetComponent<Renderer>().material;
             fieldIntersectionMaterial = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/VoidheartExplosionIntersect").gameObject.GetComponent<Renderer>().material;
-            fieldIntersectionStayMaterial = deathPreExplosionInstance.transform.Find("mdlVoidheartExplosionSphere/VoidheartExplosionIntersectStay").gameObject.GetComponent<Renderer>().material;
+            fieldIntersectionStayMaterial = intersectionFieldInstance.GetComponent<Renderer>().material;
         }
-    }
-}
+
+        private void SetupCamera()
+        {
+            if(!toReviveMaster || Voidheart.VoidImplosionCameraSpinSpeed <= 0) return;
+
+            foreach(var cameraRig in CameraRigController.readOnlyInstancesList)
+            {
+                if(cameraRig && !cameraRig.hasOverride && cameraRig.viewer && cameraRig.viewer.master == toReviveMaster)
+                {
+                    var deathCamera = base.gameObject.AddComponent<VoidheartDeathCamera>();
+                    deathCamera.CameraRig = cameraRig;
+                    deathCamera.Master = toReviveMaster;
+                    deathCamera.DeathPoint = portalPosition;
+                    deathCamera.OrbitRadius = Mathf.Max(15f, voidExplosionRadius * 1.6f);
+                    deathCamera.AngularSpeed = Mathf.PI * Voidheart.VoidImplosionCameraSpinSpeed / Time.fixedDeltaTime;
+                    deathCamera.MaxDuration = ExplosionTime + ReviveDelay + 1f;
+                }
+            }
+        }
 
         public void FixedUpdate()
         {
-            if(this.muzzleTransform)
-            {
-                this.portalPosition = new Vector3?(this.muzzleTransform.position);
-            }
             this.fixedAge += Time.fixedDeltaTime;
-            if(this.fixedAge >= intendedDuration)
+
+            if(!this.hasFiredVoidPortal)
             {
-                if(!this.hasFiredVoidPortal)
+                if(this.fixedAge < intendedDuration) return;
+
+                if(scaleCurve)
+                {
+                    UnityEngine.Object.Destroy(scaleCurve);
+                    scaleCurve = null;
+                    if(intersectionFieldInstance) intersectionFieldInstance.transform.parent = null;
+                }
+
+                var shrinkTime = this.fixedAge - intendedDuration;
+                if(shrinkTime < shrinkDuration)
                 {
                     if(deathPreExplosionInstance)
                     {
-                        if(scaleCurve)
-                        {
-                            UnityEngine.Object.Destroy(scaleCurve);
-                            intersectionFieldInstance.transform.parent = null;
-                        }
-
-                        var shrinkTime = this.fixedAge - intendedDuration;
                         var shrinkSlide = Mathf.Clamp01(shrinkTime / shrinkDuration);
-
-                        if(shrinkTime < shrinkDuration)
-                        {
-                            deathPreExplosionInstance.transform.localScale = EasingFunction.EaseInExpo(voidExplosionRadius, 0, shrinkSlide) * Vector3.one;
-                            fieldMaterial.SetFloat("_Boost", EasingFunction.EaseInExpo(7, 20, shrinkSlide));
-                            fieldIntersectionMaterial.SetFloat("_Boost", EasingFunction.EaseInExpo(7, 20, shrinkSlide));
-                        }
-                        else
-                        {
-                            UnityEngine.Object.Destroy(deathPreExplosionInstance);
-
-                            shakeEmitter.StartShake();
-
-                            var fadeTint = intersectionFieldInstance.AddComponent<FadeTintAndDestroy>();
-                            fadeTint.ColorFadeDuration = 1;
-                            this.hasFiredVoidPortal = true;
-                            this.FireVoidPortal();
-                        }
+                        deathPreExplosionInstance.transform.localScale = EasingFunction.EaseInExpo(voidExplosionRadius, 0, shrinkSlide) * Vector3.one;
+                        fieldMaterial.SetFloat("_Boost", EasingFunction.EaseInExpo(7, 20, shrinkSlide));
+                        fieldIntersectionMaterial.SetFloat("_Boost", EasingFunction.EaseInExpo(7, 20, shrinkSlide));
                     }
-                    if(NetworkServer.active && this.hasFiredVoidPortal)
-                    {
-                        if(voidPortalKilledSomething)
-                        {
-                            toReviveMaster.Invoke("RespawnExtraLife", 2f);
-                            toReviveMaster.Invoke("PlayExtraLifeSFX", 1f);
-                            toReviveMaster.preventRespawnUntilNextStageServer = false;
-                        }
-                        else
-                        {
-                            toReviveMaster.preventGameOver = false;
-                            if(toReviveMaster.destroyOnBodyDeath)
-                            {
-                                UnityEngine.Object.Destroy(toReviveMaster, 1);
-                            }
-                        }
-                    }
-
                     return;
                 }
-                if(NetworkServer.active && this.fixedAge >= intendedDuration + shrinkDuration + 4f)
-                {
-                    if(voidPortalKilledSomething)
-                    {
-                        var inventory = toReviveMaster.inventory;
-                        var bearCount = inventory.GetItemCountPermanent(RoR2Content.Items.ExtraLifeConsumed);
-                        if(bearCount > 0)
-                        {
-                            inventory.RemoveItemPermanent(RoR2Content.Items.ExtraLifeConsumed, 1);
-                        }
 
-                        var bodyRevived = toReviveMaster.GetBody();
-                        bodyRevived.AddTimedBuffAuthority(voidInstabilityDebuff.buffIndex, voidHeartCooldownDuration);
-                    }
-                    UnityEngine.Object.Destroy(base.gameObject);
+                this.hasFiredVoidPortal = true;
+
+                if(deathPreExplosionInstance) UnityEngine.Object.Destroy(deathPreExplosionInstance);
+                if(shakeEmitter) shakeEmitter.StartShake();
+                if(intersectionFieldInstance)
+                {
+                    var fadeTint = intersectionFieldInstance.AddComponent<FadeTintAndDestroy>();
+                    fadeTint.ColorFadeDuration = 1;
                 }
+
+                if(isServerInstance && NetworkServer.active)
+                {
+                    this.FireVoidPortal();
+                    OnImplosionResolvedServer();
+                }
+                return;
+            }
+
+            if(isServerInstance && NetworkServer.active && voidPortalKilledSomething && !hasRevived && this.fixedAge >= ExplosionTime + ReviveDelay)
+            {
+                hasRevived = true;
+                ReviveServer();
+            }
+
+            if(this.fixedAge >= ExplosionTime + LingerDuration)
+            {
+                UnityEngine.Object.Destroy(base.gameObject);
+            }
+        }
+
+        private void OnImplosionResolvedServer()
+        {
+            if(!toReviveMaster) return;
+
+            if(voidPortalKilledSomething)
+            {
+                toReviveMaster.preventRespawnUntilNextStageServer = false;
+                toReviveMaster.Invoke("PlayExtraLifeSFX", ReviveDelay * 0.5f);
+            }
+            else
+            {
+                toReviveMaster.preventGameOver = false;
+                if(toReviveMaster.destroyOnBodyDeath)
+                {
+                    UnityEngine.Object.Destroy(toReviveMaster.gameObject, 1f);
+                }
+            }
+        }
+
+        private void ReviveServer()
+        {
+            if(!toReviveMaster) return;
+
+            toReviveMaster.RespawnExtraLife();
+
+            // Apply the cooldown the moment the new body exists, so it can't trigger again right after reviving.
+            var bodyRevived = toReviveMaster.GetBody();
+            if(bodyRevived && voidInstabilityDebuff)
+            {
+                bodyRevived.AddTimedBuff(voidInstabilityDebuff, voidHeartCooldownDuration);
             }
         }
 
         private void FireVoidPortal()
         {
+            Collider[] array = Physics.OverlapSphere(portalPosition, voidExplosionRadius, LayerIndex.entityPrecise.mask);
 
-            ExplosionHappenedAtThisTime = Time.time;
+            HashSet<CharacterBody> distinctBodies = new HashSet<CharacterBody>();
 
-            if(NetworkServer.active && portalPosition != null)
+            foreach (var collider in array)
             {
-                Collider[] array = Physics.OverlapSphere(portalPosition.Value, voidExplosionRadius, LayerIndex.entityPrecise.mask);
+                CharacterBody body = Util.HurtBoxColliderToBody(collider);
+                if(body && body != toReviveBody) { distinctBodies.Add(body); }
+            }
 
-                HashSet<CharacterBody> distinctBodies = new HashSet<CharacterBody>();
+            foreach (CharacterBody characterBody2 in distinctBodies)
+            {
+                var healthComponent = characterBody2.healthComponent;
+                if(!healthComponent || !healthComponent.alive) continue;
+                if(!FriendlyFireManager.ShouldSplashHitProceed(healthComponent, attackerTeam)) continue;
 
-                foreach (var collider in array)
+                DamageInfo damageInfo = new DamageInfo();
+                if(toReviveBody) { damageInfo.attacker = toReviveBody.gameObject; }
+                damageInfo.crit = false;
+                damageInfo.damage = attackerDamage * voidHeartImplosionDamageMultiplier;
+                damageInfo.force = Vector3.zero;
+                damageInfo.inflictor = base.gameObject;
+                damageInfo.position = characterBody2.corePosition;
+                damageInfo.procCoefficient = 1f;
+                damageInfo.damageColorIndex = DamageColorIndex.Default;
+                damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection | DamageType.BypassArmor;
+                healthComponent.TakeDamage(damageInfo);
+                if(!healthComponent.alive && healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }
+            }
+
+            if(DeathState.voidDeathEffect)
+            {
+                EffectManager.SpawnEffect(DeathState.voidDeathEffect, new EffectData
                 {
-                    CharacterBody body = Util.HurtBoxColliderToBody(collider);
-                    if(body) { distinctBodies.Add(body); }
-                }
-
-                foreach (CharacterBody characterBody2 in distinctBodies)
-                {
-                    if(characterBody2 && characterBody2.healthComponent)
-                    {
-                        DamageInfo damageInfo = new DamageInfo();
-                        if(toReviveBody) { damageInfo.attacker = toReviveBody.gameObject; }
-                        damageInfo.crit = false;
-                        damageInfo.damage = toReviveBody.damage * voidHeartImplosionDamageMultiplier;
-                        damageInfo.force = Vector3.zero;
-                        damageInfo.inflictor = base.gameObject;
-                        damageInfo.position = characterBody2.corePosition;
-                        damageInfo.procCoefficient = 1f;
-                        damageInfo.damageColorIndex = DamageColorIndex.Default;
-                        damageInfo.damageType = DamageType.VoidDeath | DamageType.BypassOneShotProtection | DamageType.BypassArmor;
-                        characterBody2.healthComponent.TakeDamage(damageInfo);
-                        if(!characterBody2.healthComponent.alive && characterBody2.healthComponent.killingDamageType.damageType.HasFlag(DamageType.VoidDeath)) { voidPortalKilledSomething = true; }
-
-                    }
-                }
-                if(DeathState.voidDeathEffect)
-                {
-                    EffectManager.SpawnEffect(DeathState.voidDeathEffect, new EffectData
-                    {
-                        origin = base.transform.position,
-                        scale = voidExplosionRadius
-                    }, true);
-                }
+                    origin = portalPosition,
+                    scale = voidExplosionRadius
+                }, true);
             }
         }
+    }
+
+    /// <summary>
+    /// Client-side orbit camera around the implosion, applied only to the camera of the player who died.
+    /// </summary>
+    public class VoidheartDeathCamera : MonoBehaviour, ICameraStateProvider
+    {
+        public CameraRigController CameraRig;
+        public CharacterMaster Master;
+        public Vector3 DeathPoint;
+        public float OrbitRadius;
+        public float AngularSpeed;
+        public float MaxDuration;
+
+        private float age;
+        private float startAngle;
+        private bool released;
+
+        public void Start()
+        {
+            if(!CameraRig)
+            {
+                Release();
+                return;
+            }
+
+            var offset = CameraRig.transform.position - DeathPoint;
+            startAngle = Mathf.Atan2(offset.x, offset.z);
+            CameraRig.SetOverrideCam(this, 1f);
+        }
+
+        public void Update()
+        {
+            if(released) return;
+            age += Time.deltaTime;
+
+            var body = Master ? Master.GetBody() : null;
+            bool revived = body && body.healthComponent && body.healthComponent.alive;
+
+            if(!CameraRig || !Master || revived || age >= MaxDuration)
+            {
+                Release();
+            }
+        }
+
+        public void OnDestroy()
+        {
+            Release();
+        }
+
+        private void Release()
+        {
+            if(released) return;
+            released = true;
+
+            if(CameraRig && CameraRig.IsOverrideCam(this))
+            {
+                CameraRig.SetOverrideCam(null, 1f);
+            }
+        }
+
+        public void GetCameraState(CameraRigController cameraRigController, ref CameraState cameraState)
+        {
+            float angle = startAngle + AngularSpeed * age;
+            var direction = new Vector3(Mathf.Sin(angle), 0.5f, Mathf.Cos(angle)).normalized;
+            float distance = OrbitRadius * 1.118f; // keeps the same height-to-radius ratio as the old camera (r, r/2)
+
+            // Don't put the camera inside walls.
+            if(Physics.SphereCast(DeathPoint, 0.5f, direction, out var hit, distance, LayerIndex.world.mask, QueryTriggerInteraction.Ignore))
+            {
+                distance = Mathf.Max(hit.distance - 0.5f, 1f);
+            }
+
+            var position = DeathPoint + direction * distance;
+            cameraState.position = position;
+            cameraState.rotation = Util.QuaternionSafeLookRotation(DeathPoint - position);
+            cameraState.fov = 90f;
+        }
+
+        public bool IsUserLookAllowed(CameraRigController cameraRigController) => false;
+
+        public bool IsUserControlAllowed(CameraRigController cameraRigController) => false;
+
+        public bool IsHudAllowed(CameraRigController cameraRigController) => false;
     }
 }
