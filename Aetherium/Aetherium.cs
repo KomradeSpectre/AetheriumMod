@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+#undef DEBUG
 #undef DEBUGMULTIPLAYER
 #undef DEBUGMATERIALS
 #undef DEBUGHELPERS
@@ -37,7 +37,7 @@ namespace Aetherium
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.9.0";
+        public const string ModVer = "0.9.1";
 
         public static AetheriumPlugin Instance;
 
@@ -46,6 +46,11 @@ namespace Aetherium
         internal static BepInEx.Configuration.ConfigFile MainConfig;
 
         public static AssetBundle MainAssets;
+
+        /// <summary>
+        /// Elite assets from Komrade's old Ares submod. Built with an older Unity version, so its materials get their shaders swapped to MainAssets' copies on load.
+        /// </summary>
+        public static AssetBundle AresAssets;
 
         public static Dictionary<string, string> ShaderLookup = new Dictionary<string, string>()
         {
@@ -79,6 +84,11 @@ namespace Aetherium
         public static Dictionary<InteractableBase, bool> InteractableStatusDictionary = new Dictionary<InteractableBase, bool>();
         public static Dictionary<SurvivorBase, bool> SurvivorStatusDictionary = new Dictionary<SurvivorBase, bool>();
 
+        /// <summary>
+        /// Master switch for content marked IsUnfinished. Each piece still has its own enable toggle on top of this.
+        /// </summary>
+        public static BepInEx.Configuration.ConfigEntry<bool> EnableUnfinishedContent;
+
         //Debug Stuff
         public static List<Material> SwappedMaterials = new List<Material>();
 
@@ -102,6 +112,8 @@ namespace Aetherium
             ModLogger = this.Logger;
             MainConfig = Config;
 
+            EnableUnfinishedContent = Config.Bind<bool>("General", "Enable Unfinished Content", false, "Should unfinished content (work in progress items, equipment and elites) be able to load? Each piece can still be turned off individually with its own enable option.");
+
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.aetherium_assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
@@ -109,6 +121,13 @@ namespace Aetherium
 
             //Material shader autoconversion
             ShaderConversion(MainAssets);
+
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aetherium.ares_assets"))
+            {
+                AresAssets = AssetBundle.LoadFromStream(stream);
+            }
+
+            RemapShadersToBundle(AresAssets, MainAssets);
 
             GenerateExpansionDef();
 
@@ -320,7 +339,7 @@ namespace Aetherium
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
         {
-            var enabled = Config.Bind<bool>("Artifact: " + artifact.ArtifactName, "Enable Artifact?", true, "Should this artifact appear for selection?").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Artifact: " + artifact.ArtifactName), "Enable Artifact?", true, "Should this artifact appear for selection?").Value;
 
             ArtifactStatusDictionary.Add(artifact, enabled);
 
@@ -333,7 +352,7 @@ namespace Aetherium
 
         public bool ValidateBuff(BuffBase buff, List<BuffBase> buffList)
         {
-            var enabled = Config.Bind<bool>("Buff: " + buff.BuffName, "Enable Buff?", true, "Should this buff be registered for use in the game?").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Buff: " + buff.BuffName), "Enable Buff?", true, "Should this buff be registered for use in the game?").Value;
 
             BuffStatusDictionary.Add(buff, enabled);
 
@@ -344,12 +363,41 @@ namespace Aetherium
             return enabled;
         }
 
+        private static string UnfinishedNote(bool isUnfinished)
+        {
+            return isUnfinished ? " (Unfinished content: only loads if \"Enable Unfinished Content\" in the General section is also turned on.)" : "";
+        }
+
+        /// <summary>
+        /// The "Enable Item?" toggle of an item's config section. Binding the same entry again returns the existing one.
+        /// </summary>
+        public static BepInEx.Configuration.ConfigEntry<bool> BindItemEnabledEntry(string configSection, bool isUnfinished)
+        {
+            return MainConfig.Bind<bool>(ConfigExtension.SanitizeConfigName(configSection), "Enable Item?", true, "Should this item appear in runs?" + UnfinishedNote(isUnfinished));
+        }
+
+        private static bool ApplyUnfinishedLock(bool enabled, bool isUnfinished, string contentName)
+        {
+            if(enabled && isUnfinished && !EnableUnfinishedContent.Value)
+            {
+                ModLogger.LogInfo($"{contentName} is unfinished content and \"Enable Unfinished Content\" is off, skipping it.");
+                return false;
+            }
+            return enabled;
+        }
+
         public bool ValidateItem(ItemBase item, List<ItemBase> itemList)
         {
-            var enabled = Config.Bind<bool>("Item: " + item.ItemName, "Enable Item?", true, "Should this item appear in runs?").Value;
-            var aiBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
-            var printerBlacklist = Config.Bind<bool>("Item: " + item.ItemName, "Blacklist Item from Printers?", false, "Should the printers be able to print this item?").Value;
-            var requireUnlock = Config.Bind<bool>("Item: " + item.ItemName, "Require Unlock", true, "Should we require this item to be unlocked before it appears in runs? (Will only affect items with associated unlockables.)").Value;
+            var enabled = BindItemEnabledEntry(item.ConfigSection, item.IsUnfinished).Value;
+            enabled = ApplyUnfinishedLock(enabled, item.IsUnfinished, item.ItemName);
+            if(enabled && item.IsReplacedByUnfinishedRework)
+            {
+                ModLogger.LogInfo($"{item.ItemName} is being replaced by its unfinished rework, skipping the original.");
+                enabled = false;
+            }
+            var aiBlacklist = Config.Bind<bool>(ConfigExtension.SanitizeConfigName(item.ConfigSection), "Blacklist Item from AI Use?", false, "Should the AI not be able to obtain this item?").Value;
+            var printerBlacklist = Config.Bind<bool>(ConfigExtension.SanitizeConfigName(item.ConfigSection), "Blacklist Item from Printers?", false, "Should the printers be able to print this item?").Value;
+            var requireUnlock = Config.Bind<bool>(ConfigExtension.SanitizeConfigName(item.ConfigSection), "Require Unlock", true, "Should we require this item to be unlocked before it appears in runs? (Will only affect items with associated unlockables.)").Value;
 
             ItemStatusDictionary.Add(item, enabled);
 
@@ -372,7 +420,8 @@ namespace Aetherium
 
         public bool ValidateEquipment(EquipmentBase equipment, List<EquipmentBase> equipmentList)
         {
-            var enabled = Config.Bind<bool>("Equipment: " + equipment.EquipmentName, "Enable Equipment?", true, "Should this equipment appear in runs?").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Equipment: " + equipment.EquipmentName), "Enable Equipment?", true, "Should this equipment appear in runs?" + UnfinishedNote(equipment.IsUnfinished)).Value;
+            enabled = ApplyUnfinishedLock(enabled, equipment.IsUnfinished, equipment.EquipmentName);
 
             EquipmentStatusDictionary.Add(equipment, enabled);
 
@@ -386,7 +435,8 @@ namespace Aetherium
 
         public bool ValidateEliteEquipment(EliteEquipmentBase eliteEquipment, List<EliteEquipmentBase> eliteEquipmentList)
         {
-            var enabled = Config.Bind<bool>("Equipment: " + eliteEquipment.EliteEquipmentName, "Enable Elite Equipment?", true, "Should this elite equipment appear in runs? If disabled, the associated elite will not appear in runs either.").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Equipment: " + eliteEquipment.EliteEquipmentName), "Enable Elite Equipment?", true, "Should this elite equipment appear in runs? If disabled, the associated elite will not appear in runs either." + UnfinishedNote(eliteEquipment.IsUnfinished)).Value;
+            enabled = ApplyUnfinishedLock(enabled, eliteEquipment.IsUnfinished, eliteEquipment.EliteEquipmentName);
 
             EliteEquipmentStatusDictionary.Add(eliteEquipment, enabled);
 
@@ -400,7 +450,7 @@ namespace Aetherium
 
         public bool ValidateInteractable(InteractableBase interactable, List<InteractableBase> interactableList)
         {
-            var enabled = Config.Bind<bool>("Interactable: " + interactable.InteractableName, "Enable Interactable?", true, "Should this interactable appear in runs?").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Interactable: " + interactable.InteractableName), "Enable Interactable?", true, "Should this interactable appear in runs?").Value;
 
             InteractableStatusDictionary.Add(interactable, enabled);
 
@@ -414,7 +464,7 @@ namespace Aetherium
 
         public bool ValidateSurvivor(SurvivorBase survivor, List<SurvivorBase> survivorList)
         {
-            var enabled = Config.Bind<bool>("Survivor: " + survivor.SurvivorName, "Enable Survivor?", true, "Should this survivor be enabled?").Value;
+            var enabled = Config.Bind<bool>(ConfigExtension.SanitizeConfigName("Survivor: " + survivor.SurvivorName), "Enable Survivor?", true, "Should this survivor be enabled?").Value;
 
             SurvivorStatusDictionary.Add(survivor, enabled);
 
@@ -439,6 +489,39 @@ namespace Aetherium
                     SwappedMaterials.Add(material);
                 }
             }
+        }
+
+        /// <summary>
+        /// Swaps the shaders of every material in the target bundle for the same-named shader from the source bundle, where one exists.
+        /// </summary>
+        public static void RemapShadersToBundle(AssetBundle target, AssetBundle source)
+        {
+            if(!target || !source) { return; }
+
+            var sourceShaders = new Dictionary<string, Shader>();
+            foreach(var shader in source.LoadAllAssets<Shader>().Concat(source.LoadAllAssets<Material>().Select(material => material.shader)))
+            {
+                if(shader && !sourceShaders.ContainsKey(shader.name))
+                {
+                    sourceShaders.Add(shader.name, shader);
+                }
+            }
+
+            var remapped = 0;
+            foreach(var material in target.LoadAllAssets<Material>())
+            {
+                if(material.shader && sourceShaders.TryGetValue(material.shader.name, out var replacementShader))
+                {
+                    material.shader = replacementShader;
+                    remapped++;
+                }
+                else
+                {
+                    ModLogger.LogWarning($"No replacement shader found for material {material.name} ({(material.shader ? material.shader.name : "no shader")}), it may render incorrectly.");
+                }
+            }
+
+            ModLogger.LogDebug($"Remapped shaders on {remapped} material(s) from {target.name}.");
         }
 
         public static void AttachControllerFinderToObjects(AssetBundle assetbundle)

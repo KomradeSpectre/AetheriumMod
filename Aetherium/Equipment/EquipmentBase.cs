@@ -45,6 +45,11 @@ namespace Aetherium.Equipment
 
         public virtual bool IsLunar { get; } = false;
 
+        /// <summary>
+        /// Unfinished content only loads when "Enable Unfinished Content" is turned on in the General config section.
+        /// </summary>
+        public virtual bool IsUnfinished => false;
+
         public EquipmentDef EquipmentDef;
 
         public abstract void Init(ConfigFile config);

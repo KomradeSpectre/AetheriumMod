@@ -51,8 +51,9 @@ namespace Aetherium.Utils
                 return false;
             }
 
+            // Not every body has an inventory.
             var body = hurtbox.healthComponent.body;
-            if(body.inventory.GetItemCount(item) > 0)
+            if(body.inventory && body.inventory.GetItemCount(item) > 0)
             {
                 return true;
             }

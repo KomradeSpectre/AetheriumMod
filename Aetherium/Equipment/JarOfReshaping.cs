@@ -155,7 +155,7 @@ namespace Aetherium.Equipment
 
             var controller = JarProjectile.GetComponent<RoR2.Projectile.ProjectileController>();
             controller.procCoefficient = 1;
-            controller.ghostPrefab = model;
+            controller.SetGhostPrefab(model);
 
             JarProjectile.GetComponent<RoR2.TeamFilter>().teamIndex = TeamIndex.Neutral;
 
@@ -527,7 +527,8 @@ namespace Aetherium.Equipment
                     }
                 }
 
-                ParticleSystem = gameObject.transform.Find("_mdlJarOfReshaping/Effect/SuctionOpening/SuctionEffect").gameObject.GetComponent<ParticleSystem>();
+                var suctionEffect = gameObject.transform.Find("_mdlJarOfReshaping/Effect/SuctionOpening/SuctionEffect");
+                if(suctionEffect) ParticleSystem = suctionEffect.GetComponent<ParticleSystem>();
             }
 
             public void FixedUpdate()
@@ -600,6 +601,7 @@ namespace Aetherium.Equipment
                 if(!Animator)
                 {
                     Destroy(gameObject);
+                    return;
                 }
                 Stopwatch += Time.deltaTime;
                 if(Stopwatch >= Duration && (Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbAppear") || Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbIdle")) && !Fading)
@@ -614,7 +616,7 @@ namespace Aetherium.Equipment
             }
         }
 
-        public class JarBulletTracker : NetworkBehaviour
+        public class JarBulletTracker : MonoBehaviour
         {
             public List<JarBullet> jarBullets = new List<JarBullet>();
             public RoR2.CharacterBody body;
@@ -650,13 +652,18 @@ namespace Aetherium.Equipment
                         IsSuckingProjectiles = true;
                     }
                     SuckTime -= Time.fixedDeltaTime;
+
+                    // Clients only track SuckTime for visuals, the server owns the projectiles.
                     List<ProjectileController> bullets = new List<ProjectileController>();
-                    new RoR2.SphereSearch
+                    if(NetworkServer.active)
                     {
-                        radius = BaseRadiusGranted,
-                        mask = RoR2.LayerIndex.projectile.mask,
-                        origin = TargetTransform ? TargetTransform.position : body.corePosition
-                    }.RefreshCandidates().FilterCandidatesByProjectileControllers().GetProjectileControllers(bullets);
+                        new RoR2.SphereSearch
+                        {
+                            radius = BaseRadiusGranted,
+                            mask = RoR2.LayerIndex.projectile.mask,
+                            origin = TargetTransform ? TargetTransform.position : body.corePosition
+                        }.RefreshCandidates().FilterCandidatesByProjectileControllers().GetProjectileControllers(bullets);
+                    }
                     if(bullets.Count > 0)
                     {
                         foreach (ProjectileController controller in bullets)
@@ -867,6 +874,14 @@ namespace Aetherium.Equipment
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
 
+                        var bulletTracker = playerBody.GetComponent<JarBulletTracker>();
+                        if(bulletTracker && ChargeState)
+                        {
+                            bulletTracker.SuckTime = Duration;
+                            bulletTracker.IsSuckingProjectiles = true;
+                            bulletTracker.ClientBullets = 0;
+                        }
+
                         if(target)
                         {
                             if(ChargeState)
@@ -940,6 +955,10 @@ namespace Aetherium.Equipment
                     {
                         var eqp = playerBody.equipmentSlot.FindActiveEquipmentDisplay();
                         target = eqp ? eqp.gameObject : playerGameObject;
+
+                        var bulletTracker = playerBody.GetComponent<JarBulletTracker>();
+                        var absorbedCount = bulletTracker ? ++bulletTracker.ClientBullets : 1;
+                        RoR2.Util.PlayAttackSpeedSound(EntityStates.Engi.EngiWeapon.ChargeGrenades.chargeStockSoundString, playerGameObject, absorbedCount);
                     }
                 }
                 else

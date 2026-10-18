@@ -338,6 +338,32 @@ namespace Aetherium.Interactables
             }
         }
 
+        /// <summary>
+        /// Brazier buffs are networked by BuffCatalog index rather than by position in CuratedBuffList,
+        /// because every player builds CuratedBuffList from their own config and the positions can differ between machines.
+        /// </summary>
+        public static bool TryGetCuratedType(int buffIndex, out BrazierBuffCuratedType curatedType)
+        {
+            curatedType = default;
+            if(buffIndex < 0) { return false; }
+
+            var buffDef = BuffCatalog.GetBuffDef((BuffIndex)buffIndex);
+            if(!buffDef) { return false; }
+
+            foreach(var entry in CuratedBuffList)
+            {
+                if(entry.BuffDef == buffDef)
+                {
+                    curatedType = entry;
+                    return true;
+                }
+            }
+
+            // The host has it enabled but this player's config doesn't, still show the right buff.
+            curatedType = new BrazierBuffCuratedType(buffDef.name, buffDef, buffDef.buffColor, 1, buffDef.isDebuff);
+            return true;
+        }
+
         public void AddCuratedBuffType(string displayName, BuffDef buffDef, Color32 color, float costMultiplier, bool isDebuff)
         {
             CharacterBody body = new CharacterBody();
@@ -375,17 +401,19 @@ namespace Aetherium.Interactables
                 {
                     if(buff.iconSprite == null || String.IsNullOrWhiteSpace(buff.name)) { continue; }
 
+                    // Seeded from the buff name so every player rolls the same color and cost.
+                    var random = new System.Random(StableHash(buff.name));
                     var buffColor = buff.buffColor;
 
                     if(buff.buffColor == Color.white)
                     {
-                        var r = UnityEngine.Random.Range(40, 192);
-                        var g = UnityEngine.Random.Range(40, 192);
-                        var b = UnityEngine.Random.Range(40, 192);
+                        var r = random.Next(40, 192);
+                        var g = random.Next(40, 192);
+                        var b = random.Next(40, 192);
                         buffColor = new Color32((byte)r, (byte)g, (byte)b, 255);
                     }
 
-                    AddCuratedBuffType(buff.name, buff, buffColor, UnityEngine.Random.Range(1, 4), buff.isDebuff);
+                    AddCuratedBuffType(buff.name, buff, buffColor, random.Next(1, 4), buff.isDebuff);
                 }
 
                 return;
@@ -417,13 +445,25 @@ namespace Aetherium.Interactables
 
         }
 
+        private static int StableHash(string text)
+        {
+            unchecked
+            {
+                int hash = (int)2166136261;
+                foreach(char character in text)
+                {
+                    hash = (hash ^ character) * 16777619;
+                }
+                return hash;
+            }
+        }
+
         public abstract class BuffBrazierOrbVisualBase : NetworkBehaviour
         {
-            public void ColorOrb(int chosenBuffIndex)
+            public void ColorOrb(int buffIndex)
             {
-                if(!(chosenBuffIndex >= 0 && chosenBuffIndex < CuratedBuffList.Count)) { return; }
+                if(!TryGetCuratedType(buffIndex, out var chosenBuff)) { return; }
 
-                var chosenBuff = CuratedBuffList[chosenBuffIndex];
                 if(chosenBuff.BuffDef)
                 {
                     var light = gameObject.transform.Find("Fire Light").GetComponent<Light>();
@@ -477,16 +517,29 @@ namespace Aetherium.Interactables
 
     public class BuffBrazierOrbitVisualAndNetworkController : BuffBrazierOrbVisualBase
     {
-        [SyncVar(hook = nameof(OnOwnerChanged))]
+        // Set before NetworkServer.Spawn and never changed afterwards, so clients receive them in the spawn payload.
+        // UNet doesn't call SyncVar hooks for the spawn payload, so registration happens in Start instead (once, on every machine).
+        [SyncVar]
         public GameObject Owner;
 
-        [SyncVar(hook = nameof(OnBuffIndexChanged))]
-        public int ChosenBuffIndex;
+        /// <summary>
+        /// BuffCatalog index of the flame's buff.
+        /// </summary>
+        [SyncVar]
+        public int ChosenBuffIndex = -1;
 
-        public void OnOwnerChanged(GameObject newOwner)
+        private bool _registered;
+
+        public void Start()
         {
-            Owner = newOwner;
-            if(!Owner) return;
+            ColorOrb(ChosenBuffIndex);
+            RegisterWithOwner();
+        }
+
+        private void RegisterWithOwner()
+        {
+            if(_registered || !Owner || !TryGetCuratedType(ChosenBuffIndex, out var curatedType)) return;
+            _registered = true;
 
             var body = Owner.GetComponent<CharacterBody>();
             var teleporter = Owner.GetComponent<TeleporterInteraction>();
@@ -506,16 +559,9 @@ namespace Aetherium.Interactables
 
             if(flameController)
             {
-                flameController.FlameOrbs.Add(new BrazierBuffFlameOrbType(CuratedBuffList[ChosenBuffIndex], gameObject));
+                flameController.FlameOrbs.Add(new BrazierBuffFlameOrbType(curatedType, gameObject));
             }
         }
-
-        public void OnBuffIndexChanged(int newIndex)
-        {
-            ChosenBuffIndex = newIndex;
-            ColorOrb(ChosenBuffIndex);
-        }
-
     }
 
     public class BuffBrazierFlameOrbController : NetworkBehaviour
@@ -612,7 +658,7 @@ namespace Aetherium.Interactables
                 var chosenOrb = FlameOrbs.Last();
                 var orb = new Effect.BuffBrazierFlameOrb()
                 {
-                    ChosenBuffIndex = CuratedBuffList.IndexOf(chosenOrb.CuratedType),
+                    ChosenBuffIndex = (int)chosenOrb.CuratedType.BuffDef.buffIndex,
                     Target = teleporterObject,
                     origin = chosenOrb.FlameOrbObject.transform.position,
                 };
@@ -774,8 +820,11 @@ namespace Aetherium.Interactables
         public PurchaseInteraction PurchaseInteraction;
         public EntityStateMachine BuffBrazierStateMachine;
 
+        /// <summary>
+        /// BuffCatalog index of the chosen buff, see BuffBrazier.TryGetCuratedType.
+        /// </summary>
         [SyncVar]
-        public int ChosenBuffIndex;
+        public int ChosenBuffIndex = -1;
 
         [SyncVar]
         public int BaseCostDetermination;
@@ -788,27 +837,31 @@ namespace Aetherium.Interactables
         public GameObject BrazierFireIcon;
         public GameObject BrazierLight;
 
+        public void Awake()
+        {
+            // Chosen before NetworkServer.Spawn so clients get the buff in the spawn payload.
+            if(NetworkServer.active && Run.instance && CuratedBuffList.Count > 0)
+            {
+                var chosen = CuratedBuffList[Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count)];
+                ChosenBuffIndex = (int)chosen.BuffDef.buffIndex;
+                BaseCostDetermination = (int)(PurchaseInteraction.cost * chosen.CostModifier);
+            }
+        }
 
         public void Start()
         {
-            if(NetworkServer.active && Run.instance)
+            if(NetworkServer.active)
             {
-                ChosenBuffIndex = Run.instance.stageRng.RangeInt(0, CuratedBuffList.Count);
                 PurchaseInteraction.SetAvailableTrue();
             }
 
             PurchaseInteraction.onPurchase.AddListener(BuffPurchaseAttempt);
             BuffBrazierStateMachine = EntityStateMachine.FindByCustomName(gameObject, "Body");
-
-            ConstructFlameChoice();
-            BaseCostDetermination = (int)(PurchaseInteraction.cost * ChosenBuffBrazierBuff.CostModifier);
-            SetCost();
-
         }
 
         public void ConstructFlameChoice()
         {
-            ChosenBuffBrazierBuff = CuratedBuffList[ChosenBuffIndex];
+            if(!TryGetCuratedType(ChosenBuffIndex, out ChosenBuffBrazierBuff)) { return; }
 
             BrazierFire = gameObject.transform.Find("Fire").gameObject;
 

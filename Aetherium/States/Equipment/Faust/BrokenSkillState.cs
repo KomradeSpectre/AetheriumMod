@@ -22,7 +22,7 @@ namespace Aetherium.States.Equipment.Faust
             if(base.characterBody)
             {
                 EffectManager.SimpleMuzzleFlash(
-                    Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"),
+                    LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"),
                     base.gameObject,
                     "Head",
                     false

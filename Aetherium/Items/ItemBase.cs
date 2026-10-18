@@ -57,6 +57,21 @@ namespace Aetherium.Items
 
         public virtual bool RequireUnlock { get; set; } = true;
 
+        /// <summary>
+        /// Unfinished content only loads when "Enable Unfinished Content" is turned on in the General config section.
+        /// </summary>
+        public virtual bool IsUnfinished => false;
+
+        /// <summary>
+        /// Config section holding this item's settings.
+        /// </summary>
+        public virtual string ConfigSection => "Item: " + ItemName;
+
+        /// <summary>
+        /// True when an unfinished rework of this item is loading in its place.
+        /// </summary>
+        public virtual bool IsReplacedByUnfinishedRework => false;
+
         public abstract void Init(ConfigFile config);
 
         protected void CreateLang()

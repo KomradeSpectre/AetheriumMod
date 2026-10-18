@@ -1,0 +1,108 @@
+ManifestFileVersion: 0
+CRC: 1429411352
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 39568195535840541b5ef5650163f76b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 10def29c998ab6d8bfcfd7beeec5d09d
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 20
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- Assets/Textures/Materials/Elite Equipment/ApollosBrilliance/ApollosBrillianceOrbInner.mat
+- Assets/Textures/Materials/Elite Equipment/TheirReminder/TheirReminder.mat
+- Assets/Textures/Material Textures/index.png
+- Assets/Shaders/3D Shaders/LayeredParallax.shader
+- Assets/Textures/Materials/Elite Equipment/HisVengeance/HisVengeanceOuter.mat
+- Assets/Textures/Icons/Elite Equipment/ApollosBrillianceIcon.png
+- Assets/Textures/Material Textures/EliteRingLightningIcon.png
+- Assets/Models/Raw Models/HisVengeanceCluster.blend
+- Assets/Models/Raw Models/EliteOrb.blend
+- Assets/Textures/Materials/Elite Equipment/EliteOrbHolderMain.mat
+- Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusion.png
+- Assets/Textures/Materials/Elite Equipment/TheirReminder/TheirReminderRingIcon.mat
+- Assets/Textures/Icons/Elite Equipment/HisVengeanceIcon.png
+- Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureOcclusionTransparent.png
+- Assets/Shaders/3D Shaders/FireDistortion.shader
+- Assets/Textures/Material Textures/1.png
+- Assets/Textures/Material Textures/PearlescentPinkRamp.png
+- Assets/Textures/Material Textures/6147-bump.jpg
+- Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureWhiteEmission.png
+- Assets/Textures/Material Textures/12148-beams.png
+- Assets/Textures/Material Textures/10089.jpg
+- Assets/Shaders/3D Shaders/ColorRampAnimated.shader
+- Assets/Models/Prefabs/Elite Equipment/ApollosBrilliance/ApollosBrilliance.prefab
+- Assets/Models/Prefabs/Elite Equipment/HisVengeance/HisVengeanceCluster.prefab
+- Assets/Models/Prefabs/Elite Equipment/MoiraesBond/EliteOrb.prefab
+- Assets/Textures/Material Textures/WeirdPurpleRamp.png
+- Assets/Textures/Material Textures/SnowGradient.PNG
+- Assets/Textures/Material Textures/10587.jpg
+- Assets/Shaders/3D Shaders/Iridescent.shader
+- Assets/Textures/Material Textures/11375-bump1.jpg
+- Assets/Textures/Materials/Elite Equipment/HisVengeance/HisVengeanceBody.mat
+- Assets/Models/Prefabs/Elite Equipment/HisVengeance/HisVengeanceProjectile.prefab
+- Assets/Textures/Icons/Buff/LightningStormBuffIcon.png
+- Assets/Textures/Material Textures/PearlescentPurpleRamp.png
+- Assets/Shaders/3D Shaders/Ghost.shader
+- Assets/Textures/Material Textures/BlasterSwordCoreGlassTexure.png
+- Assets/Textures/Icons/Item/AccursedPotionIcon.png
+- Assets/Textures/Icons/Elite Equipment/TheirReminderIcon.png
+- Assets/Models/Raw Models/EliteOrbPlaceholder.blend
+- Assets/Models/Raw Models/HisVengeanceProjectile.blend
+- Assets/Textures/Materials/Elite Equipment/ApollosBrilliance/ApollosBrillianceOrbOuter.mat
+- Assets/Textures/Material Textures/BlueToTransparentRampBlinds.png
+- Assets/Textures/Materials/Elite Equipment/MoiraesBond/MoiraesBondInner.mat
+- Assets/Models/Raw Models/EliteRingHolder.blend
+- Assets/Textures/Material Textures/CircularNormal.png
+- Assets/Textures/Material Textures/InspiringDroneAfterburnerPlumesTex.png
+- Assets/Textures/Material Textures/BlasterSwordCoreGlassTexureEmission.png
+- Assets/Textures/Material Textures/1678-bump.jpg
+- Assets/Textures/Material Textures/FlameNoiseTexture.png
+- Assets/Textures/Material Textures/UnstableDesignHolderTexture.png
+- Assets/753network/Crystallize/Ramp Gold.png
+- Assets/Textures/Materials/Elite Equipment/MoiraesBond/MoiraesBondOuter.mat
+- Assets/Textures/Materials/Miscellaneous/GlobalPositionShader.mat
+- Assets/Textures/Materials/Elite Equipment/ApollosBrilliance/ApollosBrillianceRingIcon.mat
+- Assets/Textures/Material Textures/BlasterSwordTexture.png
+- Assets/Textures/Materials/Elite Equipment/HisVengeance/HisVengeanceRingIcon.mat
+- Assets/Shaders/2D Shaders/SpriteShaderDistort.shader
+- Assets/Models/Prefabs/Elite Equipment/TheirReminder/TheirReminder.prefab
+- Assets/Textures/Icons/Buff/ApollosBrillianceBuffIcon.png
+- Assets/Textures/Icons/Buff/TheirReminderBuffIcon.png
+- Assets/Textures/Material Textures/BlasterSwordTextureNormal.png
+- Assets/Shaders/3D Shaders/AuraGhostOutline.shader
+- Assets/Textures/Materials/Elite Equipment/MoiraesBond/EliteRingSoulIcon.mat
+- Assets/Textures/Icons/Buff/HisVengeanceBuffIcon.png
+- Assets/Textures/Material Textures/7166-bump.jpg
+- Assets/Textures/Material Textures/11375-bump.jpg
+- Assets/Textures/Material Textures/Black.png
+- Assets/Textures/Material Textures/8bee108.jpg
+- Assets/Models/Prefabs/Elite Equipment/HisVengeance/HisVengeanceDisplay.prefab
+- Assets/Textures/Materials/Elite Equipment/HisVengeance/HisVengeance.mat
+- Assets/Textures/Material Textures/LightningRamp1.png
+- Assets/Textures/Materials/Elite Equipment/ApollosBrilliance/ApollosBrillianceMain.mat
+- Assets/Textures/Materials/Elite Equipment/EliteOrbHolderSub.mat
+Dependencies: []

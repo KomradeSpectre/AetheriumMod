@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using RoR2.Orbs;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Aetherium.Effect
         {
             if(target && target.healthComponent && target.healthComponent.body && target.healthComponent.body.inventory)
             {
-                target.healthComponent.body.inventory.GiveItem(Equipment.Faust.instance.DeactivatedFaustItem);
+                target.healthComponent.body.inventory.GiveItemPermanent(Equipment.Faust.instance.DeactivatedFaustItem);
             }
 
             duration = distanceToTarget / speed;
@@ -44,8 +44,11 @@ namespace Aetherium.Effect
                     var inventory = healthComponent.body.inventory;
                     if(inventory)
                     {
-                        var deactivatedFaustItemCount = inventory.GetItemCount(Equipment.Faust.instance.DeactivatedFaustItem);
-                        inventory.RemoveItem(Equipment.Faust.instance.DeactivatedFaustItem, deactivatedFaustItemCount);
+                        var deactivatedFaustItemCount = inventory.GetItemCountPermanent(Equipment.Faust.instance.DeactivatedFaustItem);
+                        if(deactivatedFaustItemCount > 0)
+                        {
+                            inventory.RemoveItemPermanent(Equipment.Faust.instance.DeactivatedFaustItem, deactivatedFaustItemCount);
+                        }
                     }
 
                     SetStateOnHurt setStateOnHurt = healthComponent.GetComponent<SetStateOnHurt>();
