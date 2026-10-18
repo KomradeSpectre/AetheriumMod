@@ -1,25 +1,25 @@
-﻿using Aetherium.Utils;
+using Aetherium.Utils;
+using Aetherium.Utils.Components;
 using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Projectile;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using static Aetherium.AetheriumPlugin;
+using static Aetherium.Utils.MathHelpers;
 
-namespace Aetherium.Equipment.EliteEquipment
+namespace Aetherium.EliteEquipment
 {
     public class AffixHypercharged : EliteEquipmentBase<AffixHypercharged>
     {
-
-        public ConfigOption<float> DurationOfLightningStormBuff;
-        public ConfigOption<float> LightningStrikeCooldown;
-        public ConfigOption<int> AmountOfLightningStrikesPerBarrage;
-        public ConfigOption<float> CostMultiplierOfElite;
+        public static ConfigOption<float> DurationOfLightningStormBuff;
+        public static ConfigOption<float> LightningStrikeCooldown;
+        public static ConfigOption<int> AmountOfLightningStrikesPerBarrage;
+        public static ConfigOption<float> LightningOnHitDamageCoefficient;
+        public static ConfigOption<float> BonusShieldPercentage;
 
         public override string EliteEquipmentName => "Their Reminder";
 
@@ -27,25 +27,41 @@ namespace Aetherium.Equipment.EliteEquipment
 
         public override string EliteEquipmentPickupDesc => "Become an aspect of the storm.";
 
-        public override string EliteEquipmentFullDescription => "";
+        public override string EliteEquipmentFullDescription => $"Your attacks <style=cIsDamage>call down a lightning strike</style> for <style=cIsDamage>{FloatToPercentageString(LightningOnHitDamageCoefficient)}</style> TOTAL damage. " +
+            $"Gain <style=cIsHealing>{FloatToPercentageString(BonusShieldPercentage)}</style> of your maximum health as <style=cIsHealing>shield</style>. " +
+            $"On use, <style=cIsDamage>call forth a lightning storm</style> around you for <style=cIsUtility>{DurationOfLightningStormBuff}</style> seconds, dropping <style=cIsDamage>{AmountOfLightningStrikesPerBarrage}</style> strikes every <style=cIsUtility>{LightningStrikeCooldown}</style> second(s).";
 
         public override string EliteEquipmentLore => "";
 
-        public override string EliteModifier => "Hypercharged {0}";
+        public override string EliteModifier => "Hypercharged";
 
-        public override GameObject EliteEquipmentModel => new GameObject();
+        public override GameObject EliteEquipmentModel => DisplayModel;
 
-        public override Sprite EliteEquipmentIcon => null;
+        public override Sprite EliteEquipmentIcon => AresAssets.LoadAsset<Sprite>("TheirReminderIcon.png");
 
-        public override Sprite EliteBuffIcon => null;
+        public override Sprite EliteBuffIcon => AresAssets.LoadAsset<Sprite>("TheirReminderBuffIcon.png");
 
-        public override Material EliteMaterial => MainAssets.LoadAsset<Material>("Distortion.mat");
+        public override EliteTier EliteTierDef => EliteTier.T2;
 
-        public override CombatDirector.EliteTierDef[] CanAppearInEliteTiers { get; set; }
+        // Kept darker than Overloading's blue so the two read as different elites.
+        public override Color EliteColor => new Color32(36, 70, 160, 255);
 
-        public BuffDef LightningStormBuff;
+        // The Ares LightningRamp1 is a 1px strip that's white at both ends, which rendered the whole elite white.
+        public override Texture2D EliteRamp => CreateEliteRamp(EliteColor, "texRampAetheriumHypercharged");
+
+        public override float Cooldown => 30f;
+
+        public override EquipmentDef CrownSourceEquipment => RoR2Content.Equipment.AffixBlue;
+
+        public override bool IsUnfinished => true;
+
+        public static BuffDef LightningStormBuff;
 
         public static GameObject HyperchargedProjectile;
+
+        public static GameObject DisplayModel;
+
+        private static readonly Xoroshiro128Plus StormRandom = new Xoroshiro128Plus((ulong)DateTime.Now.Ticks);
 
         public override void Init(ConfigFile config)
         {
@@ -53,33 +69,35 @@ namespace Aetherium.Equipment.EliteEquipment
             CreateLang();
             CreateBuff();
             CreateProjectile();
+            CreateDisplayModel();
             CreateEquipment();
-            CreateEliteTiers();
             CreateElite();
             Hooks();
         }
 
-        public void CreateConfig(ConfigFile config)
+        private void CreateConfig(ConfigFile config)
         {
             DurationOfLightningStormBuff = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Duration of Lightning Storm Buff", 5f, "Duration of the Lightning Storm Buff upon activation of the affix item.");
             LightningStrikeCooldown = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Duration Between Strikes on Lightning Storm Buff", 1f, "Duration between the strikes while Lightning Storm Buff is active.");
             AmountOfLightningStrikesPerBarrage = config.ActiveBind<int>("Elite Equipment: " + EliteEquipmentName, "Amount of Lightning Strikes per Barrage", 16, "How many lightning strikes should be in each strike period of the Lightning Storm Buff?");
-            CostMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Cost Multiplier of Elite", 2.5f, "How many times higher than the base elite cost should the cost of this elite be? (Do not set this to 0, only warning haha.)");
+            LightningOnHitDamageCoefficient = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Lightning Strike on Hit Damage Coefficient", 0.5f, "What percentage of the hit's damage should the on-hit lightning strike deal? (0.5 = 50%)");
+            BonusShieldPercentage = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Bonus Shield Percentage", 0.5f, "What percentage of maximum health should be granted as bonus shield? (0.5 = 50%)");
         }
 
-        public void CreateBuff()
+        private void CreateBuff()
         {
             LightningStormBuff = ScriptableObject.CreateInstance<BuffDef>();
-            LightningStormBuff.name = "Hypercharged Lightning Storm";
-            LightningStormBuff.buffColor = new Color32(255, 255, 255, byte.MaxValue);
+            LightningStormBuff.name = "Aetherium: Hypercharged Lightning Storm";
+            LightningStormBuff.buffColor = EliteColor;
             LightningStormBuff.canStack = false;
+            LightningStormBuff.iconSprite = AresAssets.LoadAsset<Sprite>("LightningStormBuffIcon.png");
 
             ContentAddition.AddBuffDef(LightningStormBuff);
         }
 
-        public void CreateProjectile()
+        private void CreateProjectile()
         {
-            HyperchargedProjectile = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/Projectiles/LightningStake"), "HyperchargedProjectile", true);
+            HyperchargedProjectile = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake"), "HyperchargedProjectile", true);
 
             var controller = HyperchargedProjectile.GetComponent<ProjectileController>();
             controller.startSound = "Play_titanboss_shift_shoot";
@@ -87,38 +105,32 @@ namespace Aetherium.Equipment.EliteEquipment
             var impactExplosion = HyperchargedProjectile.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.blastProcCoefficient = 0;
             impactExplosion.lifetime = 0.5f;
-            impactExplosion.impactEffect = Resources.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact");
+            impactExplosion.impactEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact");
             impactExplosion.blastRadius = 7f;
             impactExplosion.bonusBlastForce = new Vector3(0, 750, 0);
 
-            // register it for networking
-            if (HyperchargedProjectile) PrefabAPI.RegisterNetworkPrefab(HyperchargedProjectile);
-
-            // add it to the projectile catalog or it won't work in multiplayer 
+            PrefabAPI.RegisterNetworkPrefab(HyperchargedProjectile);
             ContentAddition.AddProjectile(HyperchargedProjectile);
+        }
+
+        private void CreateDisplayModel()
+        {
+            // The Ares prefab was saved with the scene camera and light still attached, strip them.
+            DisplayModel = PrefabAPI.InstantiateClone(AresAssets.LoadAsset<GameObject>("TheirReminder.prefab"), "AetheriumTheirReminderDisplay", false);
+            foreach(var camera in DisplayModel.GetComponentsInChildren<Camera>(true))
+            {
+                UnityEngine.Object.DestroyImmediate(camera.gameObject);
+            }
+            foreach(var light in DisplayModel.GetComponentsInChildren<Light>(true))
+            {
+                UnityEngine.Object.DestroyImmediate(light.gameObject);
+            }
         }
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
+            // Crowns come from CrownSourceEquipment's rules, the Their Reminder orb floats above through EliteFloatingDisplay.
             return new ItemDisplayRuleDict();
-        }
-
-        private void CreateEliteTiers()
-        {
-            CanAppearInEliteTiers = new CombatDirector.EliteTierDef[]
-            {
-                new CombatDirector.EliteTierDef()
-                {
-                    costMultiplier = CombatDirector.baseEliteCostMultiplier * CostMultiplierOfElite,
-                    eliteTypes = Array.Empty<EliteDef>(),
-                    isAvailable = SetAvailability
-                }
-            };
-        }
-
-        private bool SetAvailability(SpawnCard.EliteRules arg)
-        {
-            return Run.instance.loopClearCount > 0 && arg == SpawnCard.EliteRules.Default;
         }
 
         public override void Hooks()
@@ -127,107 +139,104 @@ namespace Aetherium.Equipment.EliteEquipment
             On.RoR2.CharacterBody.FixedUpdate += ManageLightningStrikes;
             On.RoR2.GlobalEventManager.OnHitAll += SpawnLightning;
             On.RoR2.EquipmentSlot.Update += TeachAIToUseAffixItem;
+            On.RoR2.CharacterBody.OnBuffFirstStackGained += AddFloatingDisplay;
+        }
+
+        private void AddFloatingDisplay(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)
+        {
+            orig(self, buffDef);
+            if(buffDef == EliteBuffDef)
+            {
+                EliteFloatingDisplay.Attach(self, EliteBuffDef, DisplayModel, 0.22f, 1.5f);
+            }
         }
 
         private void TeachAIToUseAffixItem(On.RoR2.EquipmentSlot.orig_Update orig, EquipmentSlot self)
         {
             orig(self);
-            if (self.equipmentIndex == EliteEquipmentDef.equipmentIndex && self.cooldownTimer <= 0)
+            if(!NetworkServer.active || self.equipmentIndex != EliteEquipmentDef.equipmentIndex || self.stock <= 0) { return; }
+
+            var body = self.characterBody;
+            if(!body || !body.master) { return; }
+
+            var ai = body.master.GetComponent<BaseAI>();
+            if(ai && ai.currentEnemy != null && ai.currentEnemy.gameObject)
             {
-                var body = self.characterBody;
-                if (body)
-                {
-                    var master = self.characterBody.master;
-                    if (master && master.GetComponent<BaseAI>())
-                    {
-                        self.PerformEquipmentAction(EliteEquipmentDef);
-                    }
-                }
+                self.ExecuteIfReady();
             }
         }
 
         private void CalculateStatsForAffix(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args)
         {
-            if (sender.HasBuff(EliteBuffDef))
+            if(sender.HasBuff(EliteBuffDef) && sender.healthComponent)
             {
-                args.baseShieldAdd += sender.healthComponent.fullHealth * 0.5f;
+                args.baseShieldAdd += sender.healthComponent.fullHealth * BonusShieldPercentage;
             }
         }
 
         private void SpawnLightning(On.RoR2.GlobalEventManager.orig_OnHitAll orig, GlobalEventManager self, DamageInfo damageInfo, GameObject hitObject)
         {
-            if (damageInfo.attacker && damageInfo.procCoefficient > 0)
-            {
-                var body = damageInfo.attacker.GetComponent<CharacterBody>();
-                if (body)
-                {
-                    if (body.HasBuff(EliteBuffDef))
-                    {
-
-                        float damageCoefficient2 = 0.5f;
-                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, damageCoefficient2);
-                        float force = 0f;
-                        Vector3 position = damageInfo.position;
-                        ProjectileManager.instance.FireProjectile(HyperchargedProjectile, position, Quaternion.identity, damageInfo.attacker, damage, force, damageInfo.crit, DamageColorIndex.Item);
-                    }
-                }
-            }
             orig(self, damageInfo, hitObject);
+
+            if(!NetworkServer.active || !damageInfo.attacker || damageInfo.procCoefficient <= 0) { return; }
+
+            var body = damageInfo.attacker.GetComponent<CharacterBody>();
+            if(body && body.HasBuff(EliteBuffDef))
+            {
+                // A stationary stake detonates where the hit landed after a short telegraph.
+                ProjectileManager.instance.FireProjectile(new FireProjectileInfo
+                {
+                    projectilePrefab = HyperchargedProjectile,
+                    position = damageInfo.position,
+                    rotation = Util.QuaternionSafeLookRotation(Vector3.down),
+                    owner = damageInfo.attacker,
+                    damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, LightningOnHitDamageCoefficient),
+                    crit = damageInfo.crit,
+                    damageColorIndex = DamageColorIndex.Item,
+                    speedOverride = 0f
+                });
+            }
         }
 
-        private void ManageLightningStrikes(On.RoR2.CharacterBody.orig_FixedUpdate orig, RoR2.CharacterBody self)
+        private void ManageLightningStrikes(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
         {
-            if (self.HasBuff(LightningStormBuff))
-            {
-                var lightningTracker = self.GetComponent<LightningTracker>();
-                if (!lightningTracker) { lightningTracker = self.gameObject.AddComponent<LightningTracker>(); }
-
-                if (lightningTracker.LightningCooldown > 0)
-                {
-                    lightningTracker.LightningCooldown -= Time.fixedDeltaTime;
-                }
-                if (lightningTracker.LightningCooldown <= 0)
-                {
-                    for (int i = 1; i <= AmountOfLightningStrikesPerBarrage; i++)
-                    {
-                        var newProjectileInfo = new FireProjectileInfo
-                        {
-                            owner = self.gameObject,
-                            projectilePrefab = HyperchargedProjectile,
-                            speedOverride = 150.0f,
-                            damage = self.damage,
-                            damageTypeOverride = null,
-                            damageColorIndex = DamageColorIndex.Default,
-                            procChainMask = default
-                        };
-                        var theta = (Math.PI * 2) / AmountOfLightningStrikesPerBarrage;
-                        var angle = theta * i;
-                        var radius = 20 + Run.instance.runRNG.RangeFloat(-15, 15);
-                        var positionChosen = new Vector3((float)(radius * Math.Cos(angle) + self.corePosition.x), self.corePosition.y + 1, (float)(radius * Math.Sin(angle) + self.corePosition.z));
-                        /*var raycastedChosen = MiscUtils.RaycastToDirection(positionChosen, 1000f, Vector3.down);
-                        if (raycastedChosen != null)
-                        {
-                            positionChosen = raycastedChosen.Value + new Vector3(0, 0.5f, 0);
-                        }*/
-                        newProjectileInfo.position = positionChosen;
-                        newProjectileInfo.rotation = RoR2.Util.QuaternionSafeLookRotation(positionChosen + Vector3.down);
-                        ProjectileManager.instance.FireProjectile(newProjectileInfo);
-                    }
-                    lightningTracker.LightningCooldown = LightningStrikeCooldown;
-                }
-            }
             orig(self);
+
+            if(!NetworkServer.active || !self.HasBuff(LightningStormBuff)) { return; }
+
+            var lightningTracker = self.GetComponent<LightningTracker>();
+            if(!lightningTracker) { lightningTracker = self.gameObject.AddComponent<LightningTracker>(); }
+
+            lightningTracker.LightningCooldown -= Time.fixedDeltaTime;
+            if(lightningTracker.LightningCooldown > 0) { return; }
+
+            var strikes = Math.Max(1, (int)AmountOfLightningStrikesPerBarrage);
+            var theta = Mathf.PI * 2 / strikes;
+            for(int i = 1; i <= strikes; i++)
+            {
+                var radius = 20 + StormRandom.RangeFloat(-15, 15);
+                var position = self.corePosition + new Vector3(radius * Mathf.Cos(theta * i), 15f, radius * Mathf.Sin(theta * i));
+
+                ProjectileManager.instance.FireProjectile(new FireProjectileInfo
+                {
+                    projectilePrefab = HyperchargedProjectile,
+                    position = position,
+                    rotation = Util.QuaternionSafeLookRotation(Vector3.down),
+                    owner = self.gameObject,
+                    damage = self.damage,
+                    crit = self.RollCrit(),
+                    damageColorIndex = DamageColorIndex.Default,
+                    speedOverride = 150f
+                });
+            }
+            lightningTracker.LightningCooldown = LightningStrikeCooldown;
         }
 
         protected override bool ActivateEquipment(EquipmentSlot slot)
         {
-            if (!slot.characterBody) { return false; }
-            var body = slot.characterBody;
+            if(!slot.characterBody) { return false; }
 
-            if (NetworkServer.active)
-            {
-                body.AddTimedBuff(LightningStormBuff, DurationOfLightningStormBuff);
-            }
+            slot.characterBody.AddTimedBuff(LightningStormBuff, DurationOfLightningStormBuff);
             return true;
         }
 

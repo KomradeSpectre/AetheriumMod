@@ -55,14 +55,12 @@ namespace Aetherium.Effect
                 var flameOrb = Object.Instantiate(BuffBrazier.BrazierBuffOrbitOrb, position, rotation);
                 var visualController = flameOrb.GetComponent<BuffBrazierOrbitVisualAndNetworkController>();
 
+                // Registered with the owner in the controller's Start, on the server and every client alike.
                 visualController.Owner = owner;
                 visualController.ChosenBuffIndex = ChosenBuffIndex;
 
                 if(NetworkServer.active)
                 {
-                    visualController.OnOwnerChanged(visualController.Owner);
-                    visualController.OnBuffIndexChanged(visualController.ChosenBuffIndex);
-
                     NetworkServer.Spawn(flameOrb);
                 }
             }

@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using R2API;
 using RoR2;
 using RoR2.Orbs;
@@ -42,6 +42,8 @@ namespace Aetherium.Equipment
         public override string EquipmentLore => "";
 
         public override bool UseTargeting => true;
+
+        public override bool IsUnfinished => true;
 
         public override GameObject EquipmentModel => MainAssets.LoadAsset<GameObject>("PickupFaust.prefab");
 
@@ -123,16 +125,10 @@ namespace Aetherium.Equipment
 
         public static void AddMithrixHatDialogue(string dialogue, bool isHurtLine)
         {
-            if(isHurtLine)
-            {
-                MithrixHurtTokens.Add($"AETHERIUM_BROTHER_HURT_FAUST_EQUIP{MithrixHurtTokens.Count + 1}", dialogue);
-                Language.Language.Add($"AETHERIUM_BROTHER_HURT_FAUST_EQUIP{MithrixHurtTokens.Count + 1}", dialogue);
-            }
-            else
-            {
-                MithrixTokens.Add($"AETHERIUM_BROTHER_FAUST_EQUIP{MithrixTokens.Count + 1}", dialogue);
-                Language.Language.Add($"AETHERIUM_BROTHER_FAUST_EQUIP{MithrixTokens.Count + 1}", dialogue);
-            }
+            var tokens = isHurtLine ? MithrixHurtTokens : MithrixTokens;
+            var token = isHurtLine ? $"AETHERIUM_BROTHER_HURT_FAUST_EQUIP{tokens.Count + 1}" : $"AETHERIUM_BROTHER_FAUST_EQUIP{tokens.Count + 1}";
+            tokens.Add(token, dialogue);
+            Language.Language.Add(token, dialogue);
         }
 
         private void CreateNetworking()
@@ -170,11 +166,12 @@ namespace Aetherium.Equipment
             BrokenSkill.keywordTokens = new string[] { };
 
             R2API.ContentAddition.AddSkillDef(BrokenSkill);
+            R2API.ContentAddition.AddEntityState<BrokenSkillState>(out _);
         }
 
         private void CreateTargeting()
         {
-            TargetingIndicatorPrefabBase = PrefabAPI.InstantiateClone(Resources.Load<GameObject>("Prefabs/WoodSpriteIndicator"), "FaustHatIndicator", false);
+            TargetingIndicatorPrefabBase = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/WoodSpriteIndicator"), "FaustHatIndicator", false);
 
             var bootlegAnimController = TargetingIndicatorPrefabBase.transform.Find("Holder").gameObject.AddComponent<BootlegAnimationController>();
             bootlegAnimController.Duration = 0.1f;
@@ -186,7 +183,7 @@ namespace Aetherium.Equipment
                 MainAssets.LoadAsset<Sprite>("FaustHatReticle4.png"),
             };
 
-            TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().sprite = MainAssets.LoadAsset<Sprite>("FaustHatReticule.png");
+            TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().sprite = MainAssets.LoadAsset<Sprite>("FaustHatReticle1.png");
             TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().color = Color.white;
             TargetingIndicatorPrefabBase.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.identity;
             TargetingIndicatorPrefabBase.GetComponentInChildren<TMPro.TextMeshPro>().color = new Color(1f, 1, 1f);
@@ -1733,17 +1730,17 @@ namespace Aetherium.Equipment
         private void CheckForInheritedFaust(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if(self.inventory)
+            if(NetworkServer.active && self.inventory)
             {
-                var faustInventoryCount = self.inventory.GetItemCount(FaustItem);
-                var deactivatedFaustInventoryCount = self.inventory.GetItemCount(DeactivatedFaustItem);
+                var faustInventoryCount = self.inventory.GetItemCountPermanent(FaustItem);
+                var deactivatedFaustInventoryCount = self.inventory.GetItemCountPermanent(DeactivatedFaustItem);
                 if(faustInventoryCount > 0 || deactivatedFaustInventoryCount > 0)
                 {
                     var victimFaustComponent = self.gameObject.GetComponent<FaustComponent>();
                     if(!victimFaustComponent)
                     {
-                        self.inventory.RemoveItem(FaustItem, faustInventoryCount);
-                        self.inventory.RemoveItem(DeactivatedFaustItem, deactivatedFaustInventoryCount);
+                        self.inventory.RemoveItemPermanent(FaustItem, faustInventoryCount);
+                        self.inventory.RemoveItemPermanent(DeactivatedFaustItem, deactivatedFaustInventoryCount);
                     }
                 }
             }
@@ -1858,16 +1855,21 @@ namespace Aetherium.Equipment
                 {
                     HealthWhenApplied = healthComponent.health;
                     _healthWhenAppliedAsPercent = healthComponent.combinedHealthFraction;
+                    _lowestHealthPercentReached = _healthWhenAppliedAsPercent;
                 }
 
-                SecretKingDialog();
                 SealStrongestSkill();
 
-                GlobalEventManager.onServerDamageDealt += OnDamageDealt;
-
-                if(inventory)
+                if(NetworkServer.active)
                 {
-                    inventory.GiveItem(Faust.instance.FaustItem);
+                    SecretKingDialog();
+
+                    GlobalEventManager.onServerDamageDealt += OnDamageDealt;
+
+                    if(inventory)
+                    {
+                        inventory.GiveItemPermanent(Faust.instance.FaustItem);
+                    }
                 }
             }
 
@@ -1894,7 +1896,7 @@ namespace Aetherium.Equipment
 
             public void Start()
             {
-                faustController = attacker?.GetComponent<FaustControllerComponent>();
+                faustController = attacker ? attacker.GetComponent<FaustControllerComponent>() : null;
 
                 if(faustController)
                 {
@@ -1989,9 +1991,16 @@ namespace Aetherium.Equipment
                     expRewarded
                 );
 
-                if(attackerBody.master)
+                // Minions (drones, turrets, etc.) earn gold for their owner.
+                var rewardedMaster = attackerBody.master;
+                if(rewardedMaster && rewardedMaster.minionOwnership && rewardedMaster.minionOwnership.ownerMaster)
                 {
-                    attackerBody.master.GiveMoney(goldRewarded);
+                    rewardedMaster = rewardedMaster.minionOwnership.ownerMaster;
+                }
+
+                if(rewardedMaster)
+                {
+                    rewardedMaster.GiveMoney(goldRewarded);
 
                     EffectManager.SpawnEffect(DeathRewards.coinEffectPrefab, new EffectData
                     {
@@ -2031,14 +2040,7 @@ namespace Aetherium.Equipment
                     _hasAddedHealthBar = false;
                 }
 
-                if(inventory)
-                {
-                    var count = inventory.GetItemCount(Faust.instance.FaustItem);
-                    if(count > 0)
-                    {
-                        inventory.RemoveItem(Faust.instance.FaustItem, count);
-                    }
-                }
+                RemoveFaustItem();
 
                 Destroy(this);
             }
@@ -2061,15 +2063,20 @@ namespace Aetherium.Equipment
                 if(_hasAddedHealthBar && characterBody)
                 {
                     HealthBarAPI.RemoveOverlayFromBody(characterBody, Faust.FaustThresholdBarIndex);
+                    _hasAddedHealthBar = false;
                 }
 
-                if(inventory)
+                RemoveFaustItem();
+            }
+
+            private void RemoveFaustItem()
+            {
+                if(!NetworkServer.active || !inventory) return;
+
+                var count = inventory.GetItemCountPermanent(Faust.instance.FaustItem);
+                if(count > 0)
                 {
-                    var count = inventory.GetItemCount(Faust.instance.FaustItem);
-                    if(count > 0)
-                    {
-                        inventory.RemoveItem(Faust.instance.FaustItem, count);
-                    }
+                    inventory.RemoveItemPermanent(Faust.instance.FaustItem, count);
                 }
             }
 

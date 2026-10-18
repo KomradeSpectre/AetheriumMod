@@ -7,6 +7,7 @@ using RoR2;
 using UnityEngine;
 using System.Linq;
 using BepInEx.Configuration;
+using UnityEngine.AddressableAssets;
 using static Aetherium.AetheriumPlugin;
 
 namespace Aetherium.EliteEquipment
@@ -45,6 +46,11 @@ namespace Aetherium.EliteEquipment
 
         public virtual bool IsLunar { get; } = false;
 
+        /// <summary>
+        /// Unfinished content only loads when "Enable Unfinished Content" is turned on in the General config section.
+        /// </summary>
+        public virtual bool IsUnfinished => false;
+
         public enum EliteTier
         {
             Invalid,
@@ -61,6 +67,38 @@ namespace Aetherium.EliteEquipment
         public abstract Color EliteColor { get; }
 
         public abstract Texture2D EliteRamp { get; }
+
+        /// <summary>
+        /// Builds an elite color ramp from a single color: a dark tint on the left, the color in the middle and a light highlight on the right.
+        /// </summary>
+        public static Texture2D CreateEliteRamp(Color color, string name)
+        {
+            const int width = 256;
+            const int height = 8;
+
+            var ramp = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                name = name,
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear
+            };
+
+            var dark = color * 0.15f;
+            var highlight = Color.Lerp(color, Color.white, 0.6f);
+            for(int x = 0; x < width; x++)
+            {
+                var t = x / (float)(width - 1);
+                var pixel = t < 0.6f ? Color.Lerp(dark, color, t / 0.6f) : Color.Lerp(color, highlight, (t - 0.6f) / 0.4f);
+                pixel.a = 1f;
+                for(int y = 0; y < height; y++)
+                {
+                    ramp.SetPixel(x, y, pixel);
+                }
+            }
+            ramp.Apply();
+
+            return ramp;
+        }
 
         public virtual CustomElite CustomEliteDef { get; set; }
         public virtual CustomElite CustomEliteDefHonor { get; set; }
@@ -85,6 +123,17 @@ namespace Aetherium.EliteEquipment
         public virtual CombatDirector.EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
 
         public virtual Material EliteMaterial { get; set; } = null;
+
+        /// <summary>
+        /// Vanilla elite equipment whose crown display rules are copied onto every body, using a copy of its crown tinted with CrownTint.
+        /// Leave null to only use CreateItemDisplayRules.
+        /// </summary>
+        public virtual EquipmentDef CrownSourceEquipment => null;
+
+        public virtual Color CrownTint => EliteColor;
+
+        private readonly Dictionary<ItemDisplayRuleSet, DisplayRuleGroup> _crownRuleGroupCache = new Dictionary<ItemDisplayRuleSet, DisplayRuleGroup>();
+        private readonly Dictionary<GameObject, GameObject> _tintedCrowns = new Dictionary<GameObject, GameObject>();
 
         public EliteDef EliteDef;
 
@@ -149,6 +198,130 @@ namespace Aetherium.EliteEquipment
             {
                 On.RoR2.CharacterBody.FixedUpdate += OverlayManager;
             }
+
+            if(CrownSourceEquipment != null)
+            {
+                On.RoR2.ItemDisplayRuleSet.GetEquipmentDisplayRuleGroup += UseTintedVanillaCrownRules;
+            }
+        }
+
+        private DisplayRuleGroup UseTintedVanillaCrownRules(On.RoR2.ItemDisplayRuleSet.orig_GetEquipmentDisplayRuleGroup orig, ItemDisplayRuleSet self, EquipmentIndex equipmentIndex)
+        {
+            if(equipmentIndex == EquipmentIndex.None || !EliteEquipmentDef || equipmentIndex != EliteEquipmentDef.equipmentIndex)
+            {
+                return orig(self, equipmentIndex);
+            }
+
+            if(_crownRuleGroupCache.TryGetValue(self, out var cachedGroup))
+            {
+                return cachedGroup;
+            }
+
+            var group = orig(self, equipmentIndex);
+            var source = CrownSourceEquipment;
+            if(source)
+            {
+                var sourceGroup = orig(self, source.equipmentIndex);
+                if(!sourceGroup.isEmpty)
+                {
+                    var rules = new List<ItemDisplayRule>();
+                    foreach(var sourceRule in sourceGroup.rules)
+                    {
+                        var rule = sourceRule;
+                        if(rule.ruleType == ItemDisplayRuleType.ParentedPrefab)
+                        {
+                            var crown = GetTintedCrown(LoadFollowerPrefab(rule));
+                            if(!crown) { continue; }
+
+                            // Clear the address so our tinted copy is used instead of the vanilla crown.
+                            rule.followerPrefab = crown;
+                            rule.followerPrefabAddress = new AssetReferenceGameObject(string.Empty);
+                        }
+                        rules.Add(rule);
+                    }
+
+                    if(rules.Count > 0)
+                    {
+                        group = new DisplayRuleGroup { rules = rules.ToArray() };
+                    }
+                }
+            }
+
+            _crownRuleGroupCache[self] = group;
+            return group;
+        }
+
+        private static GameObject LoadFollowerPrefab(ItemDisplayRule rule)
+        {
+            if(rule.followerPrefab) { return rule.followerPrefab; }
+
+            if(rule.followerPrefabAddress != null && rule.followerPrefabAddress.RuntimeKeyIsValid())
+            {
+                return Addressables.LoadAssetAsync<GameObject>(rule.followerPrefabAddress.RuntimeKey).WaitForCompletion();
+            }
+
+            return null;
+        }
+
+        private GameObject GetTintedCrown(GameObject vanillaCrown)
+        {
+            if(!vanillaCrown) { return null; }
+            if(_tintedCrowns.TryGetValue(vanillaCrown, out var tinted)) { return tinted; }
+
+            tinted = R2API.PrefabAPI.InstantiateClone(vanillaCrown, vanillaCrown.name + "Aetherium" + EliteAffixToken, false);
+            var tintedRenderers = new HashSet<Renderer>();
+
+            // The character model applies ItemDisplay's default materials (which may only be addressable references), so tint those.
+            var itemDisplay = tinted.GetComponent<ItemDisplay>();
+            if(itemDisplay && itemDisplay.rendererInfos != null)
+            {
+                for(int i = 0; i < itemDisplay.rendererInfos.Length; i++)
+                {
+                    var info = itemDisplay.rendererInfos[i];
+                    var baseMaterial = info.defaultMaterial;
+                    if(!baseMaterial && info.defaultMaterialAddress != null && info.defaultMaterialAddress.RuntimeKeyIsValid())
+                    {
+                        baseMaterial = Addressables.LoadAssetAsync<Material>(info.defaultMaterialAddress.RuntimeKey).WaitForCompletion();
+                    }
+                    if(!baseMaterial && info.renderer) { baseMaterial = info.renderer.sharedMaterial; }
+                    if(!baseMaterial) { continue; }
+
+                    var material = CreateTintedMaterial(baseMaterial);
+                    info.defaultMaterial = material;
+                    info.defaultMaterialAddress = new AssetReferenceT<Material>(string.Empty);
+                    itemDisplay.rendererInfos[i] = info;
+
+                    if(info.renderer)
+                    {
+                        info.renderer.sharedMaterial = material;
+                        tintedRenderers.Add(info.renderer);
+                    }
+                }
+            }
+
+            foreach(var renderer in tinted.GetComponentsInChildren<Renderer>(true))
+            {
+                if(tintedRenderers.Contains(renderer)) { continue; }
+
+                var materials = renderer.sharedMaterials;
+                for(int i = 0; i < materials.Length; i++)
+                {
+                    if(materials[i]) { materials[i] = CreateTintedMaterial(materials[i]); }
+                }
+                renderer.sharedMaterials = materials;
+            }
+
+            _tintedCrowns[vanillaCrown] = tinted;
+            return tinted;
+        }
+
+        private Material CreateTintedMaterial(Material baseMaterial)
+        {
+            var material = new Material(baseMaterial);
+            if(material.HasProperty("_Color")) { material.SetColor("_Color", CrownTint); }
+            if(material.HasProperty("_TintColor")) { material.SetColor("_TintColor", CrownTint); }
+            if(material.HasProperty("_EmColor")) { material.SetColor("_EmColor", CrownTint * 1.5f); }
+            return material;
         }
 
         /*private void CharacterModel_UpdateOverlays(On.RoR2.CharacterModel.orig_UpdateOverlays orig, CharacterModel self)
@@ -233,8 +406,8 @@ namespace Aetherium.EliteEquipment
 
             EliteAPI.Add(customElite);
 
+            // Already registered with the content pack in CreateEquipment.
             EliteBuffDef.eliteDef = customElite.EliteDef;
-            ContentAddition.AddBuffDef(EliteBuffDef);
         }
 
 

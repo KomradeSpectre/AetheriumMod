@@ -25,19 +25,14 @@
     <Compile Remove="Artifacts\ArtifactOfIndecision.cs" />
     <Compile Remove="Artifacts\ArtifactOfUnstableForm.cs" />
     <Compile Remove="CoreModules\Stathooks.cs" />
-    <Compile Remove="Effect\FaustOrb.cs" />
     <Compile Remove="Effect\HungeringConsumptionOrb.cs" />
-    <Compile Remove="Effect\JarOfReshapingOrb.cs" />
     <Compile Remove="Equipment\ChaosBeacon.cs" />
     <Compile Remove="EliteEquipment\AffixBenevolent.cs" />
     <Compile Remove="EliteEquipment\AffixHungering.cs" />
-    <Compile Remove="EliteEquipment\AffixHypercharged.cs" />
     <Compile Remove="EliteEquipment\AffixMagnetic.cs" />
     <Compile Remove="EliteEquipment\AffixRallying.cs" />
     <Compile Remove="EliteEquipment\AffixSteadfast.cs" />
     <Compile Remove="EliteEquipment\AffixTarred.cs" />
-    <Compile Remove="Equipment\Faust.cs" />
-    <Compile Remove="Equipment\JarOfReshaping.cs" />
     <Compile Remove="Equipment\NanoweaveCapsule.cs" />
     <Compile Remove="Equipment\PheromoneSac.cs" />
     <Compile Remove="Equipment\SoulPin.cs" />
@@ -49,7 +44,6 @@
     <Compile Remove="Items\RicochetTest.cs" />
     <Compile Remove="Items\Tier2\EmpathicResonator.cs" />
     <Compile Remove="Items\Tier3\BlasterSwordOrig.cs" />
-    <Compile Remove="Items\TierLunar\AlienMagnet.cs" />
     <Compile Remove="Items\VoidItems\FrenziedWarbot.cs" />
     <Compile Remove="Items\VoidItems\PhasewindFeather.cs" />
     <Compile Remove="Items\VoidItems\RazorfinWing.cs" />
@@ -61,7 +55,6 @@
     <Compile Remove="StandaloneBuffs\StrengthOfThePack.cs" />
     <Compile Remove="StandaloneBuffs\Tier2\PrecisionProtocol.cs" />
     <Compile Remove="StandaloneBuffs\Tier3\SparkGap.cs" />
-    <Compile Remove="States\Equipment\Faust\BrokenSkillState.cs" />
     <Compile Remove="States\Survivor\BaseMeleeAttack.cs" />
     <Compile Remove="States\Survivor\BasicMelee.cs" />
     <Compile Remove="States\Survivor\Koalesk\KoaleskMainState.cs" />
@@ -83,6 +76,8 @@
     <None Remove="AetheriumSounds.bnk" />
     <None Remove="AetheriumSounds.txt" />
     <None Remove="aetherium_assets" />
+    <None Remove="ares_assets" />
+    <None Remove="ares_assets.manifest" />
     <None Remove="Init.bnk" />
     <None Remove="Init.txt" />
     <None Remove="objexporter" />
@@ -94,6 +89,7 @@
   <ItemGroup>
     <EmbeddedResource Include="AetheriumSounds.bnk" />
     <EmbeddedResource Include="aetherium_assets" />
+    <EmbeddedResource Include="ares_assets" />
   </ItemGroup>
 
   <ItemGroup>
@@ -136,12 +132,22 @@
   <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call &quot;$(ProjectDir)weave.bat&quot; &quot;$(TargetDir)\&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium&quot;" />
+  <PropertyGroup>
+    <ProfileName Condition="'$(ProfileName)' == ''">Current</ProfileName>
+    <ProfileDeployDir>$(APPDATA)\r2modmanPlus-local\RiskOfRain2\profiles\$(ProfileName)\BepInEx\plugins\KomradeSpectre-Aetherium</ProfileDeployDir>
+  </PropertyGroup>
+
+  <Target Name="WeaveNetworking" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <WeaverLibsDir>$(ProjectDir)$(IntermediateOutputPath)WeaverLibs</WeaverLibsDir>
+    </PropertyGroup>
+    <Copy SourceFiles="@(ReferencePath)" DestinationFolder="$(WeaverLibsDir)" SkipUnchangedFiles="true" />
+    <Exec Command="&quot;$(ProjectDir)Weaver\Unity.UNetWeaver.exe&quot; &quot;$(WeaverLibsDir)\UnityEngine.CoreModule.dll&quot; &quot;$(WeaverLibsDir)\com.unity.multiplayer-hlapi.Runtime.dll&quot; &quot;$(TargetDir.TrimEnd('\'))&quot; &quot;$(TargetPath)&quot; &quot;$(WeaverLibsDir)&quot;" />
   </Target>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if not exist &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot; mkdir &quot;C:\Users\jchur\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Default\BepInEx\plugins\KomradeSpectre-Aetherium\Language\en&quot;" />
+  <Target Name="DeployToProfile" AfterTargets="WeaveNetworking" Condition="Exists('$(ProfileDeployDir)')">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ProfileDeployDir)" Retries="0" ContinueOnError="WarnAndContinue" />
+    <Message Importance="high" Text="Deployed $(TargetName) to $(ProfileDeployDir)" />
   </Target>
 
 </Project>
