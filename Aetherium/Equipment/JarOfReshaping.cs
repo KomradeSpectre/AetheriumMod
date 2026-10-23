@@ -576,6 +576,17 @@ namespace Aetherium.Equipment
 
         public class JarChargeSphereAnimationController : MonoBehaviour
         {
+            /// <summary>
+            /// How long a sphere may outlive its absorption window while it plays its fade, before it's removed regardless of the animator.
+            /// </summary>
+            private const float MaxFadeTime = 2f;
+
+            /// <summary>
+            /// One sphere per jar. Back to back absorptions (Gesture of the Drowned, spamming the jar) re-arm the live sphere
+            /// instead of stacking new ones, which used to blind the screen, stack the absorb sound and tank the framerate.
+            /// </summary>
+            private static readonly Dictionary<Transform, JarChargeSphereAnimationController> ActiveSpheres = new Dictionary<Transform, JarChargeSphereAnimationController>();
+
             public Transform ParentTransform;
             public Animator Animator;
             public float Duration;
@@ -587,6 +598,49 @@ namespace Aetherium.Equipment
                 Animator = GetComponent<Animator>();
                 ParentTransform = gameObject.transform.parent;
                 gameObject.transform.SetParent(null);
+
+                if(!ParentTransform) { return; }
+
+                if(ActiveSpheres.TryGetValue(ParentTransform, out var existing) && existing && existing != this && existing.TryRearm())
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+
+                if(existing && existing != this) { Destroy(existing.gameObject); }
+                ActiveSpheres[ParentTransform] = this;
+            }
+
+            public void OnDestroy()
+            {
+                if(ParentTransform && ActiveSpheres.TryGetValue(ParentTransform, out var registered) && registered == this)
+                {
+                    ActiveSpheres.Remove(ParentTransform);
+                }
+            }
+
+            /// <summary>
+            /// Restarts the live sphere of this jar if it has one, so the caller can skip spawning another.
+            /// </summary>
+            public static bool TryRearmExisting(Transform parent)
+            {
+                return parent && ActiveSpheres.TryGetValue(parent, out var existing) && existing && existing.TryRearm();
+            }
+
+            /// <summary>
+            /// Restarts the absorption window on this sphere. Returns false if it's already on its way out and should be replaced.
+            /// </summary>
+            private bool TryRearm()
+            {
+                if(!Animator || Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit")) { return false; }
+
+                if(Fading)
+                {
+                    Fading = false;
+                    Animator.Play("JarOfReshapingAbsorbIdle");
+                }
+                Stopwatch = 0;
+                return true;
             }
 
             public void Update()
@@ -609,7 +663,7 @@ namespace Aetherium.Equipment
                     Fading = true;
                     Animator.Play("JarOfReshapingAbsorbFade");
                 }
-                if(Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit"))
+                if(Animator.GetCurrentAnimatorStateInfo(0).IsName("JarOfReshapingAbsorbExit") || Stopwatch >= Duration + MaxFadeTime)
                 {
                     Destroy(gameObject);
                 }
@@ -635,11 +689,12 @@ namespace Aetherium.Equipment
                 {
                     if(!IsSuckingProjectiles)
                     {
-                        if(NetworkServer.active)
+                        var sphereRoot = TargetTransform ? TargetTransform.gameObject : body.gameObject;
+                        if(NetworkServer.active && !JarChargeSphereAnimationController.TryRearmExisting(sphereRoot.transform))
                         {
                             RoR2.EffectData sphere = new RoR2.EffectData
                             {
-                                rootObject = TargetTransform ? TargetTransform.gameObject : body.gameObject,
+                                rootObject = sphereRoot,
                                 rotation = Util.QuaternionSafeLookRotation(Vector3.up),
                             };
                             RoR2.EffectManager.SpawnEffect(JarChargeSphere, sphere, false);
@@ -884,7 +939,7 @@ namespace Aetherium.Equipment
 
                         if(target)
                         {
-                            if(ChargeState)
+                            if(ChargeState && !JarChargeSphereAnimationController.TryRearmExisting(target.transform))
                             {
                                 RoR2.EffectData sphere = new RoR2.EffectData
                                 {

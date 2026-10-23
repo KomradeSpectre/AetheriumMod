@@ -465,34 +465,6 @@ namespace Aetherium.Equipment
 
         public override void Hooks()
         {
-            On.RoR2.CharacterBody.OnEquipmentGained += GiveBellTotemCache;
-            On.RoR2.CharacterBody.OnEquipmentLost += RemoveBellTotemCache;
-        }
-
-        private void GiveBellTotemCache(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
-        {
-            orig(self, equipmentDef);
-            if(equipmentDef == EquipmentDef)
-            {
-                var bellTotemCache = self.GetComponent<BellTotemCache>();
-                if(!bellTotemCache)
-                {
-                    self.gameObject.AddComponent<BellTotemCache>();
-                }
-            }
-        }
-
-        private void RemoveBellTotemCache(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
-        {
-            if(equipmentDef == EquipmentDef)
-            {
-                var bellTotemCache = self.GetComponent<BellTotemCache>();
-                if(bellTotemCache)
-                {
-                    UnityEngine.Object.Destroy(bellTotemCache);
-                }
-            }
-            orig(self, equipmentDef);
         }
 
         protected override bool ActivateEquipment(EquipmentSlot slot)
@@ -502,43 +474,44 @@ namespace Aetherium.Equipment
             var body = slot.characterBody;
             if(body && slot.inputBank)
             {
+                // Kept on the body for its whole life instead of being removed when the equipment is lost, otherwise swapping
+                // equipment (MUL-T's Retool, multiple equipment sets) forgets the current totem and every use spawns another one.
                 var BellTotemCache = body.GetComponent<BellTotemCache>();
-                if(BellTotemCache)
+                if(!BellTotemCache) { BellTotemCache = body.gameObject.AddComponent<BellTotemCache>(); }
+
+                var hitPlace = Physics.Raycast(new Ray(slot.inputBank.aimOrigin, slot.inputBank.aimDirection), out RaycastHit raycastHit, 1000, LayerIndex.world.mask, QueryTriggerInteraction.Ignore);
+                if(hitPlace)
                 {
+                    if(raycastHit.collider && raycastHit.collider.gameObject.name.Contains("BellTotem"))
+                    {
+                        slot.subcooldownTimer = 0.1f;
+
+                        var effectData = new EffectData()
+                        {
+                            origin = raycastHit.point,
+                            scale = 0.4f
+                        };
+                        EffectManager.SpawnEffect(NoBellSpawnEffect, effectData, true);
+                        return false;
+                    }
+
                     if(BellTotemCache.BellTotem && BellTotemCache.BellTotemManager && !(BellTotemCache.BellTotemManager.BellTotemStateMachine.state is BellTotemDisappearState))
                     {
                         BellTotemCache.BellTotemManager.BellTotemStateMachine.SetNextState(new BellTotemDisappearState());
                     }
 
-                    var hitPlace = Physics.Raycast(new Ray(slot.inputBank.aimOrigin, slot.inputBank.aimDirection), out RaycastHit raycastHit, 1000, LayerIndex.world.mask, QueryTriggerInteraction.Ignore);
-                    if(hitPlace)
-                    {
-                        if(raycastHit.collider && raycastHit.collider.gameObject.name.Contains("BellTotem")) 
-                        {
-                            slot.subcooldownTimer = 0.1f;
+                    var right = Vector3.Cross(slot.inputBank.aimDirection, Vector3.up);
+                    var up = Vector3.ProjectOnPlane(raycastHit.normal, right);
+                    var forward = Vector3.Cross(right, up);
 
-                            var effectData = new EffectData()
-                            {
-                                origin = raycastHit.point,
-                                scale = 0.4f
-                            };
-                            EffectManager.SpawnEffect(NoBellSpawnEffect, effectData, true);
-                            return false; 
-                        }
+                    var objectToSpawn = UnityEngine.Object.Instantiate(InteractableBodyModelPrefab, raycastHit.point, Util.QuaternionSafeLookRotation(forward, up));
 
-                        var right = Vector3.Cross(slot.inputBank.aimDirection, Vector3.up);
-                        var up = Vector3.ProjectOnPlane(raycastHit.normal, right);
-                        var forward = Vector3.Cross(right, up);
+                    BellTotemCache.BellTotem = objectToSpawn;
+                    BellTotemCache.UpdateOwner(body);
 
-                        var objectToSpawn = UnityEngine.Object.Instantiate(InteractableBodyModelPrefab, raycastHit.point, Util.QuaternionSafeLookRotation(forward, up));
+                    NetworkServer.Spawn(objectToSpawn);
 
-                        BellTotemCache.BellTotem = objectToSpawn;
-                        BellTotemCache.UpdateOwner(body);
-
-                        NetworkServer.Spawn(objectToSpawn);
-
-                        return true;
-                    }
+                    return true;
                 }
             }
             return false;

@@ -137,9 +137,15 @@ namespace Aetherium.EliteEquipment
 
         public EliteDef EliteDef;
 
-        public virtual float HealthMultiplier { get; set; } = 1;
+        /// <summary>
+        /// Health boost of the elite, defaults to the vanilla value for its tier. Override to make it configurable.
+        /// </summary>
+        public virtual float HealthBoostCoefficient => EliteTierDef < EliteTier.T2 ? 4f : 18f;
 
-        public virtual float DamageMultiplier { get; set; } = 1;
+        /// <summary>
+        /// Damage boost of the elite, defaults to the vanilla value for its tier. Override to make it configurable.
+        /// </summary>
+        public virtual float DamageBoostCoefficient => EliteTierDef < EliteTier.T2 ? 2f : 6f;
 
         public abstract void Init(ConfigFile config);
 
@@ -381,8 +387,8 @@ namespace Aetherium.EliteEquipment
             EliteDef.name = "AETHERIUM_ELITE_" + EliteAffixToken;
             EliteDef.modifierToken = "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER";
             EliteDef.eliteEquipmentDef = EliteEquipmentDef;
-            EliteDef.healthBoostCoefficient = HealthMultiplier;
-            EliteDef.damageBoostCoefficient = DamageMultiplier;
+            EliteDef.healthBoostCoefficient = HealthBoostCoefficient;
+            EliteDef.damageBoostCoefficient = DamageBoostCoefficient;
 
             var tierDefs = GetVanillaEliteTierDef(EliteTierDef);
             if(tierDefs is null)
@@ -393,16 +399,8 @@ namespace Aetherium.EliteEquipment
 
             var customElite = new CustomElite("AETHERIUM_ELITE_" + EliteAffixToken, EliteEquipmentDef, EliteColor, "AETHERIUM_ELITE_" + EliteAffixToken + "_MODIFIER", tierDefs, EliteRamp);
 
-            if(EliteTierDef < EliteTier.T2)
-            {
-                customElite.EliteDef.healthBoostCoefficient = 4f;
-                customElite.EliteDef.damageBoostCoefficient = 2f;
-            }
-            else
-            {
-                customElite.EliteDef.healthBoostCoefficient = 18f;
-                customElite.EliteDef.damageBoostCoefficient = 6f;
-            }
+            customElite.EliteDef.healthBoostCoefficient = HealthBoostCoefficient;
+            customElite.EliteDef.damageBoostCoefficient = DamageBoostCoefficient;
 
             EliteAPI.Add(customElite);
 

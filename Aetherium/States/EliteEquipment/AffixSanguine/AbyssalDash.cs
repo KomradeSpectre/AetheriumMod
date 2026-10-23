@@ -39,8 +39,8 @@ namespace Aetherium.States.EliteEquipment.AffixSanguine
         public override void OnDeserialize(NetworkReader reader)
         {
             base.OnDeserialize(reader);
-            blinkDestination = reader.ReadVector3();
             blinkStart = reader.ReadVector3();
+            blinkDestination = reader.ReadVector3();
         }
 
         public override void OnEnter()
