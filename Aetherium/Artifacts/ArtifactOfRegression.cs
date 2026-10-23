@@ -196,6 +196,12 @@ namespace Aetherium.Artifacts
 
             foreach (var childDef in children)
             {
+                if(!IsExpansionEnabledForRun(childDef.MasterPrefab))
+                {
+                    currentAngle += angleStep * childDef.Count;
+                    continue;
+                }
+
                 for (int i = 0; i < childDef.Count; i++)
                 {
                     Vector3 offset = Quaternion.Euler(0f, currentAngle, 0f) * Vector3.forward * radius;
@@ -244,6 +250,24 @@ namespace Aetherium.Artifacts
                     currentAngle += angleStep;
                 }
             }
+        }
+
+        /// <summary>
+        /// Children can come from a DLC the parent doesn't need (Parent -> Child, Aurelionite -> Halcyonites), so skip them when that DLC is off for this run.
+        /// </summary>
+        private static bool IsExpansionEnabledForRun(GameObject masterPrefab)
+        {
+            if(!Run.instance) return true;
+
+            var masterRequirement = masterPrefab.GetComponent<RoR2.ExpansionManagement.ExpansionRequirementComponent>();
+            if(masterRequirement && masterRequirement.requiredExpansion && !Run.instance.IsExpansionEnabled(masterRequirement.requiredExpansion)) return false;
+
+            var master = masterPrefab.GetComponent<CharacterMaster>();
+            var bodyPrefab = master ? master.bodyPrefab : null;
+            var bodyRequirement = bodyPrefab ? bodyPrefab.GetComponent<RoR2.ExpansionManagement.ExpansionRequirementComponent>() : null;
+            if(bodyRequirement && bodyRequirement.requiredExpansion && !Run.instance.IsExpansionEnabled(bodyRequirement.requiredExpansion)) return false;
+
+            return true;
         }
     }
 }

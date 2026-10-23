@@ -45,7 +45,7 @@ namespace Aetherium.Effect
                 owner = body.gameObject;
                 position = body.corePosition;     
             }
-            else if(Target.GetComponent<TeleporterInteraction>())
+            else if(BuffBrazierFlameOrbController.IsZoneAnchor(Target))
             {
                 owner = Target;
             }
@@ -58,6 +58,12 @@ namespace Aetherium.Effect
                 // Registered with the owner in the controller's Start, on the server and every client alike.
                 visualController.Owner = owner;
                 visualController.ChosenBuffIndex = ChosenBuffIndex;
+
+                // Simulacrum waves never end the way a teleporter event does, so ward flames burn out after a few waves instead.
+                if(Run.instance is InfiniteTowerRun infiniteTowerRun && owner.GetComponent<InfiniteTowerSafeWardController>())
+                {
+                    visualController.ExpireAtWave = infiniteTowerRun.waveIndex + Mathf.Max(1, BuffBrazier.SimulacrumWavesPerFlame);
+                }
 
                 if(NetworkServer.active)
                 {

@@ -327,7 +327,8 @@ namespace Aetherium.Items.Tier2
         {
             if(NetworkServer.active && master && characterBody && master.IsDeadAndOutOfLivesServer())
             {
-                if(!characterBody.bodyFlags.HasFlag(CharacterBody.BodyFlags.Mechanical))
+                // Temporary summons (e.g. The Back-Up's drones) only expire once, so reviving them would make them permanent.
+                if(!characterBody.bodyFlags.HasFlag(CharacterBody.BodyFlags.Mechanical) || master.GetComponent<MasterSuicideOnTimer>())
                 {
                     orig(master, characterBody);
                     return;

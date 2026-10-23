@@ -29,6 +29,12 @@ namespace Aetherium.EliteEquipment
         public static ConfigOption<float> DamageMultiplierOfElite;
         public static ConfigOption<float> HealthMultiplierOfElite;
         public static ConfigOption<float> ForcedDurationBetweenPlayerBlinks;
+        public static ConfigOption<float> EliteHealthBoostCoefficient;
+        public static ConfigOption<float> EliteDamageBoostCoefficient;
+        public static ConfigOption<float> BleedDamageFraction;
+        public static ConfigOption<float> BleedMaxTickDamageFraction;
+        public static ConfigOption<float> BleedMaxDuration;
+        public static ConfigOption<int> BleedMaxStacks;
 
         public override string EliteEquipmentName => "Bloody Fealty";
 
@@ -55,9 +61,9 @@ namespace Aetherium.EliteEquipment
 
         public override float Cooldown => 2;
 
-        public override float HealthMultiplier => 2;
+        public override float HealthBoostCoefficient => EliteHealthBoostCoefficient;
 
-        public override float DamageMultiplier => 1.5f;
+        public override float DamageBoostCoefficient => EliteDamageBoostCoefficient;
 
         public override EliteTier EliteTierDef => (EliteTier)1;
         public override Color EliteColor => new Color(195, 33, 72, 255);
@@ -113,6 +119,12 @@ namespace Aetherium.EliteEquipment
             //DamageMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Damage Multiplier of Elite", 1f, "How many times higher than the base elite damage boost should the damage of this elite be?");
             //HealthMultiplierOfElite = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Health Multiplier of Elite", 2f, "How many times higher than the base elite health boost should the health of this elite be?");
             ForcedDurationBetweenPlayerBlinks = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Forced Cooldown Duration Between Player Blinks", 2f, "What should the duration of forced cooldown for the abyssal dash ability be for players?");
+            EliteHealthBoostCoefficient = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Elite Health Multiplier", 4f, "How many times more health should Sanguine elites have than the normal monster? (Vanilla tier 1 elites use 4.) Spawn cost comes from the vanilla tier 1 elite tier, so mods that change elite tiers also affect Sanguine elites.");
+            EliteDamageBoostCoefficient = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Elite Damage Multiplier", 2f, "How many times more damage should Sanguine elites deal than the normal monster? (Vanilla tier 1 elites use 2.)");
+            BleedDamageFraction = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Bleed Damage Fraction", 0.5f, "What fraction of each hit's damage should be dealt again as bleed? Scaled by the hit's proc coefficient. Only affects Sanguine monsters, players wearing the aspect keep the original bleed.");
+            BleedMaxTickDamageFraction = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Bleed Max Damage per Tick (Fraction of Max Health)", 0.005f, "What is the most a single bleed tick may deal, as a fraction of the victim's max health? Like Blazing elites' burn cap, this stops high damage monsters like Golems from bleeding you out with one hit. Set to 0 to disable the cap. Only affects Sanguine monsters.");
+            BleedMaxDuration = config.ActiveBind<float>("Elite Equipment: " + EliteEquipmentName, "Bleed Max Duration", 3f, "What is the longest (in seconds) a single bleed from a Sanguine hit may last? Set to 0 to disable the limit. Only affects Sanguine monsters.");
+            BleedMaxStacks = config.ActiveBind<int>("Elite Equipment: " + EliteEquipmentName, "Bleed Max Stacks per Attacker", 5, "How many bleed stacks can a single Sanguine monster keep on a victim at once?");
         }
 
         private void CreateEliteTiers()
@@ -1133,24 +1145,79 @@ namespace Aetherium.EliteEquipment
 
         private void BleedOnHit(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
-            if(damageInfo.attacker && !damageInfo.rejected)
+            if(damageInfo.attacker && victim && !damageInfo.rejected)
             {
                 var body = damageInfo.attacker.GetComponent<CharacterBody>();
                 if(body && body.inventory && (body.inventory.currentEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.inventory.alternateEquipmentIndex == EliteEquipmentDef.equipmentIndex || body.HasBuff(EliteBuffDef)))
                 {
-                    InflictDotInfo dotInfo = new InflictDotInfo()
+                    if(body.isPlayerControlled)
                     {
-                        attackerObject = damageInfo.attacker,
-                        victimObject = victim,
-                        totalDamage = damageInfo.damage * 0.5f,
-                        damageMultiplier = 1f,
-                        dotIndex = DotController.DotIndex.Bleed,
-                        maxStacksFromAttacker = 10
-                    };
-                    DotController.InflictDot(ref dotInfo);
+                        InflictPlayerAspectBleed(damageInfo, victim);
+                    }
+                    else
+                    {
+                        InflictSanguineBleed(body, damageInfo, victim);
+                    }
                 }
             }
             orig(self, damageInfo, victim);
+        }
+
+        /// <summary>
+        /// Players wearing the aspect keep the original, uncapped bleed. The bleed configs only tame Sanguine monsters.
+        /// </summary>
+        private void InflictPlayerAspectBleed(DamageInfo damageInfo, GameObject victim)
+        {
+            InflictDotInfo dotInfo = new InflictDotInfo()
+            {
+                attackerObject = damageInfo.attacker,
+                victimObject = victim,
+                totalDamage = damageInfo.damage * 0.5f,
+                damageMultiplier = 1f,
+                dotIndex = DotController.DotIndex.Bleed,
+                maxStacksFromAttacker = 10
+            };
+            DotController.InflictDot(ref dotInfo);
+        }
+
+        private void InflictSanguineBleed(CharacterBody attackerBody, DamageInfo damageInfo, GameObject victim)
+        {
+            if(damageInfo.procCoefficient <= 0) { return; }
+
+            float totalDamage = damageInfo.damage * BleedDamageFraction * damageInfo.procCoefficient;
+            if(totalDamage <= 0) { return; }
+
+            // Bleed ticks off the attacker's base damage, so a high damage monster bleeds far harder than its hit would suggest.
+            // Capping the tick (like Blazing's burn) and the duration keeps one hit from being a death sentence.
+            float damageMultiplier = 1f;
+            var dotDef = DotController.GetDotDef(DotController.DotIndex.Bleed);
+            var victimBody = victim.GetComponent<CharacterBody>();
+            if(dotDef != null && victimBody && victimBody.healthComponent)
+            {
+                float uncappedTickDamage = attackerBody.damage * dotDef.damageCoefficient;
+                if(BleedMaxTickDamageFraction > 0 && uncappedTickDamage > 0)
+                {
+                    float maxTickDamage = victimBody.healthComponent.fullCombinedHealth * BleedMaxTickDamageFraction;
+                    damageMultiplier = Mathf.Min(1f, maxTickDamage / uncappedTickDamage);
+                }
+
+                float tickDamage = Mathf.Max(1f, uncappedTickDamage * damageMultiplier);
+                if(BleedMaxDuration > 0 && dotDef.interval > 0)
+                {
+                    totalDamage = Mathf.Min(totalDamage, tickDamage * BleedMaxDuration / dotDef.interval);
+                }
+            }
+
+            InflictDotInfo dotInfo = new InflictDotInfo()
+            {
+                attackerObject = damageInfo.attacker,
+                victimObject = victim,
+                totalDamage = totalDamage,
+                damageMultiplier = damageMultiplier,
+                dotIndex = DotController.DotIndex.Bleed,
+                maxStacksFromAttacker = (uint)Mathf.Max(1, BleedMaxStacks)
+            };
+            DotController.InflictDot(ref dotInfo);
         }
 
         private void GiveSanguineController(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
@@ -1349,6 +1416,10 @@ namespace Aetherium.EliteEquipment
             public void FixedUpdate()
             {
                 if(Body && Body.isPlayerControlled) { Destroy(this); }
+
+                // Every machine has this controller, but only the one with authority over the body (the host for monsters) may dash it.
+                // Otherwise each client starts its own local dash with no destination, which shows up as dash spam in multiplayer.
+                if(!Body || !Body.hasEffectiveAuthority) { return; }
 
                 Stopwatch += Time.fixedDeltaTime;
                 DecrementOverdriveStacksOverTime();

@@ -22,6 +22,7 @@ namespace Aetherium.Interactables
     public class BuffBrazier : InteractableBase<BuffBrazier>
     {
         public ConfigOption<bool> EnableBuffCatalogSelection;
+        public static ConfigOption<int> SimulacrumWavesPerFlame;
 
         public override string InteractableName => "Buff Brazier";
 
@@ -29,7 +30,8 @@ namespace Aetherium.Interactables
 
         public override string InteractableLangToken => "BUFF_BRAZIER";
 
-        public override string InteractableInspectDesc => "Allows survivors to gain a temporary buff shown by the flame color and icon above once purchased, the buff only works during the Teleporter Event inside the Teleporter's radius.";
+        public override string InteractableInspectDesc => "Allows survivors to gain a temporary buff shown by the flame color and icon above once purchased, the buff only works during the Teleporter Event inside the Teleporter's radius. " +
+            $"In the Simulacrum, purchased flames are offered to the Void Crab's ward when the next wave starts and last {SimulacrumWavesPerFlame} wave(s) inside its radius.";
 
         public override GameObject InteractableModel => MainAssets.LoadAsset<GameObject>("BuffBrazier.prefab");
 
@@ -51,8 +53,12 @@ namespace Aetherium.Interactables
         [SyncVar]
         public static List<BrazierBuffCuratedType> CuratedBuffList = new List<BrazierBuffCuratedType>();
 
-        [SyncVar]
-        public static float interval;
+        /// <summary>
+        /// Buffs that some bodies must not get from a brazier, keyed by the activation state of one of the body's skills.
+        /// Brainstalks on the Junk Drone makes it drop temporary items nonstop.
+        /// </summary>
+        private static readonly Dictionary<BuffDef, HashSet<Type>> BuffSkillStateBlacklist = new Dictionary<BuffDef, HashSet<Type>>();
+        private static readonly Dictionary<(BodyIndex, BuffDef), bool> BlacklistCache = new Dictionary<(BodyIndex, BuffDef), bool>();
 
         public override void Init(ConfigFile config)
         {
@@ -68,6 +74,7 @@ namespace Aetherium.Interactables
         private void CreateConfig(ConfigFile config)
         {
             EnableBuffCatalogSelection = config.ActiveBind<bool>("Interactable: " + InteractableName, "Enable All BuffCatalog Entries for Flame Selection?", false, "If set to true, the Buff Brazier will select buffs from the entire buff catalog instead of the curated list.");
+            SimulacrumWavesPerFlame = config.ActiveBind<int>("Interactable: " + InteractableName, "Simulacrum: Waves per Flame", 2, "In the Simulacrum, flames are offered to the Void Crab's ward at the start of the next wave. How many waves should each flame's buff last inside the ward's radius?");
         }
 
         private void CreateEffect()
@@ -247,6 +254,67 @@ namespace Aetherium.Interactables
             On.RoR2.TeleporterInteraction.OnInteractionBegin += SpendFlame;
             On.RoR2.PurchaseInteraction.GetInteractability += StopInteractionIfRedundant;
             On.RoR2.Run.Start += CreateCuratedBuffList;
+            InfiniteTowerRun.onWaveInitialized += SpendFlamesOnSafeWard;
+            RoR2Application.onLoad += CreateBuffBlacklist;
+        }
+
+        private void CreateBuffBlacklist()
+        {
+            BuffSkillStateBlacklist[RoR2Content.Buffs.NoCooldowns] = new HashSet<Type>
+            {
+                typeof(EntityStates.Drone.DroneJunk.Surprise)
+            };
+        }
+
+        /// <summary>
+        /// Whether the brazier should withhold this buff from the body, see BuffSkillStateBlacklist.
+        /// </summary>
+        public static bool IsBuffBlacklistedForBody(CharacterBody body, BuffDef buffDef)
+        {
+            if(!body || !buffDef || !BuffSkillStateBlacklist.TryGetValue(buffDef, out var blacklistedStates)) { return false; }
+
+            var key = (body.bodyIndex, buffDef);
+            if(BlacklistCache.TryGetValue(key, out var cached)) { return cached; }
+
+            bool blacklisted = false;
+            if(body.skillLocator)
+            {
+                foreach(var skill in body.skillLocator.allSkills)
+                {
+                    var stateType = skill && skill.skillDef ? skill.skillDef.activationState.stateType : null;
+                    if(stateType != null && blacklistedStates.Contains(stateType))
+                    {
+                        blacklisted = true;
+                        break;
+                    }
+                }
+            }
+
+            BlacklistCache[key] = blacklisted;
+            return blacklisted;
+        }
+
+        /// <summary>
+        /// The Simulacrum has no teleporter event, so players' flames go to the Void Crab's ward when a wave starts.
+        /// </summary>
+        private void SpendFlamesOnSafeWard(InfiniteTowerWaveController waveController)
+        {
+            if(!NetworkServer.active) return;
+
+            var run = Run.instance as InfiniteTowerRun;
+            if(!run || !run.safeWardController) return;
+
+            foreach(var playerController in PlayerCharacterMasterController.instances)
+            {
+                var master = playerController ? playerController.master : null;
+                if(!master) continue;
+
+                var flameOrbController = master.GetComponent<BuffBrazierFlameOrbController>();
+                if(flameOrbController && flameOrbController.FlameOrbs.Count > 0)
+                {
+                    flameOrbController.StartCoroutine(flameOrbController.StaggerDeploymentToZone(run.safeWardController.gameObject, 0.3f));
+                }
+            }
         }
 
         private void CreateCuratedBuffList(On.RoR2.Run.orig_Start orig, Run self)
@@ -302,7 +370,7 @@ namespace Aetherium.Interactables
                     var flameOrbController = body.master.GetComponent<BuffBrazierFlameOrbController>();
                     if(flameOrbController)
                     {
-                        flameOrbController.StartCoroutine(flameOrbController.StaggerDeploymentToTeleporter(self.gameObject, 0.3f));
+                        flameOrbController.StartCoroutine(flameOrbController.StaggerDeploymentToZone(self.gameObject, 0.3f));
                     }
                 }
             }
@@ -528,6 +596,11 @@ namespace Aetherium.Interactables
         [SyncVar]
         public int ChosenBuffIndex = -1;
 
+        /// <summary>
+        /// Server only. Simulacrum wave index at which this flame burns out, -1 if it doesn't.
+        /// </summary>
+        public int ExpireAtWave = -1;
+
         private bool _registered;
 
         public void Start()
@@ -542,7 +615,6 @@ namespace Aetherium.Interactables
             _registered = true;
 
             var body = Owner.GetComponent<CharacterBody>();
-            var teleporter = Owner.GetComponent<TeleporterInteraction>();
 
             BuffBrazierFlameOrbController flameController = null;
 
@@ -551,7 +623,7 @@ namespace Aetherium.Interactables
                 flameController = body.master.GetComponent<BuffBrazierFlameOrbController>();
                 if(!flameController) flameController = body.master.gameObject.AddComponent<BuffBrazierFlameOrbController>();
             }
-            else if(teleporter)
+            else if(BuffBrazierFlameOrbController.IsZoneAnchor(Owner))
             {
                 flameController = Owner.GetComponent<BuffBrazierFlameOrbController>();
                 if(!flameController) flameController = Owner.AddComponent<BuffBrazierFlameOrbController>();
@@ -571,11 +643,23 @@ namespace Aetherium.Interactables
         public List<BrazierBuffFlameOrbType> FlameOrbs = new List<BrazierBuffFlameOrbType>();
 
         public float CircleOffset;
+
+        /// <summary>
+        /// True when this holds the flames offered to a zone (teleporter or Simulacrum ward) rather than a player's flames.
+        /// </summary>
         public bool IsTeleporter;
+
+        /// <summary>
+        /// Objects whose zone flames can be offered to: the teleporter, or the Void Crab's ward in the Simulacrum.
+        /// </summary>
+        public static bool IsZoneAnchor(GameObject gameObject)
+        {
+            return gameObject && (gameObject.GetComponent<TeleporterInteraction>() || gameObject.GetComponent<InfiniteTowerSafeWardController>());
+        }
 
         public void Start()
         {
-            IsTeleporter = gameObject.GetComponent<TeleporterInteraction>();
+            IsTeleporter = IsZoneAnchor(gameObject);
             if(!IsTeleporter)
             {
                 CharacterMaster = gameObject.GetComponent<CharacterMaster>();
@@ -600,6 +684,18 @@ namespace Aetherium.Interactables
             for (int i = FlameOrbs.Count - 1; i >= 0; i--)
             {
                 if(FlameOrbs[i].FlameOrbObject == null) FlameOrbs.RemoveAt(i);
+            }
+
+            if(IsTeleporter && NetworkServer.active && Run.instance is InfiniteTowerRun infiniteTowerRun)
+            {
+                foreach(var flameOrb in FlameOrbs)
+                {
+                    var orbController = flameOrb.FlameOrbObject.GetComponent<BuffBrazierOrbitVisualAndNetworkController>();
+                    if(orbController && orbController.ExpireAtWave >= 0 && infiniteTowerRun.waveIndex >= orbController.ExpireAtWave)
+                    {
+                        NetworkServer.Destroy(flameOrb.FlameOrbObject);
+                    }
+                }
             }
 
             if(!IsTeleporter)
@@ -646,33 +742,35 @@ namespace Aetherium.Interactables
             }
         }
 
-        public IEnumerator StaggerDeploymentToTeleporter(GameObject teleporterObject, float delayBetweenConsumption)
+        public IEnumerator StaggerDeploymentToZone(GameObject zoneObject, float delayBetweenConsumption)
         {
-            var holdoutZoneController = teleporterObject.GetComponent<HoldoutZoneController>();
-            var teleporterInteraction = teleporterObject.GetComponent<TeleporterInteraction>();
+            if(!IsZoneAnchor(zoneObject)) yield break;
 
-            if(!holdoutZoneController || !teleporterInteraction) yield break;
-
-            while (FlameOrbs.Count > 0)
+            while (FlameOrbs.Count > 0 && zoneObject)
             {
                 var chosenOrb = FlameOrbs.Last();
+                FlameOrbs.RemoveAt(FlameOrbs.Count - 1);
+                if(!chosenOrb.FlameOrbObject) continue;
+
                 var orb = new Effect.BuffBrazierFlameOrb()
                 {
                     ChosenBuffIndex = (int)chosenOrb.CuratedType.BuffDef.buffIndex,
-                    Target = teleporterObject,
+                    Target = zoneObject,
                     origin = chosenOrb.FlameOrbObject.transform.position,
                 };
                 OrbManager.instance.AddOrb(orb);
 
                 if(NetworkServer.active) NetworkServer.Destroy(chosenOrb.FlameOrbObject);
 
-                FlameOrbs.RemoveAt(FlameOrbs.Count - 1);
                 yield return new WaitForSeconds(delayBetweenConsumption);
             }
 
-            var fieldPrefab = Instantiate(BrazierFieldEffectPrefab, teleporterObject.transform.position, Util.QuaternionSafeLookRotation(Vector3.down));
+            // One field per zone, every player's flames feed the same one.
+            if(!zoneObject || BuffBrazierFieldController.ExistsFor(zoneObject)) yield break;
+
+            var fieldPrefab = Instantiate(BrazierFieldEffectPrefab, zoneObject.transform.position, Util.QuaternionSafeLookRotation(Vector3.down));
             var fieldController = fieldPrefab.GetComponent<BuffBrazierFieldController>();
-            fieldController.Teleporter = teleporterObject;
+            fieldController.Teleporter = zoneObject;
 
             if(NetworkServer.active) NetworkServer.Spawn(fieldPrefab);
         }
@@ -680,6 +778,11 @@ namespace Aetherium.Interactables
 
     public class BuffBrazierFieldController : NetworkBehaviour
     {
+        private static readonly List<BuffBrazierFieldController> Instances = new List<BuffBrazierFieldController>();
+
+        /// <summary>
+        /// The zone this field covers: the teleporter, or the Void Crab's ward in the Simulacrum.
+        /// </summary>
         [SyncVar]
         public GameObject Teleporter;
 
@@ -688,6 +791,7 @@ namespace Aetherium.Interactables
         public BuffBrazierFlameOrbController FlameOrbController;
         public TeleporterInteraction TeleporterInteraction;
         public HoldoutZoneController HoldoutZoneController;
+        public VerticalTubeZone SafeWardZone;
 
         public GameObject Activator;
         private CharacterMaster ActivatorMaster;
@@ -699,45 +803,93 @@ namespace Aetherium.Interactables
         public int CurrentColorIndex = 0;
         public Color CurrentColor;
 
+        private float buffInterval;
+
+        public static bool ExistsFor(GameObject zoneObject)
+        {
+            return Instances.Any(x => x && x.Teleporter == zoneObject);
+        }
+
+        public void OnEnable()
+        {
+            Instances.Add(this);
+        }
+
+        public void OnDisable()
+        {
+            Instances.Remove(this);
+        }
+
         public void Start()
         {
             Renderer = gameObject.GetComponent<Renderer>();
+            FindZoneComponents();
+        }
 
-            var teleporterInteraction = Teleporter.GetComponent<TeleporterInteraction>();
-            var holdoutZone = Teleporter.GetComponent<HoldoutZoneController>();
-            if(teleporterInteraction && holdoutZone)
+        private void FindZoneComponents()
+        {
+            if(!Teleporter) return;
+
+            if(!HoldoutZoneController && !SafeWardZone)
             {
-                HoldoutZoneController = holdoutZone;
-                TeleporterInteraction = teleporterInteraction;
-                Activator = teleporterInteraction.chargeActivatorServer;
-                if(Activator)
+                var teleporterInteraction = Teleporter.GetComponent<TeleporterInteraction>();
+                var holdoutZone = Teleporter.GetComponent<HoldoutZoneController>();
+                if(teleporterInteraction && holdoutZone)
                 {
-                    var body = Activator.GetComponent<CharacterBody>();
-                    if(body && body.master)
+                    HoldoutZoneController = holdoutZone;
+                    TeleporterInteraction = teleporterInteraction;
+                    Activator = teleporterInteraction.chargeActivatorServer;
+                    if(Activator)
                     {
-                        ActivatorMaster = body.master;
+                        var body = Activator.GetComponent<CharacterBody>();
+                        if(body && body.master)
+                        {
+                            ActivatorMaster = body.master;
+                        }
                     }
                 }
+                else if(Teleporter.GetComponent<InfiniteTowerSafeWardController>())
+                {
+                    SafeWardZone = Teleporter.GetComponent<VerticalTubeZone>();
+                }
+            }
+
+            if(!FlameOrbController)
+            {
                 FlameOrbController = Teleporter.GetComponent<BuffBrazierFlameOrbController>();
+            }
+        }
+
+        private float CurrentRadius
+        {
+            get
+            {
+                if(HoldoutZoneController) return HoldoutZoneController.currentRadius;
+                if(SafeWardZone) return SafeWardZone.radius;
+                return 0;
             }
         }
 
         public void FixedUpdate()
         {
+            if(NetworkServer.active && !Teleporter)
+            {
+                // The ward is gone (stage transition), so is this field.
+                NetworkServer.Destroy(gameObject);
+                return;
+            }
+
             if(Teleporter && LastTeleporter != Teleporter)
             {
                 LastTeleporter = Teleporter;
                 Renderer = gameObject.GetComponent<Renderer>();
             }
 
-            if(Teleporter && !HoldoutZoneController)
-            {
-                HoldoutZoneController = Teleporter.GetComponent<HoldoutZoneController>();
-            }
+            FindZoneComponents();
 
-            if(Teleporter && !FlameOrbController)
+            if(Teleporter && SafeWardZone)
             {
-                FlameOrbController = Teleporter.GetComponent<BuffBrazierFlameOrbController>();
+                gameObject.transform.position = Teleporter.transform.position;
             }
 
             if(FlameOrbController && FlameOrbController.FlameOrbs.Count > 0)
@@ -749,31 +901,37 @@ namespace Aetherium.Interactables
                     {
                         Colors.Add(brazierBuffFlameOrbType.CuratedType.FlameColor);
                     }
+                    CurrentColorIndex = 0;
+                    Stopwatch = 0;
                 }
             }
 
-            interval -= Time.fixedDeltaTime;
-            if(interval <= 0f && NetworkServer.active && HoldoutZoneController && HoldoutZoneController.currentRadius > 0 && ActivatorMaster && FlameOrbController)
+            buffInterval -= Time.fixedDeltaTime;
+            var radius = CurrentRadius;
+            if(buffInterval <= 0f && NetworkServer.active && radius > 0 && (ActivatorMaster || SafeWardZone) && FlameOrbController && FlameOrbController.FlameOrbs.Count > 0)
             {
-                interval = 0.2f;
-                RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(ActivatorMaster.teamIndex);
+                buffInterval = 0.2f;
+                RoR2.TeamMask enemyTeams = RoR2.TeamMask.GetEnemyTeams(ActivatorMaster ? ActivatorMaster.teamIndex : TeamIndex.Player);
                 RoR2.HurtBox[] hurtBoxes = new RoR2.SphereSearch
                 {
-                    radius = HoldoutZoneController.currentRadius,
+                    radius = radius,
                     mask = RoR2.LayerIndex.entityPrecise.mask,
                     origin = gameObject.transform.position
                 }.RefreshCandidates().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
 
                 foreach (HurtBox hurtBox in hurtBoxes)
                 {
-                    if(hurtBox.healthComponent && hurtBox.healthComponent.body && hurtBox.healthComponent.body.teamComponent)
+                    var body = hurtBox.healthComponent ? hurtBox.healthComponent.body : null;
+                    if(!body || !body.teamComponent) continue;
+
+                    // The ward's zone is a vertical tube, the sphere search only narrows it down.
+                    if(SafeWardZone && !SafeWardZone.IsInBounds(body.corePosition)) continue;
+
+                    foreach (BrazierBuffFlameOrbType flameOrbType in FlameOrbController.FlameOrbs.Where(x => x.CuratedType.BuffDef))
                     {
-                        foreach (BrazierBuffFlameOrbType flameOrbType in FlameOrbController.FlameOrbs.Where(x => x.CuratedType.BuffDef))
+                        if(flameOrbType.CuratedType.IsDebuff == enemyTeams.HasTeam(body.teamComponent.teamIndex) && !BuffBrazier.IsBuffBlacklistedForBody(body, flameOrbType.CuratedType.BuffDef))
                         {
-                            if(hurtBox.healthComponent.body.teamComponent && (flameOrbType.CuratedType.IsDebuff == enemyTeams.HasTeam(hurtBox.healthComponent.body.teamComponent.teamIndex)))
-                            {
-                                hurtBox.healthComponent.body.AddTimedBuff(flameOrbType.CuratedType.BuffDef, 1);
-                            }
+                            body.AddTimedBuff(flameOrbType.CuratedType.BuffDef, 1);
                         }
                     }
                 }
@@ -782,9 +940,16 @@ namespace Aetherium.Interactables
 
         public void Update()
         {
-            if(HoldoutZoneController && gameObject.transform.localScale.magnitude != HoldoutZoneController.currentRadius)
+            if(Renderer)
             {
-                gameObject.transform.localScale = new Vector3(HoldoutZoneController.currentRadius, HoldoutZoneController.currentRadius, HoldoutZoneController.currentRadius);
+                // A Simulacrum field outlives its flames until the ward goes away, hide it while it has none.
+                Renderer.enabled = !FlameOrbController || FlameOrbController.FlameOrbs.Count > 0;
+            }
+
+            var radius = CurrentRadius;
+            if((HoldoutZoneController || SafeWardZone) && gameObject.transform.localScale.magnitude != radius)
+            {
+                gameObject.transform.localScale = new Vector3(radius, radius, radius);
 
                 if(Renderer)
                 {
