@@ -4,6 +4,7 @@
 #undef DEBUGHELPERS
 
 using Aetherium.Artifacts;
+using Aetherium.Compatability;
 using Aetherium.StandaloneBuffs;
 using Aetherium.CoreModules;
 using Aetherium.Equipment;
@@ -32,12 +33,13 @@ namespace Aetherium
 {
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [BepInDependency("com.bepis.r2api")]
+    [BepInDependency(LookingGlassCompat.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class AetheriumPlugin : BaseUnityPlugin
     {
         public const string ModGuid = "com.KomradeSpectre.Aetherium";
         public const string ModName = "Aetherium";
-        public const string ModVer = "0.9.22";
+        public const string ModVer = "0.9.23";
 
         public static AetheriumPlugin Instance;
 
@@ -290,6 +292,13 @@ namespace Aetherium
                     interactable.Init(Config);
                     ModLogger.LogInfo("Interactable: " + interactable.InteractableName + " Initialized!");
                 }
+            }
+
+            var enableLookingGlassCompat = Config.Bind<bool>("Mod Compatability: LookingGlass", "Enable Compatability Patches?", true, "Add item stats to LookingGlass (if installed)?").Value;
+            if(LookingGlassCompat.IsLookingGlassInstalled && enableLookingGlassCompat)
+            {
+                ModLogger.LogInfo("LookingGlass recognized, adding item stats.");
+                LookingGlassCompat.Init();
             }
 
             ModLogger.LogInfo("-----------------------------------------------");

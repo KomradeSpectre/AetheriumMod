@@ -132,6 +132,13 @@
   <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="LookingGlass">
+      <HintPath>libs\LookingGlass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
   <PropertyGroup>
     <ProfileName Condition="'$(ProfileName)' == ''">Current</ProfileName>
     <ProfileDeployDir>$(APPDATA)\r2modmanPlus-local\RiskOfRain2\profiles\$(ProfileName)\BepInEx\plugins\KomradeSpectre-Aetherium</ProfileDeployDir>
